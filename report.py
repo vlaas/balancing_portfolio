@@ -161,7 +161,7 @@ def _drawdown_curve(twr_frame: pl.DataFrame) -> pl.DataFrame:
 
 def save_charts(results: list[StrategyResult], out_dir: Path) -> None:
     """Write equity.png, drawdown.png and rolling_sharpe.png into `out_dir`."""
-    out_dir.mkdir(exist_ok=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
 
     fig, ax = _axes("Account value, identical cash flows", "USD")
     for r, color in zip(results, COLORS):

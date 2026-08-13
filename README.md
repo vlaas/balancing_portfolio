@@ -79,7 +79,8 @@ Output form:
 - A printed summary table in the console (all strategies and the SPY benchmark side by
   side).
 - Saved charts: equity curve, drawdown curve, 12-month rolling Sharpe — each showing all
-  strategies and the benchmark.
+  strategies and the benchmark. Output directory selectable with `--charts`
+  (default `charts/`); the Markdown report's image links follow it.
 - Optionally (`--md` flag) a Markdown report file with the summary table, drawdown
   tables, correlations, and the charts embedded via relative links.
 - Optionally (`--tx` flag) a Markdown transaction log: every deposit, buy and sell per

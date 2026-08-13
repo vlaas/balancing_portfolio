@@ -33,6 +33,12 @@ def main() -> None:
         help="also write a Markdown report (default path: report.md)",
     )
     parser.add_argument(
+        "--charts",
+        type=Path,
+        default=Path("charts"),
+        help="directory for the chart PNGs (default: charts)",
+    )
+    parser.add_argument(
         "--tx",
         nargs="?",
         const=Path("transactions.md"),
@@ -71,7 +77,7 @@ def main() -> None:
 
     print_report(results, correlations)
 
-    out_dir = Path("charts")
+    out_dir = args.charts
     save_charts(results, out_dir)
     print(f"\nSaved {out_dir}/equity.png, {out_dir}/drawdown.png, {out_dir}/rolling_sharpe.png")
 
