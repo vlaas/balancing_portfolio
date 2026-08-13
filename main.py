@@ -48,12 +48,13 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    prices = load_prices(Path("data"), ["TQQQ", "BTAL", "SPY"], dt.date(2017, 1, 3))
+    start = dt.date(2017, 1, 3)
+    prices = load_prices(Path("data"), ["TQQQ", "BTAL", "SPY"], start)
 
     results = []
     for label, weights in STRATEGIES:
         cfg = Config(
-            start=dt.date(2017, 1, 3),
+            start=start,
             initial_capital=10_000,
             monthly_contribution=500,
             weights=weights,
