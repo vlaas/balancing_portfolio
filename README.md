@@ -80,6 +80,8 @@ Output form:
   side).
 - Saved charts: equity curve, drawdown curve, 12-month rolling Sharpe — each showing all
   strategies and the benchmark.
+- Optionally (`--md` flag) a Markdown report file with the summary table, drawdown
+  tables, correlations, and the charts embedded via relative links.
 
 # Comparison to SP500
 

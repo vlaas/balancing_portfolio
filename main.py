@@ -1,10 +1,11 @@
 """Run each strategy plus the SPY benchmark and report them side by side."""
 
+import argparse
 import datetime as dt
 from pathlib import Path
 
 from prices import load_prices
-from report import StrategyResult, print_report, save_charts
+from report import StrategyResult, print_report, save_charts, save_markdown
 from simulate import Config, simulate
 from stats import correlation, rolling_sharpe, summary, top_drawdowns, twr
 
@@ -16,6 +17,17 @@ STRATEGIES = [
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--md",
+        nargs="?",
+        const=Path("report.md"),
+        default=None,
+        type=Path,
+        help="also write a Markdown report (default path: report.md)",
+    )
+    args = parser.parse_args()
+
     prices = load_prices(Path("data"), ["TQQQ", "BTAL", "SPY"], dt.date(2017, 1, 3))
 
     results = []
@@ -47,6 +59,10 @@ def main() -> None:
     out_dir = Path("charts")
     save_charts(results, out_dir)
     print(f"\nSaved {out_dir}/equity.png, {out_dir}/drawdown.png, {out_dir}/rolling_sharpe.png")
+
+    if args.md:
+        save_markdown(results, correlations, args.md, out_dir)
+        print(f"Saved {args.md}")
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 """Console summary table and charts comparing the strategies side by side."""
 
+import os
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -178,3 +179,57 @@ def save_charts(results: list[StrategyResult], out_dir: Path) -> None:
     for r, color in zip(results, COLORS):
         _plot(ax, r.roll, "sharpe", r.label, color)
     _save(fig, ax, out_dir / "rolling_sharpe.png")
+
+
+def save_markdown(
+    results: list[StrategyResult],
+    correlations: list[tuple[str, float]],
+    out_path: Path,
+    charts_dir: Path,
+) -> None:
+    """Write the full report as Markdown, linking the charts relatively."""
+    first, last = results[0].curve["date"][0], results[0].curve["date"][-1]
+    lines = [
+        "# Portfolio strategy comparison",
+        "",
+        f"Simulated {first.isoformat()} to {last.isoformat()}.",
+        "",
+        "| | " + " | ".join(r.label for r in results) + " |",
+        "|---" + "|---:" * len(results) + "|",
+    ]
+    for label, key, fmt in METRICS:
+        lines.append(
+            f"| {label} | " + " | ".join(fmt(r.stats[key]) for r in results) + " |"
+        )
+
+    for name, title in [
+        ("equity.png", "Account value"),
+        ("drawdown.png", "Drawdown"),
+        ("rolling_sharpe.png", "Rolling Sharpe"),
+    ]:
+        rel = os.path.relpath(charts_dir / name, out_path.parent)
+        lines += ["", f"## {title}", "", f"![{title}]({rel})"]
+
+    for r in results:
+        lines += [
+            "",
+            f"## Top drawdowns — {r.label}",
+            "",
+            "| Peak | Trough | Recovery | Depth | Days |",
+            "|---|---|---|---:|---:|",
+        ]
+        for dd in r.drawdowns:
+            recovery = "ongoing" if dd.recovery is None else dd.recovery.isoformat()
+            days = "-" if dd.days is None else f"{dd.days:,}"
+            lines.append(
+                f"| {dd.peak.isoformat()} | {dd.trough.isoformat()} | {recovery} "
+                f"| {dd.depth:.2%} | {days} |"
+            )
+
+    lines.append("")
+    for label, corr in correlations:
+        lines.append(f"- Daily-return correlation, {label} to SPY benchmark: {corr:.2f}")
+    lines.append("")
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text("\n".join(lines))
