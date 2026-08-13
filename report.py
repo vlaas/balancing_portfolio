@@ -79,6 +79,7 @@ class StrategyResult:
     roll: pl.DataFrame
     stats: dict
     drawdowns: list[Drawdown]
+    trades: pl.DataFrame
 
 
 def _print_drawdowns(title: str, drawdowns: list[Drawdown]) -> None:
@@ -231,5 +232,32 @@ def save_markdown(
         lines.append(f"- Daily-return correlation, {label} to SPY benchmark: {corr:.2f}")
     lines.append("")
 
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text("\n".join(lines))
+
+
+def save_transactions(results: list[StrategyResult], out_path: Path) -> None:
+    """Write every strategy's DEPOSIT/BUY/SELL ledger as one Markdown file."""
+    lines = ["# Transaction log"]
+    for r in results:
+        ledger = r.trades.join(r.curve.select("date", "value"), on="date", how="left")
+        lines += [
+            "",
+            f"## {r.label}",
+            "",
+            "| Date | Action | Asset | Shares | Price | Amount | Cash after | Portfolio value |",
+            "|---|---|---|---:|---:|---:|---:|---:|",
+        ]
+        for t in ledger.iter_rows(named=True):
+            asset = t["asset"] or ""
+            shares = "" if t["shares"] is None else f"{t['shares']:,}"
+            price = "" if t["price"] is None else _money(t["price"])
+            lines.append(
+                f"| {t['date'].isoformat()} | {t['action']} | {asset} | {shares} "
+                f"| {price} | {_money(t['amount'])} | {_money(t['cash_after'])} "
+                f"| {_money(t['value'])} |"
+            )
+
+    lines.append("")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text("\n".join(lines))

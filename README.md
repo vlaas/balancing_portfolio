@@ -82,6 +82,8 @@ Output form:
   strategies and the benchmark.
 - Optionally (`--md` flag) a Markdown report file with the summary table, drawdown
   tables, correlations, and the charts embedded via relative links.
+- Optionally (`--tx` flag) a Markdown transaction log: every deposit, buy and sell per
+  strategy with date, shares, price, amount, cash after, and that day's portfolio value.
 
 # Comparison to SP500
 

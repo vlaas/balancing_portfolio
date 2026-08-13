@@ -5,7 +5,13 @@ import datetime as dt
 from pathlib import Path
 
 from prices import load_prices
-from report import StrategyResult, print_report, save_charts, save_markdown
+from report import (
+    StrategyResult,
+    print_report,
+    save_charts,
+    save_markdown,
+    save_transactions,
+)
 from simulate import Config, simulate
 from stats import correlation, rolling_sharpe, summary, top_drawdowns, twr
 
@@ -26,6 +32,14 @@ def main() -> None:
         type=Path,
         help="also write a Markdown report (default path: report.md)",
     )
+    parser.add_argument(
+        "--tx",
+        nargs="?",
+        const=Path("transactions.md"),
+        default=None,
+        type=Path,
+        help="also write a Markdown transaction log (default path: transactions.md)",
+    )
     args = parser.parse_args()
 
     prices = load_prices(Path("data"), ["TQQQ", "BTAL", "SPY"], dt.date(2017, 1, 3))
@@ -38,7 +52,7 @@ def main() -> None:
             monthly_contribution=500,
             weights=weights,
         )
-        curve = simulate(prices, cfg)
+        curve, trades = simulate(prices, cfg)
         twr_frame = twr(curve)
         results.append(
             StrategyResult(
@@ -48,6 +62,7 @@ def main() -> None:
                 roll=rolling_sharpe(twr_frame),
                 stats=summary(curve, twr_frame),
                 drawdowns=top_drawdowns(twr_frame),
+                trades=trades,
             )
         )
 
@@ -63,6 +78,10 @@ def main() -> None:
     if args.md:
         save_markdown(results, correlations, args.md, out_dir)
         print(f"Saved {args.md}")
+
+    if args.tx:
+        save_transactions(results, args.tx)
+        print(f"Saved {args.tx}")
 
 
 if __name__ == "__main__":
