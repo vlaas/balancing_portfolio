@@ -21,15 +21,15 @@ Simulated 2017-01-03 to 2026-08-13.
 
 ## Account value
 
-![Account value](../charts/equity.png)
+![Account value](charts/TQQQ_BTAL_5050_500/equity.png)
 
 ## Drawdown
 
-![Drawdown](../charts/drawdown.png)
+![Drawdown](charts/TQQQ_BTAL_5050_500/drawdown.png)
 
 ## Rolling Sharpe
 
-![Rolling Sharpe](../charts/rolling_sharpe.png)
+![Rolling Sharpe](charts/TQQQ_BTAL_5050_500/rolling_sharpe.png)
 
 ## Top drawdowns — TQQQ/BTAL 50/50
 
