@@ -8,8 +8,10 @@ cash flows.
 # Rules
 
 - Strategies are classes in `strategies/`, one file each, extending `Strategy` from
-  `strategy.py` and listed in `STRATEGIES` in `main.py`. Every strategy is simulated
-  independently with identical cash flows and reported side by side.
+  `strategy.py` and combined into named bundles in `bundles.py`. The bundle to run is
+  selected at run time (`uv run main.py [bundle]`, default `default`). Every strategy in
+  the bundle is simulated independently with identical cash flows and reported side by
+  side.
 - A strategy declares `label`, `weights` (traded assets → target fraction of portfolio
   value) and optionally `data` (extra symbols its hooks read but never trade), and may
   override two hooks, each receiving a `MarketDay` view of the day's data
@@ -21,7 +23,8 @@ cash flows.
     A gated asset is never bought (natural rebalance sells still execute); its budget is
     redistributed across the non-gated assets in proportion to their weights. If every
     asset is gated, the contribution stays in cash.
-- Configuration defines the start date, initial capital, and monthly added capital.
+- Each bundle defines its configuration: the start date, initial capital, and monthly
+  added capital.
 - Only integer amounts of shares can be bought or sold — no fractional shares. Perfect
   balance therefore cannot be achieved; the simulator gets as close as integer shares allow.
 - All trades execute at the **close price** of the trade day.
@@ -118,9 +121,14 @@ The program is written in Python.
 # Configuration
 
 Shared settings (start date, initial capital, monthly contribution) are a `Config`
-dataclass in `main.py`; per-strategy behavior lives in the strategy classes.
+dataclass defined in `simulate.py`. A bundle in `bundles.py` pairs a list of strategies
+with its own `Config`; select one with `uv run main.py [bundle]` (default: `default`).
+Put the bundle name before the flags — `--md` and `--tx` take an optional path and would
+otherwise consume the name. Per-strategy behavior lives in the strategy classes.
 
 # Initial configuration
+
+The `default` bundle's settings:
 
 - Start date: 2017-01-03
 - Starting capital: USD 10,000

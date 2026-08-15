@@ -20,17 +20,20 @@ class MyMix(Strategy):
     weights = {"SPY": 1 / 3, "TQQQ": 1 / 3, "BTAL": 1 / 3}
 ```
 
-Register it in `main.py` by importing it and adding an instance to
-`STRATEGIES`. Keep `SpyBenchmark()` last — the last entry is the reference for
-the correlation statistics. Run `uv run main.py` and your strategy appears as a
-new column in the table and a new line in every chart — but note that `COLORS`
+Register it in `bundles.py` by importing it and adding an instance to a
+bundle's strategy list (the `default` bundle, or a new `BUNDLES` entry). Keep
+`SpyBenchmark()` last in every bundle — the last entry is the reference for
+the correlation statistics. Run `uv run main.py [bundle]` and your strategy
+appears as a new column in the table and a new line in every chart — but note
+that `COLORS`
 in `report.py` has exactly as many entries as shipped strategies (four), so
 adding a strategy also means adding a chart color there, or the charts silently
 drop it (see Pitfalls).
 
 Requirements: every symbol in `weights` needs a `data/<SYM>.csv`, with price
-history starting no later than the simulation start date (`start` in
-`main.py`). The start date itself must be an actual trading day.
+history starting no later than the simulation start date (the bundle's
+`Config.start` in `bundles.py`). The start date itself must be an actual
+trading day.
 
 ## The two hooks
 
@@ -193,7 +196,9 @@ force sells, and `allow_buy()` for "stop adding, don't dump" conditions.
 
 ## Verifying a new strategy
 
-1. `uv run main.py --tx` — read your strategy's section in `transactions.md`:
+1. `uv run main.py --tx` (a non-default bundle name goes first:
+   `uv run main.py <bundle> --tx`, or `--tx` would consume it as a path) — read
+   your strategy's section in `transactions.md`:
    the BALANCE row after each rebalance shows actual/target percents per asset
    and for cash, and every BUY/SELL is listed with its price and running cash.
 2. Check the misallocation column and `charts/imbalance.png` — spikes should

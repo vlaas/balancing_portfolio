@@ -10,8 +10,8 @@ document explains how the code is built and why.
 Guiding principle (from `CLAUDE.md`): minimum code that solves the problem. Flat
 modules instead of a package hierarchy, plain dataclasses and Polars frames
 instead of a domain model, assertions instead of error handling for states the
-program itself must never produce. The program is a script (`uv run main.py`),
-not a library.
+program itself must never produce. The program is a script
+(`uv run main.py [bundle]`), not a library.
 
 ## Data flow
 
@@ -20,7 +20,8 @@ flowchart LR
     CSV["data/*.csv<br/>(OHLC + indicators)"] --> P["prices.py<br/>load_prices()"]
     P --> W["one wide frame<br/>date | SYM… | SYM:COL… | is_rebalance_day"]
     W --> E["simulate.py<br/>simulate() — once per strategy"]
-    S["strategies/*.py<br/>Strategy subclasses"] --> E
+    S["strategies/*.py<br/>Strategy subclasses"] --> B["bundles.py<br/>named bundles:<br/>strategies + Config"]
+    B --> E
     E --> C["curve<br/>date|value|flow"]
     E --> T["trades<br/>DEPOSIT/BUY/SELL"]
     E --> A["allocations<br/>target vs actual"]
@@ -30,9 +31,11 @@ flowchart LR
     T --> R
 ```
 
-`main.py` wires the pipeline: it collects which symbols the strategy list trades
-and which it merely reads, loads one shared prices frame, runs the engine once
-per strategy, and hands a list of per-strategy results to the report layer.
+`main.py` wires the pipeline: it looks up the bundle named on the command line
+(default `default`), collects which symbols the bundle's strategies trade and
+which they merely read, loads one shared prices frame, runs the engine once per
+strategy under the bundle's `Config`, and hands a list of per-strategy results
+to the report layer.
 
 ## prices.py — one wide frame per run
 
@@ -116,8 +119,8 @@ Reasons:
 `simulate(prices, strategy, config) -> (curve, trades, allocations)` is a plain
 Python loop over the frame's rows. A loop, not vectorized Polars: the state
 (integer share counts, cash) is inherently sequential, and clarity wins at
-~2,400 iterations. `Config` carries only what is shared by all strategies:
-`start`, `initial_capital`, `monthly_contribution`.
+~2,400 iterations. `Config` carries only what is shared by all strategies in a
+bundle: `start`, `initial_capital`, `monthly_contribution`.
 
 The same engine runs the SPY benchmark: with `weights={"SPY": 1.0}` the target
 math `floor((s·c + cash)·1.0/c) = s + floor(cash/c)` degenerates exactly to
@@ -210,13 +213,21 @@ strategy and the report layer never recomputes anything.
 - Markdown image links are computed relative to the report's own location, so
   `--md` and `--charts` may point anywhere independently.
 
+## bundles.py — strategy bundles
+
+A `Bundle` is a frozen dataclass pairing a list of strategy *instances* with
+the `Config` they run under; `BUNDLES` maps CLI names to bundles. In every
+bundle the SPY benchmark sits last and is the reference for the correlation
+lines. One bundle ships: `default`.
+
 ## main.py — wiring
 
-`STRATEGIES` is a list of strategy *instances*; the SPY benchmark sits last and
-is the reference for the correlation lines. The traded-symbol set (union of all
-`weights` keys) and the extra-data set (union of `data`, minus traded) are
-collected from the list, so adding a strategy that trades a new symbol just
-requires its CSV to exist. CLI: `--charts DIR`, `--md [PATH]`, `--tx [PATH]`.
+`main()` resolves the positional bundle argument via `BUNDLES`. The
+traded-symbol set (union of all `weights` keys) and the extra-data set (union
+of `data`, minus traded) are collected from the bundle's strategies, so adding
+a strategy that trades a new symbol just requires its CSV to exist. CLI:
+`[bundle]` (positional, `choices` from `BUNDLES`, default `default`),
+`--charts DIR`, `--md [PATH]`, `--tx [PATH]`.
 
 ## Testing philosophy
 
@@ -232,14 +243,16 @@ requires its CSV to exist. CLI: `--charts DIR`, `--md [PATH]`, `--tx [PATH]`.
   golden-file tests would at this size.
 - Regression anchor: through every refactor, the plain strategies must
   reproduce their prior results to the cent (e.g. TQQQ/BTAL 50/50 final value
-  $237,334.67 from the default config).
+  $237,334.67 from the `default` bundle).
 
 ## Why not …
 
-- **A config file?** One user, one machine, strategies are code anyway —
-  `Config` in `main.py` is fewer moving parts.
-- **A Strategy plugin registry / auto-discovery?** An explicit `STRATEGIES`
-  list is one import per strategy and grep-able.
+- **A config file?** One user, one machine, strategies are code anyway — a
+  `Bundle` in `bundles.py` is config as code: the strategy list and its
+  `Config` in one grep-able place, no parsing layer.
+- **A Strategy plugin registry / auto-discovery?** The explicit `BUNDLES` dict
+  is one import per strategy and grep-able; selecting a bundle is a dict
+  lookup, not discovery.
 - **Fractional shares / daily rebalancing / transaction costs?** Product
   decisions, documented in `README.md`; the engine models the product, not a
   general trading system.

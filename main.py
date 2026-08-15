@@ -1,9 +1,9 @@
-"""Run each strategy plus the SPY benchmark and report them side by side."""
+"""Run a strategy bundle — each strategy plus the SPY benchmark — and report them side by side."""
 
 import argparse
-import datetime as dt
 from pathlib import Path
 
+from bundles import BUNDLES
 from prices import load_prices
 from report import (
     StrategyResult,
@@ -12,23 +12,19 @@ from report import (
     save_markdown,
     save_transactions,
 )
-from simulate import Config, simulate
+from simulate import simulate
 from stats import correlation, imbalance, rolling_sharpe, summary, top_drawdowns, twr
-from strategies.spy_benchmark import SpyBenchmark
-from strategies.tqqq_100 import Tqqq100
-from strategies.tqqq_btal_5050 import TqqqBtal5050
-from strategies.tqqq_btal_qqq_sma200 import TqqqBtalQqqSma200
-
-STRATEGIES = [
-    TqqqBtal5050(),
-    Tqqq100(),
-    TqqqBtalQqqSma200(),
-    SpyBenchmark(),  # last: the correlation reference
-]
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "bundle",
+        nargs="?",
+        default="default",
+        choices=list(BUNDLES),
+        help="strategy bundle to run (default: default)",
+    )
     parser.add_argument(
         "--md",
         nargs="?",
@@ -53,15 +49,15 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    start = dt.date(2017, 1, 3)
-    traded = sorted({s for st in STRATEGIES for s in st.weights})
-    extra = sorted({s for st in STRATEGIES for s in st.data} - set(traded))
-    prices = load_prices(Path("data"), traded, start, extra=extra)
-    config = Config(start=start, initial_capital=10_000, monthly_contribution=500)
+    bundle = BUNDLES[args.bundle]
+    strategies = bundle.strategies
+    traded = sorted({s for st in strategies for s in st.weights})
+    extra = sorted({s for st in strategies for s in st.data} - set(traded))
+    prices = load_prices(Path("data"), traded, bundle.config.start, extra=extra)
 
     results = []
-    for st in STRATEGIES:
-        curve, trades, allocations = simulate(prices, st, config)
+    for st in strategies:
+        curve, trades, allocations = simulate(prices, st, bundle.config)
         twr_frame = twr(curve)
         results.append(
             StrategyResult(
