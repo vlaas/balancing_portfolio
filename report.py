@@ -14,8 +14,8 @@ import matplotlib.ticker as mtick
 
 from stats import Drawdown
 
-# Categorical slots 1-3 on the light chart surface, plus its chrome inks.
-COLORS = ["#2a78d6", "#eb6834", "#1baf7a"]
+# Categorical slots 1-4 on the light chart surface, plus its chrome inks.
+COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100"]
 SURFACE = "#fcfcfb"
 INK = "#0b0b0b"
 SECONDARY_INK = "#52514e"

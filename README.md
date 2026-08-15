@@ -7,10 +7,20 @@ cash flows.
 
 # Rules
 
-- Configuration defines one or more named strategies. Each strategy assigns assets a
-  target fraction of the portfolio by current value (example: 60% value in asset A, 40%
-  value in asset B). Every strategy is simulated independently with identical cash flows
-  and reported side by side.
+- Strategies are classes in `strategies/`, one file each, extending `Strategy` from
+  `strategy.py` and listed in `STRATEGIES` in `main.py`. Every strategy is simulated
+  independently with identical cash flows and reported side by side.
+- A strategy declares `label`, `weights` (traded assets → target fraction of portfolio
+  value) and optionally `data` (extra symbols its hooks read but never trade), and may
+  override two hooks, each receiving a `MarketDay` view of the day's data
+  (`ctx.close(sym)`, `ctx.indicator(sym, name)` — `None` before a series' history
+  begins, `KeyError` for a column that was never loaded):
+  - `balance(ctx) -> weights` — dynamic target weights per rebalance day (default: the
+    static `weights`; must cover the same assets, be non-negative, sum ≤ 1).
+  - `allow_buy(asset, ctx) -> bool` — the gate: whether `asset` may be bought that day.
+    A gated asset is never bought (natural rebalance sells still execute); its budget is
+    redistributed across the non-gated assets in proportion to their weights. If every
+    asset is gated, the contribution stays in cash.
 - Configuration defines the start date, initial capital, and monthly added capital.
 - Only integer amounts of shares can be bought or sold — no fractional shares. Perfect
   balance therefore cannot be achieved; the simulator gets as close as integer shares allow.
@@ -32,14 +42,12 @@ cash flows.
 
 # Input data
 
-Daily OHLC prices per asset, in CSV form with columns `time,open,high,low,close`
-(`time` is `YYYY-MM-DD`).
-
-Available data files:
-
-- SPY: `data/SPY.csv`
-- BTAL: `data/BTAL.csv`
-- TQQQ: `data/TQQQ.csv`
+Daily OHLC prices per symbol, in CSV form with columns `time,open,high,low,close`
+(`time` is `YYYY-MM-DD`). A CSV may carry additional indicator columns (e.g.
+`data/QQQ.csv` has `SMA200`); these load as `SYM:COL` (e.g. `QQQ:SMA200`) and are read
+via `ctx.indicator("QQQ", "SMA200")`. Symbols listed only in a strategy's `data` join
+the trading calendar without extending it (their extra dates are ignored) and may be
+null before their history begins.
 
 Data notes:
 
@@ -102,7 +110,8 @@ The program is written in Python.
 
 # Configuration
 
-Configuration is a simple Python class/dataclass with values (no config file needed).
+Shared settings (start date, initial capital, monthly contribution) are a `Config`
+dataclass in `main.py`; per-strategy behavior lives in the strategy classes.
 
 # Initial configuration
 

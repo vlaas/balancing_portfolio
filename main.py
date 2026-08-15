@@ -14,11 +14,16 @@ from report import (
 )
 from simulate import Config, simulate
 from stats import correlation, rolling_sharpe, summary, top_drawdowns, twr
+from strategies.spy_benchmark import SpyBenchmark
+from strategies.tqqq_100 import Tqqq100
+from strategies.tqqq_btal_5050 import TqqqBtal5050
+from strategies.tqqq_btal_qqq_sma200 import TqqqBtalQqqSma200
 
 STRATEGIES = [
-    ("TQQQ/BTAL 50/50", {"TQQQ": 0.5, "BTAL": 0.5}),
-    ("TQQQ 100%", {"TQQQ": 1.0}),
-    ("SPY benchmark", {"SPY": 1.0}),
+    TqqqBtal5050(),
+    Tqqq100(),
+    TqqqBtalQqqSma200(),
+    SpyBenchmark(),  # last: the correlation reference
 ]
 
 
@@ -49,21 +54,18 @@ def main() -> None:
     args = parser.parse_args()
 
     start = dt.date(2017, 1, 3)
-    prices = load_prices(Path("data"), ["TQQQ", "BTAL", "SPY"], start)
+    traded = sorted({s for st in STRATEGIES for s in st.weights})
+    extra = sorted({s for st in STRATEGIES for s in st.data} - set(traded))
+    prices = load_prices(Path("data"), traded, start, extra=extra)
+    config = Config(start=start, initial_capital=10_000, monthly_contribution=500)
 
     results = []
-    for label, weights in STRATEGIES:
-        cfg = Config(
-            start=start,
-            initial_capital=10_000,
-            monthly_contribution=500,
-            weights=weights,
-        )
-        curve, trades = simulate(prices, cfg)
+    for st in STRATEGIES:
+        curve, trades = simulate(prices, st, config)
         twr_frame = twr(curve)
         results.append(
             StrategyResult(
-                label=label,
+                label=st.label,
                 curve=curve,
                 twr=twr_frame,
                 roll=rolling_sharpe(twr_frame),

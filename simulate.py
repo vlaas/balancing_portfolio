@@ -6,24 +6,28 @@ from dataclasses import dataclass
 
 import polars as pl
 
+from strategy import MarketDay, Strategy
+
 
 @dataclass(frozen=True)
 class Config:
     start: dt.date
     initial_capital: float
     monthly_contribution: float
-    weights: dict[str, float]
 
 
-def simulate(prices: pl.DataFrame, config: Config) -> tuple[pl.DataFrame, pl.DataFrame]:
-    """Run the portfolio over `prices`, one row per trading day.
+def simulate(
+    prices: pl.DataFrame, strategy: Strategy, config: Config
+) -> tuple[pl.DataFrame, pl.DataFrame]:
+    """Run `strategy` over `prices`, one row per trading day.
 
     Returns two frames: the equity curve of `date`, `value` (holdings at close
     plus cash) and `flow` (external capital added that day), and a transaction
-    log of every DEPOSIT/BUY/SELL with the cash balance after each. Symbol
-    columns not named in `config.weights` are ignored.
+    log of every DEPOSIT/BUY/SELL with the cash balance after each. Columns the
+    strategy does not trade — the extra symbols and indicators its hooks read —
+    never count towards the portfolio's value.
     """
-    assets = list(config.weights)
+    assets = list(strategy.weights)
     shares = dict.fromkeys(assets, 0)
     cash = 0.0
     rows = []
@@ -50,26 +54,40 @@ def simulate(prices: pl.DataFrame, config: Config) -> tuple[pl.DataFrame, pl.Dat
             cash += config.initial_capital
             flow += config.initial_capital
             log(row["date"], "DEPOSIT", amount=config.initial_capital)
-            for asset in assets:
-                shares[asset] = math.floor(
-                    config.initial_capital * config.weights[asset] / row[asset]
-                )
-                cash -= shares[asset] * row[asset]
-                if shares[asset]:
-                    log(
-                        row["date"], "BUY", asset, shares[asset], row[asset],
-                        shares[asset] * row[asset],
-                    )
 
         if row["is_rebalance_day"]:
             cash += config.monthly_contribution
             flow += config.monthly_contribution
             log(row["date"], "DEPOSIT", amount=config.monthly_contribution)
+
+        if i == 0 or row["is_rebalance_day"]:
+            ctx = MarketDay(row)
+            weights = strategy.balance(ctx)
+            assert set(weights) == set(assets)
+            assert all(w >= 0 for w in weights.values())
+            assert sum(weights.values()) <= 1 + 1e-9
             total = sum(shares[a] * row[a] for a in assets) + cash
-            deltas = {
-                a: math.floor(total * config.weights[a] / row[a]) - shares[a]
-                for a in assets
-            }
+
+            # What each asset would hold if nothing were gated.
+            target = {a: math.floor(total * weights[a] / row[a]) for a in assets}
+            gated = [a for a in assets if not strategy.allow_buy(a, ctx)]
+            for asset in gated:
+                target[asset] = min(target[asset], shares[asset])
+            # The budget a gated asset declines is spent on the assets still open,
+            # split by their weights among themselves. Scaling by the weight sum
+            # keeps any cash fraction the strategy left unallocated uninvested.
+            remaining = total * sum(weights.values()) - sum(
+                target[a] * row[a] for a in gated
+            )
+            open_weight = sum(weights[a] for a in assets if a not in gated)
+            if open_weight > 0:
+                for asset in assets:
+                    if asset not in gated:
+                        target[asset] = math.floor(
+                            remaining * (weights[asset] / open_weight) / row[asset]
+                        )
+
+            deltas = {a: target[a] - shares[a] for a in assets}
             # Sells before buys, so the running cash balance never goes negative.
             for asset in sorted(assets, key=lambda a: deltas[a]):
                 delta = deltas[asset]
