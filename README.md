@@ -81,18 +81,25 @@ Reported statistics (for each strategy and for the SPY benchmark):
   - "Over time": 12-month rolling Sharpe.
 - Other common statistics: annualized volatility, Sortino ratio, Calmar ratio,
   best/worst year, and correlation of each strategy to the SPY benchmark.
+- Imbalance, measured after the trades of every rebalance point against the weights the
+  strategy's `balance()` asked for (gates and integer shares leave residual deviation):
+  - misallocation = ½ Σ |actual − target| over assets and cash — the fraction of the
+    portfolio in the wrong place (average and worst rebalance reported);
+  - worst-asset deviation = the single worst asset's |actual − target| (cash excluded).
 
 Output form:
 
 - A printed summary table in the console (all strategies and the SPY benchmark side by
   side).
-- Saved charts: equity curve, drawdown curve, 12-month rolling Sharpe — each showing all
-  strategies and the benchmark. Output directory selectable with `--charts`
-  (default `charts/`); the Markdown report's image links follow it.
+- Saved charts: equity curve, drawdown curve, 12-month rolling Sharpe, and post-rebalance
+  misallocation — each showing all strategies and the benchmark. Output directory
+  selectable with `--charts` (default `charts/`); the Markdown report's image links
+  follow it.
 - Optionally (`--md` flag) a Markdown report file with the summary table, drawdown
   tables, correlations, and the charts embedded via relative links.
 - Optionally (`--tx` flag) a Markdown transaction log: every deposit, buy and sell per
   strategy with date, shares, price, amount, cash after, and that day's portfolio value.
+  Each rebalance day ends with a BALANCE row showing actual/target percents per asset.
 
 # Comparison to SP500
 

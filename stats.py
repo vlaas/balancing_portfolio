@@ -132,7 +132,26 @@ def _yearly_returns(twr_frame: pl.DataFrame) -> list[tuple[int, float]]:
     return returns
 
 
-def summary(curve: pl.DataFrame, twr_frame: pl.DataFrame) -> dict[str, object]:
+def imbalance(allocations: pl.DataFrame) -> pl.DataFrame:
+    """Per trade day, how far the post-trade allocation is from the target.
+
+    `misallocated` is half the sum of |target - actual| over assets and cash —
+    the fraction of the portfolio in the wrong place. `max_deviation` is the
+    single worst asset's |target - actual| (cash excluded).
+    """
+    deviation = (pl.col("target") - pl.col("actual")).abs()
+    return (
+        allocations.group_by("date", maintain_order=True)
+        .agg(
+            misallocated=deviation.sum() / 2,
+            max_deviation=deviation.filter(pl.col("asset") != "CASH").max(),
+        )
+    )
+
+
+def summary(
+    curve: pl.DataFrame, twr_frame: pl.DataFrame, allocations: pl.DataFrame
+) -> dict[str, object]:
     dates = curve["date"].to_list()
     final_value = curve["value"].to_list()[-1]
     total_contributed = curve["flow"].sum()
@@ -158,7 +177,13 @@ def summary(curve: pl.DataFrame, twr_frame: pl.DataFrame) -> dict[str, object]:
     best_year = max(yearly, key=lambda y: y[1])
     worst_year = min(yearly, key=lambda y: y[1])
 
+    off = imbalance(allocations)
+
     return {
+        "avg_misallocation": off["misallocated"].mean(),
+        "max_misallocation": off["misallocated"].max(),
+        "avg_asset_deviation": off["max_deviation"].mean(),
+        "max_asset_deviation": off["max_deviation"].max(),
         "final_value": final_value,
         "total_contributed": total_contributed,
         "net_profit": net_profit,

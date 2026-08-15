@@ -18,20 +18,23 @@ class Config:
 
 def simulate(
     prices: pl.DataFrame, strategy: Strategy, config: Config
-) -> tuple[pl.DataFrame, pl.DataFrame]:
+) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame]:
     """Run `strategy` over `prices`, one row per trading day.
 
-    Returns two frames: the equity curve of `date`, `value` (holdings at close
-    plus cash) and `flow` (external capital added that day), and a transaction
-    log of every DEPOSIT/BUY/SELL with the cash balance after each. Columns the
-    strategy does not trade — the extra symbols and indicators its hooks read —
-    never count towards the portfolio's value.
+    Returns three frames: the equity curve of `date`, `value` (holdings at close
+    plus cash) and `flow` (external capital added that day); a transaction
+    log of every DEPOSIT/BUY/SELL with the cash balance after each; and the
+    post-trade allocations on each trade day — per asset (plus a CASH row) the
+    fraction of the portfolio the strategy's balance() targeted and the fraction
+    actually held. Columns the strategy does not trade — the extra symbols and
+    indicators its hooks read — never count towards the portfolio's value.
     """
     assets = list(strategy.weights)
     shares = dict.fromkeys(assets, 0)
     cash = 0.0
     rows = []
     trades = []
+    allocations = []
 
     def log(date, action, asset=None, delta=0, price=None, amount=0.0):
         trades.append(
@@ -99,6 +102,26 @@ def simulate(
                         delta, row[asset], abs(delta) * row[asset],
                     )
 
+            # The trades happen at the closes used to value `total`, so the
+            # post-trade allocation can be taken against the same total.
+            for asset in assets:
+                allocations.append(
+                    {
+                        "date": row["date"],
+                        "asset": asset,
+                        "target": weights[asset],
+                        "actual": shares[asset] * row[asset] / total,
+                    }
+                )
+            allocations.append(
+                {
+                    "date": row["date"],
+                    "asset": "CASH",
+                    "target": 1.0 - sum(weights.values()),
+                    "actual": cash / total,
+                }
+            )
+
         assert cash >= -1e-6
         rows.append(
             {
@@ -123,4 +146,13 @@ def simulate(
             "cash_after": pl.Float64,
         },
     )
-    return curve, trades_frame
+    allocations_frame = pl.DataFrame(
+        allocations,
+        schema={
+            "date": pl.Date,
+            "asset": pl.Utf8,
+            "target": pl.Float64,
+            "actual": pl.Float64,
+        },
+    )
+    return curve, trades_frame, allocations_frame

@@ -5,6 +5,7 @@ import pytest
 
 from stats import (
     correlation,
+    imbalance,
     rolling_sharpe,
     summary,
     top_drawdowns,
@@ -157,6 +158,10 @@ SUMMARY_KEYS = {
     "calmar",
     "max_drawdown",
     "max_drawdown_days",
+    "avg_misallocation",
+    "max_misallocation",
+    "avg_asset_deviation",
+    "max_asset_deviation",
     "best_year",
     "worst_year",
 }
@@ -173,10 +178,32 @@ def summary_curve() -> pl.DataFrame:
     return curve([1000.0, 900.0, 1500.0, 1400.0, 1800.0], [1000.0, 0.0, 500.0, 0.0, 0.0], dates)
 
 
+def summary_allocations() -> pl.DataFrame:
+    # Day 1 on target; day 2 has 10% of the portfolio in the wrong place; day 3
+    # deviates most in cash, which max_deviation must ignore.
+    days = [START, dt.date(2020, 7, 1), dt.date(2021, 1, 1)]
+    return pl.DataFrame(
+        {
+            "date": [d for d in days for _ in range(3)],
+            "asset": ["A", "B", "CASH"] * 3,
+            "target": [0.5, 0.5, 0.0] * 3,
+            "actual": [0.5, 0.5, 0.0, 0.4, 0.5, 0.1, 0.45, 0.45, 0.1],
+        }
+    )
+
+
+def test_imbalance_measures_misallocation_per_day():
+    result = imbalance(summary_allocations())
+
+    assert result["misallocated"].to_list() == pytest.approx([0.0, 0.1, 0.1])
+    # Day 3's worst asset is off by 5% even though cash is off by 10%.
+    assert result["max_deviation"].to_list() == pytest.approx([0.0, 0.1, 0.05])
+
+
 def test_summary_money_figures():
     c = summary_curve()
 
-    result = summary(c, twr(c))
+    result = summary(c, twr(c), summary_allocations())
 
     assert result["final_value"] == pytest.approx(1800.0)
     assert result["total_contributed"] == pytest.approx(1500.0)
@@ -187,9 +214,13 @@ def test_summary_money_figures():
 def test_summary_reports_every_contract_key():
     c = summary_curve()
 
-    result = summary(c, twr(c))
+    result = summary(c, twr(c), summary_allocations())
 
     assert set(result) == SUMMARY_KEYS
+    assert result["avg_misallocation"] == pytest.approx(0.2 / 3)
+    assert result["max_misallocation"] == pytest.approx(0.1)
+    assert result["avg_asset_deviation"] == pytest.approx(0.05)
+    assert result["max_asset_deviation"] == pytest.approx(0.1)
     assert result["best_year"][0] in (2020, 2021, 2022)
     assert result["worst_year"][1] <= result["best_year"][1]
     assert result["max_drawdown"] < 0.0

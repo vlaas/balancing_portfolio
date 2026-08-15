@@ -13,7 +13,7 @@ from report import (
     save_transactions,
 )
 from simulate import Config, simulate
-from stats import correlation, rolling_sharpe, summary, top_drawdowns, twr
+from stats import correlation, imbalance, rolling_sharpe, summary, top_drawdowns, twr
 from strategies.spy_benchmark import SpyBenchmark
 from strategies.tqqq_100 import Tqqq100
 from strategies.tqqq_btal_5050 import TqqqBtal5050
@@ -61,7 +61,7 @@ def main() -> None:
 
     results = []
     for st in STRATEGIES:
-        curve, trades = simulate(prices, st, config)
+        curve, trades, allocations = simulate(prices, st, config)
         twr_frame = twr(curve)
         results.append(
             StrategyResult(
@@ -69,9 +69,11 @@ def main() -> None:
                 curve=curve,
                 twr=twr_frame,
                 roll=rolling_sharpe(twr_frame),
-                stats=summary(curve, twr_frame),
+                stats=summary(curve, twr_frame, allocations),
                 drawdowns=top_drawdowns(twr_frame),
                 trades=trades,
+                allocations=allocations,
+                imbalance=imbalance(allocations),
             )
         )
 
@@ -82,7 +84,10 @@ def main() -> None:
 
     out_dir = args.charts
     save_charts(results, out_dir)
-    print(f"\nSaved {out_dir}/equity.png, {out_dir}/drawdown.png, {out_dir}/rolling_sharpe.png")
+    print(
+        f"\nSaved {out_dir}/equity.png, {out_dir}/drawdown.png, "
+        f"{out_dir}/rolling_sharpe.png, {out_dir}/imbalance.png"
+    )
 
     if args.md:
         save_markdown(results, correlations, args.md, out_dir)

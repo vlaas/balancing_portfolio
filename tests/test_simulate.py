@@ -51,7 +51,7 @@ def test_initial_buy():
     prices = frame({"A": [30.0, 31.0], "B": [7.0, 8.0]}, [False, False])
     config = Config(START, 10000.0, 500.0)
 
-    result, trades = simulate(prices, half_and_half(), config)
+    result, trades, allocations = simulate(prices, half_and_half(), config)
 
     assert result["flow"].to_list() == [10000.0, 0.0]
     assert result["value"][0] == pytest.approx(166 * 30.0 + 714 * 7.0 + 22.0)
@@ -64,6 +64,10 @@ def test_initial_buy():
     assert trades["amount"].to_list() == pytest.approx([10000.0, 4980.0, 4998.0])
     assert trades["cash_after"][-1] == pytest.approx(22.0)
 
+    assert allocations["asset"].to_list() == ["A", "B", "CASH"]
+    assert allocations["target"].to_list() == pytest.approx([0.5, 0.5, 0.0])
+    assert allocations["actual"].to_list() == pytest.approx([0.498, 0.4998, 0.0022])
+
 
 def test_rebalance_sells_the_overweight_asset():
     # Day 0: 50 of each at 10.0, no cash. Day 1: A has risen to 21.0, so with the
@@ -73,7 +77,7 @@ def test_rebalance_sells_the_overweight_asset():
     prices = frame({"A": [10.0, 21.0, 100.0], "B": [10.0, 10.0, 1.0]}, [False, True, False])
     config = Config(START, 1000.0, 100.0)
 
-    result, trades = simulate(prices, half_and_half(), config)
+    result, trades, allocations = simulate(prices, half_and_half(), config)
 
     assert result["flow"].to_list() == [1000.0, 100.0, 0.0]
     assert result["value"][0] == pytest.approx(1000.0)
@@ -94,7 +98,7 @@ def test_rebalance_contribution_covers_the_underweight_buy():
     prices = frame({"A": [10.0, 11.0, 100.0], "B": [10.0, 10.0, 1.0]}, [False, True, False])
     config = Config(START, 1000.0, 500.0)
 
-    result, trades = simulate(prices, half_and_half(), config)
+    result, trades, allocations = simulate(prices, half_and_half(), config)
 
     assert result["value"][1] == pytest.approx(1550.0)
     assert result["value"][2] == pytest.approx(70 * 100.0 + 77 * 1.0 + 10.0)
@@ -144,7 +148,7 @@ def test_gate_redirects_the_blocked_budget():
     )
     config = Config(START, 1000.0, 100.0)
 
-    result, trades = simulate(prices, Gated(blocked=("A",)), config)
+    result, trades, allocations = simulate(prices, Gated(blocked=("A",)), config)
 
     assert result["value"][1] == pytest.approx(1100.0)
     assert result["value"][2] == pytest.approx(50 * 100.0 + 60 * 1.0)
@@ -153,6 +157,15 @@ def test_gate_redirects_the_blocked_budget():
     assert day1["action"].to_list() == ["DEPOSIT", "BUY"]
     assert day1["asset"].to_list() == [None, "B"]
     assert day1["shares"].to_list() == [None, 10]
+
+    # Post-trade allocation shows the gate's footprint: A stuck at its held
+    # 500/1100 against a 50% target, B over-target with the redirected budget.
+    day1_alloc = allocations.filter(pl.col("date") == START + dt.timedelta(days=1))
+    assert day1_alloc["asset"].to_list() == ["A", "B", "CASH"]
+    assert day1_alloc["target"].to_list() == pytest.approx([0.5, 0.5, 0.0])
+    assert day1_alloc["actual"].to_list() == pytest.approx(
+        [500 / 1100, 600 / 1100, 0.0]
+    )
 
 
 def test_gate_still_sells_the_blocked_asset():
@@ -171,7 +184,7 @@ def test_gate_still_sells_the_blocked_asset():
     )
     config = Config(START, 1000.0, 100.0)
 
-    result, trades = simulate(prices, Gated(blocked=("A",)), config)
+    result, trades, allocations = simulate(prices, Gated(blocked=("A",)), config)
 
     assert result["value"][1] == pytest.approx(2100.0)
     assert result["value"][2] == pytest.approx(35 * 100.0 + 105 * 1.0)
@@ -195,7 +208,7 @@ def test_every_asset_gated_leaves_the_contribution_in_cash():
     )
     config = Config(START, 1000.0, 100.0)
 
-    result, trades = simulate(prices, Gated(blocked=("A", "B")), config)
+    result, trades, allocations = simulate(prices, Gated(blocked=("A", "B")), config)
 
     assert result["value"][1] == pytest.approx(1100.0)
     assert result["value"][2] == pytest.approx(50 * 100.0 + 50 * 1.0 + 100.0)
@@ -221,7 +234,7 @@ def test_balance_can_move_the_weights():
     prices = frame({"A": [10.0, 10.0, 100.0], "B": [10.0, 20.0, 1.0]}, [False, True, False])
     config = Config(START, 1000.0, 100.0)
 
-    result, trades = simulate(prices, Tilt(), config)
+    result, trades, allocations = simulate(prices, Tilt(), config)
 
     assert result["value"][0] == pytest.approx(1000.0)
     assert result["value"][1] == pytest.approx(1100.0)
@@ -253,7 +266,7 @@ def test_real_data_invariants():
     config = Config(start, 10000.0, 500.0)
     strategy = Strategy(label="test", weights={"TQQQ": 0.5, "BTAL": 0.5})
 
-    result, trades = simulate(prices, strategy, config)
+    result, trades, allocations = simulate(prices, strategy, config)
 
     assert len(result) == len(prices)
     assert result["date"].to_list() == prices["date"].to_list()
@@ -262,3 +275,10 @@ def test_real_data_invariants():
     deposits = trades.filter(pl.col("action") == "DEPOSIT")
     assert deposits["amount"].sum() == pytest.approx(67500.0)
     assert trades["cash_after"].min() >= 0.0
+
+    from stats import imbalance
+
+    off = imbalance(allocations)
+    assert 0.0 <= off["misallocated"].min() and off["misallocated"].max() < 1.0
+    # Without gates only integer rounding misbalances the plain 50/50.
+    assert off["misallocated"].mean() < 0.01

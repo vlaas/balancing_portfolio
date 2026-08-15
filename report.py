@@ -64,6 +64,10 @@ METRICS = [
     ("Max drawdown days", "max_drawdown_days", _days),
     ("Best year", "best_year", _year),
     ("Worst year", "worst_year", _year),
+    ("Avg misallocation", "avg_misallocation", _pct),
+    ("Max misallocation", "max_misallocation", _pct),
+    ("Avg worst-asset dev", "avg_asset_deviation", _pct),
+    ("Max worst-asset dev", "max_asset_deviation", _pct),
 ]
 
 NAME_W = 25
@@ -80,6 +84,8 @@ class StrategyResult:
     stats: dict
     drawdowns: list[Drawdown]
     trades: pl.DataFrame
+    allocations: pl.DataFrame
+    imbalance: pl.DataFrame
 
 
 def _print_drawdowns(title: str, drawdowns: list[Drawdown]) -> None:
@@ -181,6 +187,12 @@ def save_charts(results: list[StrategyResult], out_dir: Path) -> None:
         _plot(ax, r.roll, "sharpe", r.label, color)
     _save(fig, ax, out_dir / "rolling_sharpe.png")
 
+    fig, ax = _axes("Misallocation after each rebalance", "Misallocated")
+    for r, color in zip(results, COLORS):
+        _plot(ax, r.imbalance, "misallocated", r.label, color)
+    ax.yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1, decimals=0))
+    _save(fig, ax, out_dir / "imbalance.png")
+
 
 def save_markdown(
     results: list[StrategyResult],
@@ -207,6 +219,7 @@ def save_markdown(
         ("equity.png", "Account value"),
         ("drawdown.png", "Drawdown"),
         ("rolling_sharpe.png", "Rolling Sharpe"),
+        ("imbalance.png", "Imbalance"),
     ]:
         rel = os.path.relpath(charts_dir / name, out_path.parent)
         lines += ["", f"## {title}", "", f"![{title}]({rel})"]
@@ -241,6 +254,15 @@ def save_transactions(results: list[StrategyResult], out_path: Path) -> None:
     lines = ["# Transaction log"]
     for r in results:
         ledger = r.trades.join(r.curve.select("date", "value"), on="date", how="left")
+        # One compact "actual/target" percents cell per trade day, shown as a
+        # BALANCE row after the day's trades.
+        balances = {
+            date: ", ".join(
+                f"{a} {actual * 100:.1f}/{target * 100:.1f}"
+                for a, target, actual in zip(group["asset"], group["target"], group["actual"])
+            )
+            for (date,), group in r.allocations.group_by(["date"], maintain_order=True)
+        }
         lines += [
             "",
             f"## {r.label}",
@@ -248,7 +270,8 @@ def save_transactions(results: list[StrategyResult], out_path: Path) -> None:
             "| Date | Action | Asset | Shares | Price | Amount | Cash after | Portfolio value |",
             "|---|---|---|---:|---:|---:|---:|---:|",
         ]
-        for t in ledger.iter_rows(named=True):
+        rows = list(ledger.iter_rows(named=True))
+        for t, nxt in zip(rows, rows[1:] + [None]):
             asset = t["asset"] or ""
             shares = "" if t["shares"] is None else f"{t['shares']:,}"
             price = "" if t["price"] is None else _money(t["price"])
@@ -257,6 +280,11 @@ def save_transactions(results: list[StrategyResult], out_path: Path) -> None:
                 f"| {price} | {_money(t['amount'])} | {_money(t['cash_after'])} "
                 f"| {_money(t['value'])} |"
             )
+            if nxt is None or nxt["date"] != t["date"]:
+                lines.append(
+                    f"| {t['date'].isoformat()} | BALANCE | {balances[t['date']]} "
+                    f"| | | | | {_money(t['value'])} |"
+                )
 
     lines.append("")
     out_path.parent.mkdir(parents=True, exist_ok=True)
