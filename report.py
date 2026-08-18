@@ -12,7 +12,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 
-from stats import Drawdown
+from stats import Drawdown, drawdown_curve
 
 # Categorical slots 1-4 on the light chart surface, plus its chrome inks.
 COLORS = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100"]
@@ -159,12 +159,6 @@ def _save(fig, ax, path: Path) -> None:
     plt.close(fig)
 
 
-def _drawdown_curve(twr_frame: pl.DataFrame) -> pl.DataFrame:
-    return twr_frame.select(
-        "date", drawdown=pl.col("index") / pl.col("index").cum_max() - 1
-    )
-
-
 def save_charts(results: list[StrategyResult], out_dir: Path) -> None:
     """Write equity.png, drawdown.png and rolling_sharpe.png into `out_dir`."""
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -177,7 +171,7 @@ def save_charts(results: list[StrategyResult], out_dir: Path) -> None:
 
     fig, ax = _axes("Drawdown from peak, time-weighted", "Drawdown")
     for r, color in zip(results, COLORS):
-        _plot(ax, _drawdown_curve(r.twr), "drawdown", r.label, color)
+        _plot(ax, drawdown_curve(r.twr), "drawdown", r.label, color)
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1, decimals=0))
     _save(fig, ax, out_dir / "drawdown.png")
 

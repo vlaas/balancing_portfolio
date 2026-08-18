@@ -307,5 +307,6 @@ instead of the CSV). Any deviation is a bug in the indicator or the loader, not 
 
 ## 10. Deliberately not in scope
 
-Parametrised strategy classes / declarative specs, `--json` output, sweeps, cost model,
-MCP server. Each depends on this spec landing first; none should be folded into it.
+Parametrised strategy classes / declarative specs, sweeps, cost model, MCP server. Each
+depends on this spec landing first; none should be folded into it. (`--json` output has
+since landed — see `results_json.py` and `docs/ARCHITECTURE.md`.)

@@ -14,6 +14,7 @@ from report import (
     save_markdown,
     save_transactions,
 )
+from results_json import save_curves, save_json
 from simulate import simulate
 from stats import correlation, imbalance, rolling_sharpe, summary, top_drawdowns, twr
 from strategy import Strategy
@@ -90,6 +91,22 @@ def main() -> None:
         help="directory for the chart PNGs (default: charts)",
     )
     parser.add_argument(
+        "--json",
+        nargs="?",
+        const=Path("results.json"),
+        default=None,
+        type=Path,
+        help="also write machine-readable results (default path: results.json)",
+    )
+    parser.add_argument(
+        "--curves",
+        nargs="?",
+        const=Path("curves"),
+        default=None,
+        type=Path,
+        help="also write a per-strategy daily curve CSV here (default dir: curves)",
+    )
+    parser.add_argument(
         "--tx",
         nargs="?",
         const=Path("transactions.md"),
@@ -99,7 +116,8 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    results = run_bundle(BUNDLES[args.bundle], Path("data"))
+    bundle = BUNDLES[args.bundle]
+    results = run_bundle(bundle, Path("data"))
 
     bench = results[-1]
     correlations = [(r.label, correlation(r.twr, bench.twr)) for r in results[:-1]]
@@ -120,6 +138,14 @@ def main() -> None:
     if args.tx:
         save_transactions(results, args.tx)
         print(f"Saved {args.tx}")
+
+    if args.json:
+        save_json(bundle, args.bundle, results, correlations, args.json)
+        print(f"Saved {args.json}")
+
+    if args.curves:
+        save_curves(results, args.curves)
+        print(f"Saved {args.curves}/<strategy>.csv")
 
 
 if __name__ == "__main__":
