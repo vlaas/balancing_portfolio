@@ -22,7 +22,10 @@ flowchart LR
     P --> W["one wide frame<br/>date | SYM… | SYM:COL… | is_rebalance_day"]
     W --> E["simulate.py<br/>simulate() — once per strategy"]
     S["strategies/*.py<br/>Strategy subclasses"] --> B["bundles.py<br/>named bundles:<br/>strategies + Config"]
-    B --> E
+    SJ["specs/*.json<br/>declarative bundles"] --> SP["spec.py<br/>build_bundle()"]
+    SP --> B2["Bundle"]
+    B --> B2
+    B2 --> E
     E --> C["curve<br/>date|value|flow"]
     E --> T["trades<br/>DEPOSIT/BUY/SELL"]
     E --> A["allocations<br/>target vs actual"]
@@ -31,11 +34,12 @@ flowchart LR
     ST --> R["report.py<br/>console · 4 charts ·<br/>report.md · transactions.md"]
     T --> R
     ST --> J["results_json.py<br/>results.json ·<br/>curves/*.csv"]
-    B --> J
+    B2 --> J
 ```
 
 `main.py` wires the pipeline: it looks up the bundle named on the command line
-(default `default`), collects which symbols the bundle's strategies trade and
+(default `default`) or builds one from a spec file (`--spec specs/X.json`,
+see `spec.py`), collects which symbols the bundle's strategies trade and
 which they merely read, loads one shared prices frame, runs the engine once per
 strategy under the bundle's `Config`, and hands a list of per-strategy results
 to the report layer.
@@ -100,15 +104,18 @@ Two small classes define the entire surface a strategy author sees:
 
 ```python
 class Strategy:
-    label: str                     # display name (keep ≤ 20 chars, see report.py)
+    label: str                     # display name
     weights: dict[str, float]      # traded assets -> target fraction
     data: tuple[str, ...] = ()     # symbols the hooks read but never trade
 
     def balance(self, ctx) -> dict[str, float]: ...   # dynamic target weights
     def allow_buy(self, asset, ctx) -> bool: ...      # purchase gate
+    def buy_cap(self, asset, ctx) -> float | None: ...# dollar cap on buys;
+                                                      # default derives from allow_buy
 
 class MarketDay:                   # read-only view of one trading day
     date: dt.date
+    contribution: float            # external cash added today
     def close(self, symbol) -> float | None
     def indicator(self, symbol, name) -> float | None
 ```
@@ -157,9 +164,11 @@ Per trade day (the first row, and every `is_rebalance_day`):
    sum ≤ 1. Weights summing below 1 are a deliberate cash reserve.
 3. Natural targets: `floor(total · w[a] / close[a])` shares per asset, where
    `total` = holdings at close + cash.
-4. Gates: assets with `allow_buy(a, ctx) == False` are capped at
-   `min(natural, currently_held)` — a gate blocks *accumulation* but never
-   blocks the natural rebalance sell of an overweight asset.
+4. Gates: assets with a non-`None` `buy_cap(a, ctx)` are capped at
+   `min(natural, currently_held + floor(cap / close))` — `0.0` (what the
+   default derives from `allow_buy(a, ctx) == False`) blocks *accumulation*
+   entirely, but a gate never blocks the natural rebalance sell of an
+   overweight asset.
 5. Redistribution: the budget gated assets decline,
    `remaining = total · Σw − Σ(gated target value)`, is split across the open
    assets in proportion to their weights among themselves. Scaling by `Σw`
@@ -232,9 +241,10 @@ strategy and the report layer never recomputes anything.
 - The console table and `report.md` table are driven by one `METRICS` list of
   `(label, summary-key, formatter)` tuples — adding a statistic is one line.
 - Charts (equity, drawdown, rolling Sharpe, misallocation) share one axes
-  factory and a fixed categorical `COLORS` list. **Known limits:** `COLORS` has
-  4 entries — a 5th strategy needs a 5th color (`zip` silently drops extras) —
-  and column alignment assumes labels ≤ 20 characters.
+  factory; `_colours(n)` keeps the brand `COLORS` palette through 4 strategies,
+  switches to tab10/tab20 through 20 and asserts beyond that (use
+  `--no-charts`). The console table widens its value columns to the longest
+  label.
 - `transactions.md` is the full ledger; each trade day ends with a BALANCE row
   showing actual/target percents per asset and for cash.
 - Markdown image links are computed relative to the report's own location, so
@@ -249,12 +259,14 @@ committed and the next run diffed against it. `--json PATH` writes one file;
 
 ```json
 {
-  "run":    {"schema_version": 1, "git_sha": …, "git_dirty": …, "bundle": …, "generated_at": …},
+  "run":    {"schema_version": 2, "git_sha": …, "git_dirty": …, "bundle": …, "data_dir": …,
+             "spec_path": …, "generated_at": …},
   "config": {"start": …, "initial_capital": …, "monthly_contribution": …},
   "data":   {"start": …, "end": …, "trading_days": …, "symbols": [...]},
   "benchmark": "SPY benchmark",
+  "spec": "…the normalised spec for --spec runs, else null…",
   "strategies": [
-    {"label": …, "slug": …, "class": …, "weights": {...}, "data": [...], "indicators": {...},
+    {"label": …, "slug": …, "class": …, "spec": …, "weights": {...}, "data": [...], "indicators": {...},
      "correlation_to_benchmark": …,
      "summary":        {"…the 18 summary() keys…"},
      "drawdowns":      [{"peak": …, "trough": …, "recovery": …, "depth": …, "days": …}],
@@ -306,14 +318,29 @@ the `Config` they run under; `BUNDLES` maps CLI names to bundles. In every
 bundle the SPY benchmark sits last and is the reference for the correlation
 lines. One bundle ships: `default`.
 
+## spec.py — declarative bundles
+
+`build_bundle(load_spec(path))` turns a JSON spec (format in
+[STRATEGY_DEVELOPMENT.md](STRATEGY_DEVELOPMENT.md#declarative-strategies))
+into the same `Bundle` the registry holds, mapping `fixed` / `vol_target`
+entries onto `strategies/fixed.py` / `strategies/vol_target.py` (plus
+`strategies/gate.py`). Validation errors name the JSON path of the offending
+key; labels are generated deterministically from the parameters when absent
+and asserted unique at slug level. The normalised spec — defaults and labels
+filled in — is what `results.json` embeds.
+
 ## main.py — wiring
 
-`main()` resolves the positional bundle argument via `BUNDLES`. The
+`main()` resolves the positional bundle argument via `BUNDLES`, or builds the
+bundle from a spec file with `--spec` (mutually exclusive with the
+positional). The
 traded-symbol set (union of all `weights` keys) and the extra-data set (union
 of `data`, minus traded) are collected from the bundle's strategies, so adding
 a strategy that trades a new symbol just requires its CSV to exist. CLI:
 `[bundle]` (positional, `choices` from `BUNDLES`, default `default`),
-`--charts DIR`, `--md [PATH]`, `--tx [PATH]`, `--json [PATH]`, `--curves [DIR]`.
+`--spec PATH`, `--data DIR` (default `data`), `--charts DIR`, `--no-charts`,
+`--quiet`, `--md [PATH]`, `--tx [PATH]`, `--json [PATH]`, `--curves [DIR]`.
+`--md` with `--no-charts` writes the report without the chart sections.
 
 ## Testing philosophy
 
@@ -324,20 +351,24 @@ a strategy that trades a new symbol just requires its CSV to exist. CLI:
 - **Real-data invariants** (cheap integration tests): 2,416 trading days from
   2017-01-03, 115 monthly contributions, total contributed exactly $67,500,
   cash never negative, misallocation of the plain 50/50 under 1%.
-- The report layer (formatting, charts) is deliberately untested — it is
-  verified by running `uv run main.py` and looking, which catches more than
-  golden-file tests would at this size. `results_json.py` is the exception: its
-  output is read by machines, so byte-stability, precision, key order and the
-  payload's contract are all asserted.
+- The report layer's *look* (formatting, chart styling) is deliberately
+  untested — it is verified by running `uv run main.py` and looking, which
+  catches more than golden-file tests would at this size. What must scale with
+  bundle size is the exception (`tests/test_report.py`: colours beyond the
+  brand palette, the 20-strategy assert, dynamic column width), and so is
+  `results_json.py`: its output is read by machines, so byte-stability,
+  precision, key order and the payload's contract are all asserted.
 - Regression anchor: through every refactor, the plain strategies must
   reproduce their prior results to the cent (e.g. TQQQ/BTAL 50/50 final value
   $237,334.67 from the `default` bundle).
 
 ## Why not …
 
-- **A config file?** One user, one machine, strategies are code anyway — a
-  `Bundle` in `bundles.py` is config as code: the strategy list and its
-  `Config` in one grep-able place, no parsing layer.
+- **A config file?** Strategy *proposals* are exactly that now — a JSON spec
+  under `specs/`, run with `--spec` (see `spec.py`): parameters change far too
+  often to be code. The engine, the strategy classes and the named bundles
+  stay code, where behaviour is grep-able and tested; a spec can only combine
+  behaviours that already exist.
 - **A Strategy plugin registry / auto-discovery?** The explicit `BUNDLES` dict
   is one import per strategy and grep-able; selecting a bundle is a dict
   lookup, not discovery.

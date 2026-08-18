@@ -64,7 +64,7 @@ def simulate(
             log(row["date"], "DEPOSIT", amount=config.monthly_contribution)
 
         if i == 0 or row["is_rebalance_day"]:
-            ctx = MarketDay(row)
+            ctx = MarketDay(row, contribution=flow)
             weights = strategy.balance(ctx)
             assert set(weights) == set(assets)
             assert all(w >= 0 for w in weights.values())
@@ -73,9 +73,13 @@ def simulate(
 
             # What each asset would hold if nothing were gated.
             target = {a: math.floor(total * weights[a] / row[a]) for a in assets}
-            gated = [a for a in assets if not strategy.allow_buy(a, ctx)]
+            caps = {a: strategy.buy_cap(a, ctx) for a in assets}
+            gated = [a for a in assets if caps[a] is not None]
             for asset in gated:
-                target[asset] = min(target[asset], shares[asset])
+                assert caps[asset] >= 0
+                target[asset] = min(
+                    target[asset], shares[asset] + math.floor(caps[asset] / row[asset])
+                )
             # The budget a gated asset declines is spent on the assets still open,
             # split by their weights among themselves. Scaling by the weight sum
             # keeps any cash fraction the strategy left unallocated uninvested.

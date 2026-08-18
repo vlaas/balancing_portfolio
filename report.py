@@ -71,7 +71,7 @@ METRICS = [
 ]
 
 NAME_W = 25
-VALUE_W = 20
+VALUE_W = 20  # floor; print_report widens it to the longest label
 DD_HEADER = f"{'Peak':<13}{'Trough':<13}{'Recovery':<13}{'Depth':>10}{'Days':>8}"
 
 
@@ -109,12 +109,13 @@ def print_report(
     print()
     print(" vs ".join(r.label for r in results))
     print()
-    print(f"{'':<{NAME_W}}" + "".join(f"{r.label:>{VALUE_W}}" for r in results))
-    print("-" * (NAME_W + len(results) * VALUE_W))
+    value_w = max(VALUE_W, max(len(r.label) for r in results) + 2)
+    print(f"{'':<{NAME_W}}" + "".join(f"{r.label:>{value_w}}" for r in results))
+    print("-" * (NAME_W + len(results) * value_w))
     for label, key, fmt in METRICS:
         print(
             f"{label:<{NAME_W}}"
-            + "".join(f"{fmt(r.stats[key]):>{VALUE_W}}" for r in results)
+            + "".join(f"{fmt(r.stats[key]):>{value_w}}" for r in results)
         )
 
     for r in results:
@@ -123,6 +124,18 @@ def print_report(
     print()
     for label, corr in correlations:
         print(f"Daily-return correlation, {label} to SPY benchmark: {corr:.2f}")
+
+
+def _colours(n: int) -> list:
+    """One colour per strategy: the brand palette while it lasts, then tab10/tab20.
+
+    Never truncates silently — beyond 20 the lines would be unreadable anyway.
+    """
+    assert n <= 20, f"{n} strategies is too many to chart; use --no-charts for larger bundles"
+    if n <= len(COLORS):
+        return COLORS[:n]
+    name = "tab10" if n <= 10 else "tab20"
+    return list(matplotlib.colormaps[name].colors)[:n]
 
 
 def _axes(title: str, ylabel: str):
@@ -160,29 +173,29 @@ def _save(fig, ax, path: Path) -> None:
 
 
 def save_charts(results: list[StrategyResult], out_dir: Path) -> None:
-    """Write equity.png, drawdown.png and rolling_sharpe.png into `out_dir`."""
+    """Write equity, drawdown, rolling_sharpe and imbalance PNGs into `out_dir`."""
     out_dir.mkdir(parents=True, exist_ok=True)
 
     fig, ax = _axes("Account value, identical cash flows", "USD")
-    for r, color in zip(results, COLORS):
+    for r, color in zip(results, _colours(len(results))):
         _plot(ax, r.curve, "value", r.label, color)
     ax.yaxis.set_major_formatter(mtick.FuncFormatter(lambda v, _: f"${v:,.0f}"))
     _save(fig, ax, out_dir / "equity.png")
 
     fig, ax = _axes("Drawdown from peak, time-weighted", "Drawdown")
-    for r, color in zip(results, COLORS):
+    for r, color in zip(results, _colours(len(results))):
         _plot(ax, drawdown_curve(r.twr), "drawdown", r.label, color)
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1, decimals=0))
     _save(fig, ax, out_dir / "drawdown.png")
 
     fig, ax = _axes("252-day rolling Sharpe ratio", "Sharpe")
     ax.axhline(0, color=AXIS, linewidth=1)
-    for r, color in zip(results, COLORS):
+    for r, color in zip(results, _colours(len(results))):
         _plot(ax, r.roll, "sharpe", r.label, color)
     _save(fig, ax, out_dir / "rolling_sharpe.png")
 
     fig, ax = _axes("Misallocation after each rebalance", "Misallocated")
-    for r, color in zip(results, COLORS):
+    for r, color in zip(results, _colours(len(results))):
         _plot(ax, r.imbalance, "misallocated", r.label, color)
     ax.yaxis.set_major_formatter(mtick.PercentFormatter(xmax=1, decimals=0))
     _save(fig, ax, out_dir / "imbalance.png")
@@ -192,9 +205,11 @@ def save_markdown(
     results: list[StrategyResult],
     correlations: list[tuple[str, float]],
     out_path: Path,
-    charts_dir: Path,
+    charts_dir: Path | None,
 ) -> None:
-    """Write the full report as Markdown, linking the charts relatively."""
+    """Write the full report as Markdown, linking the charts relatively.
+
+    With charts_dir None (--no-charts) the chart sections are omitted."""
     first, last = results[0].curve["date"][0], results[0].curve["date"][-1]
     lines = [
         "# Portfolio strategy comparison",
@@ -214,7 +229,7 @@ def save_markdown(
         ("drawdown.png", "Drawdown"),
         ("rolling_sharpe.png", "Rolling Sharpe"),
         ("imbalance.png", "Imbalance"),
-    ]:
+    ] if charts_dir is not None else []:
         rel = os.path.relpath(charts_dir / name, out_path.parent)
         lines += ["", f"## {title}", "", f"![{title}]({rel})"]
 

@@ -16,6 +16,7 @@ from report import (
 )
 from results_json import save_curves, save_json
 from simulate import simulate
+from spec import build_bundle, load_spec, normalised_spec
 from stats import correlation, imbalance, rolling_sharpe, summary, top_drawdowns, twr
 from strategy import Strategy
 
@@ -72,9 +73,21 @@ def main() -> None:
     parser.add_argument(
         "bundle",
         nargs="?",
-        default="default",
+        default=None,
         choices=list(BUNDLES),
         help="strategy bundle to run (default: default)",
+    )
+    parser.add_argument(
+        "--spec",
+        type=Path,
+        default=None,
+        help="build the bundle from a spec file instead of a named bundle",
+    )
+    parser.add_argument(
+        "--data",
+        type=Path,
+        default=Path("data"),
+        help="price data directory (default: data)",
     )
     parser.add_argument(
         "--md",
@@ -114,22 +127,37 @@ def main() -> None:
         type=Path,
         help="also write a Markdown transaction log (default path: transactions.md)",
     )
+    parser.add_argument(
+        "--no-charts", action="store_true", help="skip writing the chart PNGs"
+    )
+    parser.add_argument(
+        "--quiet", action="store_true", help="suppress the console report"
+    )
     args = parser.parse_args()
+    if args.spec and args.bundle is not None:
+        parser.error("bundle and --spec are mutually exclusive")
 
-    bundle = BUNDLES[args.bundle]
-    results = run_bundle(bundle, Path("data"))
+    if args.spec:
+        bundle = build_bundle(load_spec(args.spec))
+        name, spec_doc = args.spec.stem, normalised_spec(bundle)
+    else:
+        name = args.bundle or "default"
+        bundle, spec_doc = BUNDLES[name], None
+    results = run_bundle(bundle, args.data)
 
     bench = results[-1]
     correlations = [(r.label, correlation(r.twr, bench.twr)) for r in results[:-1]]
 
-    print_report(results, correlations)
+    if not args.quiet:
+        print_report(results, correlations)
 
-    out_dir = args.charts
-    save_charts(results, out_dir)
-    print(
-        f"\nSaved {out_dir}/equity.png, {out_dir}/drawdown.png, "
-        f"{out_dir}/rolling_sharpe.png, {out_dir}/imbalance.png"
-    )
+    out_dir = None if args.no_charts else args.charts
+    if out_dir is not None:
+        save_charts(results, out_dir)
+        print(
+            f"\nSaved {out_dir}/equity.png, {out_dir}/drawdown.png, "
+            f"{out_dir}/rolling_sharpe.png, {out_dir}/imbalance.png"
+        )
 
     if args.md:
         save_markdown(results, correlations, args.md, out_dir)
@@ -140,7 +168,10 @@ def main() -> None:
         print(f"Saved {args.tx}")
 
     if args.json:
-        save_json(bundle, args.bundle, results, correlations, args.json)
+        save_json(
+            bundle, name, results, correlations, args.json,
+            data_dir=args.data, spec_path=args.spec, spec=spec_doc,
+        )
         print(f"Saved {args.json}")
 
     if args.curves:

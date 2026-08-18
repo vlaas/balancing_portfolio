@@ -16,7 +16,7 @@ from bundles import Bundle
 from report import StrategyResult
 from stats import drawdown_curve, yearly_returns
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 PRECISION = 8
 
 IMBALANCE_KEYS = (
@@ -84,6 +84,7 @@ def _strategy(
         "label": result.label,
         "slug": name,
         "class": type(strategy).__name__,
+        "spec": getattr(strategy, "spec", None),
         "weights": dict(strategy.weights),
         "data": list(strategy.data),
         "indicators": {
@@ -126,6 +127,10 @@ def results_payload(
     results: list[StrategyResult],
     correlations: list[tuple[str, float]],
     generated_at: str,
+    *,
+    data_dir: Path,
+    spec_path: Path | None = None,
+    spec: dict | None = None,
 ) -> dict:
     """The whole run as plain JSON types. `strategies` keeps bundle order, benchmark last."""
     curve = results[0].curve
@@ -142,6 +147,8 @@ def results_payload(
                 "git_sha": sha,
                 "git_dirty": dirty,
                 "bundle": name,
+                "data_dir": str(data_dir),
+                "spec_path": None if spec_path is None else str(spec_path),
                 "generated_at": generated_at,
             },
             "config": {
@@ -156,6 +163,7 @@ def results_payload(
                 "symbols": sorted(symbols),
             },
             "benchmark": results[-1].label,
+            "spec": spec,
             "strategies": [
                 # The benchmark correlates with itself; it gets no entry.
                 _strategy(st, r, s, to_benchmark.get(r.label))
@@ -176,10 +184,17 @@ def save_json(
     results: list[StrategyResult],
     correlations: list[tuple[str, float]],
     out_path: Path,
+    *,
+    data_dir: Path,
+    spec_path: Path | None = None,
+    spec: dict | None = None,
 ) -> None:
     """Write the run's results as JSON, stamped with the current UTC time."""
     generated_at = dt.datetime.now(dt.UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
-    payload = results_payload(bundle, name, results, correlations, generated_at)
+    payload = results_payload(
+        bundle, name, results, correlations, generated_at,
+        data_dir=data_dir, spec_path=spec_path, spec=spec,
+    )
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(dumps(payload))
 

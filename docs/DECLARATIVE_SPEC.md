@@ -1,6 +1,6 @@
 # Specification: declarative bundles and parametrised strategies
 
-Repo: `vlaas/balancing_portfolio` · baseline commit: `93d3f68` ("machine-readable results") · status: proposal
+Repo: `vlaas/balancing_portfolio` · baseline commit: `93d3f68` ("machine-readable results") · status: implemented (see §13)
 
 ## 1. Goal
 
@@ -307,12 +307,53 @@ aligned columns (check header and first metric line widths agree).
 
 ## 12. Acceptance checklist
 
-- [ ] `spec.py` (`load_spec`, `build_bundle`, validation with JSON paths, auto-labels)
-- [ ] `strategies/gate.py`, `strategies/fixed.py`, `strategies/vol_target.py`
-- [ ] `buy_cap` + `MarketDay.contribution` in `strategy.py`; `simulate.py` block per §4
-- [ ] `--spec`, `--data`, `--no-charts`, `--quiet`; `SCHEMA_VERSION = 2` with §5.3 fields
-- [ ] `report.py` dynamic colours (≤ 20, assert beyond) and dynamic `VALUE_W`
-- [ ] `specs/default.json`, `specs/research.json`
-- [ ] Tests T1–T10; whole suite green from a fresh clone with `pip install polars matplotlib pytest`
-- [ ] Existing golden test unchanged and green; existing strategy modules and `bundles.py` untouched
-- [ ] Docs per §10, including the CLAUDE.md agent protocol
+- [x] `spec.py` (`load_spec`, `build_bundle`, validation with JSON paths, auto-labels)
+- [x] `strategies/gate.py`, `strategies/fixed.py`, `strategies/vol_target.py`
+- [x] `buy_cap` + `MarketDay.contribution` in `strategy.py`; `simulate.py` block per §4
+- [x] `--spec`, `--data`, `--no-charts`, `--quiet`; `SCHEMA_VERSION = 2` with §5.3 fields
+- [x] `report.py` dynamic colours (≤ 20, assert beyond) and dynamic `VALUE_W`
+- [x] `specs/default.json`, `specs/research.json`
+- [x] Tests T1–T10; whole suite green from a fresh clone with `pip install polars matplotlib pytest`
+- [x] Existing golden test unchanged and green; existing strategy modules and `bundles.py` untouched
+- [x] Docs per §10, including the CLAUDE.md agent protocol
+
+## 13. Errata — deviations found and fixed during implementation
+
+Validated against the code before implementation; these corrections were
+agreed and applied (the sections above are left as proposed):
+
+- **T4(e)**: `contribution == 0.0` is unobservable from inside a strategy —
+  the engine constructs `MarketDay` only on day 0 and rebalance days, where
+  the flow is non-zero. The test asserts the `0.0` default on a directly
+  constructed `MarketDay` instead; and a day 0 that is also a rebalance day
+  carries `initial_capital + monthly_contribution` (the §4 docstring wording
+  covers this case now).
+- **§2 uniqueness**: `build_bundle` asserts **slug** uniqueness (via
+  `results_json.slug`), which subsumes label uniqueness — two distinct labels
+  can still collide at slug level and would overwrite each other's curve CSV.
+- **§3.1/§4 caps**: a *finite, non-binding* cap is not equivalent to `None` —
+  any asset with a non-`None` cap counts as gated and is excluded from the
+  redistribution. `{0.0 ≡ False, None ≡ True}` hold exactly as specified;
+  documented under `buy_cap` in STRATEGY_DEVELOPMENT.md.
+- **Gate × vol_target**: the contribution-exempt cap multiplies the weights
+  `balance(ctx)` returns for the day (uniform for both types; for `fixed`
+  those are the static weights).
+- **§5.1 exclusion**: implemented as an explicit post-parse `parser.error()` —
+  an argparse mutually-exclusive group is unreliable with an `nargs="?"`
+  positional whose passed value equals its default. Same observable behavior
+  (exit code 2).
+- **§5.3**: `results_payload`/`save_json` grew keyword-only `data_dir`,
+  `spec_path`, `spec` parameters; `tests/test_results_json.py`'s schema
+  assertions were updated to v2 accordingly.
+- **§8**: `specs/default.json` carries explicit labels on all four entries —
+  auto-labels would break the slugs `tests/test_results_json.py` pins.
+- **§9**: `tests/test_report.py` is a new file (the report layer had no
+  tests); the T-numbers here are cited as "DECLARATIVE_SPEC T·" in test
+  comments to avoid clashing with INDICATORS_SPEC's T-numbers already used in
+  the suite.
+- **§10**: STRATEGY_DEVELOPMENT.md has no "writing a strategy class" heading;
+  "Declarative strategies" sits between the intro and Quickstart. The
+  CLAUDE.md section is numbered (`## 6. Agent protocol`) to match the file's
+  convention.
+- **§12**: the suite is verified with `uv run pytest` (the repo is uv-based);
+  the dependencies remain polars, matplotlib, pytest.

@@ -4,6 +4,64 @@ How to add a strategy to the simulator: what you write, what the engine does
 for you, what data you can use, and the sharp edges to watch for. For how the
 machinery works internally, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
+## Declarative strategies
+
+**If it can be a spec, it should be a spec.** A strategy that is a `fixed` or
+`vol_target` parametrisation needs no Python at all: describe it in a JSON
+spec file under `specs/` and run the file directly:
+
+```json
+{
+  "schema_version": 1,
+  "config": { "start": "2017-01-03", "initial_capital": 10000, "monthly_contribution": 500 },
+  "strategies": [
+    { "type": "fixed", "label": "TQQQ/BTAL 50/50", "weights": { "TQQQ": 0.5, "BTAL": 0.5 } },
+    { "type": "fixed", "weights": { "TQQQ": 0.5, "BTAL": 0.5 },
+      "gate": { "symbol": "QQQ", "assets": ["TQQQ"], "sma_days": 200 } },
+    { "type": "vol_target", "risk": "TQQQ", "safe": "BTAL", "vol_symbol": "QQQ",
+      "vol": { "kind": "ewma", "lam": 0.94 }, "leverage": 3, "sigma_target": 0.45, "w_max": 0.5 },
+    { "type": "fixed", "label": "SPY benchmark", "weights": { "SPY": 1.0 } }
+  ]
+}
+```
+
+```
+uv run main.py --spec specs/my_idea.json
+```
+
+`config` mirrors `simulate.Config` exactly. `strategies` is an ordered list,
+**benchmark last**, minimum two entries. Unknown or missing keys fail with the
+JSON path (`strategies[1].gate.sma_day: unknown key`) — a typo never silently
+becomes a default. `specs/default.json` reproduces the code-defined `default`
+bundle; `specs/research.json` holds the current research candidates.
+
+The two types (`spec.py` maps them to `strategies/fixed.py` and
+`strategies/vol_target.py`):
+
+- **`fixed`** — constant `weights` (values ≥ 0, sum ≤ 1; the residual is a
+  deliberate cash reserve), optional `gate`.
+- **`vol_target`** — volatility targeting on one leveraged risk asset:
+  `w_risk = clip(sigma_target / (leverage · σ), w_min, w_max)`, where σ is the
+  `vol` indicator (`{"kind": "ewma", "lam": 0.94}` or
+  `{"kind": "realized", "n": 63}`) computed on `vol_symbol`. `safe` receives
+  `1 − w_risk` (`null` leaves the residual in cash); `fallback` (default
+  `w_max`) applies while σ is still `None`. Optional `gate`.
+
+A **`gate`** belongs to either type: it is closed on days
+`close(symbol) < SMA` (`sma_days` or `sma_months`, exactly one) and open while
+either value is `None`. When closed, buys of its `assets` stop; with
+`"contribution_exempt": true` they continue up to that day's external cash ×
+the asset's weight of the day.
+
+`label` is optional — a missing one is generated deterministically from the
+parameters (`TQQQ50/BTAL50 gate QQQ<SMA200`,
+`VT TQQQ/BTAL t45 w0-50 QQQ:VOL_EWMA94`) — and labels must be unique. The
+normalised spec (defaults and labels filled in) is embedded in `results.json`,
+so a committed result reproduces on its own.
+
+Write a strategy class only when the behavior can't be expressed as a spec.
+The rest of this guide covers that.
+
 ## Quickstart
 
 A fixed-weight strategy is a declaration, nothing more. Create
@@ -16,7 +74,7 @@ from strategy import Strategy
 class MyMix(Strategy):
     """One third each of SPY, TQQQ and BTAL."""
 
-    label = "SPY/TQQQ/BTAL"          # keep ≤ 20 characters (report column width)
+    label = "SPY/TQQQ/BTAL"          # shown in the table, charts and report
     weights = {"SPY": 1 / 3, "TQQQ": 1 / 3, "BTAL": 1 / 3}
 ```
 
@@ -24,21 +82,17 @@ Register it in `bundles.py` by importing it and adding an instance to a
 bundle's strategy list (the `default` bundle, or a new `BUNDLES` entry). Keep
 `SpyBenchmark()` last in every bundle — the last entry is the reference for
 the correlation statistics. Run `uv run main.py [bundle]` and your strategy
-appears as a new column in the table and a new line in every chart — but note
-that `COLORS`
-in `report.py` has exactly as many entries as shipped strategies (four), so
-adding a strategy also means adding a chart color there, or the charts silently
-drop it (see Pitfalls).
+appears as a new column in the table and a new line in every chart.
 
 Requirements: every symbol in `weights` needs a `data/<SYM>.csv`, with price
 history starting no later than the simulation start date (the bundle's
 `Config.start` in `bundles.py`). The start date itself must be an actual
 trading day.
 
-## The two hooks
+## The hooks
 
 The base class runs a fixed-weight strategy with no code. Behavior comes from
-overriding one or both hooks. Both are called only on **trade days** — the
+overriding these hooks. All of them are called only on **trade days** — the
 first simulation day and the last trading day of each month — and receive a
 `MarketDay` (`ctx`) with that day's data.
 
@@ -66,6 +120,18 @@ Return `False` to refuse *buying* `asset` that day. The engine's gate policy
   assets in proportion to their weights among themselves (the portfolio stays
   fully invested apart from any deliberate cash reserve);
 - if *every* asset is gated, the month's contribution simply idles in cash.
+
+### `buy_cap(asset, ctx) -> float | None` — the dollar gate
+
+The dollar generalisation of `allow_buy`: `None` puts no limit on buying
+`asset` that day, `0.0` blocks buys entirely, and a positive cap buys at most
+`floor(cap / price)` extra shares. The default derives from `allow_buy`, so a
+strategy overrides one or the other, never both. `ctx.contribution` — the
+external cash added that day — is what a contribution-exempt gate multiplies:
+`cap = contribution × weight`. One sharp edge: *any* asset with a non-`None`
+cap is treated as gated by the engine, even when the cap doesn't bind — its
+capped target counts as spent budget and it is excluded from the
+redistribution — so return `None`, not a large number, to mean "no limit".
 
 ## Reading market data
 
@@ -209,9 +275,10 @@ force sells, and `allow_buy()` for "stop adding, don't dump" conditions.
   under redistribution it pushes the entire budget into the other assets. The
   POC's "missing → allow" choice is why it starts out identical to the plain
   50/50.
-- **A fifth strategy needs a fifth chart color** — `COLORS` in `report.py` has
-  four entries and `zip` silently drops extra strategies from charts.
-  Keep `label` within 20 characters or the console table misaligns.
+- **Charts stop at 20 strategies** — `report.py` picks colours dynamically
+  (the brand palette through 4 strategies, then tab10/tab20) and asserts
+  beyond 20; run larger bundles with `--no-charts`. Console columns widen to
+  the longest label automatically.
 - **New traded symbols constrain the start date** — the loader's completeness
   assert requires every *traded* symbol to have history by the start date, so
   the simulation can only start once all of them exist (e.g. KMLM data begins
