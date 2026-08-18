@@ -184,7 +184,9 @@ def payload_of(bundle) -> dict:
     results = run_bundle(bundle, GOLDEN_DIR)
     bench = results[-1]
     correlations = [(r.label, correlation(r.twr, bench.twr)) for r in results[:-1]]
-    payload = results_payload(bundle, "default", results, correlations, "2026-01-01T00:00:00Z")
+    payload = results_payload(
+        bundle, "default", results, correlations, "2026-01-01T00:00:00Z", data_dir=GOLDEN_DIR
+    )
     payload.pop("run", None)
     payload.pop("spec", None)
     for entry in payload["strategies"]:

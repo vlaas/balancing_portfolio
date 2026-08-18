@@ -27,7 +27,9 @@ def run():
 @pytest.fixture(scope="module")
 def payload(run):
     results, correlations = run
-    return results_payload(BUNDLES["default"], "default", results, correlations, STAMP)
+    return results_payload(
+        BUNDLES["default"], "default", results, correlations, STAMP, data_dir=GOLDEN_DIR
+    )
 
 
 # T9 - The file has to be diffable: identical inputs, identical bytes.
@@ -37,7 +39,9 @@ def test_the_same_run_serializes_to_the_same_bytes(run):
     results, correlations = run
 
     first, second = (
-        dumps(results_payload(BUNDLES["default"], "default", results, correlations, STAMP))
+        dumps(results_payload(
+        BUNDLES["default"], "default", results, correlations, STAMP, data_dir=GOLDEN_DIR
+    ))
         for _ in range(2)
     )
 
@@ -85,10 +89,15 @@ def test_keys_are_sorted_but_the_benchmark_stays_last(payload):
 
 
 def test_the_payload_carries_the_run_config_and_data_range(payload):
-    assert set(payload) == {"run", "config", "data", "benchmark", "strategies"}
-    assert payload["run"]["schema_version"] == 1
+    assert set(payload) == {"run", "config", "data", "benchmark", "spec", "strategies"}
+    assert payload["run"]["schema_version"] == 2
     assert payload["run"]["bundle"] == "default"
+    assert payload["run"]["data_dir"] == str(GOLDEN_DIR)
+    assert payload["run"]["spec_path"] is None
     assert payload["run"]["generated_at"] == STAMP
+    # A bundle run has no spec to embed, at either level.
+    assert payload["spec"] is None
+    assert all(s["spec"] is None for s in payload["strategies"])
     assert payload["config"] == {
         "start": "2017-01-03",
         "initial_capital": 10_000,

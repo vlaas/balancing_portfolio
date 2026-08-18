@@ -192,9 +192,11 @@ def save_markdown(
     results: list[StrategyResult],
     correlations: list[tuple[str, float]],
     out_path: Path,
-    charts_dir: Path,
+    charts_dir: Path | None,
 ) -> None:
-    """Write the full report as Markdown, linking the charts relatively."""
+    """Write the full report as Markdown, linking the charts relatively.
+
+    With charts_dir None (--no-charts) the chart sections are omitted."""
     first, last = results[0].curve["date"][0], results[0].curve["date"][-1]
     lines = [
         "# Portfolio strategy comparison",
@@ -214,7 +216,7 @@ def save_markdown(
         ("drawdown.png", "Drawdown"),
         ("rolling_sharpe.png", "Rolling Sharpe"),
         ("imbalance.png", "Imbalance"),
-    ]:
+    ] if charts_dir is not None else []:
         rel = os.path.relpath(charts_dir / name, out_path.parent)
         lines += ["", f"## {title}", "", f"![{title}]({rel})"]
 
