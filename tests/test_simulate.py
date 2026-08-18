@@ -5,6 +5,8 @@ from pathlib import Path
 import polars as pl
 import pytest
 
+from polars.testing import assert_frame_equal
+
 from simulate import Config, simulate
 from strategy import MarketDay, Strategy
 
@@ -43,6 +45,21 @@ class Gated(Strategy):
 
     def allow_buy(self, asset: str, ctx: MarketDay) -> bool:
         return asset not in self.blocked or ctx.indicator("A", "GATE") == 1.0
+
+
+class Capped(Strategy):
+    """50/50 A and B, capping buys of the assets in `capped` at `cap` dollars
+    on days the "A:GATE" column reads 0."""
+
+    label = "capped"
+    weights = {"A": 0.5, "B": 0.5}
+    capped = ()
+    cap: float | None = 0.0
+
+    def buy_cap(self, asset: str, ctx: MarketDay) -> float | None:
+        if asset in self.capped and ctx.indicator("A", "GATE") == 0.0:
+            return self.cap
+        return None
 
 
 def test_initial_buy():
@@ -282,3 +299,105 @@ def test_real_data_invariants():
     assert 0.0 <= off["misallocated"].min() and off["misallocated"].max() < 1.0
     # Without gates only integer rounding misbalances the plain 50/50.
     assert off["misallocated"].mean() < 0.01
+
+
+# The buy_cap engine semantics — DECLARATIVE_SPEC.md T4.
+
+
+def gate_prices() -> pl.DataFrame:
+    """The test_gate_redirects_the_blocked_budget setup: gate open on day 0,
+    closed from day 1 on."""
+    return frame(
+        {
+            "A": [10.0, 10.0, 100.0],
+            "B": [10.0, 10.0, 1.0],
+            "A:GATE": [1.0, 0.0, 0.0],
+        },
+        [False, True, False],
+    )
+
+
+def test_buy_cap_zero_matches_allow_buy_false():
+    config = Config(START, 1000.0, 100.0)
+
+    capped = simulate(gate_prices(), Capped(capped=("A",), cap=0.0), config)
+    gated = simulate(gate_prices(), Gated(blocked=("A",)), config)
+
+    for got, want in zip(capped, gated):
+        assert_frame_equal(got, want)
+
+
+def test_buy_cap_none_matches_allow_buy_true():
+    config = Config(START, 1000.0, 100.0)
+
+    capped = simulate(gate_prices(), Capped(capped=("A",), cap=None), config)
+    open_ = simulate(gate_prices(), half_and_half(), config)
+
+    for got, want in zip(capped, open_):
+        assert_frame_equal(got, want)
+
+
+def test_buy_cap_limits_the_buy_in_dollars():
+    # Day 1: total = 500 + 500 + 1000 = 2000, so A's natural target is
+    # floor(1000/10) = 100. The 300.0 cap allows floor(300/10) = 30 more shares
+    # on top of the 50 held, so A stops at 80 and the declined budget takes B,
+    # the only open asset, to floor((2000 - 800)/10) = 120. Cash lands on 0.
+    config = Config(START, 1000.0, 1000.0)
+
+    result, trades, allocations = simulate(
+        gate_prices(), Capped(capped=("A",), cap=300.0), config
+    )
+
+    day1 = trades.filter(pl.col("date") == START + dt.timedelta(days=1))
+    assert day1["action"].to_list() == ["DEPOSIT", "BUY", "BUY"]
+    assert day1["asset"].to_list() == [None, "A", "B"]
+    assert day1["shares"].to_list() == [None, 30, 70]
+    assert result["value"][2] == pytest.approx(80 * 100.0 + 120 * 1.0)
+
+
+def test_buy_cap_leaves_sells_unchanged():
+    # A trebles while capped: its target of floor(1050/30) = 35 is below the 50
+    # held, so the sell happens exactly as with a plain gate — a cap limits
+    # buys, never sells.
+    prices = frame(
+        {
+            "A": [10.0, 30.0, 100.0],
+            "B": [10.0, 10.0, 1.0],
+            "A:GATE": [1.0, 0.0, 0.0],
+        },
+        [False, True, False],
+    )
+    config = Config(START, 1000.0, 100.0)
+
+    capped = simulate(prices, Capped(capped=("A",), cap=300.0), config)
+    gated = simulate(prices, Gated(blocked=("A",)), config)
+
+    for got, want in zip(capped, gated):
+        assert_frame_equal(got, want)
+
+
+class Recording(Strategy):
+    label = "recording"
+    weights = {"A": 1.0}
+
+    def __init__(self):
+        self.seen = []
+
+    def balance(self, ctx: MarketDay) -> dict[str, float]:
+        self.seen.append(ctx.contribution)
+        return self.weights
+
+
+def test_market_day_contribution():
+    assert MarketDay({"date": START}).contribution == 0.0
+
+    config = Config(START, 1000.0, 100.0)
+
+    strategy = Recording()
+    simulate(frame({"A": [10.0, 10.0, 10.0]}, [False, True, False]), strategy, config)
+    assert strategy.seen == [1000.0, 100.0]
+
+    # A day 0 that is also a rebalance day sees both flows at once.
+    strategy = Recording()
+    simulate(frame({"A": [10.0, 10.0]}, [True, False]), strategy, config)
+    assert strategy.seen == [1100.0]

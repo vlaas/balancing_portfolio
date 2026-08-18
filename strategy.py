@@ -8,8 +8,16 @@ from indicators import Indicator
 class MarketDay:
     """Read-only view of one trading day's data."""
 
-    def __init__(self, row: dict):
+    def __init__(self, row: dict, contribution: float = 0.0):
         self._row = row
+        self._contribution = contribution
+
+    @property
+    def contribution(self) -> float:
+        """External cash added today: the initial capital on day 0, the monthly
+        contribution on a rebalance day (their sum when day 0 is also a
+        rebalance day), 0.0 otherwise."""
+        return self._contribution
 
     @property
     def date(self) -> dt.date:
@@ -51,3 +59,11 @@ class Strategy:
     def allow_buy(self, asset: str, ctx: MarketDay) -> bool:
         """Whether `asset` may be bought on `ctx`'s day. Sells are never gated."""
         return True
+
+    def buy_cap(self, asset: str, ctx: MarketDay) -> float | None:
+        """Max USD of `asset` to buy today; None = unlimited. Sells are never capped.
+
+        The default derives from allow_buy(), so strategies overriding only
+        allow_buy() are unchanged.
+        """
+        return None if self.allow_buy(asset, ctx) else 0.0
