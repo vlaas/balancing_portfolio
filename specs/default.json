@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "config": { "start": "2017-01-03", "initial_capital": 10000, "monthly_contribution": 500 },
+  "strategies": [
+    { "type": "fixed", "label": "TQQQ/BTAL 50/50", "weights": { "TQQQ": 0.5, "BTAL": 0.5 } },
+    { "type": "fixed", "label": "TQQQ 100%", "weights": { "TQQQ": 1.0 } },
+    { "type": "fixed", "label": "TQQQ/BTAL SMA gate", "weights": { "TQQQ": 0.5, "BTAL": 0.5 },
+      "gate": { "symbol": "QQQ", "assets": ["TQQQ"], "sma_days": 200 } },
+    { "type": "fixed", "label": "SPY benchmark", "weights": { "SPY": 1.0 } }
+  ]
+}

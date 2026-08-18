@@ -1,0 +1,199 @@
+# Spec parsing, auto-labels, and equivalence to the hand-written strategies —
+# DECLARATIVE_SPEC.md T1, T2, T3, T7, T8.
+
+import copy
+import re
+from pathlib import Path
+
+import pytest
+from polars.testing import assert_frame_equal
+
+from bundles import BUNDLES
+from main import collect_indicators, run_bundle
+from prices import load_prices
+from results_json import results_payload
+from simulate import simulate
+from spec import build_bundle, load_spec
+from stats import correlation
+from strategies.fixed import Fixed
+from strategies.gate import Gate
+from strategies.spy_benchmark import SpyBenchmark
+from strategies.tqqq_100 import Tqqq100
+from strategies.tqqq_btal_5050 import TqqqBtal5050
+from strategies.tqqq_btal_qqq_sma200 import TqqqBtalQqqSma200
+from strategy import MarketDay
+
+GOLDEN_DIR = Path(__file__).parent / "data"
+SPECS = Path(__file__).parents[1] / "specs"
+
+
+# --- T1: parsing -------------------------------------------------------------
+
+
+@pytest.mark.parametrize("name", ["default", "research"])
+def test_shipped_specs_build(name):
+    bundle = build_bundle(load_spec(SPECS / f"{name}.json"))
+    assert len(bundle.strategies) >= 2
+
+
+def broken(mutate) -> dict:
+    spec = copy.deepcopy(load_spec(SPECS / "research.json"))
+    mutate(spec)
+    return spec
+
+
+# research.json entries: [0] fixed labelled, [1] fixed TQQQ100, [2] fixed with a
+# daily gate, [3] fixed with a monthly exempt gate, [4] vol_target, [5] benchmark.
+INVALID = {
+    "unknown top-level key": (lambda s: s.update(sweep={}), "sweep"),
+    "unknown strategy key": (lambda s: s["strategies"][0].update(wieghts={}), "strategies[0].wieghts"),
+    "unknown gate key": (lambda s: s["strategies"][2]["gate"].update(sma_day=200), "strategies[2].gate.sma_day"),
+    "missing required field": (lambda s: s["strategies"][0].pop("weights"), "strategies[0].weights"),
+    "both sma lengths": (lambda s: s["strategies"][2]["gate"].update(sma_months=10), "strategies[2].gate"),
+    "weights above 1": (lambda s: s["strategies"][0].update(weights={"TQQQ": 0.7, "BTAL": 0.5}), "strategies[0].weights"),
+    "w_min above w_max": (lambda s: s["strategies"][4].update(w_min=0.6), "strategies[4]"),
+    "duplicate labels": (lambda s: s["strategies"][1].update(label="TQQQ/BTAL 50/50"), "strategies[1].label"),
+    "one-strategy list": (lambda s: s.update(strategies=s["strategies"][:1]), "strategies"),
+}
+
+
+@pytest.mark.parametrize("mutate,path", INVALID.values(), ids=list(INVALID))
+def test_invalid_specs_name_the_json_path(mutate, path):
+    with pytest.raises(ValueError, match=re.escape(path)):
+        build_bundle(broken(mutate))
+
+
+def test_gate_asset_must_be_traded():
+    with pytest.raises(ValueError, match=re.escape("strategies[2].gate.assets")):
+        build_bundle(broken(lambda s: s["strategies"][2]["gate"].update(assets=["SPY"])))
+
+
+# --- T2: auto-labels ---------------------------------------------------------
+
+
+def label_of(entry) -> str:
+    spec = {
+        "schema_version": 1,
+        "config": {"start": "2017-01-03", "initial_capital": 10000, "monthly_contribution": 500},
+        "strategies": [entry, {"type": "fixed", "label": "bench", "weights": {"SPY": 1.0}}],
+    }
+    return build_bundle(spec).strategies[0].label
+
+
+def test_auto_labels():
+    assert label_of({"type": "fixed", "weights": {"TQQQ": 0.5, "BTAL": 0.5}}) == "TQQQ50/BTAL50"
+    assert label_of({"type": "fixed", "weights": {"SPY": 1.0}}) == "SPY100"
+    assert label_of(
+        {"type": "vol_target", "risk": "TQQQ", "safe": "BTAL", "vol_symbol": "QQQ",
+         "vol": {"kind": "ewma", "lam": 0.94}, "leverage": 3, "sigma_target": 0.45, "w_max": 0.5}
+    ) == "VT TQQQ/BTAL t45 w0-50 QQQ:VOL_EWMA94"
+    assert label_of(
+        {"type": "fixed", "weights": {"TQQQ": 0.5, "BTAL": 0.5},
+         "gate": {"symbol": "QQQ", "assets": ["TQQQ"], "sma_months": 10, "contribution_exempt": True}}
+    ) == "TQQQ50/BTAL50 gate QQQ<SMA10M+contrib"
+
+
+def test_explicit_label_wins():
+    assert label_of({"type": "fixed", "label": "mine", "weights": {"TQQQ": 1.0}}) == "mine"
+
+
+def test_identical_entries_collide_loudly():
+    entry = {"type": "fixed", "weights": {"TQQQ": 0.5, "BTAL": 0.5}}
+    spec = {
+        "schema_version": 1,
+        "config": {"start": "2017-01-03", "initial_capital": 10000, "monthly_contribution": 500},
+        "strategies": [entry, dict(entry)],
+    }
+    with pytest.raises(ValueError, match="duplicate label"):
+        build_bundle(spec)
+
+
+# --- T3: equivalence to the hand-written strategies --------------------------
+
+
+EQUIVALENT = {
+    "TqqqBtal5050": (lambda: Fixed(weights={"TQQQ": 0.5, "BTAL": 0.5}), TqqqBtal5050),
+    "Tqqq100": (lambda: Fixed(weights={"TQQQ": 1.0}), Tqqq100),
+    "SpyBenchmark": (lambda: Fixed(weights={"SPY": 1.0}), SpyBenchmark),
+    "TqqqBtalQqqSma200": (
+        lambda: Fixed(
+            weights={"TQQQ": 0.5, "BTAL": 0.5}, gate=Gate("QQQ", ["TQQQ"], sma_days=200)
+        ),
+        TqqqBtalQqqSma200,
+    ),
+}
+
+
+@pytest.mark.parametrize("build,cls", EQUIVALENT.values(), ids=list(EQUIVALENT))
+def test_fixed_matches_the_hand_written_class(build, cls):
+    config = BUNDLES["default"].config
+    handwritten = cls()
+    prices = load_prices(
+        GOLDEN_DIR, sorted(handwritten.weights), config.start,
+        extra=handwritten.data, indicators=collect_indicators([handwritten]),
+    )
+    for got, want in zip(simulate(prices, build(), config), simulate(prices, handwritten, config)):
+        assert_frame_equal(got, want)
+
+
+# --- T7: the generic strategy contract ---------------------------------------
+
+
+def every_strategy():
+    for name, bundle in BUNDLES.items():
+        for st in bundle.strategies:
+            yield f"{name}:{st.label}", st, bundle.config
+    for path in sorted(SPECS.glob("*.json")):
+        bundle = build_bundle(load_spec(path))
+        for st in bundle.strategies:
+            yield f"{path.stem}:{st.label}", st, bundle.config
+
+
+CONTRACT = {case[0]: case[1:] for case in every_strategy()}
+
+
+@pytest.mark.parametrize("strategy,config", CONTRACT.values(), ids=list(CONTRACT))
+def test_strategy_contract(strategy, config):
+    prices = load_prices(
+        GOLDEN_DIR, sorted(strategy.weights), config.start,
+        extra=strategy.data, indicators=collect_indicators([strategy]),
+    )
+    for row in prices.iter_rows(named=True):
+        if not row["is_rebalance_day"]:
+            continue
+        ctx = MarketDay(row, contribution=config.monthly_contribution)
+        weights = strategy.balance(ctx)
+        assert set(weights) == set(strategy.weights)
+        assert all(w >= 0 for w in weights.values())
+        assert sum(weights.values()) <= 1 + 1e-9
+        for asset in strategy.weights:
+            cap = strategy.buy_cap(asset, ctx)
+            assert cap is None or cap >= 0
+
+    # The same object run twice yields the same curves: no state leaks.
+    for got, want in zip(
+        simulate(prices, strategy, config), simulate(prices, strategy, config)
+    ):
+        assert_frame_equal(got, want)
+
+
+# --- T8: specs/default.json reproduces the default bundle --------------------
+
+
+def payload_of(bundle) -> dict:
+    results = run_bundle(bundle, GOLDEN_DIR)
+    bench = results[-1]
+    correlations = [(r.label, correlation(r.twr, bench.twr)) for r in results[:-1]]
+    payload = results_payload(bundle, "default", results, correlations, "2026-01-01T00:00:00Z")
+    payload.pop("run", None)
+    payload.pop("spec", None)
+    for entry in payload["strategies"]:
+        entry.pop("class", None)
+        entry.pop("spec", None)
+    return payload
+
+
+def test_spec_default_reproduces_the_default_bundle():
+    assert payload_of(build_bundle(load_spec(SPECS / "default.json"))) == payload_of(
+        BUNDLES["default"]
+    )
