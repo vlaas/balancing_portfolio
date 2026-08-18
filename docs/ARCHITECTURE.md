@@ -17,7 +17,8 @@ program itself must never produce. The program is a script
 
 ```mermaid
 flowchart LR
-    CSV["data/*.csv<br/>(OHLC + indicators)"] --> P["prices.py<br/>load_prices()"]
+    CSV["data/*.csv<br/>(time, close)"] --> P["prices.py<br/>load_prices()"]
+    I["indicators.py<br/>sma(), ewma_vol(), …"] --> P
     P --> W["one wide frame<br/>date | SYM… | SYM:COL… | is_rebalance_day"]
     W --> E["simulate.py<br/>simulate() — once per strategy"]
     S["strategies/*.py<br/>Strategy subclasses"] --> B["bundles.py<br/>named bundles:<br/>strategies + Config"]
@@ -39,33 +40,50 @@ to the report layer.
 
 ## prices.py — one wide frame per run
 
-`load_prices(data_dir, symbols, start, extra=()) -> pl.DataFrame` returns a
-single wide frame: `date` (pl.Date, ascending), one Float64 close column per
-loaded symbol named exactly the symbol (`"SPY"`), one Float64 column per
-indicator named `"SYM:COL"` (`"QQQ:SMA200"`), and `is_rebalance_day` (Boolean).
+`load_prices(data_dir, symbols, start, extra=(), indicators={}) -> pl.DataFrame`
+returns a single wide frame: `date` (pl.Date, ascending), one Float64 close
+column per loaded symbol named exactly the symbol (`"SPY"`), one Float64 column
+per indicator named `"SYM:NAME"` (`"QQQ:SMA200"`), and `is_rebalance_day`
+(Boolean). `indicators` maps a symbol to the `indicators.py` factories to
+compute for it; `main.py::collect_indicators` builds it by merging every
+strategy's declarations.
 
 Decisions and their reasons:
 
 - **The trading calendar is the union of the *traded* symbols' dates only.**
   `symbols` are full-joined; `extra` symbols (data a strategy reads but never
   trades, e.g. QQQ) are left-joined afterwards so they can never add dates.
-  Reason: data files are exported independently and drift — `data/QQQ.csv`
-  contains 2026-08-14, a date no traded file has. A union over everything would
-  fabricate a phantom trading day and could even shift last-trading-day-of-month
-  detection.
+  Reason: data files are exported independently and drift apart at the edges —
+  `data/DBMF.csv` and `data/KMLM.csv` currently carry 2026-08-17, a date no traded
+  file has, because they were exported three days after the rest. A union over
+  everything would fabricate a phantom trading day, and a phantom day landing at a
+  month boundary would move `is_rebalance_day` onto it. Which file is ahead changes
+  with every export (QQQ was the example before the 2026-08-14 refresh; it is now
+  flush with the traded files), so the guarantee has to come from the join shape,
+  not from any file's current tail.
 - **Forward-fill happens before filtering to the start date.** BTAL's file is
   missing 73 scattered trading days, and a symbol may lack a row on the start
   date itself; filling first lets the last known close carry across both kinds
   of gap. Trades on a filled day execute at that carried close, which matches
   the product rule "trade at the most recent available close".
-- **`SYM:COL` naming** keeps indicator columns collision-free against symbol
-  names by construction (a bare symbol never contains `:`).
+- **Only `time` and `close` are read from a CSV** — a whitelist, not a
+  blacklist. The export also carries `open/high/low`, TradingView's `SMA*`
+  columns and `Volume`; none of them is a runtime input. The `SMA*` columns
+  survive as the fixture that proves `indicators.sma(n)` matches the export
+  (`tests/test_indicators.py`, agreement to ~2e-12).
+- **Indicators are computed on the symbol's own bar calendar**, inside
+  `_read_symbol`, *before* the join onto the traded calendar. Computing after
+  the join would shift an SMA by one bar wherever a symbol has a gap. Once
+  computed they are ordinary columns and forward-fill like any other.
+- **`SYM:NAME` naming** keeps indicator columns collision-free against symbol
+  names by construction (a bare symbol never contains `:`). `NAME` embeds every
+  parameter, so it is also the identity used to deduplicate declarations.
 - **Null policy is asymmetric on purpose.** Traded closes are asserted non-null
   after filtering — the engine cannot price a trade without them. `extra`
   symbols and all indicator columns may be null before their history begins;
   the strategy API surfaces those as `None` and the strategy decides what that
-  means. All value columns are cast to Float64 at read time because a CSV
-  indicator with a long empty prefix would otherwise be inferred as strings.
+  means. An indicator is null throughout its warm-up — no zero, no partial
+  window.
 - **`is_rebalance_day`** is true when the next *trading day* in the calendar
   falls in a different month — i.e. on the last trading day of each month
   (comparing trading days, not calendar dates: for a third of the months the
@@ -100,10 +118,11 @@ Reasons:
   trade ordering, what happens to a gated asset's budget). This keeps every
   strategy file at a few lines and makes execution semantics uniform and
   testable in one place.
-- **Row-level data access only.** All indicators arrive precomputed as CSV
-  columns, so hooks only ever need "today's numbers"; withholding history
-  removes a whole class of accidental look-ahead and keeps `MarketDay` a dict
-  wrapper.
+- **Row-level data access only.** Indicators are computed up front, column at a
+  time, so hooks only ever need "today's numbers"; withholding history removes a
+  whole class of accidental look-ahead and keeps `MarketDay` a dict wrapper. The
+  causality of the columns themselves is enforced once, in
+  `tests/test_indicators.py`, rather than in every strategy.
 - **`None` vs `KeyError` is deliberate.** A loaded column with no value *yet*
   (before its history starts) reads as `None` — a real market condition the
   strategy must decide about. An *unloaded* column (typo'd indicator name,

@@ -1,9 +1,11 @@
 """Run a strategy bundle — each strategy plus the SPY benchmark — and report them side by side."""
 
 import argparse
+from collections.abc import Iterable
 from pathlib import Path
 
-from bundles import BUNDLES
+from bundles import Bundle, BUNDLES
+from indicators import Indicator
 from prices import load_prices
 from report import (
     StrategyResult,
@@ -14,6 +16,54 @@ from report import (
 )
 from simulate import simulate
 from stats import correlation, imbalance, rolling_sharpe, summary, top_drawdowns, twr
+from strategy import Strategy
+
+
+def collect_indicators(
+    strategies: Iterable[Strategy],
+) -> dict[str, tuple[Indicator, ...]]:
+    """Merge every strategy's indicator declarations, deduplicated by name."""
+    merged: dict[str, dict[str, Indicator]] = {}
+    for st in strategies:
+        for symbol, declared in st.indicators.items():
+            assert symbol in st.weights or symbol in st.data, (
+                f"{st.label}: indicator on undeclared symbol {symbol}"
+            )
+            merged.setdefault(symbol, {}).update({i.name: i for i in declared})
+    return {symbol: tuple(d.values()) for symbol, d in merged.items()}
+
+
+def run_bundle(bundle: Bundle, data_dir: Path) -> list[StrategyResult]:
+    """Load `data_dir` and simulate every strategy in `bundle`, benchmark last."""
+    strategies = bundle.strategies
+    traded = sorted({s for st in strategies for s in st.weights})
+    extra = sorted({s for st in strategies for s in st.data} - set(traded))
+    prices = load_prices(
+        data_dir,
+        traded,
+        bundle.config.start,
+        extra=extra,
+        indicators=collect_indicators(strategies),
+    )
+
+    results = []
+    for st in strategies:
+        curve, trades, allocations = simulate(prices, st, bundle.config)
+        twr_frame = twr(curve)
+        results.append(
+            StrategyResult(
+                label=st.label,
+                curve=curve,
+                twr=twr_frame,
+                roll=rolling_sharpe(twr_frame),
+                stats=summary(curve, twr_frame, allocations),
+                drawdowns=top_drawdowns(twr_frame),
+                trades=trades,
+                allocations=allocations,
+                imbalance=imbalance(allocations),
+            )
+        )
+    return results
 
 
 def main() -> None:
@@ -49,29 +99,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    bundle = BUNDLES[args.bundle]
-    strategies = bundle.strategies
-    traded = sorted({s for st in strategies for s in st.weights})
-    extra = sorted({s for st in strategies for s in st.data} - set(traded))
-    prices = load_prices(Path("data"), traded, bundle.config.start, extra=extra)
-
-    results = []
-    for st in strategies:
-        curve, trades, allocations = simulate(prices, st, bundle.config)
-        twr_frame = twr(curve)
-        results.append(
-            StrategyResult(
-                label=st.label,
-                curve=curve,
-                twr=twr_frame,
-                roll=rolling_sharpe(twr_frame),
-                stats=summary(curve, twr_frame, allocations),
-                drawdowns=top_drawdowns(twr_frame),
-                trades=trades,
-                allocations=allocations,
-                imbalance=imbalance(allocations),
-            )
-        )
+    results = run_bundle(BUNDLES[args.bundle], Path("data"))
 
     bench = results[-1]
     correlations = [(r.label, correlation(r.twr, bench.twr)) for r in results[:-1]]

@@ -1,6 +1,6 @@
 # Specification: computing indicators in Python
 
-Repo: `vlaas/balancing_portfolio` · baseline commit: `4a1b99f` ("Fresh dataset") · status: proposal
+Repo: `vlaas/balancing_portfolio` · baseline commit: `4a1b99f` ("Fresh dataset") · status: implemented
 
 ## 1. Goal
 
@@ -58,6 +58,9 @@ class Indicator:
     fn: Callable[[pl.DataFrame], pl.Series]
 ```
 
+`Indicator` is frozen but wraps a closure, so `sma(3) != sma(3)`: every merge and every
+dedup is **by `name`**, never by value or identity.
+
 Factories (all return `Indicator`). Definitions are normative; the implementation may use
 Polars expressions or plain Python as long as the tests in §7 pass.
 
@@ -86,6 +89,12 @@ Consequences, which the tests pin down:
 - intra-month rows carry the previous month-end's value;
 - null until `m` month-ends have been observed.
 
+Deciding that row *t* is a month-end reads row *t+1*'s **date**, never its close.
+That is calendar look-ahead, and it is the same trade `is_rebalance_day` already makes;
+the value itself still obeys §2.3, depending only on closes at rows ≤ *t*. The practical
+consequence is that `sma_monthly` is truncation-invariant from *t+2* on rather than from
+*t+1*, which is why T2 tests it in a separate lane.
+
 ### 3.2 `ewma_vol(lam)` — recursion
 
 With `r_t = ln(close_t / close_{t-1})` for `t ≥ 1`:
@@ -99,7 +108,8 @@ VOL_EWMA_t = sqrt(252 · s²_t)
 Zero-mean, no bias correction (`adjust=False` in Polars/pandas terms). Report null for the
 first 20 rows (rows 0..19) so early estimates that are dominated by the seed are never read
 by a strategy. In Polars this is `pl.col("r2").ewm_mean(alpha=1 - lam, adjust=False,
-min_periods=20)`; the reference in the tests is a plain loop.
+min_samples=20)` (the argument was named `min_periods` before Polars 1.21); the
+reference in the tests is a plain loop, and the two agree to 5.6e-17.
 
 Note for strategy authors (not for the indicator): vol-targeting on TQQQ should read QQQ's
 vol and multiply by 3, not compute vol on TQQQ.
@@ -176,17 +186,23 @@ if that is where it ends up being reused.
   are the reference for test T1 and are documented as such in `data/README.md` (new, one
   paragraph: source, export settings, which columns are reference-only, the Pine script
   that produced them).
-- The Pine script that produces the reference columns hardcodes lengths next to titles so
-  the header can never disagree with the length; source is `close`.
+- The Pine script that produces the reference columns is in `data/README.md`; source is
+  `close`. Pine requires `plot()` titles to be compile-time constants, so the header
+  (`TITLE_n`) and the length (`input.int` default) are separate declarations that must be
+  edited together — the pairing is a convention the script documents, not something Pine
+  enforces. T1 is the backstop: a header that disagrees with its length fails the suite.
 - `docs/STRATEGY_DEVELOPMENT.md` §"Data files and indicators" and §"Pitfalls / Look-ahead":
   replace "indicators are precomputed in the CSV" with the declaration form above and the
   rules of §2. Remove the "extra columns become indicators" sentence.
-- **Frozen test dataset.** Copy `TQQQ.csv`, `BTAL.csv`, `SPY.csv`, `QQQ.csv` from
-  `4a1b99f` verbatim into `tests/data/2026-08-14/` (named by last bar; ~2 MB). This
-  directory is append-only: never overwrite it, add `tests/data/<newdate>/` if a second
-  snapshot is ever needed. Every test that asserts a number reads from it via a module
-  constant (`GOLDEN_DIR`), not from `data/`. No loader change is required —
-  `load_prices` already takes `data_dir`.
+- `docs/ARCHITECTURE.md` (data-flow diagram, the `load_prices` signature, the `SYM:COL`
+  and null-policy bullets, and "all indicators arrive precomputed as CSV columns") and
+  `README.md` §"Input data" state the same retired contract and need the same treatment.
+- **Frozen test dataset.** `tests/data/` holds all six `data/*.csv` files verbatim from
+  `4a1b99f` (committed in `77d939c`). It is append-only: never overwrite it, add
+  `tests/data/<newdate>/` if a second snapshot is ever needed. Every test that asserts a
+  number reads from it via a module constant (`GOLDEN_DIR = Path(__file__).parent /
+  "data"`), not from `data/`. No loader change is required — `load_prices` already takes
+  `data_dir`.
 - Live `data/` continues to move with exports and gets exactly one test: it loads for
   the traded/extra symbols of every bundle in `BUNDLES` and covers each bundle's
   `Config.start`, with no numeric assertions.
@@ -194,7 +210,18 @@ if that is where it ends up being reused.
   currently pinned to the pre-fresh-dataset shape (they fail on `4a1b99f`: 15 extra
   `SYM:*` columns, 2417 rows). Re-point them to `GOLDEN_DIR` and re-pin to the new
   loader (no CSV columns beyond close; expected columns are exactly the declared
-  indicators).
+  indicators). Two further assertions in the second test are also stale under the fresh
+  dataset: QQQ's history now starts 1999-03-10, so it is **not** null on the 2017-01-03
+  start date (it is 119.54), and QQQ no longer runs a day past the traded files — every
+  file ends 2026-08-14. Correct pins: 2417 rows, last date 2026-08-14, 115 rebalance days
+  on or before 2026-07-31.
+- Three synthetic loader tests assert that a CSV's `SMA200` column loads as `X:SMA200`
+  (`test_extra_symbol_columns_are_namespaced`,
+  `test_extra_symbol_is_null_before_its_history_starts`,
+  `test_traded_symbol_indicator_is_namespaced_and_may_be_null`). The whitelist ends that
+  contract; rewrite all three against declared indicators. `tests/test_simulate.py::
+  test_real_data_invariants` asserts numbers against `data/` and moves to `GOLDEN_DIR`
+  under the rule above.
 
 ## 7. Tests — `tests/test_indicators.py` (new) plus loader tests
 
@@ -205,10 +232,18 @@ count. Compares columns within a file, so it is safe on live data. (Measured on
 `4a1b99f`: max diff 2e-12 across all 24 columns.)
 
 **T2 — Causality.** For every factory in §3 with default-ish parameters and for at least
-QQQ and BTAL: for cut points *t* ∈ {warm-up row, warm-up+1, a mid-history month-end, the
-row before a month-end, last row}, computing on `frame[: t+1]` gives the same value at *t*
-as computing on the full frame (`nan`-safe equality). This is the look-ahead guard for all
-future indicators; new factories must be added to its parameter list.
+QQQ and BTAL, over cut points *t* ∈ {warm-up row, warm-up+1, a mid-history month-end, the
+row before a month-end, last row}. This is the look-ahead guard for all future indicators;
+new factories must be added to its parameter list. Two lanes:
+
+- **strict** (`sma`, `realized_vol`, `ewma_vol`, `drawdown`, `momentum`): computing on
+  `frame[: t+1]` gives the same value at *t* as computing on the full frame.
+- **one row of slack** (`sma_monthly`): the same, on `frame[: t+2]`. `frame[: t+1]` would
+  hide the month-end flag itself (§3.1) — measured on QQQ at row 3455 (2012-11-30), the
+  full frame gives 65.722 and `frame[: t+1]` gives 65.195, the previous month-end carried
+  forward. The property that actually matters is asserted separately and strictly:
+  multiplying every close *after* row *t* by 1000 leaves the value at *t* unchanged, i.e.
+  no price look-ahead.
 
 **T3 — Warm-up.** First non-null index equals the table in §3 for each factory, on a
 synthetic strictly-positive random-walk close series of 600 rows.
@@ -223,8 +258,10 @@ the file's final (partial-month) row is not a month-end.
 
 **T6 — Loader.** `load_prices(tmp_path, ["A"], start, extra=("X",), indicators={"X": (sma(3),)})`
 yields columns `["date", "A", "X", "X:SMA3", "is_rebalance_day"]`; the indicator forward-fills
-across a date X lacks; declaring the same indicator twice yields one column; extra CSV
-columns (`SMA50`, `Volume`) are not loaded.
+across a date X lacks (and that date never enters the window, since the indicator is
+computed on X's own calendar); declaring the same indicator twice yields one column
+(dedup by name, since `sma(3) != sma(3)`); extra CSV columns (`SMA50`, `Volume`) are not
+loaded.
 
 **T7 — Declaration guard.** A strategy with `indicators={"QQQ": ...}` but QQQ in neither
 `weights` nor `data` raises `AssertionError` from the merge in `main.py` (test the
@@ -232,7 +269,9 @@ columns (`SMA50`, `Volume`) are not loaded.
 
 **T8 — Golden regression.** Running the `default` bundle's strategies and `Config` against
 `GOLDEN_DIR` (not `data/`) reproduces the numbers in §8 to the cent — a hard-coded dict
-in the test, no fixture machinery. Add it if it does not already exist as one; it is the
+in the test, no fixture machinery. `main.py` grows a `run_bundle(bundle, data_dir)` that
+`main()` calls with `Path("data")` and T8 calls with `GOLDEN_DIR`, so the test guards the
+production path rather than a copy of it. Add it if it does not already exist as one; it is the
 acceptance gate for every future engine-touching change. Because the inputs are frozen,
 a T8 failure means the engine changed: fix the bug, or update the dict in the same
 commit with the reason in the message. Never "fix" T8 by refreshing the snapshot.
@@ -252,16 +291,19 @@ instead of the CSV). Any deviation is a bug in the indicator or the loader, not 
 
 ## 9. Acceptance checklist
 
-- [ ] `indicators.py` with `Indicator` and the six factories of §3
-- [ ] `Strategy.indicators` attribute; `TqqqBtalQqqSma200` migrated
-- [ ] `_read_symbol` whitelist + indicator computation; `load_prices(indicators=...)`
-- [ ] `main.py` merge with undeclared-symbol assertion
-- [ ] `tests/data/2026-08-14/` frozen snapshot (4 files, verbatim from `4a1b99f`); all
-      numeric tests read `GOLDEN_DIR`; one non-numeric smoke test on live `data/`
-- [ ] `tests/test_indicators.py` T1–T5, loader tests T6–T7, golden T8
-- [ ] `pytest` green from a fresh `git clone` with `pip install polars matplotlib pytest`
-- [ ] `docs/STRATEGY_DEVELOPMENT.md` and `data/README.md` updated
-- [ ] No change to `simulate.py`, `stats.py`, `report.py`
+- [x] `indicators.py` with `Indicator` and the six factories of §3
+- [x] `Strategy.indicators` attribute; `TqqqBtalQqqSma200` migrated
+- [x] `_read_symbol` whitelist + indicator computation; `load_prices(indicators=...)`
+- [x] `main.py` `collect_indicators` merge with undeclared-symbol assertion, and
+      `run_bundle(bundle, data_dir)`
+- [x] `tests/data/` frozen snapshot (verbatim from `4a1b99f`); all numeric tests read
+      `GOLDEN_DIR`; one non-numeric smoke test per bundle on live `data/`
+- [x] `tests/test_indicators.py` T1–T5, loader tests T6 in `tests/test_prices.py`,
+      T7–T8 in `tests/test_main.py`
+- [x] `pytest` green from a fresh `git clone` with `pip install polars matplotlib pytest`
+- [x] `docs/STRATEGY_DEVELOPMENT.md`, `docs/ARCHITECTURE.md`, `README.md` updated;
+      `data/README.md` written, including the Pine source
+- [x] No change to `simulate.py`, `stats.py`, `report.py`
 
 ## 10. Deliberately not in scope
 

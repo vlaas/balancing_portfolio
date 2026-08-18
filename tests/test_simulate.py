@@ -8,7 +8,7 @@ import pytest
 from simulate import Config, simulate
 from strategy import MarketDay, Strategy
 
-DATA_DIR = Path(__file__).parent.parent / "data"
+GOLDEN_DIR = Path(__file__).parent / "data"  # frozen snapshot; numbers are pinned to it
 START = dt.date(2020, 1, 2)
 
 
@@ -262,7 +262,7 @@ def test_real_data_invariants():
     from prices import load_prices
 
     start = dt.date(2017, 1, 3)
-    prices = load_prices(DATA_DIR, ["TQQQ", "BTAL", "SPY"], start)
+    prices = load_prices(GOLDEN_DIR, ["TQQQ", "BTAL", "SPY"], start)
     config = Config(start, 10000.0, 500.0)
     strategy = Strategy(label="test", weights={"TQQQ": 0.5, "BTAL": 0.5})
 
