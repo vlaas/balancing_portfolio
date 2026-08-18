@@ -65,3 +65,17 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 * For complex problems, throw more compute at it via subagents
 * One task per subagent for focused execution
 
+## 6. Agent protocol
+
+**A strategy proposal is a spec file, never engine code.**
+
+- A proposal is a JSON spec under `specs/` (format:
+  `docs/STRATEGY_DEVELOPMENT.md`, "Declarative strategies").
+- Run it as `uv run main.py --spec specs/X.json --json results/X.json
+  --no-charts --quiet`; add `--data tests/data` whenever a number must be
+  comparable to the golden values.
+- Commit the spec and its results together. Results are never edited by hand.
+- When a proposal needs a new strategy type or parameter: change
+  `spec.py`/`strategies/` with tests first, write the spec second.
+- Never modify engine semantics (`simulate.py`, `strategy.py`) to make a spec
+  "work" without saying so explicitly in the commit message.
