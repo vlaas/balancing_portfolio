@@ -95,6 +95,13 @@ def top_drawdowns(twr_frame: pl.DataFrame, n: int = 5) -> list[Drawdown]:
     return episodes[:n]
 
 
+def drawdown_curve(twr_frame: pl.DataFrame) -> pl.DataFrame:
+    """The TWR index's running distance below its own peak, per day."""
+    return twr_frame.select(
+        "date", drawdown=pl.col("index") / pl.col("index").cum_max() - 1
+    )
+
+
 def rolling_sharpe(twr_frame: pl.DataFrame, window: int = TRADING_DAYS) -> pl.DataFrame:
     """Annualized Sharpe over a trailing window; null during warmup and where std is 0."""
     mean = pl.col("ret").rolling_mean(window)
@@ -117,7 +124,7 @@ def correlation(twr_a: pl.DataFrame, twr_b: pl.DataFrame) -> float:
     return joined.select(pl.corr("a", "b")).item()
 
 
-def _yearly_returns(twr_frame: pl.DataFrame) -> list[tuple[int, float]]:
+def yearly_returns(twr_frame: pl.DataFrame) -> list[tuple[int, float]]:
     """Calendar-year returns from the TWR index; the partial final year is included as-is."""
     year_ends = (
         twr_frame.sort("date")
@@ -173,7 +180,7 @@ def summary(
     drawdowns = top_drawdowns(twr_frame)
     max_drawdown = drawdowns[0].depth
 
-    yearly = _yearly_returns(twr_frame)
+    yearly = yearly_returns(twr_frame)
     best_year = max(yearly, key=lambda y: y[1])
     worst_year = min(yearly, key=lambda y: y[1])
 

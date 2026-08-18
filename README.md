@@ -104,6 +104,15 @@ Output form:
 - Optionally (`--tx` flag) a Markdown transaction log: every deposit, buy and sell per
   strategy with date, shares, price, amount, cash after, and that day's portfolio value.
   Each rebalance day ends with a BALANCE row showing actual/target percents per asset.
+- Optionally (`--json` flag) a machine-readable results file: the schema version, the
+  commit it was run from, the bundle's configuration, the data range, and per strategy
+  the summary statistics, drawdown table, yearly returns, imbalance stats (aggregate and
+  per rebalance day) and correlation to the benchmark. Keys are sorted and every float
+  is rounded to 8 decimals, so two runs diff cleanly in git; `generated_at` is the only
+  field that changes when nothing else does.
+- Optionally (`--curves` flag) one CSV per strategy of every daily series the charts are
+  drawn from — `date, value, flow, ret, index, drawdown, rolling_sharpe` — named after
+  the strategy's slug (`tqqq-btal-50-50.csv`).
 
 # Comparison to SP500
 

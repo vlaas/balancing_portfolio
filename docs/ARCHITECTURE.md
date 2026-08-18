@@ -30,6 +30,8 @@ flowchart LR
     A --> ST
     ST --> R["report.py<br/>console · 4 charts ·<br/>report.md · transactions.md"]
     T --> R
+    ST --> J["results_json.py<br/>results.json ·<br/>curves/*.csv"]
+    B --> J
 ```
 
 `main.py` wires the pipeline: it looks up the bundle named on the command line
@@ -214,6 +216,12 @@ feeds CAGR, drawdowns, yearly returns, and thereby Calmar.
 - **`summary(curve, twr_frame, allocations)`** returns a flat dict with fixed
   keys — the contract consumed by the report layer's `METRICS` table. Sharpe
   uses a 0% risk-free rate (no rate data in the repo; a documented limitation).
+- **`yearly_returns` and `drawdown_curve` are public** because two layers read
+  them. `summary()` reduces `yearly_returns` to `best_year`/`worst_year`, but
+  `results_json.py` emits the whole series; `drawdown_curve`
+  (`index / index.cum_max() − 1`) is drawn by `report.py` and written by the
+  curve CSVs. `drawdown_curve` used to be private to `report.py` — it is
+  computation, so it moved down here once a second caller appeared.
 
 ## report.py — presentation only
 
@@ -232,6 +240,65 @@ strategy and the report layer never recomputes anything.
 - Markdown image links are computed relative to the report's own location, so
   `--md` and `--charts` may point anywhere independently.
 
+## results_json.py — the machine-readable contract
+
+Everything `report.py` emits is pre-formatted for a human (`$237,275.03`,
+`2023: +65.1%`). This module emits the raw numbers instead, so a run can be
+committed and the next run diffed against it. `--json PATH` writes one file;
+`--curves DIR` writes one `<slug>.csv` per strategy.
+
+```json
+{
+  "run":    {"schema_version": 1, "git_sha": …, "git_dirty": …, "bundle": …, "generated_at": …},
+  "config": {"start": …, "initial_capital": …, "monthly_contribution": …},
+  "data":   {"start": …, "end": …, "trading_days": …, "symbols": [...]},
+  "benchmark": "SPY benchmark",
+  "strategies": [
+    {"label": …, "slug": …, "class": …, "weights": {...}, "data": [...], "indicators": {...},
+     "correlation_to_benchmark": …,
+     "summary":        {"…the 18 summary() keys…"},
+     "drawdowns":      [{"peak": …, "trough": …, "recovery": …, "depth": …, "days": …}],
+     "yearly_returns": [{"year": …, "return": …}],
+     "imbalance":      {"avg_misallocation": …, "…": …, "by_date": [{"date": …, "misallocated": …, "max_deviation": …}]}}
+  ]
+}
+```
+
+Decisions and their reasons:
+
+- **Sorted keys, floats rounded to 8 decimals, `-0.0` normalized to `0.0`.**
+  One global precision rather than a per-metric table, so a statistic added to
+  `summary()` needs no change here. Python renders values below 1e-4 as
+  `7.036e-05`; that is deterministic and parses identically, so it is left
+  alone. `json.dumps(allow_nan=False)` makes a NaN fail loudly instead of
+  writing `NaN`, which is not valid JSON.
+- **`strategies` is an array, not an object keyed by label.** `sort_keys` would
+  reorder an object alphabetically and destroy the bundle's benchmark-last
+  convention, which `correlation_to_benchmark: null` on the final entry depends
+  on. The benchmark's identity is a top-level `benchmark` field rather than the
+  string hardcoded in `report.py`'s correlation lines.
+- **`generated_at` is the accepted cost of provenance.** It changes on every
+  re-run; it lives in the `run` block so the numbers' diff is never touched.
+  `git_sha` alone does not identify a run — `git_dirty` says whether the tree
+  had uncommitted changes. Both are `null` outside a git checkout: a results
+  file is still worth writing.
+- **`results_payload(...)` is pure and takes `generated_at`**; `save_json`
+  stamps the clock and writes. That seam is what lets the test assert two builds
+  of the same run are byte-identical.
+- **The four imbalance aggregates appear twice** — in `summary` (which is a
+  faithful dump of the `summary()` contract, so a consumer gets it intact) and
+  in `imbalance` alongside `by_date`. Four duplicated floats buy two blocks that
+  are each usable on their own.
+- **`slug`** (`TQQQ/BTAL 50/50` → `tqqq-btal-50-50`) exists because `label` is a
+  display string and cannot name a file. Collisions are asserted against, since
+  two equal slugs would silently overwrite a curve CSV.
+- **The curve CSV joins all four daily frames** (`date, value, flow, ret, index,
+  drawdown, rolling_sharpe`) so the four PNGs are reproducible from data.
+  `write_csv(float_precision=8)` gives fixed-decimal floats, ISO dates and empty
+  nulls — `ret` is empty on row 1, `rolling_sharpe` through its 252-day warm-up.
+- Unlike `report.py`, this layer **is** tested (`tests/test_results_json.py`):
+  a format nobody reads by eye cannot be verified by looking at it.
+
 ## bundles.py — strategy bundles
 
 A `Bundle` is a frozen dataclass pairing a list of strategy *instances* with
@@ -246,7 +313,7 @@ traded-symbol set (union of all `weights` keys) and the extra-data set (union
 of `data`, minus traded) are collected from the bundle's strategies, so adding
 a strategy that trades a new symbol just requires its CSV to exist. CLI:
 `[bundle]` (positional, `choices` from `BUNDLES`, default `default`),
-`--charts DIR`, `--md [PATH]`, `--tx [PATH]`.
+`--charts DIR`, `--md [PATH]`, `--tx [PATH]`, `--json [PATH]`, `--curves [DIR]`.
 
 ## Testing philosophy
 
@@ -259,7 +326,9 @@ a strategy that trades a new symbol just requires its CSV to exist. CLI:
   cash never negative, misallocation of the plain 50/50 under 1%.
 - The report layer (formatting, charts) is deliberately untested — it is
   verified by running `uv run main.py` and looking, which catches more than
-  golden-file tests would at this size.
+  golden-file tests would at this size. `results_json.py` is the exception: its
+  output is read by machines, so byte-stability, precision, key order and the
+  payload's contract are all asserted.
 - Regression anchor: through every refactor, the plain strategies must
   reproduce their prior results to the cent (e.g. TQQQ/BTAL 50/50 final value
   $237,334.67 from the `default` bundle).
