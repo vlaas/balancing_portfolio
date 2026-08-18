@@ -90,12 +90,33 @@ ctx.indicator("QQQ", "SMA200")    # "QQQ:SMA200" column, or None before it exist
 
 ## Data files and indicators
 
-- CSVs live in `data/<SYM>.csv` with columns `time,open,high,low,close` —
-  TradingView's export format. Only `close` is used for trading and valuation.
-- Any **additional column becomes an indicator**, loaded as `SYM:COL`:
-  `data/QQQ.csv` has an `SMA200` column → `ctx.indicator("QQQ", "SMA200")`.
-  Indicators are precomputed in the CSV (e.g. by TradingView), not calculated
-  by the simulator.
+- CSVs live in `data/<SYM>.csv` in TradingView's export format. The loader
+  reads **only `time` and `close`**; every other column (`open`, `high`, `low`,
+  `SMA*`, `Volume`) is ignored. See `data/README.md`.
+- **Indicators are computed by the simulator**, from `indicators.py`, and
+  declared per strategy:
+
+  ```python
+  class TqqqBtalQqqSma200(Strategy):
+      weights = {"TQQQ": 0.5, "BTAL": 0.5}
+      data = ("QQQ",)
+      indicators = {"QQQ": (sma(200),)}   # loads "QQQ:SMA200"
+  ```
+
+  Each one loads as `SYM:NAME` and is read with `ctx.indicator("QQQ", "SMA200")`.
+  The name embeds every parameter (`SMA200`, `SMA10M`, `VOL_EWMA94`), so two
+  parameterisations coexist and the name *is* the indicator's identity —
+  declarations are merged across the bundle and deduplicated by name.
+- A symbol you attach an indicator to must be one you trade (`weights`) or read
+  (`data`); anything else is an assertion error at load time.
+- Available factories: `sma(n)`, `sma_monthly(m)`, `realized_vol(n)`,
+  `ewma_vol(lam)`, `drawdown()`, `momentum(n)`. Add one by writing a factory
+  and adding it to the causality test's parameter list in
+  `tests/test_indicators.py`.
+- Every indicator is computed on the **symbol's own bar calendar**, before the
+  join onto the traded calendar. Computing after the join would shift an SMA by
+  one bar wherever a symbol has a gap (BTAL, 2017-01-24). Values are `None`
+  during warm-up — never zero, never a partial window.
 - The trading calendar is defined by the **traded** symbols only. `data`
   symbols are joined onto it: their extra dates are ignored, their gaps are
   forward-filled, and they may begin after the simulation start (values are
@@ -177,9 +198,13 @@ force sells, and `allow_buy()` for "stop adding, don't dump" conditions.
 - **Hooks run only on trade days.** A signal that fires mid-month and clears
   before month-end is invisible. That is the product's design (monthly
   cadence), not a bug — don't expect stop-loss-like behavior.
-- **Look-ahead bias is your responsibility.** Indicator columns come
-  precomputed; make sure each row's value uses only data up to that date (a
-  200-day SMA does; a full-period z-score would not).
+- **Look-ahead bias is your responsibility.** An indicator's value at row *t*
+  may depend only on closes at rows ≤ *t* (a 200-day SMA obeys this; a
+  full-period z-score would not). `tests/test_indicators.py` enforces it by
+  recomputing on a truncated frame — add every new factory to its parameter
+  list. The one documented exception is `sma_monthly`, which needs the *next
+  row's date* to know today is a month-end; that is calendar look-ahead, never
+  price look-ahead, and is the same trade `is_rebalance_day` already makes.
 - **Think through `None`.** Gating on missing data doesn't just skip a buy —
   under redistribution it pushes the entire budget into the other assets. The
   POC's "missing → allow" choice is why it starts out identical to the plain

@@ -1,3 +1,4 @@
+from indicators import sma
 from strategy import MarketDay, Strategy
 
 
@@ -9,6 +10,7 @@ class TqqqBtalQqqSma200(Strategy):
     label = "TQQQ/BTAL SMA gate"
     weights = {"TQQQ": 0.5, "BTAL": 0.5}
     data = ("QQQ",)
+    indicators = {"QQQ": (sma(200),)}
 
     def allow_buy(self, asset: str, ctx: MarketDay) -> bool:
         if asset != "TQQQ":

@@ -2,6 +2,8 @@
 
 import datetime as dt
 
+from indicators import Indicator
+
 
 class MarketDay:
     """Read-only view of one trading day's data."""
@@ -35,6 +37,8 @@ class Strategy:
     label: str
     weights: dict[str, float]
     data: tuple[str, ...] = ()  # symbols the hooks read but never trade
+    # Indicators to compute per symbol; each symbol must be in weights or data.
+    indicators: dict[str, tuple[Indicator, ...]] = {}
 
     def __init__(self, **overrides):
         for name, value in overrides.items():

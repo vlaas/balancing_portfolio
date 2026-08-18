@@ -46,11 +46,12 @@ cash flows.
 # Input data
 
 Daily OHLC prices per symbol, in CSV form with columns `time,open,high,low,close`
-(`time` is `YYYY-MM-DD`). A CSV may carry additional indicator columns (e.g.
-`data/QQQ.csv` has `SMA200`); these load as `SYM:COL` (e.g. `QQQ:SMA200`) and are read
-via `ctx.indicator("QQQ", "SMA200")`. Symbols listed only in a strategy's `data` join
-the trading calendar without extending it (their extra dates are ignored) and may be
-null before their history begins.
+(`time` is `YYYY-MM-DD`). Only `time` and `close` are read; see `data/README.md`.
+Indicators are computed by the simulator from `indicators.py` and declared per
+strategy (`indicators = {"QQQ": (sma(200),)}`); each loads as `SYM:NAME` (e.g.
+`QQQ:SMA200`) and is read via `ctx.indicator("QQQ", "SMA200")`. Symbols listed only in
+a strategy's `data` join the trading calendar without extending it (their extra dates
+are ignored) and may be null before their history begins.
 
 Data notes:
 
