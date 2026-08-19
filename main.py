@@ -1,6 +1,8 @@
 """Run a strategy bundle — each strategy plus the SPY benchmark — and report them side by side."""
 
 import argparse
+import dataclasses
+import datetime as dt
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -44,6 +46,7 @@ def run_bundle(bundle: Bundle, data_dir: Path) -> list[StrategyResult]:
         data_dir,
         traded,
         bundle.config.start,
+        end=bundle.config.end,
         extra=extra,
         indicators=collect_indicators(strategies),
     )
@@ -88,6 +91,12 @@ def main() -> None:
         type=Path,
         default=Path("data"),
         help="price data directory (default: data)",
+    )
+    parser.add_argument(
+        "--end",
+        type=dt.date.fromisoformat,
+        default=None,
+        help="override the bundle's or spec's end date (YYYY-MM-DD)",
     )
     parser.add_argument(
         "--md",
@@ -138,11 +147,15 @@ def main() -> None:
         parser.error("bundle and --spec are mutually exclusive")
 
     if args.spec:
-        bundle = build_bundle(load_spec(args.spec))
-        name, spec_doc = args.spec.stem, normalised_spec(bundle)
+        bundle, name = build_bundle(load_spec(args.spec)), args.spec.stem
     else:
         name = args.bundle or "default"
-        bundle, spec_doc = BUNDLES[name], None
+        bundle = BUNDLES[name]
+    if args.end is not None:
+        bundle = dataclasses.replace(
+            bundle, config=dataclasses.replace(bundle.config, end=args.end)
+        )
+    spec_doc = normalised_spec(bundle) if args.spec else None
     results = run_bundle(bundle, args.data)
 
     bench = results[-1]

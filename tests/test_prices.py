@@ -186,6 +186,46 @@ def test_csv_columns_beyond_close_are_not_loaded(tmp_path):
     assert prices.columns == ["date", "A", "is_rebalance_day"]
 
 
+def test_end_truncates_and_the_last_row_never_rebalances(tmp_path):
+    dates = [
+        "2020-11-27",
+        "2020-11-30",  # last trading day of November
+        "2020-12-01",
+        "2020-12-31",  # last trading day of December
+        "2021-01-04",
+    ]
+    write_csv(tmp_path, "A", [(date, 10.0) for date in dates])
+
+    prices = load_prices(tmp_path, ["A"], dt.date(2020, 11, 27), end=dt.date(2020, 12, 31))
+
+    assert prices["date"].last() == dt.date(2020, 12, 31)
+    # 2020-12-31 is a month end, but as the truncated frame's final row it is a
+    # valuation day, not a trade day — the same rule as the natural data end.
+    assert prices["is_rebalance_day"].to_list() == [False, True, False, False]
+
+
+def test_end_between_trading_days_acts_as_a_filter(tmp_path):
+    write_csv(tmp_path, "A", [("2020-01-02", 10.0), ("2020-01-03", 11.0), ("2020-01-06", 12.0)])
+
+    prices = load_prices(tmp_path, ["A"], dt.date(2020, 1, 2), end=dt.date(2020, 1, 4))
+
+    assert prices["date"].to_list() == [dt.date(2020, 1, 2), dt.date(2020, 1, 3)]
+
+
+def test_end_before_start_raises(tmp_path):
+    write_csv(tmp_path, "A", [("2020-01-02", 10.0), ("2020-01-03", 11.0)])
+
+    with pytest.raises(ValueError, match="before start"):
+        load_prices(tmp_path, ["A"], dt.date(2020, 1, 3), end=dt.date(2020, 1, 2))
+
+
+def test_end_past_the_data_raises(tmp_path):
+    write_csv(tmp_path, "A", [("2020-01-02", 10.0), ("2020-01-03", 11.0)])
+
+    with pytest.raises(ValueError, match="past the last data date"):
+        load_prices(tmp_path, ["A"], dt.date(2020, 1, 2), end=dt.date(2020, 1, 4))
+
+
 def test_real_data():
     start = dt.date(2017, 1, 3)
     prices = load_prices(GOLDEN_DIR, ["TQQQ", "BTAL", "SPY"], start)

@@ -14,6 +14,7 @@ class Config:
     start: dt.date
     initial_capital: float
     monthly_contribution: float
+    end: dt.date | None = None
 
 
 def simulate(

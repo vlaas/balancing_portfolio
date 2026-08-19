@@ -155,7 +155,8 @@ def results_payload(
                 "start": bundle.config.start.isoformat(),
                 "initial_capital": bundle.config.initial_capital,
                 "monthly_contribution": bundle.config.monthly_contribution,
-            },
+            }
+            | ({"end": bundle.config.end.isoformat()} if bundle.config.end else {}),
             "data": {
                 "start": curve["date"][0].isoformat(),
                 "end": curve["date"][-1].isoformat(),

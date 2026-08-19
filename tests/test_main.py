@@ -98,6 +98,29 @@ def test_spec_cli_writes_json_and_nothing_else(tmp_path, monkeypatch, capsys):
     assert all(entry["spec"] for entry in payload["strategies"])
 
 
+def test_end_cli_reaches_results_json_config(tmp_path, monkeypatch):
+    out = tmp_path / "out.json"
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "main.py",
+            "--spec", str(Path(__file__).parents[1] / "specs" / "research.json"),
+            "--data", str(GOLDEN_DIR),
+            "--end", "2024-12-31",
+            "--json", str(out),
+            "--no-charts",
+            "--quiet",
+        ],
+    )
+
+    main()
+
+    payload = json.loads(out.read_text())
+    assert payload["config"]["end"] == "2024-12-31"
+    assert payload["spec"]["config"]["end"] == "2024-12-31"
+    assert payload["data"]["end"] <= "2024-12-31"
+
+
 def test_bundle_and_spec_are_mutually_exclusive(monkeypatch, capsys):
     monkeypatch.setattr(
         "sys.argv", ["main.py", "default", "--spec", "specs/research.json"]
