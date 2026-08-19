@@ -74,11 +74,15 @@ def _gate(entry: dict, path: str, universe: set) -> tuple[Gate, dict]:
     return gate, normalised
 
 
-def _gate_suffix(gate: Gate | None) -> str:
-    if gate is None:
-        return ""
+def gate_str(gate: Gate) -> str:
+    """`QQQ<SMA200`, plus `+contrib` when contributions are exempt — the
+    rendering the auto-labels embed and sweep params reuse."""
     exempt = "+contrib" if gate.contribution_exempt else ""
-    return f" gate {gate.symbol}<{gate.column}{exempt}"
+    return f"{gate.symbol}<{gate.column}{exempt}"
+
+
+def _gate_suffix(gate: Gate | None) -> str:
+    return "" if gate is None else f" gate {gate_str(gate)}"
 
 
 def _fixed(entry: dict, path: str) -> Fixed:
