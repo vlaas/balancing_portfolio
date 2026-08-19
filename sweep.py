@@ -715,7 +715,9 @@ def main() -> None:
     out.mkdir(parents=True, exist_ok=True)
     (out / "strategies.json").write_text(results_json.dumps(results_json._round(expanded)))
     runs.write_csv(out / "runs.csv", float_precision=results_json.PRECISION)
-    runs.write_json(out / "runs.json")
+    # Through _round/dumps rather than DataFrame.write_json: polars' threaded
+    # means differ in the last ulp between runs, and the artefact must diff clean.
+    (out / "runs.json").write_text(results_json.dumps(results_json._round(runs.to_dicts())))
     (out / "summary.json").write_text(results_json.dumps(results_json._round(summary)))
     (out / "summary.md").write_text(md)
 

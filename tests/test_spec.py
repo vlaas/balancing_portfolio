@@ -154,6 +154,8 @@ def every_strategy():
         for st in bundle.strategies:
             yield f"{name}:{st.label}", st, bundle.config
     for path in sorted(SPECS.glob("*.json")):
+        if path.stem.startswith("sweep_"):
+            continue  # sweep specs have their own grammar; sweep.py reads them
         bundle = build_bundle(load_spec(path))
         for st in bundle.strategies:
             yield f"{path.stem}:{st.label}", st, bundle.config
