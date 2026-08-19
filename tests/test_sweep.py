@@ -2,11 +2,17 @@
 
 import copy
 import datetime as dt
+import json
 import re
+from pathlib import Path
 
+import polars as pl
 import pytest
 
-from sweep import Window, _window_plan, expand, windows
+from sweep import Window, _window_plan, build_summary, expand, run_sweep, windows
+from sweep import main as sweep_main
+
+GOLDEN_DIR = Path(__file__).parent / "data"
 
 # The SWEEP_SPEC §4.1 template, verbatim.
 TEMPLATE = {
@@ -205,3 +211,216 @@ def test_short_test_window_warns_but_never_errors():
 
     assert [w.kind for w in wins] == ["full", "fit", "test"]
     assert any("shorter than 2 years" in w for w in warnings)
+
+
+# --- T5: neighbourhood and ranks --------------------------------------------
+
+# A 3x3 numeric grid with hand-picked full-window objectives:
+#
+#   sigma \ w_max   0.6  0.7  0.8
+#            0.3      1    2    3
+#            0.4      4    9    6
+#            0.5      7    8    5
+OBJ = [1, 2, 3, 4, 9, 6, 7, 8, 5]  # expansion order: sigma slower, w_max faster
+
+
+def t5_spec(template: dict) -> dict:
+    return {
+        "schema_version": 1,
+        "config": {"initial_capital": 10000, "monthly_contribution": 500},
+        "windows": {"start": "2020-01-02"},
+        "template": template,
+        "baselines": [{"type": "fixed", "label": "bench", "weights": {"SPY": 1.0}}],
+    }
+
+
+def numeric_template() -> dict:
+    return {
+        "type": "vol_target", "risk": "TQQQ", "safe": "BTAL", "vol_symbol": "QQQ",
+        "vol": {"kind": "ewma", "lam": 0.94},
+        "sigma_target": {"grid": [0.3, 0.4, 0.5]},
+        "w_max": {"grid": [0.6, 0.7, 0.8]},
+    }
+
+
+def stats_of(value: float, dd: float = -0.2) -> dict:
+    return {
+        "stats": {
+            "calmar": value, "max_drawdown": dd,
+            "best_year": (2020, 0.1), "worst_year": (2021, -0.1),
+        },
+        "exposure": {},
+    }
+
+
+def test_neighbourhood_ranks_and_robust_score():
+    spec = t5_spec(numeric_template())
+    expanded = expand(spec["template"])
+    labels = [e["label"] for e in expanded]
+    wins = [
+        Window("full", "full", dt.date(2020, 1, 2), dt.date(2026, 1, 2)),
+        Window("fit", "fit", dt.date(2020, 1, 2), dt.date(2022, 12, 30)),
+        Window("test", "test", dt.date(2023, 1, 3), dt.date(2026, 1, 2)),
+        Window("sens_a", "sens", dt.date(2020, 1, 2), dt.date(2025, 1, 2)),
+        Window("sens_b", "sens", dt.date(2020, 7, 2), dt.date(2025, 7, 2)),
+    ]
+    # fit and both sens windows repeat the full objective; test is one lower.
+    records = {}
+    for w in wins:
+        offset = -1 if w.kind == "test" else 0
+        records[w.name] = {l: stats_of(o + offset) for l, o in zip(labels, OBJ)}
+        records[w.name]["bench"] = stats_of(100)  # never ranked, however good
+    feasible = {l: o != 7 for l, o in zip(labels, OBJ)}  # the 7 point is infeasible
+
+    summary = build_summary(
+        spec, wins, expanded, ["bench"], records, feasible, notes=[], warnings=[]
+    )
+
+    s = summary["strategies"]
+    centre = s[4]  # objective 9
+    assert centre["neighbourhood"] == {
+        "neighbour_min": 2, "neighbour_mean": 5.0, "edge": False,
+    }
+    assert centre["sensitivity"]["rank_median"] == 1
+    assert centre["sensitivity"]["rank_worst"] == 1
+    assert centre["holdout"]["test_minus_fit"] == pytest.approx(-1.0)
+    # min(full 9, neighbour_min 2, sens median 9, holdout test 8)
+    assert centre["robust_score"] == 2
+
+    corner = s[0]  # objective 1
+    assert corner["neighbourhood"]["neighbour_min"] == 2  # neighbours 2 and 4
+    assert corner["neighbourhood"]["edge"] is True
+    assert corner["robust_score"] == 0  # its own holdout test: 1 - 1
+    assert corner["sensitivity"]["rank_median"] == 8  # last among the 8 feasible
+
+    assert s[1]["neighbourhood"]["neighbour_min"] == 1  # neighbours 1, 3 and 9
+    assert s[7]["sensitivity"]["rank_median"] == 2  # objective 8
+
+    infeasible = s[6]  # objective 7
+    assert infeasible["full"]["feasible"] is False
+    assert infeasible["sensitivity"]["rank_median"] is None
+    assert infeasible["sensitivity"]["rank_worst"] is None
+
+    bench = summary["baselines"][0]
+    assert bench["label"] == "bench"
+    assert "neighbourhood" not in bench and "robust_score" not in bench
+    assert "params" not in bench and "feasible" not in bench["full"]
+    assert "rank_median" not in bench["sensitivity"]
+    assert bench["holdout"]["test_minus_fit"] == 0  # 100 in every window
+
+
+def test_categorical_dimension_has_no_neighbours_and_no_edge():
+    template = {
+        "type": "vol_target", "risk": "TQQQ", "safe": "BTAL", "vol_symbol": "QQQ",
+        "vol": {"kind": "ewma", "lam": 0.94}, "w_max": 0.7,
+        "sigma_target": {"grid": [0.3, 0.4, 0.5]},
+        "gate": {"grid": [None, {"symbol": "QQQ", "assets": ["TQQQ"], "sma_days": 200}]},
+    }
+    spec = t5_spec(template)
+    expanded = expand(spec["template"])
+    labels = [e["label"] for e in expanded]
+    wins = [Window("full", "full", dt.date(2020, 1, 2), dt.date(2026, 1, 2))]
+    records = {"full": {l: stats_of(o) for l, o in zip(labels, [1, 2, 3, 4, 5, 6])}}
+    records["full"]["bench"] = stats_of(0)
+
+    summary = build_summary(
+        spec, wins, expanded, ["bench"], records,
+        {l: True for l in labels}, notes=[], warnings=[],
+    )
+
+    s = summary["strategies"]
+    # (0.4, no gate): sigma neighbours with the same gate value only.
+    assert s[2]["neighbourhood"] == {
+        "neighbour_min": 1, "neighbour_mean": 3.0, "edge": False,
+    }
+    # (0.3, gated): one sigma neighbour; on the sigma boundary.
+    assert s[1]["neighbourhood"]["neighbour_min"] == 4
+    assert s[1]["neighbourhood"]["edge"] is True
+    # No sens, no holdout: robust_score = min(full, neighbour_min).
+    assert s[2]["robust_score"] == 1
+    assert s[1]["holdout"] is None and s[1]["sensitivity"] is None
+
+
+# --- T6: end to end ----------------------------------------------------------
+
+T6_SPEC = {
+    "schema_version": 1,
+    "config": {"initial_capital": 10000, "monthly_contribution": 500},
+    "windows": {
+        "start": "2020-01-02",
+        "holdout": "2023-01-03",
+        "sensitivity": {"every_months": 12, "length_years": 6},
+    },
+    "template": {
+        "type": "fixed",
+        "weights": {"TQQQ": {"grid": [0.4, 0.6]}, "BTAL": {"grid": [0.4, 0.3]}},
+    },
+    "baselines": [{"type": "fixed", "label": "SPY benchmark", "weights": {"SPY": 1.0}}],
+    "constraint": {"max_drawdown": -0.99},
+}
+
+
+def test_run_sweep_end_to_end():
+    runs, summary = run_sweep(T6_SPEC, GOLDEN_DIR)
+
+    # 4 grid strategies + 1 baseline over full, fit, test and one sens window
+    # (the 2021 start + 6 years would overrun the data).
+    assert runs.height == 5 * 4
+    assert [w["kind"] for w in summary["windows"]] == ["full", "fit", "test", "sens"]
+
+    baseline_rows = runs.filter(pl.col("is_baseline"))
+    assert baseline_rows.height == 4
+    assert baseline_rows["params.weights.TQQQ"].null_count() == 4
+    assert baseline_rows["feasible"].all()
+
+    for column in (
+        "label", "kind", "window", "start", "end", "calmar", "max_drawdown",
+        "best_year", "best_year_return", "worst_year", "worst_year_return",
+        "params.weights.TQQQ", "params.weights.BTAL",
+        "exposure.TQQQ.avg", "exposure.TQQQ.min", "exposure.SPY.avg",
+    ):
+        assert column in runs.columns
+
+    assert len(summary["strategies"]) == 4
+    for s in summary["strategies"]:
+        assert s["full"]["feasible"] is True
+        assert set(s["holdout"]) == {"fit", "test", "test_minus_fit"}
+        assert set(s["sensitivity"]["objective"]) == {"median", "min", "max", "iqr"}
+        assert s["sensitivity"]["rank_worst"] >= 1
+        assert set(s["neighbourhood"]) == {"neighbour_min", "neighbour_mean", "edge"}
+        assert "robust_score" in s
+    assert summary["baselines"][0]["label"] == "SPY benchmark"
+
+
+def test_cli_writes_the_five_artefacts(tmp_path, monkeypatch, capsys):
+    spec_path = tmp_path / "grid.json"
+    spec_path.write_text(json.dumps(T6_SPEC))
+    out = tmp_path / "out"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["sweep.py", str(spec_path), "--data", str(GOLDEN_DIR), "--out", str(out)],
+    )
+
+    sweep_main()
+
+    for name in ("strategies.json", "runs.csv", "runs.json", "summary.json", "summary.md"):
+        assert (out / name).stat().st_size > 0
+    assert len((out / "runs.csv").read_text().splitlines()) == 1 + 20
+    printed = capsys.readouterr().out
+    assert printed.count("strategies  ") == 4  # one progress line per window
+    assert "## Baselines" in printed
+
+
+def test_dry_run_prints_the_counts_and_writes_nothing(tmp_path, monkeypatch, capsys):
+    spec_path = tmp_path / "grid.json"
+    spec_path.write_text(json.dumps(T6_SPEC))
+    out = tmp_path / "out"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["sweep.py", str(spec_path), "--data", str(GOLDEN_DIR), "--out", str(out), "--dry-run"],
+    )
+
+    sweep_main()
+
+    assert "4 grid + 1 baselines x 4 windows = 20 runs" in capsys.readouterr().out
+    assert not out.exists()
