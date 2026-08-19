@@ -62,6 +62,36 @@ so a committed result reproduces on its own.
 Write a strategy class only when the behavior can't be expressed as a spec.
 The rest of this guide covers that.
 
+## Sweeps
+
+**A sweep result is a table to read, not a parameter to adopt.** When the
+question is "which parameters are good?", don't hand-write twenty spec entries
+— write a sweep spec (`specs/sweep_*.json`, full grammar and semantics in
+[SWEEP_SPEC.md](SWEEP_SPEC.md)) and run it:
+
+```
+uv run sweep.py specs/sweep_vt.json --data tests/data --out results/sweep_vt
+```
+
+- **Template**: one strategy entry in the ordinary grammar in which any leaf —
+  including the whole `gate` object — may be `{"grid": [v1, v2, ...]}` (≥ 2
+  distinct values). The Cartesian product in document order becomes the grid;
+  a `null` grid value drops the key (that's how "no gate" is a grid point).
+  Grid dimensions must be label-visible (`leverage`, `fallback`, `gate.assets`
+  are not in auto-labels and collide loudly).
+- **Windows** own the dates: `full` (`start`..`end`), an optional holdout split
+  (`fit`/`test`, adjacent and disjoint) and rolling or anchored sensitivity
+  windows. Requested dates snap to trading days and every snap is printed.
+- **robust_score** = min(full objective, neighbourhood minimum, sensitivity
+  median, holdout test). It is deliberately a minimum: a point only scores
+  high if it is good itself, its neighbours are good, it is good in the median
+  sub-window and it held up out of sample. Points on a grid boundary are
+  flagged — extend the grid in that direction before believing them.
+- **Artefacts** (`--out`, committed together with the spec):
+  `strategies.json`, `runs.csv`, `runs.json`, `summary.json`, `summary.md`.
+  `--dry-run` prints the expanded strategies × windows count and writes
+  nothing.
+
 ## Quickstart
 
 A fixed-weight strategy is a declaration, nothing more. Create

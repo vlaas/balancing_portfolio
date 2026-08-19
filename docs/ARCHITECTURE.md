@@ -35,6 +35,9 @@ flowchart LR
     T --> R
     ST --> J["results_json.py<br/>results.json ·<br/>curves/*.csv"]
     B2 --> J
+    SWJ["specs/sweep_*.json<br/>sweep specs"] --> SW["sweep.py<br/>expand · windows · run_sweep"]
+    SW -->|"one Bundle per window"| SP
+    SW --> SWR["results/&lt;sweep&gt;/<br/>runs.csv · summary.md …"]
 ```
 
 `main.py` wires the pipeline: it looks up the bundle named on the command line
@@ -46,7 +49,7 @@ to the report layer.
 
 ## prices.py — one wide frame per run
 
-`load_prices(data_dir, symbols, start, extra=(), indicators={}) -> pl.DataFrame`
+`load_prices(data_dir, symbols, start, end=None, extra=(), indicators={}) -> pl.DataFrame`
 returns a single wide frame: `date` (pl.Date, ascending), one Float64 close
 column per loaded symbol named exactly the symbol (`"SPY"`), one Float64 column
 per indicator named `"SYM:NAME"` (`"QQQ:SMA200"`), and `is_rebalance_day`
@@ -97,6 +100,11 @@ Decisions and their reasons:
   Consequence: the final data row is *not* a rebalance day
   (the month isn't over), so no contribution is deposited at the terminal close
   where it could never earn anything.
+- **`end` truncates after the start filter and before `is_rebalance_day`**, so
+  a truncated frame's last row is a valuation day, never a trade day — the
+  same rule the natural data end gets, which is what makes windows of
+  different ends comparable. An `end` outside `[start, last data date]`
+  raises `ValueError`: silent truncation would make two windows incomparable.
 
 ## strategy.py — the strategy-author API
 
@@ -148,7 +156,9 @@ Reasons:
 Python loop over the frame's rows. A loop, not vectorized Polars: the state
 (integer share counts, cash) is inherently sequential, and clarity wins at
 ~2,400 iterations. `Config` carries only what is shared by all strategies in a
-bundle: `start`, `initial_capital`, `monthly_contribution`.
+bundle: `start`, `initial_capital`, `monthly_contribution`, and an optional
+`end` (`None` means "to the end of the data"; the sweep runner sets it per
+window).
 
 The same engine runs the SPY benchmark: with `weights={"SPY": 1.0}` the target
 math `floor((s·c + cash)·1.0/c) = s + floor(cash/c)` degenerates exactly to
@@ -222,6 +232,11 @@ feeds CAGR, drawdowns, yearly returns, and thereby Calmar.
   read as 20%, not 40%) — and `max_deviation`, the worst single asset's
   deviation (cash excluded). Measured post-trade because the interesting
   question is what the rebalance *couldn't* fix (gates, integer shares).
+- **Exposure** (`exposure(allocations)`): per asset (CASH included), the
+  average target weight and the average/min/max weight actually held over all
+  trade days. It is what tells a vol-target result apart from "just more
+  TQQQ": two strategies with the same Calmar can hold very different average
+  risk weight.
 - **`summary(curve, twr_frame, allocations)`** returns a flat dict with fixed
   keys — the contract consumed by the report layer's `METRICS` table. Sharpe
   uses a 0% risk-free rate (no rate data in the repo; a documented limitation).
@@ -259,9 +274,10 @@ committed and the next run diffed against it. `--json PATH` writes one file;
 
 ```json
 {
-  "run":    {"schema_version": 2, "git_sha": …, "git_dirty": …, "bundle": …, "data_dir": …,
+  "run":    {"schema_version": 3, "git_sha": …, "git_dirty": …, "bundle": …, "data_dir": …,
              "spec_path": …, "generated_at": …},
-  "config": {"start": …, "initial_capital": …, "monthly_contribution": …},
+  "config": {"start": …, "initial_capital": …, "monthly_contribution": …,
+             "end": "…only when an end was set…"},
   "data":   {"start": …, "end": …, "trading_days": …, "symbols": [...]},
   "benchmark": "SPY benchmark",
   "spec": "…the normalised spec for --spec runs, else null…",
@@ -269,6 +285,7 @@ committed and the next run diffed against it. `--json PATH` writes one file;
     {"label": …, "slug": …, "class": …, "spec": …, "weights": {...}, "data": [...], "indicators": {...},
      "correlation_to_benchmark": …,
      "summary":        {"…the 18 summary() keys…"},
+     "exposure":       {"TQQQ": {"avg_target": …, "avg": …, "min": …, "max": …}, "…": …, "CASH": …},
      "drawdowns":      [{"peak": …, "trough": …, "recovery": …, "depth": …, "days": …}],
      "yearly_returns": [{"year": …, "return": …}],
      "imbalance":      {"avg_misallocation": …, "…": …, "by_date": [{"date": …, "misallocated": …, "max_deviation": …}]}}
@@ -338,9 +355,23 @@ traded-symbol set (union of all `weights` keys) and the extra-data set (union
 of `data`, minus traded) are collected from the bundle's strategies, so adding
 a strategy that trades a new symbol just requires its CSV to exist. CLI:
 `[bundle]` (positional, `choices` from `BUNDLES`, default `default`),
-`--spec PATH`, `--data DIR` (default `data`), `--charts DIR`, `--no-charts`,
+`--spec PATH`, `--data DIR` (default `data`), `--end YYYY-MM-DD` (overrides
+the bundle's or spec's end date), `--charts DIR`, `--no-charts`,
 `--quiet`, `--md [PATH]`, `--tx [PATH]`, `--json [PATH]`, `--curves [DIR]`.
 `--md` with `--no-charts` writes the report without the chart sections.
+
+## sweep.py — parameter sweeps
+
+Its own entry point on purpose: `main.py` renders one bundle, `sweep.py`
+produces tables (`uv run sweep.py specs/sweep_X.json --data DIR --out DIR`).
+It expands a strategy template over its `{"grid": [...]}` leaves, builds one
+ordinary `Bundle` per evaluation window (full, holdout fit/test, sensitivity)
+through `spec.build_bundle`, and reuses `run_bundle` — there is no second
+simulation path. The output is a long runs table plus a summary that ranks by
+`robust_score`, a minimum over full objective, neighbourhood minimum,
+sensitivity median and holdout test. Grammar, window rules and the summary's
+exact contents: [SWEEP_SPEC.md](SWEEP_SPEC.md); usage:
+[STRATEGY_DEVELOPMENT.md](STRATEGY_DEVELOPMENT.md), "Sweeps".
 
 ## Testing philosophy
 
@@ -360,7 +391,7 @@ a strategy that trades a new symbol just requires its CSV to exist. CLI:
   precision, key order and the payload's contract are all asserted.
 - Regression anchor: through every refactor, the plain strategies must
   reproduce their prior results to the cent (e.g. TQQQ/BTAL 50/50 final value
-  $237,334.67 from the `default` bundle).
+  $237,275.03 from the `default` bundle, as pinned in `tests/test_main.py`).
 
 ## Why not …
 

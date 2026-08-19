@@ -75,6 +75,13 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
   --no-charts --quiet`; add `--data tests/data` whenever a number must be
   comparable to the golden values.
 - Commit the spec and its results together. Results are never edited by hand.
+- A parameter search is a sweep, proposed as `specs/sweep_*.json` (format:
+  `docs/SWEEP_SPEC.md`) and run with `uv run sweep.py specs/X.json --data
+  tests/data --out results/X`; commit the produced artefacts
+  (`strategies.json`, `runs.csv`, `runs.json`, `summary.json`, `summary.md`)
+  together with the spec.
+- An agent reporting a sweep quotes `robust_score`, the holdout `test`
+  objective and `rank_worst` — never `full` alone.
 - When a proposal needs a new strategy type or parameter: change
   `spec.py`/`strategies/` with tests first, write the spec second.
 - Never modify engine semantics (`simulate.py`, `strategy.py`) to make a spec
