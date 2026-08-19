@@ -9,6 +9,7 @@ from indicators import ewma_vol
 from main import collect_indicators
 from prices import load_prices
 from simulate import Config, simulate
+from stats import exposure
 from strategies.gate import Gate
 from strategies.vol_target import VolTarget
 from strategy import MarketDay
@@ -76,3 +77,8 @@ def test_full_run_on_the_snapshot():
 
     assert len(curve) == 2417
     assert curve["value"][-1] > 0
+
+    # A vol-target actually varies its weight: min < avg < max (SWEEP_SPEC T2).
+    exp = exposure(allocations)
+    assert set(exp) == {"TQQQ", "BTAL", "CASH"}
+    assert exp["TQQQ"]["min"] < exp["TQQQ"]["avg"] < exp["TQQQ"]["max"]

@@ -19,7 +19,15 @@ from report import (
 from results_json import save_curves, save_json
 from simulate import simulate
 from spec import build_bundle, load_spec, normalised_spec
-from stats import correlation, imbalance, rolling_sharpe, summary, top_drawdowns, twr
+from stats import (
+    correlation,
+    exposure,
+    imbalance,
+    rolling_sharpe,
+    summary,
+    top_drawdowns,
+    twr,
+)
 from strategy import Strategy
 
 
@@ -66,6 +74,7 @@ def run_bundle(bundle: Bundle, data_dir: Path) -> list[StrategyResult]:
                 trades=trades,
                 allocations=allocations,
                 imbalance=imbalance(allocations),
+                exposure=exposure(allocations),
             )
         )
     return results

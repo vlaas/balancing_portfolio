@@ -156,6 +156,21 @@ def imbalance(allocations: pl.DataFrame) -> pl.DataFrame:
     )
 
 
+def exposure(allocations: pl.DataFrame) -> dict[str, dict]:
+    """Per asset (CASH included), over all trade days: the average target
+    weight and the average/min/max weight actually held."""
+    agg = allocations.group_by("asset", maintain_order=True).agg(
+        avg_target=pl.col("target").mean(),
+        avg=pl.col("actual").mean(),
+        min=pl.col("actual").min(),
+        max=pl.col("actual").max(),
+    )
+    return {
+        row["asset"]: {key: row[key] for key in ("avg_target", "avg", "min", "max")}
+        for row in agg.iter_rows(named=True)
+    }
+
+
 def summary(
     curve: pl.DataFrame, twr_frame: pl.DataFrame, allocations: pl.DataFrame
 ) -> dict[str, object]:

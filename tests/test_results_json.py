@@ -90,7 +90,7 @@ def test_keys_are_sorted_but_the_benchmark_stays_last(payload):
 
 def test_the_payload_carries_the_run_config_and_data_range(payload):
     assert set(payload) == {"run", "config", "data", "benchmark", "spec", "strategies"}
-    assert payload["run"]["schema_version"] == 2
+    assert payload["run"]["schema_version"] == 3
     assert payload["run"]["bundle"] == "default"
     assert payload["run"]["data_dir"] == str(GOLDEN_DIR)
     assert payload["run"]["spec_path"] is None
@@ -118,6 +118,32 @@ def test_every_strategy_reports_the_whole_summary_contract(run, payload):
         assert len(entry["drawdowns"]) == len(result.drawdowns)
         assert [y["year"] for y in entry["yearly_returns"]] == list(range(2017, 2027))
         assert len(entry["imbalance"]["by_date"]) == len(result.imbalance)
+
+
+def test_every_strategy_reports_exposure(payload):
+    for entry in payload["strategies"]:
+        assert entry["exposure"]
+        for block in entry["exposure"].values():
+            assert set(block) == {"avg_target", "avg", "min", "max"}
+
+    fifty = payload["strategies"][0]["exposure"]  # TQQQ/BTAL 50/50
+    assert set(fifty) == {"TQQQ", "BTAL", "CASH"}
+    assert fifty["TQQQ"]["avg_target"] == 0.5
+    assert fifty["BTAL"]["avg_target"] == 0.5
+    assert 0.49 <= fifty["TQQQ"]["avg"] <= 0.5
+
+
+def test_schema_3_only_adds_exposure_to_the_strategy_block(payload):
+    # SWEEP_SPEC T7: relative to schema 2, a strategy entry gains exactly
+    # `exposure`, and an end-less run's config block is unchanged.
+    schema_2 = {
+        "label", "slug", "class", "spec", "weights", "data", "indicators",
+        "correlation_to_benchmark", "summary", "drawdowns", "yearly_returns",
+        "imbalance",
+    }
+    for entry in payload["strategies"]:
+        assert set(entry) == schema_2 | {"exposure"}
+    assert "end" not in payload["config"]
 
 
 def test_only_the_benchmark_has_no_correlation_to_itself(payload):

@@ -72,6 +72,12 @@ METRICS = [
 
 NAME_W = 25
 VALUE_W = 20  # floor; print_report widens it to the longest label
+
+
+def _traded_assets(results) -> list[str]:
+    """Union of the results' exposure assets, cash excluded; a strategy that
+    does not trade an asset gets a blank cell in its row."""
+    return sorted({a for r in results for a in r.exposure} - {"CASH"})
 DD_HEADER = f"{'Peak':<13}{'Trough':<13}{'Recovery':<13}{'Depth':>10}{'Days':>8}"
 
 
@@ -86,6 +92,7 @@ class StrategyResult:
     trades: pl.DataFrame
     allocations: pl.DataFrame
     imbalance: pl.DataFrame
+    exposure: dict
 
 
 def _print_drawdowns(title: str, drawdowns: list[Drawdown]) -> None:
@@ -116,6 +123,15 @@ def print_report(
         print(
             f"{label:<{NAME_W}}"
             + "".join(f"{fmt(r.stats[key]):>{value_w}}" for r in results)
+        )
+    for asset in _traded_assets(results):
+        cells = (
+            f"{r.exposure[asset]['avg']:.2f}" if asset in r.exposure else ""
+            for r in results
+        )
+        print(
+            f"{f'Avg weight {asset}':<{NAME_W}}"
+            + "".join(f"{cell:>{value_w}}" for cell in cells)
         )
 
     for r in results:
@@ -223,6 +239,12 @@ def save_markdown(
         lines.append(
             f"| {label} | " + " | ".join(fmt(r.stats[key]) for r in results) + " |"
         )
+    for asset in _traded_assets(results):
+        cells = " | ".join(
+            f"{r.exposure[asset]['avg']:.2f}" if asset in r.exposure else ""
+            for r in results
+        )
+        lines.append(f"| Avg weight {asset} | {cells} |")
 
     for name, title in [
         ("equity.png", "Account value"),
