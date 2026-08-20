@@ -163,6 +163,9 @@ _TYPES = {"fixed": _fixed, "vol_target": _vol_target}
 
 
 def build_bundle(spec: dict) -> Bundle:
+    if isinstance(spec, dict) and ("windows" in spec or "template" in spec):
+        _fail("spec", "this is a sweep spec; run it with "
+                      "`uv run sweep.py SPEC`, not `main.py --spec`")
     _fields(spec, "", {"schema_version", "config", "strategies"})
     if spec["schema_version"] != SPEC_SCHEMA_VERSION:
         _fail("schema_version", f"expected {SPEC_SCHEMA_VERSION}, got {spec['schema_version']!r}")

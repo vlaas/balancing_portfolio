@@ -70,6 +70,11 @@ def test_gate_asset_must_be_traded():
         build_bundle(broken(lambda s: s["strategies"][2]["gate"].update(assets=["SPY"])))
 
 
+def test_a_sweep_spec_names_the_right_entry_point():
+    with pytest.raises(ValueError, match=re.escape("run it with `uv run sweep.py")):
+        build_bundle(load_spec(SPECS / "sweep_vt.json"))
+
+
 def test_config_end_is_optional_and_may_be_null():
     assert build_bundle(broken(lambda s: None)).config.end is None
     assert build_bundle(broken(lambda s: s["config"].update(end=None))).config.end is None

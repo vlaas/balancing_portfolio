@@ -46,6 +46,9 @@ CONSTRAINT_KEYS = frozenset({
 def validate(spec: dict) -> None:
     """Reject any unknown or malformed key, naming its JSON path — the same
     contract as spec.build_bundle. The template is validated by expand()."""
+    if isinstance(spec, dict) and "strategies" in spec:
+        _fail("spec", "this is an ordinary bundle spec; run it with "
+                      "`uv run main.py --spec SPEC`, not sweep.py")
     _fields(
         spec, "",
         {"schema_version", "config", "windows", "template", "baselines"},
