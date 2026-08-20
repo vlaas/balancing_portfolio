@@ -7,7 +7,7 @@ import pytest
 
 from polars.testing import assert_frame_equal
 
-from simulate import Config, simulate
+from simulate import Config, fee_schedule, simulate
 from strategy import MarketDay, Strategy
 
 GOLDEN_DIR = Path(__file__).parent / "data"  # frozen snapshot; numbers are pinned to it
@@ -429,3 +429,151 @@ def test_market_day_contribution():
     strategy = Recording()
     simulate(frame({"A": [10.0, 10.0]}, [True, False]), strategy, config)
     assert strategy.seen == [1100.0]
+
+
+# The cost model — COST_MODEL_SPEC.md T1-T4.
+
+
+def test_zero_costs_are_bit_identical_to_the_defaults():
+    # COST_MODEL_SPEC.md T1: explicit zeros take the same code path as the
+    # defaults — every frame identical, the fee column all-zero. The untouched
+    # golden numbers in test_main.py anchor the defaults to the pre-cost engine.
+    from prices import load_prices
+
+    start = dt.date(2017, 1, 3)
+    prices = load_prices(GOLDEN_DIR, ["TQQQ", "BTAL"], start)
+    strategy = Strategy(label="test", weights={"TQQQ": 0.5, "BTAL": 0.5})
+
+    base = simulate(prices, strategy, Config(start, 10000.0, 500.0))
+    explicit = simulate(
+        prices, strategy, Config(start, 10000.0, 500.0, cost_bps=0.0, cash_yield=0.0)
+    )
+
+    for got, want in zip(explicit, base):
+        assert_frame_equal(got, want)
+    assert base[1]["fee"].to_list() == [0.0] * len(base[1])
+
+
+def test_fee_schedule_resolves_flat_mapping_and_star():
+    assert fee_schedule(50.0, ["A", "B"]) == {"A": 0.005, "B": 0.005}
+    assert fee_schedule({"A": 10.0, "*": 50.0}, ["A", "B"]) == {"A": 0.001, "B": 0.005}
+    with pytest.raises(ValueError, match="'B'"):
+        fee_schedule({"A": 10.0}, ["A", "B"])
+
+
+def test_flat_fees_reconcile_the_cash_ledger():
+    # COST_MODEL_SPEC.md T2, flat 50 bps (0.005 per side). Day 0: A buys its
+    # full 166 (fee 24.90, cash 4995.10), then B's cap floor(4995.10/7.035) =
+    # 710 binds below the gross target of 714 (fee 24.85, cash 0.25). Day 1:
+    # contribution 500, total = 166*31 + 710*8 + 500.25 = 11326.25, so B sells
+    # 3 (fee 0.12) and A buys 16 (fee 2.48), leaving 25.65.
+    prices = frame({"A": [30.0, 31.0], "B": [7.0, 8.0]}, [False, True])
+    config = Config(START, 10000.0, 500.0, cost_bps=50.0)
+
+    result, trades, allocations = simulate(prices, half_and_half(), config)
+
+    assert trades["action"].to_list() == [
+        "DEPOSIT", "BUY", "BUY", "DEPOSIT", "SELL", "BUY",
+    ]
+    assert trades["asset"].to_list() == [None, "A", "B", None, "B", "A"]
+    assert trades["shares"].to_list() == [None, 166, 710, None, 3, 16]
+    assert trades["amount"].to_list() == pytest.approx(
+        [10000.0, 4980.0, 4970.0, 500.0, 24.0, 496.0]
+    )
+    # Every BUY/SELL fee is exactly amount x 0.005; DEPOSIT rows carry 0.0.
+    for row in trades.iter_rows(named=True):
+        expected = row["amount"] * 0.005 if row["action"] != "DEPOSIT" else 0.0
+        assert row["fee"] == expected
+    assert trades["cash_after"].to_list() == pytest.approx(
+        [10000.0, 4995.10, 0.25, 500.25, 524.13, 25.65]
+    )
+
+
+def test_per_asset_fees_charge_each_symbol_its_own_rate():
+    # COST_MODEL_SPEC.md T2, per-asset {"A": 10, "*": 50}: A at 0.001, B falls
+    # back to the "*" rate 0.005. A buys 166 (fee 4.98, cash 5015.02); B's cap
+    # floor(5015.02/7.035) = 712 binds (fee 24.92).
+    prices = frame({"A": [30.0, 31.0], "B": [7.0, 8.0]}, [False, False])
+    config = Config(START, 10000.0, 500.0, cost_bps={"A": 10.0, "*": 50.0})
+
+    result, trades, allocations = simulate(prices, half_and_half(), config)
+
+    assert trades["shares"].to_list() == [None, 166, 712]
+    fees = {row["asset"]: row for row in trades.iter_rows(named=True)}
+    assert fees["A"]["fee"] == fees["A"]["amount"] * 0.001
+    assert fees["B"]["fee"] == fees["B"]["amount"] * 0.005
+
+
+def test_unresolved_traded_symbol_raises_before_the_first_day():
+    prices = frame({"A": [30.0], "B": [7.0]}, [False])
+    config = Config(START, 10000.0, 500.0, cost_bps={"A": 10.0})
+
+    with pytest.raises(ValueError, match="'B'"):
+        simulate(prices, half_and_half(), config)
+
+
+def test_affordability_cap_keeps_cash_non_negative():
+    # COST_MODEL_SPEC.md T3, adversarial: all-in one asset at 500 bps (5%).
+    # Day 0: gross target floor(1000/10) = 100 is capped at
+    # floor(1000/10.5) = 95 (fee 47.50, cash 2.50). Day 1: cash 102.50, total
+    # 1052.50, target 105; the cap allows floor(102.50/10.5) = 9 more
+    # (fee 4.50, cash 8.00). The residual shows up in the CASH allocation row.
+    prices = frame({"A": [10.0, 10.0]}, [False, True])
+    config = Config(START, 1000.0, 100.0, cost_bps=500.0)
+    strategy = Strategy(label="test", weights={"A": 1.0})
+
+    result, trades, allocations = simulate(prices, strategy, config)
+
+    assert trades["action"].to_list() == ["DEPOSIT", "BUY", "DEPOSIT", "BUY"]
+    assert trades["shares"].to_list() == [None, 95, None, 9]
+    assert trades["fee"].to_list() == pytest.approx([0.0, 47.5, 0.0, 4.5])
+    assert trades["cash_after"].min() >= 0.0
+    cash_rows = allocations.filter(pl.col("asset") == "CASH")
+    assert cash_rows["actual"].to_list() == pytest.approx(
+        [2.5 / 1000.0, 8.0 / 1052.5]
+    )
+
+
+def test_cash_yield_accrues_over_calendar_gaps():
+    # COST_MODEL_SPEC.md T4: Thu 2020-01-02, Fri, weekend, Mon (rebalance),
+    # Tue; a strategy holding 50% cash at cash_yield = 0.10. Day 0 accrues
+    # nothing; Friday accrues 1 day; Monday accrues 3 (the weekend), then
+    # deposits and trades; Tuesday accrues 1 day on the post-trade balance.
+    dates = [
+        dt.date(2020, 1, 2), dt.date(2020, 1, 3),
+        dt.date(2020, 1, 6), dt.date(2020, 1, 7),
+    ]
+    prices = pl.DataFrame(
+        {
+            "date": dates,
+            "A": [10.0, 10.0, 10.0, 10.0],
+            "is_rebalance_day": [False, False, True, False],
+        },
+        schema={"date": pl.Date, "A": pl.Float64, "is_rebalance_day": pl.Boolean},
+    )
+    strategy = Strategy(label="test", weights={"A": 0.5})
+    config = Config(START, 1000.0, 100.0, cash_yield=0.10)
+
+    result, trades, allocations = simulate(prices, strategy, config)
+
+    # Day 0: 50 shares at 10.0, cash exactly 500 — no interest on day 0.
+    assert trades["cash_after"].to_list()[:2] == [1000.0, 500.0]
+    c_fri = 500.0 * 1.1 ** (1 / 365)
+    assert result["value"][1] == pytest.approx(500.0 + c_fri, abs=1e-9)
+    # Monday: Friday's cash x 1.1^(3/365), then the 100 deposit, then trades.
+    c_mon = c_fri * 1.1 ** (3 / 365) + 100.0
+    total = 500.0 + c_mon  # ~1100.52, so the target grows to 55 and A buys 5
+    assert trades["cash_after"][2] == pytest.approx(c_mon, abs=1e-9)
+    assert trades["shares"].to_list() == [None, 50, None, 5]
+    assert result["value"][2] == pytest.approx(total, abs=1e-9)
+    assert result["value"][3] == pytest.approx(
+        550.0 + (c_mon - 50.0) * 1.1 ** (1 / 365), abs=1e-9
+    )
+
+    # Interest is internal return, not flow: same flows as the yield-0 run,
+    # strictly higher time-weighted return.
+    from stats import twr
+
+    base, base_trades, _ = simulate(prices, strategy, Config(START, 1000.0, 100.0))
+    assert result["flow"].to_list() == base["flow"].to_list() == [1000.0, 0.0, 100.0, 0.0]
+    assert twr(result)["index"][-1] > twr(base)["index"][-1]
