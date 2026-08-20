@@ -9,10 +9,12 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from sweep import Window, _window_plan, build_summary, expand, run_sweep, windows
+from spec import load_spec
+from sweep import Window, _window_plan, build_summary, expand, run_sweep, validate, windows
 from sweep import main as sweep_main
 
 GOLDEN_DIR = Path(__file__).parent / "data"
+SPECS = Path(__file__).parents[1] / "specs"
 
 # The SWEEP_SPEC §4.1 template, verbatim.
 TEMPLATE = {
@@ -106,6 +108,11 @@ def test_grid_inside_a_list_raises():
 
 def test_expand_is_deterministic():
     assert expand(template()) == expand(template())
+
+
+def test_an_ordinary_spec_names_the_right_entry_point():
+    with pytest.raises(ValueError, match=re.escape("run it with `uv run main.py --spec")):
+        validate(load_spec(SPECS / "research.json"))
 
 
 # --- T4: windows -------------------------------------------------------------

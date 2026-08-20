@@ -1,0 +1,277 @@
+{
+  "schema_version": 1,
+  "config": {
+    "start": "2017-01-03",
+    "initial_capital": 10000,
+    "monthly_contribution": 500
+  },
+  "strategies": [
+    {
+      "type": "fixed",
+      "weights": {
+        "TQQQ": 0.5,
+        "BTAL": 0.5
+      },
+      "label": "50/50"
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "TQQQ": 0.5,
+        "BTAL": 0.5
+      },
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_days": 100
+      }
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "TQQQ": 0.5,
+        "BTAL": 0.5
+      },
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_days": 150
+      }
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "TQQQ": 0.5,
+        "BTAL": 0.5
+      },
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_days": 200
+      }
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "TQQQ": 0.5,
+        "BTAL": 0.5
+      },
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_days": 250
+      }
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "TQQQ": 0.5,
+        "BTAL": 0.5
+      },
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_days": 200,
+        "contribution_exempt": true
+      }
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "TQQQ": 0.5,
+        "BTAL": 0.5
+      },
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_months": 8
+      }
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "TQQQ": 0.5,
+        "BTAL": 0.5
+      },
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_months": 10
+      }
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "TQQQ": 0.5,
+        "BTAL": 0.5
+      },
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_months": 12
+      }
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "TQQQ": 0.5,
+        "BTAL": 0.5
+      },
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_months": 10,
+        "contribution_exempt": true
+      }
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.94
+      },
+      "leverage": 3,
+      "sigma_target": 0.35,
+      "w_max": 0.5
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.94
+      },
+      "leverage": 3,
+      "sigma_target": 0.35,
+      "w_max": 0.7
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.94
+      },
+      "leverage": 3,
+      "sigma_target": 0.45,
+      "w_max": 0.5
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.94
+      },
+      "leverage": 3,
+      "sigma_target": 0.45,
+      "w_max": 0.7
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.94
+      },
+      "leverage": 3,
+      "sigma_target": 0.6,
+      "w_max": 0.5
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.94
+      },
+      "leverage": 3,
+      "sigma_target": 0.6,
+      "w_max": 0.7
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.94
+      },
+      "leverage": 3,
+      "sigma_target": 0.75,
+      "w_max": 0.5
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.94
+      },
+      "leverage": 3,
+      "sigma_target": 0.75,
+      "w_max": 0.7
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.94
+      },
+      "leverage": 3,
+      "sigma_target": 0.6,
+      "w_max": 0.7,
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_days": 200
+      }
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "SPY": 1.0
+      },
+      "label": "SPY"
+    }
+  ]
+}
