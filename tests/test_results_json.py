@@ -90,7 +90,7 @@ def test_keys_are_sorted_but_the_benchmark_stays_last(payload):
 
 def test_the_payload_carries_the_run_config_and_data_range(payload):
     assert set(payload) == {"run", "config", "data", "benchmark", "spec", "strategies"}
-    assert payload["run"]["schema_version"] == 3
+    assert payload["run"]["schema_version"] == 4
     assert payload["run"]["bundle"] == "default"
     assert payload["run"]["data_dir"] == str(GOLDEN_DIR)
     assert payload["run"]["spec_path"] is None
@@ -102,6 +102,8 @@ def test_the_payload_carries_the_run_config_and_data_range(payload):
         "start": "2017-01-03",
         "initial_capital": 10_000,
         "monthly_contribution": 500,
+        "cost_bps": 0.0,
+        "cash_yield": 0.0,
     }
     assert payload["data"]["start"] == "2017-01-03"
     assert payload["data"]["symbols"] == ["BTAL", "QQQ", "SPY", "TQQQ"]

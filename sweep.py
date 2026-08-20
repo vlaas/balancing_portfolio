@@ -27,7 +27,7 @@ import polars as pl
 import results_json
 from main import run_bundle
 from prices import load_prices
-from spec import _TYPES, _fail, _fields, _join, build_bundle, gate_str, load_spec
+from spec import _TYPES, _costs, _fail, _fields, _join, build_bundle, gate_str, load_spec
 
 SWEEP_SCHEMA_VERSION = 1
 OBJECTIVES = ("calmar", "sharpe", "sortino", "cagr", "xirr")
@@ -40,6 +40,7 @@ CONSTRAINT_KEYS = frozenset({
     "final_value", "total_contributed", "net_profit", "net_profit_pct",
     "cagr", "xirr", "sharpe", "volatility", "sortino", "calmar",
     "max_drawdown", "max_drawdown_days",
+    "traded_value", "total_fees", "turnover", "fee_drag",
 })
 
 
@@ -57,7 +58,11 @@ def validate(spec: dict) -> None:
     if spec["schema_version"] != SWEEP_SCHEMA_VERSION:
         _fail("schema_version",
               f"expected {SWEEP_SCHEMA_VERSION}, got {spec['schema_version']!r}")
-    _fields(spec["config"], "config", {"initial_capital", "monthly_contribution"})
+    _fields(
+        spec["config"], "config",
+        {"initial_capital", "monthly_contribution"}, {"cost_bps", "cash_yield"},
+    )
+    _costs(spec["config"], "config")
 
     w = spec["windows"]
     _fields(w, "windows", {"start"}, {"end", "holdout", "sensitivity"})
@@ -305,7 +310,8 @@ def _ordinary(spec: dict, entries: list[dict], start: str, end: str | None) -> d
             "initial_capital": spec["config"]["initial_capital"],
             "monthly_contribution": spec["config"]["monthly_contribution"],
             "end": end,
-        },
+        }
+        | {k: spec["config"][k] for k in ("cost_bps", "cash_yield") if k in spec["config"]},
         "strategies": entries,
     }
 
@@ -365,7 +371,9 @@ def run_sweep(spec: dict, data_dir: Path) -> tuple[pl.DataFrame, dict]:
             for key, minimum in constraint.items()
         )
 
-    runs = _runs_frame(wins, expanded, baseline_labels, records, feasible, traded)
+    runs = _runs_frame(
+        wins, expanded, baseline_labels, records, feasible, traded, spec["config"]
+    )
     summary = build_summary(
         spec, wins, expanded, baseline_labels, records, feasible,
         notes=notes, warnings=warnings,
@@ -380,9 +388,18 @@ def _runs_frame(
     records: dict[str, dict[str, dict]],
     feasible: dict[str, bool],
     traded: list[str],
+    config: dict,
 ) -> pl.DataFrame:
     param_keys = list(expanded[0]["params"]) if expanded else []
     params_by_label = {e["label"]: e["params"] for e in expanded}
+    # Constant per file, but the file should be self-describing: the flat
+    # number, or a per-asset schedule serialised as a JSON string.
+    cost_bps = config.get("cost_bps", 0.0)
+    cost_cell = (
+        cost_bps
+        if isinstance(cost_bps, (int, float))
+        else json.dumps(cost_bps, sort_keys=True)
+    )
     rows = []
     for w in wins:
         for label in [e["label"] for e in expanded] + baseline_labels:
@@ -395,6 +412,8 @@ def _runs_frame(
                 "end": w.end.isoformat(),
                 "is_baseline": label not in params_by_label,
                 "feasible": feasible.get(label, True),
+                "cost_bps": cost_cell,
+                "cash_yield": config.get("cash_yield", 0.0),
             }
             params = params_by_label.get(label, {})
             for key in param_keys:
@@ -539,6 +558,10 @@ def build_summary(
     return {
         "objective": objective,
         "constraint": spec.get("constraint"),
+        "costs": {
+            "cost_bps": spec["config"].get("cost_bps", 0.0),
+            "cash_yield": spec["config"].get("cash_yield", 0.0),
+        },
         "data": {"start": wins[0].start.isoformat(), "end": wins[0].end.isoformat()},
         "windows": [
             {"name": w.name, "kind": w.kind,
@@ -607,6 +630,14 @@ def _summary_md(summary: dict, runs: pl.DataFrame, risk_of: dict[str, str]) -> s
     n_sens = sum(w["kind"] == "sens" for w in summary["windows"])
     if n_sens:
         window_parts.append(f"{n_sens} sensitivity")
+    costs = summary["costs"]
+    override = costs.get("cli_override", [])
+    if isinstance(costs["cost_bps"], dict):
+        schedule = ", ".join(f"{s} {v:g}" for s, v in costs["cost_bps"].items())
+        cost_part = f"per-asset ({schedule}) bps"
+    else:
+        cost_part = f"flat {costs['cost_bps']:g} bps"
+    yield_part = f"cash yield {costs['cash_yield'] * 100:g}%"
     lines = [
         "# Sweep summary",
         "",
@@ -617,6 +648,10 @@ def _summary_md(summary: dict, runs: pl.DataFrame, risk_of: dict[str, str]) -> s
             if constraint else "none"
         ),
         "- Windows: " + "; ".join(window_parts),
+        "- Costs: "
+        + cost_part + (" (CLI override)" if "cost_bps" in override else "")
+        + ", "
+        + yield_part + (" (CLI override)" if "cash_yield" in override else ""),
     ]
     lines += [f"- Snapped: {note}" for note in summary["snapped"]]
     lines += [f"- Warning: {warning}" for warning in summary["warnings"]]
@@ -690,9 +725,28 @@ def main() -> None:
         "--dry-run", action="store_true",
         help="print the expanded strategies x windows count and exit",
     )
+    parser.add_argument(
+        "--cost-bps", type=float, default=None,
+        help="what-if override: replace the spec's whole cost_bps schedule "
+             "with this flat per-side rate",
+    )
+    parser.add_argument(
+        "--cash-yield", type=float, default=None,
+        help="what-if override: replace the spec's cash_yield (annual rate)",
+    )
     args = parser.parse_args()
 
     spec = load_spec(args.spec)
+    # Before validate(), so overrides get the same range checks and reach
+    # --dry-run's probe build too.
+    override = []
+    if isinstance(spec, dict) and isinstance(spec.get("config"), dict):
+        if args.cost_bps is not None:
+            spec["config"]["cost_bps"] = args.cost_bps
+            override.append("cost_bps")
+        if args.cash_yield is not None:
+            spec["config"]["cash_yield"] = args.cash_yield
+            override.append("cash_yield")
     validate(spec)
 
     if args.dry_run:
@@ -705,6 +759,8 @@ def main() -> None:
         return
 
     runs, summary = run_sweep(spec, args.data)
+    if override:
+        summary["costs"]["cli_override"] = override
     expanded = expand(spec["template"])
     risk_of = {
         e["label"]: e["entry"]["risk"] for e in expanded if "risk" in e["entry"]

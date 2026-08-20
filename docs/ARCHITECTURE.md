@@ -156,9 +156,13 @@ Reasons:
 Python loop over the frame's rows. A loop, not vectorized Polars: the state
 (integer share counts, cash) is inherently sequential, and clarity wins at
 ~2,400 iterations. `Config` carries only what is shared by all strategies in a
-bundle: `start`, `initial_capital`, `monthly_contribution`, and an optional
+bundle: `start`, `initial_capital`, `monthly_contribution`, an optional
 `end` (`None` means "to the end of the data"; the sweep runner sets it per
-window).
+window), and the cost model — `cost_bps` (per-side proportional fee; flat
+number or per-asset mapping with a `"*"` default) and `cash_yield` (annual,
+accrued daily on cash over calendar-day gaps, ACT/365, as internal return
+rather than flow). Both default to `0.0`, which is bit-identical to the
+pre-cost engine.
 
 The same engine runs the SPY benchmark: with `weights={"SPY": 1.0}` the target
 math `floor((s·c + cash)·1.0/c) = s + floor(cash/c)` degenerates exactly to
@@ -186,7 +190,11 @@ Per trade day (the first row, and every `is_rebalance_day`):
    asset is gated, the contribution idles in cash.
 6. Execution: deltas are applied sells-first (sorted by signed delta), so the
    running cash balance never goes negative — the ledger describes a physically
-   executable sequence.
+   executable sequence. With nonzero `cost_bps` each trade pays its fee from
+   cash at execution; a buy is additionally capped at
+   `floor(cash / (price · (1 + f)))` shares so fees can never drive cash
+   negative (sells are never blocked — the fee just reduces proceeds).
+   `buy_cap` limits the gross trade value, fee excluded.
 7. Post-trade, the allocation is recorded per asset — target (the `balance()`
    intent, *pre-gate*) vs actual fraction — plus a CASH row. Targets are taken
    pre-gate on purpose: the imbalance statistics measure what the gates and
@@ -197,7 +205,7 @@ Output frames (all Polars):
 | frame | schema | one row per |
 |---|---|---|
 | curve | `date, value (holdings@close + cash), flow (external cash that day)` | trading day |
-| trades | `date, action (DEPOSIT/BUY/SELL), asset, shares, price, amount, cash_after` | transaction |
+| trades | `date, action (DEPOSIT/BUY/SELL), asset, shares, price, amount, fee, cash_after` | transaction |
 | allocations | `date, asset (incl. "CASH"), target, actual` | trade day × asset |
 
 Invariants asserted in the loop: first row's date equals `config.start`;
@@ -237,9 +245,15 @@ feeds CAGR, drawdowns, yearly returns, and thereby Calmar.
   trade days. It is what tells a vol-target result apart from "just more
   TQQQ": two strategies with the same Calmar can hold very different average
   risk weight.
-- **`summary(curve, twr_frame, allocations)`** returns a flat dict with fixed
-  keys — the contract consumed by the report layer's `METRICS` table. Sharpe
-  uses a 0% risk-free rate (no rate data in the repo; a documented limitation).
+- **`summary(curve, twr_frame, allocations, trades)`** returns a flat dict
+  with fixed keys — the contract consumed by the report layer's `METRICS`
+  table. Sharpe uses a 0% risk-free rate (no rate data in the repo; a
+  documented limitation). The trades frame feeds the cost keys:
+  `traded_value` (Σ amount over BUY/SELL), `total_fees`, `turnover`
+  (one-sided annualised — half the traded value over the mean portfolio value
+  per year; monthly contributions put a floor under it, so it compares
+  strategies on the same Config only) and `fee_drag`
+  (fees / total contributed).
 - **`yearly_returns` and `drawdown_curve` are public** because two layers read
   them. `summary()` reduces `yearly_returns` to `best_year`/`worst_year`, but
   `results_json.py` emits the whole series; `drawdown_curve`
@@ -255,6 +269,9 @@ strategy and the report layer never recomputes anything.
 
 - The console table and `report.md` table are driven by one `METRICS` list of
   `(label, summary-key, formatter)` tuples — adding a statistic is one line.
+  The two cost rows (`Turnover (1-sided, ann.)`, `Total fees`) live in a
+  second `COST_METRICS` list because they render *after* the per-asset
+  exposure rows, which follow the `METRICS` loop.
 - Charts (equity, drawdown, rolling Sharpe, misallocation) share one axes
   factory; `_colours(n)` keeps the brand `COLORS` palette through 4 strategies,
   switches to tab10/tab20 through 20 and asserts beyond that (use
@@ -274,9 +291,10 @@ committed and the next run diffed against it. `--json PATH` writes one file;
 
 ```json
 {
-  "run":    {"schema_version": 3, "git_sha": …, "git_dirty": …, "bundle": …, "data_dir": …,
+  "run":    {"schema_version": 4, "git_sha": …, "git_dirty": …, "bundle": …, "data_dir": …,
              "spec_path": …, "generated_at": …},
   "config": {"start": …, "initial_capital": …, "monthly_contribution": …,
+             "cost_bps": "…number or per-asset object, always present…", "cash_yield": …,
              "end": "…only when an end was set…"},
   "data":   {"start": …, "end": …, "trading_days": …, "symbols": [...]},
   "benchmark": "SPY benchmark",
@@ -284,7 +302,7 @@ committed and the next run diffed against it. `--json PATH` writes one file;
   "strategies": [
     {"label": …, "slug": …, "class": …, "spec": …, "weights": {...}, "data": [...], "indicators": {...},
      "correlation_to_benchmark": …,
-     "summary":        {"…the 18 summary() keys…"},
+     "summary":        {"…the 22 summary() keys…"},
      "exposure":       {"TQQQ": {"avg_target": …, "avg": …, "min": …, "max": …}, "…": …, "CASH": …},
      "drawdowns":      [{"peak": …, "trough": …, "recovery": …, "depth": …, "days": …}],
      "yearly_returns": [{"year": …, "return": …}],
@@ -363,7 +381,10 @@ the bundle's or spec's end date), `--charts DIR`, `--no-charts`,
 ## sweep.py — parameter sweeps
 
 Its own entry point on purpose: `main.py` renders one bundle, `sweep.py`
-produces tables (`uv run sweep.py specs/sweep_X.json --data DIR --out DIR`).
+produces tables (`uv run sweep.py specs/sweep_X.json --data DIR --out DIR`,
+with `--cost-bps` / `--cash-yield` as flat what-if overrides of the spec's
+cost model — recorded in the artefacts; `main.py` deliberately has no such
+flags, a bundle what-if is a spec edit).
 It expands a strategy template over its `{"grid": [...]}` leaves, builds one
 ordinary `Bundle` per evaluation window (full, holdout fit/test, sensitivity)
 through `spec.build_bundle`, and reuses `run_bundle` — there is no second

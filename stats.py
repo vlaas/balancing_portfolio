@@ -172,8 +172,19 @@ def exposure(allocations: pl.DataFrame) -> dict[str, dict]:
 
 
 def summary(
-    curve: pl.DataFrame, twr_frame: pl.DataFrame, allocations: pl.DataFrame
+    curve: pl.DataFrame,
+    twr_frame: pl.DataFrame,
+    allocations: pl.DataFrame,
+    trades: pl.DataFrame,
 ) -> dict[str, object]:
+    """All headline statistics as one flat dict.
+
+    `turnover` is one-sided and annualised: half the traded value (buys plus
+    sells) over the mean portfolio value per year. Monthly contributions put a
+    floor under it — a buy-and-hold contributor still shows roughly
+    contribution x 12 / avg value — so turnover compares strategies on the
+    same Config, not across Configs.
+    """
     dates = curve["date"].to_list()
     final_value = curve["value"].to_list()[-1]
     total_contributed = curve["flow"].sum()
@@ -201,6 +212,9 @@ def summary(
 
     off = imbalance(allocations)
 
+    traded_value = trades.filter(pl.col("action").is_in(["BUY", "SELL"]))["amount"].sum()
+    total_fees = trades["fee"].sum()
+
     return {
         "avg_misallocation": off["misallocated"].mean(),
         "max_misallocation": off["misallocated"].max(),
@@ -220,4 +234,8 @@ def summary(
         "max_drawdown_days": drawdowns[0].days,
         "best_year": best_year,
         "worst_year": worst_year,
+        "traded_value": traded_value,
+        "total_fees": total_fees,
+        "turnover": (traded_value / 2) / curve["value"].mean() / years,
+        "fee_drag": total_fees / total_contributed,
     }

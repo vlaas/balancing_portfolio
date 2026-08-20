@@ -385,8 +385,14 @@ def test_run_sweep_end_to_end():
         "best_year", "best_year_return", "worst_year", "worst_year_return",
         "params.weights.TQQQ", "params.weights.BTAL",
         "exposure.TQQQ.avg", "exposure.TQQQ.min", "exposure.SPY.avg",
+        "cost_bps", "cash_yield",
     ):
         assert column in runs.columns
+
+    # A cost-free sweep is self-describing about it.
+    assert runs["cost_bps"].to_list() == [0.0] * runs.height
+    assert runs["cash_yield"].to_list() == [0.0] * runs.height
+    assert summary["costs"] == {"cost_bps": 0.0, "cash_yield": 0.0}
 
     assert len(summary["strategies"]) == 4
     for s in summary["strategies"]:
@@ -397,6 +403,56 @@ def test_run_sweep_end_to_end():
         assert set(s["neighbourhood"]) == {"neighbour_min", "neighbour_mean", "edge"}
         assert "robust_score" in s
     assert summary["baselines"][0]["label"] == "SPY benchmark"
+
+
+def test_sweep_config_costs_reach_every_window():
+    # COST_MODEL_SPEC.md T6, sweep half: the fields are forwarded into every
+    # window's Config — every run pays fees — and land in the artefacts.
+    spec = copy.deepcopy(T6_SPEC)
+    spec["config"]["cost_bps"] = {"TQQQ": 1.5, "*": 6}
+    spec["config"]["cash_yield"] = 0.03
+
+    runs, summary = run_sweep(spec, GOLDEN_DIR)
+
+    schedule = json.dumps({"TQQQ": 1.5, "*": 6}, sort_keys=True)
+    assert runs["cost_bps"].to_list() == [schedule] * runs.height
+    assert runs["cash_yield"].to_list() == [0.03] * runs.height
+    assert summary["costs"] == {"cost_bps": {"TQQQ": 1.5, "*": 6}, "cash_yield": 0.03}
+    assert runs["total_fees"].min() > 0.0
+
+
+def test_sweep_config_costs_out_of_range_names_the_path():
+    spec = copy.deepcopy(T6_SPEC)
+    spec["config"]["cost_bps"] = -1
+
+    with pytest.raises(ValueError, match=re.escape("config.cost_bps")):
+        validate(spec)
+
+
+def test_cost_cli_overrides_land_in_the_artefacts(tmp_path, monkeypatch):
+    spec_path = tmp_path / "grid.json"
+    spec_path.write_text(json.dumps(T6_SPEC))
+    out = tmp_path / "out"
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "sweep.py", str(spec_path), "--data", str(GOLDEN_DIR), "--out", str(out),
+            "--cost-bps", "20", "--cash-yield", "0.03",
+        ],
+    )
+
+    sweep_main()
+
+    runs = pl.read_csv(out / "runs.csv")
+    assert runs["cost_bps"].to_list() == [20.0] * runs.height
+    assert runs["cash_yield"].to_list() == [0.03] * runs.height
+    summary = json.loads((out / "summary.json").read_text())
+    assert summary["costs"] == {
+        "cost_bps": 20.0, "cash_yield": 0.03,
+        "cli_override": ["cost_bps", "cash_yield"],
+    }
+    md = (out / "summary.md").read_text()
+    assert "- Costs: flat 20 bps (CLI override), cash yield 3% (CLI override)" in md
 
 
 def test_cli_writes_the_five_artefacts(tmp_path, monkeypatch, capsys):

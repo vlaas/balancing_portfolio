@@ -64,6 +64,46 @@ def test_default_bundle_reproduces_the_golden_numbers():
         assert result.stats["max_drawdown"] == pytest.approx(max_dd, abs=0.00005)
 
 
+# Cost golden — COST_MODEL_SPEC.md T7. The default bundle under the tastytrade
+# base schedule (per-asset, "*" covering future safe-asset swaps) and 3% cash
+# yield, same snapshot, same rule as above. Pins the fee arithmetic and the
+# per-asset/"*" resolution end to end. Produced by the implementation once and
+# eyeballed: the 50/50 loses ~0.26% of final value to friction, TQQQ 100%
+# almost nothing (it never sells), and the SPY benchmark comes out slightly
+# ahead — interest on idle cash exceeds its fees.
+
+COST_GOLDEN = {
+    "TQQQ/BTAL 50/50": (236_655.36, 344.26),
+    "TQQQ 100%": (661_163.13, 10.12),
+    "TQQQ/BTAL SMA gate": (224_297.69, 262.53),
+    "SPY benchmark": (153_978.98, 4.71),
+}
+
+
+def test_default_bundle_reproduces_the_cost_golden_numbers():
+    import dataclasses
+
+    bundle = BUNDLES["default"]
+    config = dataclasses.replace(
+        bundle.config,
+        cost_bps={"TQQQ": 1.5, "BTAL": 6, "QQQ": 1, "SPY": 0.7, "*": 6},
+        cash_yield=0.03,
+    )
+    results = run_bundle(dataclasses.replace(bundle, config=config), GOLDEN_DIR)
+
+    assert [r.label for r in results] == list(COST_GOLDEN)
+    for result in results:
+        final, fees = COST_GOLDEN[result.label]
+        assert result.stats["final_value"] == pytest.approx(final, abs=0.005)
+        assert result.stats["total_fees"] == pytest.approx(fees, abs=0.005)
+
+    turnover = {r.label: r.stats["turnover"] for r in results}
+    # The gate blocks buy-side rebalancing while TQQQ sits below its SMA, so
+    # the gated 50/50 turns over less than the plain one; both dwarf the
+    # never-selling TQQQ 100%, which shows only the contribution floor.
+    assert turnover["TQQQ 100%"] < turnover["TQQQ/BTAL SMA gate"] < turnover["TQQQ/BTAL 50/50"]
+
+
 # The spec CLI — DECLARATIVE_SPEC.md T9.
 
 
@@ -90,7 +130,7 @@ def test_spec_cli_writes_json_and_nothing_else(tmp_path, monkeypatch, capsys):
     assert not charts.exists()
 
     payload = json.loads(out.read_text())
-    assert payload["run"]["schema_version"] == 3
+    assert payload["run"]["schema_version"] == 4
     assert payload["run"]["bundle"] == "research"
     assert payload["run"]["data_dir"] == str(GOLDEN_DIR)
     assert payload["run"]["spec_path"].endswith("research.json")

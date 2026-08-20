@@ -14,7 +14,7 @@ from main import collect_indicators, run_bundle
 from prices import load_prices
 from results_json import results_payload
 from simulate import simulate
-from spec import build_bundle, load_spec
+from spec import build_bundle, load_spec, normalised_spec
 from stats import correlation
 from strategies.fixed import Fixed
 from strategies.gate import Gate
@@ -56,6 +56,10 @@ INVALID = {
     "w_min above w_max": (lambda s: s["strategies"][4].update(w_min=0.6), "strategies[4]"),
     "duplicate labels": (lambda s: s["strategies"][1].update(label="TQQQ/BTAL 50/50"), "strategies[1].label"),
     "one-strategy list": (lambda s: s.update(strategies=s["strategies"][:1]), "strategies"),
+    "cost_bps below range": (lambda s: s["config"].update(cost_bps=-1), "config.cost_bps"),
+    "cost_bps entry above range": (lambda s: s["config"].update(cost_bps={"TQQQ": 2000}), "config.cost_bps.TQQQ"),
+    "cash_yield above range": (lambda s: s["config"].update(cash_yield=0.5), "config.cash_yield"),
+    "unresolved cost symbol": (lambda s: s["config"].update(cost_bps={"TQQQ": 1.5}), "config.cost_bps"),
 }
 
 
@@ -73,6 +77,23 @@ def test_gate_asset_must_be_traded():
 def test_a_sweep_spec_names_the_right_entry_point():
     with pytest.raises(ValueError, match=re.escape("run it with `uv run sweep.py")):
         build_bundle(load_spec(SPECS / "sweep_vt.json"))
+
+
+def test_config_costs_reach_config_and_normalise():
+    # COST_MODEL_SPEC.md T6, bundle half: the optional fields land in Config
+    # as configured, and normalised_spec always emits them — explicit zeros
+    # when the spec never mentioned them.
+    bundle = build_bundle(
+        broken(lambda s: s["config"].update(cost_bps={"TQQQ": 1.5, "*": 6}, cash_yield=0.03))
+    )
+    assert bundle.config.cost_bps == {"TQQQ": 1.5, "*": 6.0}
+    assert bundle.config.cash_yield == 0.03
+    assert normalised_spec(bundle)["config"]["cost_bps"] == {"TQQQ": 1.5, "*": 6.0}
+    assert normalised_spec(bundle)["config"]["cash_yield"] == 0.03
+
+    defaults = normalised_spec(build_bundle(broken(lambda s: None)))["config"]
+    assert defaults["cost_bps"] == 0.0
+    assert defaults["cash_yield"] == 0.0
 
 
 def test_config_end_is_optional_and_may_be_null():

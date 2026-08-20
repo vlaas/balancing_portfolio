@@ -13,7 +13,7 @@ from typing import NoReturn
 from bundles import Bundle
 from indicators import ewma_vol, realized_vol
 from results_json import slug
-from simulate import Config
+from simulate import Config, fee_schedule
 from strategies.fixed import Fixed
 from strategies.gate import Gate
 from strategies.vol_target import VolTarget
@@ -41,6 +41,29 @@ def _fields(obj, path: str, required: set, optional: set = frozenset()) -> None:
             _fail(_join(path, key), "unknown key")
     for key in sorted(required - set(obj)):
         _fail(_join(path, key), "missing key")
+
+
+def _costs(config: dict, path: str) -> None:
+    """Range-check a config block's optional cost_bps / cash_yield fields."""
+
+    def rate(value, rate_path: str) -> None:
+        if isinstance(value, bool) or not isinstance(value, (int, float)) \
+                or not 0 <= value <= 1000:
+            _fail(rate_path, f"expected a per-side rate in [0, 1000] bps, got {value!r}")
+
+    cost_bps = config.get("cost_bps", 0.0)
+    if isinstance(cost_bps, dict):
+        for symbol, value in cost_bps.items():
+            rate(value, f"{_join(path, 'cost_bps')}.{symbol}")
+    else:
+        rate(cost_bps, _join(path, "cost_bps"))
+    cash_yield = config.get("cash_yield", 0.0)
+    if isinstance(cash_yield, bool) or not isinstance(cash_yield, (int, float)) \
+            or not 0 <= cash_yield <= 0.20:
+        _fail(
+            _join(path, "cash_yield"),
+            f"expected an annual rate in [0, 0.20], got {cash_yield!r}",
+        )
 
 
 def _pct(x: float) -> str:
@@ -172,14 +195,21 @@ def build_bundle(spec: dict) -> Bundle:
 
     _fields(
         spec["config"], "config",
-        {"start", "initial_capital", "monthly_contribution"}, {"end"},
+        {"start", "initial_capital", "monthly_contribution"},
+        {"end", "cost_bps", "cash_yield"},
     )
+    _costs(spec["config"], "config")
     end = spec["config"].get("end")  # absent or null both mean "to the end of the data"
+    cost_bps = spec["config"].get("cost_bps", 0.0)
     config = Config(
         start=dt.date.fromisoformat(spec["config"]["start"]),
         initial_capital=float(spec["config"]["initial_capital"]),
         monthly_contribution=float(spec["config"]["monthly_contribution"]),
         end=None if end is None else dt.date.fromisoformat(end),
+        cost_bps={s: float(v) for s, v in cost_bps.items()}
+        if isinstance(cost_bps, dict)
+        else float(cost_bps),
+        cash_yield=float(spec["config"].get("cash_yield", 0.0)),
     )
 
     entries = spec["strategies"]
@@ -202,6 +232,12 @@ def build_bundle(spec: dict) -> Bundle:
                   f"{what} {st.label!r} collides with strategies[{seen[s]}]")
         seen[s] = i
         strategies.append(st)
+
+    # Every traded symbol must resolve to a fee rate before any simulation runs.
+    try:
+        fee_schedule(config.cost_bps, sorted({s for st in strategies for s in st.weights}))
+    except ValueError as e:
+        _fail("config.cost_bps", str(e).removeprefix("cost_bps: "))
     return Bundle(strategies=strategies, config=config)
 
 
@@ -213,6 +249,10 @@ def normalised_spec(bundle: Bundle) -> dict:
             "start": bundle.config.start.isoformat(),
             "initial_capital": bundle.config.initial_capital,
             "monthly_contribution": bundle.config.monthly_contribution,
+            "cost_bps": bundle.config.cost_bps
+            if isinstance(bundle.config.cost_bps, (int, float))
+            else dict(bundle.config.cost_bps),
+            "cash_yield": bundle.config.cash_yield,
         } | ({"end": bundle.config.end.isoformat()} if bundle.config.end else {}),
         "strategies": [st.spec for st in bundle.strategies],
     }

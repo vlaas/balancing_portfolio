@@ -35,6 +35,18 @@ JSON path (`strategies[1].gate.sma_day: unknown key`) — a typo never silently
 becomes a default. `specs/default.json` reproduces the code-defined `default`
 bundle; `specs/research.json` holds the current research candidates.
 
+**Cost model** (COST_MODEL_SPEC.md): `config` takes two optional fields, both
+defaulting to `0.0` so every cost-free result stays reproducible.
+`"cost_bps"` is a per-side proportional trading cost — a number applies to
+every asset, an object (`{"TQQQ": 1.5, "BTAL": 6, "*": 6}`) sets per-symbol
+rates with `"*"` as the default; a traded symbol that resolves to neither is a
+build-time error. Fees are paid from cash at execution; buys are capped so
+cash never goes negative, sells always execute in full. `"cash_yield"` is an
+annual rate accrued daily (ACT/365, weekends included) on the cash balance as
+internal return — flows, TWR and XIRR need no adjustment. Ranges: cost rates
+in [0, 1000] bps, yield in [0, 0.20]. The calibrated tastytrade base schedule
+lives in `specs/sweep_vt_cbase.json`.
+
 The two types (`spec.py` maps them to `strategies/fixed.py` and
 `strategies/vol_target.py`):
 
@@ -91,6 +103,12 @@ uv run sweep.py specs/sweep_vt.json --data tests/data --out results/sweep_vt
   `strategies.json`, `runs.csv`, `runs.json`, `summary.json`, `summary.md`.
   `--dry-run` prints the expanded strategies × windows count and writes
   nothing.
+- **Cost what-ifs**: the sweep `config` takes the same optional `cost_bps` /
+  `cash_yield` as an ordinary spec, forwarded into every window.
+  `--cost-bps X` replaces the whole schedule with a flat rate and
+  `--cash-yield Y` the yield, for a stress rerun without a near-duplicate spec
+  file; overrides are recorded in `runs.csv`, the `summary.json` costs record
+  and the `summary.md` header.
 
 ## Quickstart
 

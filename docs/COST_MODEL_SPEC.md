@@ -1,6 +1,6 @@
 # Specification: trading costs, cash yield, turnover
 
-Repo: `vlaas/balancing_portfolio` · baseline commit: `39443f5` ("sweep_vt_ext results") · status: proposal, v2
+Repo: `vlaas/balancing_portfolio` · baseline commit: `39443f5` ("sweep_vt_ext results") · status: implemented (2026-08-20, branch `cost-model`), v2 — deviations in the errata at the end
 
 v2: validated against the broker/cost research of Aug 2026 ("Round-Trip Trading Costs",
 project context). Operative assumption from it: **the broker is tastytrade** (IBKR IE
@@ -234,15 +234,15 @@ memory; the numbers stay in the repo.
 
 ## 9. Acceptance checklist
 
-- [ ] `Config.cost_bps`, `Config.cash_yield`, range validation in both spec parsers
-- [ ] Accrual and fee deduction per §3, `fee` column, `log(fee=)`
-- [ ] `summary(trades=…)` with `traded_value`, `total_fees`, `turnover`, `fee_drag`;
+- [x] `Config.cost_bps`, `Config.cash_yield`, range validation in both spec parsers
+- [x] Accrual and fee deduction per §3, `fee` column, `log(fee=)`
+- [x] `summary(trades=…)` with `traded_value`, `total_fees`, `turnover`, `fee_drag`;
       report lines; `SCHEMA_VERSION = 4`; config keys always emitted
-- [ ] Sweep: config fields, CLI overrides, `runs.csv` columns, header lines
-- [ ] Tests T1–T7 green from a fresh clone; existing golden untouched
-- [ ] `specs/sweep_vt_consolidated.json`, `specs/sweep_vt_cbase.json` + the three §8 runs
+- [x] Sweep: config fields, CLI overrides, `runs.csv` columns, header lines
+- [x] Tests T1–T7 green from a fresh clone; existing golden untouched
+- [x] `specs/sweep_vt_consolidated.json`, `specs/sweep_vt_cbase.json` + the three §8 runs
       committed
-- [ ] Docs: STRATEGY_DEVELOPMENT (cost model §, one paragraph), ARCHITECTURE (schema 4),
+- [x] Docs: STRATEGY_DEVELOPMENT (cost model §, one paragraph), ARCHITECTURE (schema 4),
       CLAUDE.md protocol: comparisons intended for real decisions quote cost-adjusted
       numbers (state bps) — gross numbers are for regression only
 
@@ -263,3 +263,27 @@ it only shifts absolute levels. It belongs in real-world return expectations (ro
 open/close), not in `Config`. If it ever matters for a model question — e.g. comparing a
 UCITS-at-IBKR variant where FX is ~0 — that is a different broker assumption and a spec
 revision, not a parameter.
+
+## 11. Errata (implementation, 2026-08-20)
+
+- **§2, validation location.** "In `build_bundle` and the sweep spec parser"
+  holds for the range checks (shared `_costs` helper). Symbol *resolution*
+  cannot happen in the sweep parser — traded symbols exist only after template
+  expansion — so for sweeps it fires in the data-free probe build inside
+  `_plan`, still before any simulation. Same user-visible effect.
+- **§2, "every traded and gated symbol resolves".** Implemented as the union
+  of every strategy's `weights`. `gate.assets` is already forced to be a
+  subset of `weights` by the gate parser, so it is covered; the gate's SMA
+  `symbol` is never traded, pays no fee, and needs no rate.
+- **§4, rendered row placement.** "After the exposure rows" cannot be an entry
+  in `report.py`'s `METRICS` (its rows all precede the exposure block), so the
+  two rows live in a second `COST_METRICS` list rendered after it —
+  ARCHITECTURE's "adding a statistic is one line" holds only for pre-exposure
+  rows.
+- **§6, cost-golden eyeball.** The expectation "the 50/50 turns over far less
+  than VT+gate" is not observable on the default bundle (it contains no
+  vol-target strategy). Observed and pinned instead: the SMA-gated fixed 50/50
+  turns over *less* than the plain 50/50 (0.39 vs 0.50 one-sided p.a.) — the
+  gate suppresses buy-side rebalancing while TQQQ sits below its SMA — and
+  both dwarf the never-selling TQQQ 100% (0.02, the contribution floor).
+  Fees on the frozen snapshot: 50/50 $344.26, gate $262.53, right order per §8.
