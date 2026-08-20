@@ -82,6 +82,9 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
   together with the spec.
 - An agent reporting a sweep quotes `robust_score`, the holdout `test`
   objective and `rank_worst` — never `full` alone.
+- A comparison intended for a real decision quotes cost-adjusted numbers and
+  states the cost assumption (`cost_bps`, `cash_yield`) — gross (zero-cost)
+  numbers are for regression only.
 - When a proposal needs a new strategy type or parameter: change
   `spec.py`/`strategies/` with tests first, write the spec second.
 - Never modify engine semantics (`simulate.py`, `strategy.py`) to make a spec
