@@ -74,11 +74,15 @@ def _gate(entry: dict, path: str, universe: set) -> tuple[Gate, dict]:
     return gate, normalised
 
 
-def _gate_suffix(gate: Gate | None) -> str:
-    if gate is None:
-        return ""
+def gate_str(gate: Gate) -> str:
+    """`QQQ<SMA200`, plus `+contrib` when contributions are exempt — the
+    rendering the auto-labels embed and sweep params reuse."""
     exempt = "+contrib" if gate.contribution_exempt else ""
-    return f" gate {gate.symbol}<{gate.column}{exempt}"
+    return f"{gate.symbol}<{gate.column}{exempt}"
+
+
+def _gate_suffix(gate: Gate | None) -> str:
+    return "" if gate is None else f" gate {gate_str(gate)}"
 
 
 def _fixed(entry: dict, path: str) -> Fixed:
@@ -163,11 +167,16 @@ def build_bundle(spec: dict) -> Bundle:
     if spec["schema_version"] != SPEC_SCHEMA_VERSION:
         _fail("schema_version", f"expected {SPEC_SCHEMA_VERSION}, got {spec['schema_version']!r}")
 
-    _fields(spec["config"], "config", {"start", "initial_capital", "monthly_contribution"})
+    _fields(
+        spec["config"], "config",
+        {"start", "initial_capital", "monthly_contribution"}, {"end"},
+    )
+    end = spec["config"].get("end")  # absent or null both mean "to the end of the data"
     config = Config(
         start=dt.date.fromisoformat(spec["config"]["start"]),
         initial_capital=float(spec["config"]["initial_capital"]),
         monthly_contribution=float(spec["config"]["monthly_contribution"]),
+        end=None if end is None else dt.date.fromisoformat(end),
     )
 
     entries = spec["strategies"]
@@ -201,6 +210,6 @@ def normalised_spec(bundle: Bundle) -> dict:
             "start": bundle.config.start.isoformat(),
             "initial_capital": bundle.config.initial_capital,
             "monthly_contribution": bundle.config.monthly_contribution,
-        },
+        } | ({"end": bundle.config.end.isoformat()} if bundle.config.end else {}),
         "strategies": [st.spec for st in bundle.strategies],
     }

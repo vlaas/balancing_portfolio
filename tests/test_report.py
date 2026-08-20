@@ -43,6 +43,10 @@ def result(label: str) -> StrategyResult:
         trades=pl.DataFrame(),
         allocations=pl.DataFrame(),
         imbalance=pl.DataFrame({"date": dates, "misallocated": [0.01, 0.02, 0.01]}),
+        exposure={
+            "A": {"avg_target": 0.5, "avg": 0.49, "min": 0.45, "max": 0.52},
+            "CASH": {"avg_target": 0.5, "avg": 0.51, "min": 0.48, "max": 0.55},
+        },
     )
 
 
@@ -74,3 +78,17 @@ def test_long_labels_keep_the_columns_aligned(capsys):
     assert len(header) == len(rule) == len(first_metric) == NAME_W + 2 * value_w
     assert header.endswith(long)
     assert first_metric.startswith("Final value")
+
+
+def test_exposure_rows_render_after_misallocation(capsys):
+    print_report([result("one"), result("two")], correlations=[])
+
+    lines = capsys.readouterr().out.splitlines()
+    rule = next(line for line in lines if line and set(line) == {"-"})
+    misallocation = next(l for l in lines if l.startswith("Max worst-asset dev"))
+    row = next(l for l in lines if l.startswith("Avg weight A"))
+
+    assert lines.index(row) == lines.index(misallocation) + 1
+    assert len(row) == len(rule)
+    assert row.split()[-1] == "0.49"
+    assert not any(l.startswith("Avg weight CASH") for l in lines)

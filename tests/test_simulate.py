@@ -301,6 +301,34 @@ def test_real_data_invariants():
     assert off["misallocated"].mean() < 0.01
 
 
+def test_truncated_run_is_a_prefix_of_the_full_run():
+    # SWEEP_SPEC.md T1: with end = E the curve equals the full run's first rows
+    # on every row except the last, which differs only in that no
+    # contribution/rebalance happens on it.
+    from prices import load_prices
+
+    start, end = dt.date(2017, 1, 3), dt.date(2020, 6, 30)
+    strategy = Strategy(label="test", weights={"TQQQ": 0.5, "BTAL": 0.5})
+    full_prices = load_prices(GOLDEN_DIR, ["TQQQ", "BTAL"], start)
+    trunc_prices = load_prices(GOLDEN_DIR, ["TQQQ", "BTAL"], start, end=end)
+
+    # E is a month-end trading day: the full run trades on it, the truncated
+    # run holds it as a valuation day.
+    assert full_prices.filter(pl.col("date") == end)["is_rebalance_day"].item()
+    assert trunc_prices["date"].last() == end
+    assert trunc_prices["is_rebalance_day"].last() is False
+
+    full, _, _ = simulate(full_prices, strategy, Config(start, 10000.0, 500.0))
+    trunc, _, _ = simulate(trunc_prices, strategy, Config(start, 10000.0, 500.0, end))
+
+    n = len(trunc)
+    assert_frame_equal(trunc.head(n - 1), full.head(n - 1))
+    assert trunc["flow"][n - 1] == 0.0
+    assert full["flow"][n - 1] == 500.0
+    # Trades at E's closes conserve value, so the gap is exactly the deposit.
+    assert full["value"][n - 1] - trunc["value"][n - 1] == pytest.approx(500.0)
+
+
 # The buy_cap engine semantics — DECLARATIVE_SPEC.md T4.
 
 

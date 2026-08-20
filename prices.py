@@ -43,6 +43,7 @@ def load_prices(
     data_dir: Path,
     symbols: Iterable[str],
     start: dt.date,
+    end: dt.date | None = None,
     extra: Iterable[str] = (),
     indicators: Mapping[str, Iterable[Indicator]] = {},
 ) -> pl.DataFrame:
@@ -50,11 +51,15 @@ def load_prices(
 
     `extra` names symbols a strategy reads but does not trade; they are joined
     onto that calendar and never extend it. `indicators` maps a symbol to the
-    indicators to compute for it, each loaded as `SYM:NAME`.
+    indicators to compute for it, each loaded as `SYM:NAME`. `end` truncates
+    the frame after that date; it must lie between `start` and the last date
+    in the data, else ValueError — silent truncation would make two windows
+    incomparable.
 
     Returns a frame of `date`, one forward-filled column per loaded value, and
     `is_rebalance_day` (True on the last trading day of each month). The final
-    row is never a rebalance day, since the data ends mid-month. Only the traded
+    row is never a rebalance day — whether the data ends mid-month or `end`
+    truncated it, it is a valuation day, not a trade day. Only the traded
     closes are guaranteed non-null; an `extra` symbol's columns and any
     indicator are null until that column's history begins.
     """
@@ -76,6 +81,14 @@ def load_prices(
     prices = prices.with_columns(pl.exclude("date").fill_null(strategy="forward"))
     prices = prices.filter(pl.col("date") >= start)
     assert sum(prices.select(symbols).null_count().row(0)) == 0
+
+    if end is not None:
+        if end < start:
+            raise ValueError(f"end {end} is before start {start}")
+        last = prices["date"].max()
+        if end > last:
+            raise ValueError(f"end {end} is past the last data date {last}")
+        prices = prices.filter(pl.col("date") <= end)
 
     return prices.with_columns(
         is_rebalance_day=(

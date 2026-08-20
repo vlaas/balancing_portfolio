@@ -5,6 +5,7 @@ import pytest
 
 from stats import (
     correlation,
+    exposure,
     imbalance,
     rolling_sharpe,
     summary,
@@ -198,6 +199,20 @@ def test_imbalance_measures_misallocation_per_day():
     assert result["misallocated"].to_list() == pytest.approx([0.0, 0.1, 0.1])
     # Day 3's worst asset is off by 5% even though cash is off by 10%.
     assert result["max_deviation"].to_list() == pytest.approx([0.0, 0.1, 0.05])
+
+
+def test_exposure_means_and_extremes():
+    result = exposure(summary_allocations())
+
+    assert set(result) == {"A", "B", "CASH"}
+    assert result["A"] == {
+        "avg_target": pytest.approx(0.5),
+        "avg": pytest.approx(0.45),
+        "min": 0.4,
+        "max": 0.5,
+    }
+    assert result["CASH"]["avg_target"] == 0.0
+    assert result["CASH"]["max"] == pytest.approx(0.1)
 
 
 def test_summary_money_figures():

@@ -16,7 +16,7 @@ from bundles import Bundle
 from report import StrategyResult
 from stats import drawdown_curve, yearly_returns
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 PRECISION = 8
 
 IMBALANCE_KEYS = (
@@ -93,6 +93,7 @@ def _strategy(
         },
         "correlation_to_benchmark": correlation,
         "summary": _summary(result.stats),
+        "exposure": result.exposure,
         "drawdowns": [
             {
                 "peak": d.peak.isoformat(),
@@ -155,7 +156,8 @@ def results_payload(
                 "start": bundle.config.start.isoformat(),
                 "initial_capital": bundle.config.initial_capital,
                 "monthly_contribution": bundle.config.monthly_contribution,
-            },
+            }
+            | ({"end": bundle.config.end.isoformat()} if bundle.config.end else {}),
             "data": {
                 "start": curve["date"][0].isoformat(),
                 "end": curve["date"][-1].isoformat(),

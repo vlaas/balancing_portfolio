@@ -90,12 +90,35 @@ def test_spec_cli_writes_json_and_nothing_else(tmp_path, monkeypatch, capsys):
     assert not charts.exists()
 
     payload = json.loads(out.read_text())
-    assert payload["run"]["schema_version"] == 2
+    assert payload["run"]["schema_version"] == 3
     assert payload["run"]["bundle"] == "research"
     assert payload["run"]["data_dir"] == str(GOLDEN_DIR)
     assert payload["run"]["spec_path"].endswith("research.json")
     assert len(payload["spec"]["strategies"]) == 6
     assert all(entry["spec"] for entry in payload["strategies"])
+
+
+def test_end_cli_reaches_results_json_config(tmp_path, monkeypatch):
+    out = tmp_path / "out.json"
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "main.py",
+            "--spec", str(Path(__file__).parents[1] / "specs" / "research.json"),
+            "--data", str(GOLDEN_DIR),
+            "--end", "2024-12-31",
+            "--json", str(out),
+            "--no-charts",
+            "--quiet",
+        ],
+    )
+
+    main()
+
+    payload = json.loads(out.read_text())
+    assert payload["config"]["end"] == "2024-12-31"
+    assert payload["spec"]["config"]["end"] == "2024-12-31"
+    assert payload["data"]["end"] <= "2024-12-31"
 
 
 def test_bundle_and_spec_are_mutually_exclusive(monkeypatch, capsys):

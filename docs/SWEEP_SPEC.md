@@ -1,6 +1,6 @@
 # Specification: sweeps with robustness metrics
 
-Repo: `vlaas/balancing_portfolio` · baseline commit: `33c275f` ("declarative bundles") · status: proposal
+Repo: `vlaas/balancing_portfolio` · baseline commit: `33c275f` ("declarative bundles") · status: implemented (§11 errata; `--jobs` deferred)
 
 ## 1. Goal
 
@@ -250,16 +250,82 @@ summary.json, summary.md}`.
 
 ## 9. Acceptance checklist
 
-- [ ] `Config.end`, `load_prices(end=)`, `--end`, spec `config.end`
-- [ ] `stats.exposure`, `results.json` `exposure`, report lines, `SCHEMA_VERSION = 3`
-- [ ] `sweep.py`: `expand`, `windows`, `run_sweep`, summary, CLI with `--dry-run`
-- [ ] `specs/sweep_vt.json`; `results/sweep_vt/*` produced from `tests/data` and committed
-- [ ] Tests T1–T7 green from a fresh clone
-- [ ] `--jobs` (optional, last)
-- [ ] Docs per §8
+- [x] `Config.end`, `load_prices(end=)`, `--end`, spec `config.end`
+- [x] `stats.exposure`, `results.json` `exposure`, report lines, `SCHEMA_VERSION = 3`
+- [x] `sweep.py`: `expand`, `windows`, `run_sweep`, summary, CLI with `--dry-run`
+- [x] `specs/sweep_vt.json`; `results/sweep_vt/*` produced from `tests/data` and committed
+- [x] Tests T1–T7 green from a fresh clone
+- [ ] `--jobs` (optional, last) — deferred; §11.10
+- [x] Docs per §8
 
 ## 10. After this
 
 Cost model (`Config.cost_bps`, `cash_yield`) so the sweep can be rerun with friction;
 asymmetric gates and band rebalancing as new template dimensions; a `sweep` tool on an MCP
 server wrapping `run_sweep`.
+
+## 11. Errata — deviations found and fixed during implementation
+
+Validated against the code before implementation; these corrections were
+agreed and applied (the sections above are left as proposed):
+
+1. **§2 location**: `load_prices` lives in `prices.py`, not `simulate.py`; the
+   change lands there. "The last date in the data" means the last date of the
+   loaded *traded* calendar (files drift at the edges: DBMF/KMLM currently run
+   two days past the rest, and extras never extend the calendar).
+2. **§2 "carries the resolved value"**: `normalised_spec` and `results.json`
+   emit `config.end` only when an end was actually set ("resolved" = after a
+   CLI override). An unset end writes no key at all — T7's byte-identity for
+   `end=None` runs wins, and the run's actual last date is already in
+   `data.end`.
+3. **§4.1 `"gate": {"grid": [null, …]}`**: the builders treat key *presence*
+   as "has a gate", so a `null` grid value deletes the key from the entry
+   rather than substituting `None`. Consequence: `[null, …]` grids work for
+   optional keys only — not for `vol_target`'s required-but-nullable `safe`.
+4. **§4.1 grids inside lists** (e.g. over `gate.assets` elements) are a
+   `ValueError`, not supported.
+5. **§4.2 "objects are rendered through the same string the auto-label
+   uses"**: the label renders a gate as `" gate QQQ<SMA200"`; the shared
+   renderer `spec.gate_str` (`QQQ<SMA200`, plus `+contrib`) was factored out
+   so `params` and the label suffix cannot drift. A non-gate object dimension
+   renders as compact sorted JSON.
+6. **§4.2 "auto-labels are unique by construction"** holds only for
+   label-visible leaves. `leverage`, `fallback` and `gate.assets` are absent
+   from labels, and λ is rounded to two digits in the indicator name
+   (`VOL_EWMA94`), so grids over those collide loudly in `build_bundle`
+   ("duplicate label") — grid dimensions must be label-visible.
+7. **§4.3**: neighbour steps follow grid-list order, so write grids
+   monotonically; `edge` covers numeric dimensions only; neighbours are not
+   feasibility-filtered. Anchored sensitivity stops when the snapped start
+   reaches `end`; the rolling drop rule compares the raw `s + length_years`
+   against the snapped `end`. Snap notes cover the user-supplied dates
+   (`windows.start`, `windows.end`, `holdout`); derived boundaries (fit end,
+   sensitivity starts) snap silently by construction.
+8. **§4.4 runs table**: the `best_year`/`worst_year` tuples flatten to
+   `best_year` + `best_year_return` (and `worst_*`) — a CSV cell cannot hold
+   a tuple, so "every summary() key" is 20 columns. Baselines carry
+   `feasible: true` (the constraint applies to grid points; `is_baseline`
+   already separates them). A `None` metric (`max_drawdown_days` ongoing)
+   fails a constraint on it. `runs.json` is written through the same
+   rounding/serialisation as `results.json` rather than
+   `DataFrame.write_json`: polars' threaded means differ in the last ulp
+   between reruns, and artefacts must be byte-reproducible.
+9. **§4.5**: `robust_score` simply omits absent components (no holdout, no
+   sensitivity windows, no numeric dimensions). Infeasible points carry
+   `null` rank fields. The top-15 table shows §4.5's columns exactly;
+   `robust_score` itself lives in `summary.json`.
+10. **§4/§7 CLI and artefacts**: `--out` defaults to `results/<spec stem>`
+    (the §8 convention); `--data` defaults to `data` as in `main.py`.
+    `runs.json` is produced and committed alongside §7's four artefacts.
+    `--jobs` is deferred: per-window tasks and results are plain dicts
+    (strategies are rebuilt inside the worker via `build_bundle`), so a
+    `ProcessPoolExecutor` over windows remains a drop-in.
+11. **§7 "18 sensitivity windows"**: §4.3's rules over `tests/data` (ends
+    2026-08-14) give 20 rolling windows (starts 2012-01-03 … 2021-07-03);
+    ~4 minutes was also pessimistic — the full grid runs in well under a
+    minute single-process. Every top-15 point sits on the λ = 0.90 boundary,
+    footnoted per §4.5: extend the λ grid downward before believing them.
+12. **Risk noted, unhandled**: `stats.xirr` brackets (−99.99 %, +1000 %) and
+    asserts a sign change; a catastrophic enough window would abort the sweep.
+    None of the §7 windows comes close. Widening the bracket is an engine
+    change and needs its own commit saying so.

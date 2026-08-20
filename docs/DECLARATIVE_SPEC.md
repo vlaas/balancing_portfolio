@@ -302,6 +302,9 @@ aligned columns (check header and first metric line widths agree).
   strategy count, `--quiet --no-charts`, a pure `build_bundle`, and the spec embedded in
   `results.json` so the table is a flatten. Sweep gets its own spec because its real design
   content is the robustness part.
+  *Superseded:* specified and implemented per [SWEEP_SPEC.md](SWEEP_SPEC.md) as a
+  standalone `sweep.py` entry point; the `--sweep`-on-`main.py` shape sketched
+  here was not built.
 - Asymmetric gate speeds (different SMA for exit and re-entry), band/threshold rebalancing,
   never-sell (sell caps), cost model, MCP server.
 

@@ -2,6 +2,7 @@
 # DECLARATIVE_SPEC.md T1, T2, T3, T7, T8.
 
 import copy
+import datetime as dt
 import re
 from pathlib import Path
 
@@ -46,6 +47,7 @@ def broken(mutate) -> dict:
 # daily gate, [3] fixed with a monthly exempt gate, [4] vol_target, [5] benchmark.
 INVALID = {
     "unknown top-level key": (lambda s: s.update(sweep={}), "sweep"),
+    "unknown config key": (lambda s: s["config"].update(ende="2024-01-01"), "config.ende"),
     "unknown strategy key": (lambda s: s["strategies"][0].update(wieghts={}), "strategies[0].wieghts"),
     "unknown gate key": (lambda s: s["strategies"][2]["gate"].update(sma_day=200), "strategies[2].gate.sma_day"),
     "missing required field": (lambda s: s["strategies"][0].pop("weights"), "strategies[0].weights"),
@@ -66,6 +68,14 @@ def test_invalid_specs_name_the_json_path(mutate, path):
 def test_gate_asset_must_be_traded():
     with pytest.raises(ValueError, match=re.escape("strategies[2].gate.assets")):
         build_bundle(broken(lambda s: s["strategies"][2]["gate"].update(assets=["SPY"])))
+
+
+def test_config_end_is_optional_and_may_be_null():
+    assert build_bundle(broken(lambda s: None)).config.end is None
+    assert build_bundle(broken(lambda s: s["config"].update(end=None))).config.end is None
+    assert build_bundle(
+        broken(lambda s: s["config"].update(end="2024-12-31"))
+    ).config.end == dt.date(2024, 12, 31)
 
 
 # --- T2: auto-labels ---------------------------------------------------------
@@ -144,6 +154,8 @@ def every_strategy():
         for st in bundle.strategies:
             yield f"{name}:{st.label}", st, bundle.config
     for path in sorted(SPECS.glob("*.json")):
+        if path.stem.startswith("sweep_"):
+            continue  # sweep specs have their own grammar; sweep.py reads them
         bundle = build_bundle(load_spec(path))
         for st in bundle.strategies:
             yield f"{path.stem}:{st.label}", st, bundle.config
