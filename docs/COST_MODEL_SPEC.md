@@ -234,15 +234,15 @@ memory; the numbers stay in the repo.
 
 ## 9. Acceptance checklist
 
-- [ ] `Config.cost_bps`, `Config.cash_yield`, range validation in both spec parsers
-- [ ] Accrual and fee deduction per §3, `fee` column, `log(fee=)`
-- [ ] `summary(trades=…)` with `traded_value`, `total_fees`, `turnover`, `fee_drag`;
+- [x] `Config.cost_bps`, `Config.cash_yield`, range validation in both spec parsers
+- [x] Accrual and fee deduction per §3, `fee` column, `log(fee=)`
+- [x] `summary(trades=…)` with `traded_value`, `total_fees`, `turnover`, `fee_drag`;
       report lines; `SCHEMA_VERSION = 4`; config keys always emitted
-- [ ] Sweep: config fields, CLI overrides, `runs.csv` columns, header lines
-- [ ] Tests T1–T7 green from a fresh clone; existing golden untouched
-- [ ] `specs/sweep_vt_consolidated.json`, `specs/sweep_vt_cbase.json` + the three §8 runs
+- [x] Sweep: config fields, CLI overrides, `runs.csv` columns, header lines
+- [x] Tests T1–T7 green from a fresh clone; existing golden untouched
+- [x] `specs/sweep_vt_consolidated.json`, `specs/sweep_vt_cbase.json` + the three §8 runs
       committed
-- [ ] Docs: STRATEGY_DEVELOPMENT (cost model §, one paragraph), ARCHITECTURE (schema 4),
+- [x] Docs: STRATEGY_DEVELOPMENT (cost model §, one paragraph), ARCHITECTURE (schema 4),
       CLAUDE.md protocol: comparisons intended for real decisions quote cost-adjusted
       numbers (state bps) — gross numbers are for regression only
 
