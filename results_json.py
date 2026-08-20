@@ -16,7 +16,7 @@ from bundles import Bundle
 from report import StrategyResult
 from stats import drawdown_curve, yearly_returns
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 PRECISION = 8
 
 IMBALANCE_KEYS = (
@@ -156,6 +156,12 @@ def results_payload(
                 "start": bundle.config.start.isoformat(),
                 "initial_capital": bundle.config.initial_capital,
                 "monthly_contribution": bundle.config.monthly_contribution,
+                # Number or per-asset object, exactly as configured; both keys
+                # always present — explicit beats absent.
+                "cost_bps": bundle.config.cost_bps
+                if isinstance(bundle.config.cost_bps, (int, float))
+                else dict(bundle.config.cost_bps),
+                "cash_yield": bundle.config.cash_yield,
             }
             | ({"end": bundle.config.end.isoformat()} if bundle.config.end else {}),
             "data": {

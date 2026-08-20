@@ -90,7 +90,7 @@ def test_spec_cli_writes_json_and_nothing_else(tmp_path, monkeypatch, capsys):
     assert not charts.exists()
 
     payload = json.loads(out.read_text())
-    assert payload["run"]["schema_version"] == 3
+    assert payload["run"]["schema_version"] == 4
     assert payload["run"]["bundle"] == "research"
     assert payload["run"]["data_dir"] == str(GOLDEN_DIR)
     assert payload["run"]["spec_path"].endswith("research.json")

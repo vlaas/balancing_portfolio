@@ -69,7 +69,7 @@ def run_bundle(bundle: Bundle, data_dir: Path) -> list[StrategyResult]:
                 curve=curve,
                 twr=twr_frame,
                 roll=rolling_sharpe(twr_frame),
-                stats=summary(curve, twr_frame, allocations),
+                stats=summary(curve, twr_frame, allocations, trades),
                 drawdowns=top_drawdowns(twr_frame),
                 trades=trades,
                 allocations=allocations,

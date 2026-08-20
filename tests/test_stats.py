@@ -165,6 +165,10 @@ SUMMARY_KEYS = {
     "max_asset_deviation",
     "best_year",
     "worst_year",
+    "traded_value",
+    "total_fees",
+    "turnover",
+    "fee_drag",
 }
 
 
@@ -189,6 +193,18 @@ def summary_allocations() -> pl.DataFrame:
             "asset": ["A", "B", "CASH"] * 3,
             "target": [0.5, 0.5, 0.0] * 3,
             "actual": [0.5, 0.5, 0.0, 0.4, 0.5, 0.1, 0.45, 0.45, 0.1],
+        }
+    )
+
+
+def summary_trades() -> pl.DataFrame:
+    # summary() reads only action, amount and fee. Traded value is the 1500
+    # over the BUY/SELL rows — DEPOSIT rows do not count — and fees sum to 7.5.
+    return pl.DataFrame(
+        {
+            "action": ["DEPOSIT", "BUY", "BUY", "DEPOSIT", "SELL", "BUY"],
+            "amount": [1000.0, 600.0, 300.0, 500.0, 200.0, 400.0],
+            "fee": [0.0, 3.0, 1.5, 0.0, 1.0, 2.0],
         }
     )
 
@@ -218,7 +234,7 @@ def test_exposure_means_and_extremes():
 def test_summary_money_figures():
     c = summary_curve()
 
-    result = summary(c, twr(c), summary_allocations())
+    result = summary(c, twr(c), summary_allocations(), summary_trades())
 
     assert result["final_value"] == pytest.approx(1800.0)
     assert result["total_contributed"] == pytest.approx(1500.0)
@@ -229,7 +245,7 @@ def test_summary_money_figures():
 def test_summary_reports_every_contract_key():
     c = summary_curve()
 
-    result = summary(c, twr(c), summary_allocations())
+    result = summary(c, twr(c), summary_allocations(), summary_trades())
 
     assert set(result) == SUMMARY_KEYS
     assert result["avg_misallocation"] == pytest.approx(0.2 / 3)
@@ -239,3 +255,17 @@ def test_summary_reports_every_contract_key():
     assert result["best_year"][0] in (2020, 2021, 2022)
     assert result["worst_year"][1] <= result["best_year"][1]
     assert result["max_drawdown"] < 0.0
+
+
+def test_summary_turnover_and_fees():
+    # COST_MODEL_SPEC.md T5: hand-computed from summary_trades() and
+    # summary_curve() (mean value 1320 over 731 days).
+    c = summary_curve()
+
+    result = summary(c, twr(c), summary_allocations(), summary_trades())
+
+    years = (dt.date(2022, 1, 1) - dt.date(2020, 1, 1)).days / 365.25
+    assert result["traded_value"] == pytest.approx(1500.0)
+    assert result["total_fees"] == pytest.approx(7.5)
+    assert result["turnover"] == pytest.approx((1500.0 / 2) / 1320.0 / years)
+    assert result["fee_drag"] == pytest.approx(7.5 / 1500.0)

@@ -38,6 +38,10 @@ def result(label: str) -> StrategyResult:
             "max_misallocation": 0.02,
             "avg_asset_deviation": 0.01,
             "max_asset_deviation": 0.02,
+            "traded_value": 50.0,
+            "total_fees": 0.25,
+            "turnover": 0.5,
+            "fee_drag": 0.0025,
         },
         drawdowns=[],
         trades=pl.DataFrame(),
@@ -92,3 +96,10 @@ def test_exposure_rows_render_after_misallocation(capsys):
     assert len(row) == len(rule)
     assert row.split()[-1] == "0.49"
     assert not any(l.startswith("Avg weight CASH") for l in lines)
+
+    # The cost rows follow the exposure rows (COST_MODEL_SPEC.md §4).
+    turnover = next(l for l in lines if l.startswith("Turnover (1-sided, ann.)"))
+    fees = next(l for l in lines if l.startswith("Total fees"))
+    assert lines.index(turnover) == lines.index(row) + 1
+    assert lines.index(fees) == lines.index(turnover) + 1
+    assert len(turnover) == len(fees) == len(rule)

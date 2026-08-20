@@ -40,6 +40,7 @@ CONSTRAINT_KEYS = frozenset({
     "final_value", "total_contributed", "net_profit", "net_profit_pct",
     "cagr", "xirr", "sharpe", "volatility", "sortino", "calmar",
     "max_drawdown", "max_drawdown_days",
+    "traded_value", "total_fees", "turnover", "fee_drag",
 })
 
 

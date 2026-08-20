@@ -70,6 +70,13 @@ METRICS = [
     ("Max worst-asset dev", "max_asset_deviation", _pct),
 ]
 
+# Rendered after the exposure rows (COST_MODEL_SPEC.md §4), so they cannot
+# live in METRICS, whose rows all precede them.
+COST_METRICS = [
+    ("Turnover (1-sided, ann.)", "turnover", _ratio),
+    ("Total fees", "total_fees", _money),
+]
+
 NAME_W = 25
 VALUE_W = 20  # floor; print_report widens it to the longest label
 
@@ -132,6 +139,11 @@ def print_report(
         print(
             f"{f'Avg weight {asset}':<{NAME_W}}"
             + "".join(f"{cell:>{value_w}}" for cell in cells)
+        )
+    for label, key, fmt in COST_METRICS:
+        print(
+            f"{label:<{NAME_W}}"
+            + "".join(f"{fmt(r.stats[key]):>{value_w}}" for r in results)
         )
 
     for r in results:
@@ -245,6 +257,10 @@ def save_markdown(
             for r in results
         )
         lines.append(f"| Avg weight {asset} | {cells} |")
+    for label, key, fmt in COST_METRICS:
+        lines.append(
+            f"| {label} | " + " | ".join(fmt(r.stats[key]) for r in results) + " |"
+        )
 
     for name, title in [
         ("equity.png", "Account value"),
@@ -298,8 +314,8 @@ def save_transactions(results: list[StrategyResult], out_path: Path) -> None:
             "",
             f"## {r.label}",
             "",
-            "| Date | Action | Asset | Shares | Price | Amount | Cash after | Portfolio value |",
-            "|---|---|---|---:|---:|---:|---:|---:|",
+            "| Date | Action | Asset | Shares | Price | Amount | Fee | Cash after | Portfolio value |",
+            "|---|---|---|---:|---:|---:|---:|---:|---:|",
         ]
         rows = list(ledger.iter_rows(named=True))
         for t, nxt in zip(rows, rows[1:] + [None]):
@@ -308,13 +324,13 @@ def save_transactions(results: list[StrategyResult], out_path: Path) -> None:
             price = "" if t["price"] is None else _money(t["price"])
             lines.append(
                 f"| {t['date'].isoformat()} | {t['action']} | {asset} | {shares} "
-                f"| {price} | {_money(t['amount'])} | {_money(t['cash_after'])} "
-                f"| {_money(t['value'])} |"
+                f"| {price} | {_money(t['amount'])} | {_money(t['fee'])} "
+                f"| {_money(t['cash_after'])} | {_money(t['value'])} |"
             )
             if nxt is None or nxt["date"] != t["date"]:
                 lines.append(
                     f"| {t['date'].isoformat()} | BALANCE | {balances[t['date']]} "
-                    f"| | | | | {_money(t['value'])} |"
+                    f"| | | | | | {_money(t['value'])} |"
                 )
 
     lines.append("")
