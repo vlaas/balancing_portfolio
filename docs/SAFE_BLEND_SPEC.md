@@ -221,17 +221,17 @@ comparison surface.
 
 ## 8. Acceptance checklist
 
-- [ ] `safe` dict form: validation per §2.1, `_allocation` per §2.2,
+- [x] `safe` dict form: validation per §2.1, `_allocation` per §2.2,
       `spec.safe_str` shared by label, `params`, and summary rendering
-- [ ] Tests T1–T7; whole suite green from a fresh clone with
+- [x] Tests T1–T7; whole suite green from a fresh clone with
       `pip install polars matplotlib pytest`
-- [ ] No change to `simulate.py`, `prices.py`, `indicators.py`, `stats.py`,
+- [x] No change to `simulate.py`, `prices.py`, `indicators.py`, `stats.py`,
       `results_json.py`
-- [ ] `specs/sweep_blend_2021.json`, `sweep_blend_2019.json` per §4
-- [ ] The four §5 runs committed with the specs
-- [ ] Docs: STRATEGY_DEVELOPMENT (`safe` dict form, one paragraph + the sleeve
+- [x] `specs/sweep_blend_2021.json`, `sweep_blend_2019.json` per §4
+- [x] The four §5 runs committed with the specs
+- [x] Docs: STRATEGY_DEVELOPMENT (`safe` dict form, one paragraph + the sleeve
       semantics sentence); SWEEP_SPEC/SAFE_SWAP_SPEC cross-reference notes
-- [ ] Verdict per §6 into project memory — including the dual-objective call —
+- [x] Verdict per §6 into project memory — including the dual-objective call —
       numbers stay in the repo
 
 ## 9. Deliberately not in scope

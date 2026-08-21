@@ -59,6 +59,17 @@ The two types (`spec.py` maps them to `strategies/fixed.py` and
   `1 − w_risk` (`null` leaves the residual in cash); `fallback` (default
   `w_max`) applies while σ is still `None`. Optional `gate`.
 
+  `safe` also takes an object — a **blended sleeve** mapping symbols to
+  fractions *of the sleeve*, not of the portfolio: `{"BTAL": 0.75,
+  "KMLM": 0.25}` gives each symbol `(1 − w_risk) · f`, so `w_risk = 0.4`
+  allocates `TQQQ 0.4 / BTAL 0.45 / KMLM 0.15`. At least two symbols (a
+  one-key sleeve is the string form), each fraction `> 0`, and they must sum
+  to 1 — a partial sum would be a second way to spell the cash arm. Monthly
+  rebalancing restores the sleeve's internal proportions, and a gate on the
+  risk asset redistributes its blocked budget across the sleeve in sleeve
+  proportion. Labels render the sleeve sorted by symbol and joined by `+`
+  (`VT TQQQ/BTAL75+KMLM25 …`), where `fixed`'s `/` joins portfolio fractions.
+
 A **`gate`** belongs to either type: it is closed on days
 `close(symbol) < SMA` (`sma_days` or `sma_months`, exactly one) and open while
 either value is `None`. When closed, buys of its `assets` stop; with

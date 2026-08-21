@@ -310,7 +310,10 @@ holdout test without its length warning.
   tested.
 - **Multi-safe blends** (e.g. BTAL+KMLM split): expressible today as `fixed`
   weights but not as a `vol_target` safe; a blend arm is a follow-up spec if two
-  candidates tie.
+  candidates tie. **Fired**: the §6 read found the arms winning in
+  complementary windows, and SAFE_BLEND_SPEC discharges this — `safe` takes a
+  weighted sleeve, and its two lanes also carry the §6.6 grid extension below
+  σ 0.25 / w_max 0.5 that this spec's edge flags demanded.
 - **Asymmetric gate speeds, band rebalancing**: unchanged backlog, orthogonal to
   the safe question.
 - **Synthetic pre-inception history for DBMF/KMLM**: the financing-model spec

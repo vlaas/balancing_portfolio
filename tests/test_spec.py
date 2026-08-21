@@ -9,12 +9,13 @@ from pathlib import Path
 import pytest
 from polars.testing import assert_frame_equal
 
+import sweep
 from bundles import BUNDLES
 from main import collect_indicators, run_bundle
 from prices import load_prices
-from results_json import results_payload
+from results_json import results_payload, slug
 from simulate import simulate
-from spec import build_bundle, load_spec, normalised_spec
+from spec import build_bundle, load_spec, normalised_spec, safe_str
 from stats import correlation
 from strategies.fixed import Fixed
 from strategies.gate import Gate
@@ -60,6 +61,13 @@ INVALID = {
     "cost_bps entry above range": (lambda s: s["config"].update(cost_bps={"TQQQ": 2000}), "config.cost_bps.TQQQ"),
     "cash_yield above range": (lambda s: s["config"].update(cash_yield=0.5), "config.cash_yield"),
     "unresolved cost symbol": (lambda s: s["config"].update(cost_bps={"TQQQ": 1.5}), "config.cost_bps"),
+    "one-symbol sleeve": (lambda s: s["strategies"][4].update(safe={"BTAL": 1.0}), "strategies[4].safe"),
+    "sleeve under-allocated": (lambda s: s["strategies"][4].update(safe={"BTAL": 0.5, "KMLM": 0.4}), "strategies[4].safe"),
+    "sleeve over-allocated": (lambda s: s["strategies"][4].update(safe={"BTAL": 0.5, "KMLM": 0.6}), "strategies[4].safe"),
+    "sleeve fraction zero": (lambda s: s["strategies"][4].update(safe={"BTAL": 1.0, "KMLM": 0.0}), "strategies[4].safe.KMLM"),
+    "sleeve fraction negative": (lambda s: s["strategies"][4].update(safe={"BTAL": 1.5, "KMLM": -0.5}), "strategies[4].safe.KMLM"),
+    "sleeve holds the risk asset": (lambda s: s["strategies"][4].update(safe={"TQQQ": 0.5, "BTAL": 0.5}), "strategies[4].safe.TQQQ"),
+    "sleeve key not a symbol": (lambda s: s["strategies"][4].update(safe={7: 0.5, "BTAL": 0.5}), "strategies[4].safe"),
 }
 
 
@@ -67,6 +75,37 @@ INVALID = {
 def test_invalid_specs_name_the_json_path(mutate, path):
     with pytest.raises(ValueError, match=re.escape(path)):
         build_bundle(broken(mutate))
+
+
+def test_a_sleeve_builds_and_normalises_without_aliasing_the_entry():
+    sleeve = {"BTAL": 0.75, "KMLM": 0.25}
+    bundle = build_bundle(broken(lambda s: s["strategies"][4].update(safe=sleeve)))
+    entry = normalised_spec(bundle)["strategies"][4]
+
+    assert entry["safe"] == sleeve
+    # Copied, not aliased: the normalised spec is the artefact's own record.
+    assert entry["safe"] is not sleeve
+    assert set(bundle.strategies[4].weights) == {"TQQQ", "BTAL", "KMLM"}
+
+    # Regression: the string and null forms normalise byte-unchanged.
+    for form in ("BTAL", None):
+        plain = build_bundle(broken(lambda s: s["strategies"][4].update(safe=form)))
+        assert normalised_spec(plain)["strategies"][4]["safe"] == form
+
+
+def test_a_sleeve_symbol_may_carry_the_gate():
+    # The gate universe is {risk} | the sleeve, so a sleeve leg is gateable.
+    bundle = build_bundle(broken(lambda s: s["strategies"][4].update(
+        safe={"BTAL": 0.5, "KMLM": 0.5},
+        gate={"symbol": "QQQ", "assets": ["KMLM"], "sma_days": 200},
+    )))
+    assert tuple(bundle.strategies[4].gate.assets) == ("KMLM",)
+
+    with pytest.raises(ValueError, match=re.escape("strategies[4].gate.assets")):
+        build_bundle(broken(lambda s: s["strategies"][4].update(
+            safe={"BTAL": 0.5, "KMLM": 0.5},
+            gate={"symbol": "QQQ", "assets": ["DBMF"], "sma_days": 200},
+        )))
 
 
 def test_gate_asset_must_be_traded():
@@ -127,6 +166,44 @@ def test_auto_labels():
         {"type": "fixed", "weights": {"TQQQ": 0.5, "BTAL": 0.5},
          "gate": {"symbol": "QQQ", "assets": ["TQQQ"], "sma_months": 10, "contribution_exempt": True}}
     ) == "TQQQ50/BTAL50 gate QQQ<SMA10M+contrib"
+
+
+def blend(safe, **kwargs) -> dict:
+    return {
+        "type": "vol_target", "risk": "TQQQ", "safe": safe, "vol_symbol": "QQQ",
+        "vol": {"kind": "ewma", "lam": 0.94}, "leverage": 3, "sigma_target": 0.45,
+        "w_max": 0.5,
+    } | kwargs
+
+
+def test_a_sleeve_labels_sorted_by_symbol_whatever_the_key_order():
+    # Sorted, so one sleeve cannot spell two labels — and two slugs, which
+    # would let the same strategy rank twice in one sweep.
+    assert label_of(blend({"KMLM": 0.25, "BTAL": 0.75})) == (
+        "VT TQQQ/BTAL75+KMLM25 t45 w0-50 QQQ:VOL_EWMA94"
+    )
+    assert label_of(blend({"BTAL": 0.75, "KMLM": 0.25})) == label_of(
+        blend({"KMLM": 0.25, "BTAL": 0.75})
+    )
+    assert label_of(blend({"BTAL": 0.5, "KMLM": 0.5}, label="mine")) == "mine"
+
+
+def test_sleeve_and_portfolio_fractions_slugify_apart():
+    # `+` joins sleeve fractions where `fixed`'s `/` joins portfolio ones, and
+    # slug() collapses both to `-`; the strategy kinds must still not converge.
+    sleeve = slug(label_of(blend({"BTAL": 0.5, "KMLM": 0.5})))
+    portfolio = slug(label_of({"type": "fixed", "weights": {"BTAL": 0.5, "KMLM": 0.5}}))
+
+    assert sleeve == "vt-tqqq-btal50-kmlm50-t45-w0-50-qqq-vol-ewma94"
+    assert portfolio == "btal50-kmlm50"
+
+
+def test_safe_str_is_shared_by_the_label_and_sweep_params():
+    # The gate_str precedent: one renderer, so params and labels cannot drift.
+    assert sweep.safe_str is safe_str
+    assert safe_str("BTAL") == "BTAL"
+    assert safe_str(None) == "cash"
+    assert safe_str({"KMLM": 0.25, "BTAL": 0.75}) == "BTAL75+KMLM25"
 
 
 def test_explicit_label_wins():

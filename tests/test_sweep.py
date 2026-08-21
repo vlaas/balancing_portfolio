@@ -89,6 +89,22 @@ def test_null_over_a_required_key_substitutes_the_literal_null():
     assert st.weights == {"TQQQ": 0.6}
 
 
+def test_a_sleeve_is_an_ordinary_grid_value():
+    t = template()
+    t["safe"] = {"grid": ["BTAL", {"KMLM": 0.5, "BTAL": 0.5}, None]}
+
+    out = expand(t)
+
+    assert len(out) == 270  # 3 safe x 3 lam x 5 sigma x 3 w_max x 2 gate
+    # params render through safe_str, not compact JSON: the column stays a
+    # scalar the summary can rank and print.
+    assert [e["params"]["safe"] for e in out[::90]] == ["BTAL", "BTAL50+KMLM50", None]
+    blend = [e for e in out if e["params"]["safe"] == "BTAL50+KMLM50"]
+    assert blend[0]["entry"]["safe"] == {"KMLM": 0.5, "BTAL": 0.5}
+    assert blend[0]["label"] == "VT TQQQ/BTAL50+KMLM50 t30 w0-60 QQQ:VOL_EWMA90"
+    assert len({e["label"] for e in out}) == 270
+
+
 def test_null_over_an_optional_key_still_deletes_it():
     t = template()
     t["w_max"] = {"grid": [0.6, None]}
