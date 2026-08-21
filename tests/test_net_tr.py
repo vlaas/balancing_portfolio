@@ -7,6 +7,7 @@ make_net_tr; tests/test_total_return.py keeps its own local TAU untouched.
 """
 
 import datetime as dt
+import filecmp
 import math
 from pathlib import Path
 
@@ -20,6 +21,121 @@ TR_DIR = GOLDEN_DIR / "2026-08-20"
 NET_DIR = GOLDEN_DIR / "2026-08-20-net15"
 SYMBOLS = ["TQQQ", "BTAL", "QQQ", "SPY", "DBMF", "KMLM"]
 W = 0.15
+
+
+def read_close(path: Path) -> pl.DataFrame:
+    return pl.read_csv(
+        path,
+        columns=["time", "close"],
+        schema_overrides={"close": pl.Float64},
+        try_parse_dates=True,
+    )
+
+
+def series(root: Path, symbol: str) -> tuple[pl.DataFrame, pl.Series]:
+    """(price frame, adjusted/price ratio) for one symbol of a dataset root."""
+    adjusted = read_close(root / f"{symbol}.csv")
+    price = read_close(root / "price" / f"{symbol}.csv")
+    assert adjusted["time"].equals(price["time"])
+    return price, adjusted["close"] / price["close"]
+
+
+def jump_rows(ratio: pl.Series) -> list[int]:
+    steps = ratio.log().diff()
+    return [i for i, s in enumerate(steps) if s is not None and s >= JUMP_MIN]
+
+
+# --- N1 — layout and self-containment ----------------------------------------
+
+
+def test_net_snapshot_layout_and_self_containment():
+    for symbol in SYMBOLS:
+        net = pl.read_csv(NET_DIR / f"{symbol}.csv")
+        assert net.columns == ["time", "close"]
+        assert filecmp.cmp(
+            NET_DIR / "price" / f"{symbol}.csv",
+            TR_DIR / "price" / f"{symbol}.csv",
+            shallow=False,
+        )
+        parent = pl.read_csv(TR_DIR / f"{symbol}.csv", columns=["time"])
+        assert net["time"].equals(parent["time"])
+    assert (NET_DIR / "README.md").is_file()
+
+
+# --- N2 — scaled ratio invariants --------------------------------------------
+
+
+@pytest.mark.parametrize("symbol", SYMBOLS)
+def test_scaled_ratio_invariants(symbol: str) -> None:
+    _, r = series(TR_DIR, symbol)
+    _, rn = series(NET_DIR, symbol)
+
+    assert (rn - r).min() >= -1e-12
+    assert rn.max() <= 1 + 1e-6
+    assert rn[-1] == r[-1]
+
+    q = (rn / r).log()
+    assert q.min() >= 0.0
+    q_steps = q.diff().slice(1)
+    assert q_steps.max() <= 1e-12
+
+    jump = r.log().diff().slice(1) >= JUMP_MIN
+    assert q_steps.filter(~jump).abs().max() < 1e-12
+    assert q.slice(jump_rows(r)[-1]).abs().max() == 0.0
+
+    assert (rn.log().diff().slice(1) >= JUMP_MIN).equals(jump)
+
+
+# --- N3 — per-jump exactness: the withholding semantics in one line ----------
+
+
+@pytest.mark.parametrize("symbol", SYMBOLS)
+def test_each_jump_reinvests_exactly_the_net_distribution(symbol: str) -> None:
+    price, r = series(TR_DIR, symbol)
+    _, rn = series(NET_DIR, symbol)
+    p = price["close"]
+
+    rows = jump_rows(r)
+    assert rows
+    for s in rows:
+        gross = p[s - 1] * (1 - r[s - 1] / r[s])
+        net = p[s - 1] * (1 - rn[s - 1] / rn[s])
+        assert net == pytest.approx((1 - W) * gross, abs=1e-9)
+
+
+# --- N4 — yield contraction --------------------------------------------------
+
+
+@pytest.mark.parametrize("symbol", SYMBOLS)
+def test_cumulative_yield_contracts_by_the_withholding(symbol: str) -> None:
+    price, r = series(TR_DIR, symbol)
+    _, rn = series(NET_DIR, symbol)
+    years = (price["time"][-1] - price["time"][0]).days / 365.25
+
+    y_gross = -math.log(r[0]) / years
+    y_net = -math.log(rn[0]) / years
+    # Upper bound is Bernoulli ((1-d)^(1-w) <= 1 - (1-w)*d per jump); the
+    # lower bound absorbs the second-order term of the largest jumps (KMLM's
+    # 2022 distribution, d ~ 13%, is the extreme). Measured at w = 0.15:
+    # ratios 0.8441 (KMLM) to 0.8498 (TQQQ/QQQ).
+    assert 0.98 * (1 - W) <= y_net / y_gross <= (1 - W) + 1e-12
+
+
+# --- N5 — byte-reproducibility: the committed snapshot is exactly what the ---
+# committed generator produces from the committed parent; nothing in the
+# generator may read a clock.
+
+
+def test_generator_reproduces_the_committed_snapshot_byte_for_byte(tmp_path):
+    out = tmp_path / "net"
+    net_main([str(TR_DIR), "--out", str(out)])
+
+    produced = sorted(p.relative_to(out) for p in out.rglob("*") if p.is_file())
+    committed = sorted(p.relative_to(NET_DIR) for p in NET_DIR.rglob("*") if p.is_file())
+    assert produced == committed
+    assert len(produced) == 13
+    for rel in committed:
+        assert filecmp.cmp(out / rel, NET_DIR / rel, shallow=False), rel
 
 
 # --- N6 — generator guards, on synthetic pairs -------------------------------
