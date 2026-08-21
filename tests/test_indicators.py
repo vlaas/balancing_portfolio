@@ -19,7 +19,13 @@ from indicators import (
 GOLDEN_DIR = Path(__file__).parent / "data"
 DATA_DIR = Path(__file__).parent.parent / "data"
 
-CSV_FILES = sorted(GOLDEN_DIR.rglob("*.csv")) + sorted(DATA_DIR.rglob("*.csv"))
+# NET_TR_SPEC §7: net dataset roots carry no SMA reference columns; their
+# price/ copies are byte-verified duplicates of already-tested files (N1).
+CSV_FILES = [
+    p
+    for p in sorted(GOLDEN_DIR.rglob("*.csv")) + sorted(DATA_DIR.rglob("*.csv"))
+    if not any("-net" in part for part in p.parts)
+]
 
 
 def read_closes(path: Path) -> pl.DataFrame:

@@ -65,7 +65,11 @@ Decisions and their reasons:
   unadjusted series (`data/price/<SYM>.csv`) is reference-only — the loader
   reads named per-symbol files and never looks inside `price/`. Invariants and
   spot checks live in `tests/test_total_return.py`; the convention is
-  documented in `data/README.md`.
+  documented in `data/README.md`. A **net-of-withholding** twin of any root is
+  derived by `make_net_tr.py` (committed generator, `docs/NET_TR_SPEC.md`):
+  each distribution jump reinvests `(1−w)·D` instead of `D`, flat rows are
+  untouched, and the net snapshot (`tests/data/2026-08-20-net15/`) is the
+  decision series; its invariants live in `tests/test_net_tr.py`.
 - **The trading calendar is the union of the *traded* symbols' dates only.**
   `symbols` are full-joined; `extra` symbols (data a strategy reads but never
   trades, e.g. QQQ) are left-joined afterwards so they can never add dates.
@@ -397,7 +401,11 @@ ordinary `Bundle` per evaluation window (full, holdout fit/test, sensitivity)
 through `spec.build_bundle`, and reuses `run_bundle` — there is no second
 simulation path. The output is a long runs table plus a summary that ranks by
 `robust_score`, a minimum over full objective, neighbourhood minimum,
-sensitivity median and holdout test. Grammar, window rules and the summary's
+sensitivity median and holdout test. With three dataset conventions sharing
+identical date ranges, the artefacts also record their dataset directory —
+`data.dir` in `summary.json`, a `- Data dir:` header line in `summary.md`, a
+constant `data_dir` column in `runs.csv` — alongside the cost columns.
+Grammar, window rules and the summary's
 exact contents: [SWEEP_SPEC.md](SWEEP_SPEC.md); usage:
 [STRATEGY_DEVELOPMENT.md](STRATEGY_DEVELOPMENT.md), "Sweeps".
 

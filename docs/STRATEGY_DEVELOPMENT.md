@@ -210,11 +210,17 @@ ctx.indicator("QQQ", "SMA200")    # "QQQ:SMA200" column, or None before it exist
   reference, and the loader never reads it. The loader reads **only `time` and
   `close`**; every other column (`open`, `high`, `low`, `SMA*`, `Volume`) is
   ignored. See `data/README.md`.
-- **Every indicator is computed on the loaded (total-return) close** — for
-  traded and signal symbols alike, with no per-indicator series switch. A
-  price-series SMA or vol on a distributing symbol would read distributions as
-  weakness or spurious volatility. To reproduce a signal on a TradingView
-  chart, turn dividend adjustment **on**.
+- **Dataset roles**: decision numbers come from a **net-of-withholding
+  total-return dataset** (`tests/data/2026-08-20-net15`, derived from the
+  frozen gross snapshot by `make_net_tr.py`; `docs/NET_TR_SPEC.md`) at stated
+  costs. Gross-TR roots (live `data/`, `tests/data/2026-08-20`) are for
+  comparability to gross artefacts and the TR goldens; the flat price-series
+  snapshot is legacy regression only.
+- **Every indicator is computed on the loaded close** — for traded and signal
+  symbols alike, with no per-indicator series switch; in a net dataset that is
+  the net series. A price-series SMA or vol on a distributing symbol would
+  read distributions as weakness or spurious volatility. To reproduce a signal
+  on a TradingView chart, turn dividend adjustment **on**.
 - **Indicators are computed by the simulator**, from `indicators.py`, and
   declared per strategy:
 

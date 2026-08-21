@@ -372,11 +372,12 @@ def run_sweep(spec: dict, data_dir: Path) -> tuple[pl.DataFrame, dict]:
         )
 
     runs = _runs_frame(
-        wins, expanded, baseline_labels, records, feasible, traded, spec["config"]
+        wins, expanded, baseline_labels, records, feasible, traded, spec["config"],
+        data_dir=data_dir,
     )
     summary = build_summary(
         spec, wins, expanded, baseline_labels, records, feasible,
-        notes=notes, warnings=warnings,
+        notes=notes, warnings=warnings, data_dir=data_dir,
     )
     return runs, summary
 
@@ -389,6 +390,8 @@ def _runs_frame(
     feasible: dict[str, bool],
     traded: list[str],
     config: dict,
+    *,
+    data_dir: Path,
 ) -> pl.DataFrame:
     param_keys = list(expanded[0]["params"]) if expanded else []
     params_by_label = {e["label"]: e["params"] for e in expanded}
@@ -414,6 +417,7 @@ def _runs_frame(
                 "feasible": feasible.get(label, True),
                 "cost_bps": cost_cell,
                 "cash_yield": config.get("cash_yield", 0.0),
+                "data_dir": str(data_dir),
             }
             params = params_by_label.get(label, {})
             for key in param_keys:
@@ -462,6 +466,7 @@ def build_summary(
     *,
     notes: list[str],
     warnings: list[str],
+    data_dir: Path | str | None = None,
 ) -> dict:
     """The per-strategy robustness blocks of §4.5, ranked by nothing — the
     reader ranks. robust_score is deliberately a minimum over the components
@@ -562,7 +567,11 @@ def build_summary(
             "cost_bps": spec["config"].get("cost_bps", 0.0),
             "cash_yield": spec["config"].get("cash_yield", 0.0),
         },
-        "data": {"start": wins[0].start.isoformat(), "end": wins[0].end.isoformat()},
+        "data": {
+            "start": wins[0].start.isoformat(),
+            "end": wins[0].end.isoformat(),
+            "dir": None if data_dir is None else str(data_dir),
+        },
         "windows": [
             {"name": w.name, "kind": w.kind,
              "start": w.start.isoformat(), "end": w.end.isoformat()}
@@ -642,6 +651,7 @@ def _summary_md(summary: dict, runs: pl.DataFrame, risk_of: dict[str, str]) -> s
         "# Sweep summary",
         "",
         f"- Data: {summary['data']['start']}..{summary['data']['end']}",
+        f"- Data dir: {summary['data']['dir']}",
         f"- Objective: {objective}",
         "- Constraint: " + (
             ", ".join(f"{k} >= {v:g}" for k, v in constraint.items())

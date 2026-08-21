@@ -385,7 +385,7 @@ def test_run_sweep_end_to_end():
         "best_year", "best_year_return", "worst_year", "worst_year_return",
         "params.weights.TQQQ", "params.weights.BTAL",
         "exposure.TQQQ.avg", "exposure.TQQQ.min", "exposure.SPY.avg",
-        "cost_bps", "cash_yield",
+        "cost_bps", "cash_yield", "data_dir",
     ):
         assert column in runs.columns
 
