@@ -266,12 +266,12 @@ holdout test without its length warning.
       SWEEP_SPEC errata #3 note updated (superseded by this spec)
 - [x] Tests T1–T4 in `tests/test_sweep.py`; whole suite green from a fresh clone
       with `pip install polars matplotlib pytest`
-- [ ] `specs/sweep_safe_2021.json`, `sweep_safe_2019.json`, `sweep_safe_2012.json`
+- [x] `specs/sweep_safe_2021.json`, `sweep_safe_2019.json`, `sweep_safe_2012.json`
       exactly per §4
-- [ ] The four §5 runs (plus the optional c20 stress) committed with their specs
-- [ ] Docs: STRATEGY_DEVELOPMENT "Sweeps" — the null-grid rule sentence;
+- [x] The four §5 runs (plus the optional c20 stress) committed with their specs
+- [x] Docs: STRATEGY_DEVELOPMENT "Sweeps" — the null-grid rule sentence;
       CLAUDE.md protocol unchanged (net-TR decision line already covers this)
-- [ ] Verdict per §6 into project memory; numbers stay in the repo
+- [x] Verdict per §6 into project memory; numbers stay in the repo
 
 ## 9. Deliberately not in scope
 
