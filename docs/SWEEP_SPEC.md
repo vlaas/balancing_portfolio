@@ -289,6 +289,11 @@ agreed and applied (the sections above are left as proposed):
    place to judge whether `None` is a value it accepts — `vol_target`'s
    `safe: null` is the cash arm, `fixed`'s `weights: null` fails with its JSON
    path. Delete semantics stand unchanged for optional keys and nested paths.
+   **Extended by SAFE_BLEND_SPEC §2**: `safe` also takes a weighted-sleeve
+   object, so a safe grid mixes strings, objects and `null` freely. Like
+   `gate`, an object dimension is categorical — no neighbourhood, no edge flag
+   — and `params.safe` renders through the shared `spec.safe_str`
+   (`BTAL50+KMLM50`) rather than as compact JSON.
 4. **§4.1 grids inside lists** (e.g. over `gate.assets` elements) are a
    `ValueError`, not supported.
 5. **§4.2 "objects are rendered through the same string the auto-label

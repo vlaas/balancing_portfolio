@@ -9,13 +9,14 @@ from strategy import MarketDay, Strategy
 class VolTarget(Strategy):
     """w_risk = clip(sigma_target / (leverage · σ), w_min, w_max), recomputed
     each rebalance day from the vol indicator on vol_symbol; `safe` receives
-    1 − w_risk (None leaves the residual in cash). While σ is still None,
-    w_risk = fallback. A gate, when given, caps buys as in Fixed."""
+    1 − w_risk (None leaves the residual in cash; a dict splits it across the
+    sleeve by its fractions). While σ is still None, w_risk = fallback. A
+    gate, when given, caps buys as in Fixed."""
 
     def __init__(
         self,
         risk: str,
-        safe: str | None,
+        safe: str | dict[str, float] | None,
         vol_symbol: str,
         vol: Indicator,
         sigma_target: float,
@@ -56,6 +57,10 @@ class VolTarget(Strategy):
     def _allocation(self, w: float) -> dict[str, float]:
         if self.safe is None:
             return {self.risk: w}
+        if isinstance(self.safe, dict):
+            return {self.risk: w} | {
+                s: (1.0 - w) * f for s, f in self.safe.items()
+            }
         return {self.risk: w, self.safe: 1.0 - w}
 
     def balance(self, ctx: MarketDay) -> dict[str, float]:

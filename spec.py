@@ -118,6 +118,45 @@ def _gate_suffix(gate: Gate | None) -> str:
     return "" if gate is None else f" gate {gate_str(gate)}"
 
 
+def safe_str(safe: str | dict | None) -> str:
+    """`BTAL`, `cash`, or a blended sleeve as `BTAL75+KMLM25` — the rendering
+    the auto-label embeds and sweep params reuse.
+
+    Sorted by symbol, so one sleeve cannot spell two labels (and two slugs).
+    `+` joins sleeve fractions where `fixed`'s `/` joins portfolio fractions.
+    """
+    if isinstance(safe, dict):
+        return "+".join(f"{s}{_pct(f)}" for s, f in sorted(safe.items()))
+    return safe or "cash"
+
+
+def _sleeve(safe: str | dict | None) -> set[str]:
+    """The safe symbols a `safe` value names — empty for cash."""
+    if isinstance(safe, dict):
+        return set(safe)
+    return set() if safe is None else {safe}
+
+
+def _safe(safe, path: str, risk: str) -> None:
+    """A blended sleeve maps safe symbols to fractions *of the sleeve*, fully
+    allocated. Blend-with-cash is deliberately inexpressible: `null` is the
+    cash arm, and a partial sum would smuggle a second cash definition into
+    the arm taxonomy."""
+    if not isinstance(safe, dict):
+        return
+    if len(safe) < 2:
+        _fail(path, f"a {len(safe)}-symbol sleeve is the string form; use it")
+    for symbol, f in safe.items():
+        if not isinstance(symbol, str):
+            _fail(path, f"expected a symbol string, got {symbol!r}")
+        if symbol == risk:
+            _fail(_join(path, symbol), "is the risk asset")
+        if isinstance(f, bool) or not isinstance(f, (int, float)) or f <= 0:
+            _fail(_join(path, symbol), f"expected a fraction > 0, got {f!r}")
+    if abs(sum(safe.values()) - 1) > 1e-9:
+        _fail(path, f"sleeve fractions sum to {sum(safe.values()):g}, not 1")
+
+
 def _fixed(entry: dict, path: str) -> Fixed:
     _fields(entry, path, REQUIRED_KEYS["fixed"], {"label", "gate"})
     weights = entry["weights"]
@@ -168,13 +207,14 @@ def _vol_target(entry: dict, path: str) -> VolTarget:
         _fail(_join(path, "fallback"), f"{fallback} is outside [w_min, w_max]")
 
     risk, safe = entry["risk"], entry["safe"]
+    _safe(safe, _join(path, "safe"), risk)
     gate = normalised_gate = None
     if "gate" in entry:
-        universe = {risk} | ({safe} if safe is not None else set())
+        universe = {risk} | _sleeve(safe)
         gate, normalised_gate = _gate(entry["gate"], _join(path, "gate"), universe)
     label = entry.get(
         "label",
-        f"VT {risk}/{safe or 'cash'} t{_pct(entry['sigma_target'])} "
+        f"VT {risk}/{safe_str(safe)} t{_pct(entry['sigma_target'])} "
         f"w{_pct(w_min)}-{_pct(w_max)} {entry['vol_symbol']}:{vol.name}"
         + _gate_suffix(gate),
     )
@@ -184,7 +224,8 @@ def _vol_target(entry: dict, path: str) -> VolTarget:
         w_max=w_max, w_min=w_min, fallback=fallback, gate=gate, label=label,
     )
     st.spec = {
-        "type": "vol_target", "label": label, "risk": risk, "safe": safe,
+        "type": "vol_target", "label": label, "risk": risk,
+        "safe": dict(safe) if isinstance(safe, dict) else safe,
         "vol_symbol": entry["vol_symbol"], "vol": dict(vol_entry),
         "sigma_target": entry["sigma_target"], "leverage": st.leverage,
         "w_max": w_max, "w_min": w_min, "fallback": fallback,

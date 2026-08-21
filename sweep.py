@@ -29,7 +29,7 @@ from main import run_bundle
 from prices import load_prices
 from spec import (
     _TYPES, REQUIRED_KEYS, _costs, _fail, _fields, _join, build_bundle, gate_str,
-    load_spec,
+    load_spec, safe_str,
 )
 
 SWEEP_SCHEMA_VERSION = 1
@@ -166,6 +166,8 @@ def _param_value(strategy, path: tuple[str, ...], value):
         return value
     if path == ("gate",):
         return gate_str(strategy.gate)
+    if path == ("safe",):
+        return safe_str(strategy.safe)
     return json.dumps(value, sort_keys=True, separators=(",", ":"))
 
 
