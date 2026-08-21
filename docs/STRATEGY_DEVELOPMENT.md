@@ -204,9 +204,17 @@ ctx.indicator("QQQ", "SMA200")    # "QQQ:SMA200" column, or None before it exist
 
 ## Data files and indicators
 
-- CSVs live in `data/<SYM>.csv` in TradingView's export format. The loader
-  reads **only `time` and `close`**; every other column (`open`, `high`, `low`,
-  `SMA*`, `Volume`) is ignored. See `data/README.md`.
+- CSVs live in `data/<SYM>.csv` in TradingView's export format. The file is the
+  **dividend-adjusted (total-return) export** — the traded series; the
+  unadjusted export from the same session sits in `data/price/<SYM>.csv` as
+  reference, and the loader never reads it. The loader reads **only `time` and
+  `close`**; every other column (`open`, `high`, `low`, `SMA*`, `Volume`) is
+  ignored. See `data/README.md`.
+- **Every indicator is computed on the loaded (total-return) close** — for
+  traded and signal symbols alike, with no per-indicator series switch. A
+  price-series SMA or vol on a distributing symbol would read distributions as
+  weakness or spurious volatility. To reproduce a signal on a TradingView
+  chart, turn dividend adjustment **on**.
 - **Indicators are computed by the simulator**, from `indicators.py`, and
   declared per strategy:
 

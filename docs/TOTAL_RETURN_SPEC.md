@@ -1,6 +1,6 @@
 # Specification: total-return data convention
 
-Repo: `vlaas/balancing_portfolio` · baseline commit: `22d15c5` ("cost model merge", 259 tests green) · status: proposal
+Repo: `vlaas/balancing_portfolio` · baseline commit: `22d15c5` ("cost model merge", 259 tests green) · status: implemented (2026-08-21, branch `total-return`) — deviations in the errata at the end
 
 ## 1. Goal
 
@@ -304,3 +304,30 @@ which is why this spec must land first.
   net-of-withholding spec is written, where the implied series may suffice anyway).
 - **Synthetic pre-2010 history** (own spec; the financing model is the substance
   there) and the safe-swap sweep spec itself (next in line, blocked on this one).
+
+## 11. Errata (implementation, 2026-08-21)
+
+- **§1 / §7 T2(d) — BTAL's yield.** Measured 1.07%/yr, not the ~3%/yr §1
+  assumed: eight distributions ever, none 2013–2017, each verified against
+  Polygon records. Its band floor is 0.008 instead of 0.015 (DBMF 5.81%/yr and
+  KMLM 4.38%/yr keep 0.015). The §1 bias estimate was overstated; the
+  direction, and everything §8 tests, stand — measured, the 50/50 golden gains
+  1.2%/yr CAGR from the correction, not ~1.5%.
+- **§4 / §7 T2 — τ.** The exports carry full-precision adjusted closes;
+  measured flat-segment noise tops out at 4.3e-8 (TQQQ), so `TAU = 1e-6`,
+  global — no per-symbol dict needed. Note the §7 ceiling `τ = 1e-3` could
+  never have satisfied T2(c) for QQQ or SPY (per-jump `ln R` ≈ 1.5e-3 / 3e-3,
+  below `5τ = 5e-3`): the measured tightening was constitutive, not hardening.
+- **§4.4 — refresh stability of `D_t`.** Holds for dividend refreshes only; a
+  *split* rescales split-adjusted implied amounts. TQQQ split 2:1 on
+  2025-11-20, so its pre-split published amounts appear at half in today's
+  basis — T3 uses post-split TQQQ ex-dates and states the restatement rule.
+- **§7 T3 — source.** Published amounts come from Polygon's reference
+  dividends API via the committed `fetch_dividends.py` (each chosen ex-date a
+  single Polygon record), not hand-typed issuer/Nasdaq pages; tolerance
+  $0.0001 (measured $0.000011 against the ceiling $0.02).
+- **§7 T4.** Adjusted files pass the existing 1e-9 unchanged (measured
+  ≤ 1.3e-12); no separate tolerance lane was needed.
+- **§9 — docs.** The checklist omitted the root `README.md`, whose
+  "price-return only" data note the convention change falsifies; fixed in the
+  docs commit.

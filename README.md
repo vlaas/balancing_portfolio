@@ -40,7 +40,8 @@ cash flows.
      uses the contribution to buy the underweight asset first and only sells the
      overweight asset when the contribution isn't enough.)
 - Leftover cash carries forward to the next month and earns no interest.
-- No transaction costs, no taxes, no dividends (see Input data).
+- No taxes; transaction costs and cash yield default to zero (`Config`). Dividends
+  are included through the total-return price series (see Input data).
 - The simulation runs from the start date until the last date available in the data.
 
 # Input data
@@ -55,9 +56,10 @@ are ignored) and may be null before their history begins.
 
 Data notes:
 
-- Prices are split-adjusted but **not** dividend-adjusted. Dividends are ignored; results
-  are price-return only. This understates absolute returns for both the portfolio and the
-  SPY benchmark, but consistently so.
+- Prices are split- **and** dividend-adjusted: `data/<SYM>.csv` is TradingView's
+  dividend-adjusted export, so distributions are reinvested at the ex-date close and
+  results are total-return (gross of withholding). The unadjusted series sits in
+  `data/price/` as reference; see `data/README.md`.
 - **Missing dates:** BTAL is missing ~73 trading days that SPY/TQQQ have. The trading
   calendar is the union of all assets' dates. For valuation on a day where an asset has no
   row, carry its last known close forward. If the last trading day of a month is missing
