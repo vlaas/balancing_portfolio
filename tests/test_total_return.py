@@ -7,13 +7,16 @@ reference only). T1–T3 are parametrised over two roots: the frozen TR snapshot
 structural by construction), so a bad refresh fails the suite the day it lands.
 """
 
+import dataclasses
 import datetime as dt
 from pathlib import Path
 
 import polars as pl
 import pytest
 
+from bundles import BUNDLES
 from indicators import ewma_vol, sma
+from main import run_bundle
 from prices import load_prices
 
 GOLDEN_DIR = Path(__file__).parent / "data"
@@ -185,3 +188,72 @@ def test_snapshot_calendars_agree_through_the_old_end(symbol: str) -> None:
     old = read_close(GOLDEN_DIR / f"{symbol}.csv")["time"]
     new = read_close(TR_DIR / f"{symbol}.csv")["time"]
     assert new.filter(new <= MATCHED_END).to_list() == old.to_list()
+
+
+# T7 — TR golden. The default bundle on the TR snapshot, ended at 2026-08-14 so
+# the run shares the price golden's trading days, deposits and rebalance days
+# (T6 pins the calendar). Produced by the implementation once and eyeballed:
+# every number beats its price twin — the 50/50 by ~1.2%/yr CAGR (BTAL's
+# 2017-onward yield on half the book plus TQQQ's own), the SMA gate by more
+# (it holds more BTAL), the SPY benchmark by its dividend yield compounded,
+# TQQQ 100% by ~0.5%/yr — and drawdowns are marginally shallower. Same rule as
+# every golden: a later failure means the engine changed; fix the bug or update
+# the dict in the same commit with the reason. Never refresh the snapshot.
+
+GOLDEN_TR = {
+    "TQQQ/BTAL 50/50": (258_250.59, 0.2486, -0.4477),
+    "TQQQ 100%": (693_431.07, 0.4234, -0.8166),
+    "TQQQ/BTAL SMA gate": (248_417.28, 0.2419, -0.3773),
+    "SPY benchmark": (169_549.44, 0.1547, -0.3356),
+}
+
+
+def matched_window_bundle(**config_changes):
+    bundle = BUNDLES["default"]
+    config = dataclasses.replace(bundle.config, end=MATCHED_END, **config_changes)
+    return dataclasses.replace(bundle, config=config)
+
+
+def test_default_bundle_reproduces_the_tr_golden_numbers() -> None:
+    results = run_bundle(matched_window_bundle(), TR_DIR)
+
+    assert [r.label for r in results] == list(GOLDEN_TR)
+    for result in results:
+        final, cagr, max_dd = GOLDEN_TR[result.label]
+        assert result.stats["final_value"] == pytest.approx(final, abs=0.005)
+        assert result.stats["cagr"] == pytest.approx(cagr, abs=0.00005)
+        assert result.stats["max_drawdown"] == pytest.approx(max_dd, abs=0.00005)
+
+    # Cross-snapshot, same window: distributions can only add value.
+    price_finals = {
+        r.label: r.stats["final_value"] for r in run_bundle(BUNDLES["default"], GOLDEN_DIR)
+    }
+    for label in ("TQQQ/BTAL 50/50", "SPY benchmark"):
+        assert GOLDEN_TR[label][0] > price_finals[label]
+
+
+# T8 — TR cost golden. As T7 under the tastytrade base schedule and 3% cash
+# yield — the same literals as the price cost golden and the exact
+# configuration of the §8 rerun, so this regression anchor sits on the
+# decision path, not beside it.
+
+COST_GOLDEN_TR = {
+    "TQQQ/BTAL 50/50": (257_536.83, 357.23),
+    "TQQQ 100%": (693_312.41, 10.12),
+    "TQQQ/BTAL SMA gate": (247_835.99, 279.52),
+    "SPY benchmark": (169_596.21, 4.70),
+}
+
+
+def test_default_bundle_reproduces_the_tr_cost_golden_numbers() -> None:
+    bundle = matched_window_bundle(
+        cost_bps={"TQQQ": 1.5, "BTAL": 6, "QQQ": 1, "SPY": 0.7, "*": 6},
+        cash_yield=0.03,
+    )
+    results = run_bundle(bundle, TR_DIR)
+
+    assert [r.label for r in results] == list(COST_GOLDEN_TR)
+    for result in results:
+        final, fees = COST_GOLDEN_TR[result.label]
+        assert result.stats["final_value"] == pytest.approx(final, abs=0.005)
+        assert result.stats["total_fees"] == pytest.approx(fees, abs=0.005)
