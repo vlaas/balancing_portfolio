@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "config": {
+    "initial_capital": 10000,
+    "monthly_contribution": 500,
+    "cost_bps": {
+      "TQQQ": 1.5,
+      "BTAL": 6,
+      "DBMF": 2.5,
+      "KMLM": 6,
+      "QQQ": 1,
+      "SPY": 0.7,
+      "*": 6
+    },
+    "cash_yield": 0.03
+  },
+  "windows": {
+    "start": "2012-01-03",
+    "end": null,
+    "holdout": "2023-01-01",
+    "sensitivity": {
+      "every_months": 6,
+      "length_years": 5
+    }
+  },
+  "template": {
+    "type": "vol_target",
+    "risk": "TQQQ",
+    "safe": {
+      "grid": [
+        "BTAL",
+        null
+      ]
+    },
+    "vol_symbol": "QQQ",
+    "vol": {
+      "kind": "ewma",
+      "lam": 0.8
+    },
+    "leverage": 3,
+    "sigma_target": {
+      "grid": [
+        0.25,
+        0.3,
+        0.35,
+        0.4
+      ]
+    },
+    "w_max": {
+      "grid": [
+        0.5,
+        0.6,
+        0.7,
+        0.8
+      ]
+    },
+    "gate": {
+      "grid": [
+        null,
+        {
+          "symbol": "QQQ",
+          "assets": [
+            "TQQQ"
+          ],
+          "sma_days": 200
+        }
+      ]
+    }
+  },
+  "baselines": [
+    {
+      "type": "fixed",
+      "label": "50/50",
+      "weights": {
+        "TQQQ": 0.5,
+        "BTAL": 0.5
+      }
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "TQQQ": 0.5,
+        "BTAL": 0.5
+      },
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_days": 200
+      }
+    },
+    {
+      "type": "fixed",
+      "label": "SPY benchmark",
+      "weights": {
+        "SPY": 1.0
+      }
+    }
+  ],
+  "objective": "calmar",
+  "constraint": {
+    "max_drawdown": -0.5
+  }
+}

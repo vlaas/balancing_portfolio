@@ -27,7 +27,10 @@ import polars as pl
 import results_json
 from main import run_bundle
 from prices import load_prices
-from spec import _TYPES, _costs, _fail, _fields, _join, build_bundle, gate_str, load_spec
+from spec import (
+    _TYPES, REQUIRED_KEYS, _costs, _fail, _fields, _join, build_bundle, gate_str,
+    load_spec,
+)
 
 SWEEP_SCHEMA_VERSION = 1
 OBJECTIVES = ("calmar", "sharpe", "sortino", "cagr", "xirr")
@@ -142,13 +145,17 @@ def _grid_dims(template: dict) -> list[tuple[tuple[str, ...], list]]:
     return dims
 
 
-def _substitute(entry: dict, path: tuple[str, ...], value) -> None:
+def _substitute(
+    entry: dict, path: tuple[str, ...], value, required: frozenset[str]
+) -> None:
     node = entry
     for key in path[:-1]:
         node = node[key]
-    if value is None:
+    if value is None and not (len(path) == 1 and path[0] in required):
         # The builders treat key presence as "has a gate" etc.; a null grid
-        # value means the combination goes without the key entirely.
+        # value means the combination goes without the key entirely. Over a
+        # required key absence is not legal, so there null means literal null
+        # and the builder decides whether that value is one it accepts.
         del node[path[-1]]
     else:
         node[path[-1]] = copy.deepcopy(value)
@@ -172,11 +179,17 @@ def expand(template: dict) -> list[dict]:
     defaults and labels are shared with ordinary specs). Pure and deterministic.
     """
     dims = _grid_dims(template)
+    # The type fixes which top-level keys are required, and those are where a
+    # null grid value substitutes instead of deleting; an unknown type leaves
+    # the set empty and fails below on the template.type path, as before.
+    required = REQUIRED_KEYS.get(
+        template.get("type") if isinstance(template, dict) else None, frozenset()
+    )
     out = []
     for combo in itertools.product(*(values for _, values in dims)):
         entry = copy.deepcopy(template)
         for (path, _), value in zip(dims, combo):
-            _substitute(entry, path, value)
+            _substitute(entry, path, value, required)
         if not isinstance(entry, dict) or "type" not in entry:
             _fail("template.type", "missing key")
         if entry["type"] not in _TYPES:
