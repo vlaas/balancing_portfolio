@@ -227,11 +227,11 @@ comparison surface.
       `pip install polars matplotlib pytest`
 - [x] No change to `simulate.py`, `prices.py`, `indicators.py`, `stats.py`,
       `results_json.py`
-- [ ] `specs/sweep_blend_2021.json`, `sweep_blend_2019.json` per §4
-- [ ] The four §5 runs committed with the specs
+- [x] `specs/sweep_blend_2021.json`, `sweep_blend_2019.json` per §4
+- [x] The four §5 runs committed with the specs
 - [x] Docs: STRATEGY_DEVELOPMENT (`safe` dict form, one paragraph + the sleeve
       semantics sentence); SWEEP_SPEC/SAFE_SWAP_SPEC cross-reference notes
-- [ ] Verdict per §6 into project memory — including the dual-objective call —
+- [x] Verdict per §6 into project memory — including the dual-objective call —
       numbers stay in the repo
 
 ## 9. Deliberately not in scope
