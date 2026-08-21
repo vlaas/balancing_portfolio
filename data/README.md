@@ -1,21 +1,32 @@
-# Price data
+# Market data
 
-Daily bars exported from **TradingView**, one CSV per symbol, named `<SYM>.csv`.
+Daily bars exported from **TradingView**, two CSVs per symbol:
+
+- `<SYM>.csv` — the **dividend-adjusted (total-return) export**. This is the
+  traded series: the close the loader reads and every indicator is computed on.
+- `price/<SYM>.csv` — the unadjusted export from the **same session**, reference
+  only. The loader never looks inside `price/`; the pair exists so the
+  adjustment is verifiable (see "The adjustment ratio" below).
 
 ## Layout
 
+Both files use the same export layout:
+
 ```
 time,open,high,low,close,SMA50,SMA100,SMA200,SMA15,Volume
-2011-09-13,25.5,25.5,24.19,24.75,,,,,10500
+2011-09-13,21.73271823,21.73271823,20.6162531,21.09352063,,,,,10500
 ```
 
-`time` is `YYYY-MM-DD`, one row per trading day, ascending and unique.
+`time` is `YYYY-MM-DD`, one row per trading day, ascending and unique. The
+paired files of a symbol have identical `time` columns (asserted by the tests);
+files across symbols may end on different dates.
 
 ## What the simulator reads
 
-**Only `time` and `close`.** `prices.py::_read_symbol` whitelists those two
-columns; everything else in the file is ignored at runtime. The engine trades and
-values on close, so no other price field has a meaning here.
+**Only `time` and `close`, from `<SYM>.csv`.** `prices.py::_read_symbol`
+whitelists those two columns; everything else in the file is ignored at
+runtime. The engine trades and values on the total-return close, so results
+include distributions reinvested at the ex-date close (gross of withholding).
 
 ## What the `SMA*` columns are for
 
@@ -24,17 +35,61 @@ Python (`indicators.py`) and declared per strategy. The exported `SMA15`, `SMA50
 `SMA100` and `SMA200` columns are the independent reference that proves the Python
 implementation matches TradingView:
 `tests/test_indicators.py::test_sma_matches_the_tradingview_column` compares
-`indicators.sma(n)` against column `SMA{n}` in every CSV, for
-`n ∈ {15, 50, 100, 200}`, requiring agreement to `1e-9` and an identical null
-count. Measured agreement is ~2e-12.
+`indicators.sma(n)` against column `SMA{n}` in every CSV — adjusted and
+`price/` alike, since Pine's `close` follows the chart's adjustment setting —
+for `n ∈ {15, 50, 100, 200}`, requiring agreement to `1e-9` and an identical
+null count. Measured agreement is ~2e-12. That is why the dividend toggle must
+be set **before** each export: the indicator columns and the close column of
+one file must describe the same series.
 
-Because the comparison happens *within* a file, it stays valid when the export is
-refreshed. Keep the `SMA*` columns in future exports — dropping them would
+Because the comparison happens *within* a file, it stays valid when the export
+is refreshed. Keep the `SMA*` columns in future exports — dropping them would
 silently retire the check.
 
 `Volume` is exported but unused.
 
+## The adjustment ratio
+
+For a paired symbol let `R_t = adjusted_t / price_t`. Under TradingView's
+multiplicative back-adjustment (`tests/test_total_return.py` asserts all of
+this, on this directory as well as on the frozen snapshot):
+
+- `0 < R ≤ 1` everywhere and `R` is non-decreasing — flat between ex-dates,
+  jumping up at each one.
+- `R = 1` on the last bar: the adjusted series is anchored at the latest price.
+- Splits are adjusted identically in both exports (the toggle controls
+  dividends only), so `R` is split-invariant.
+- The implied per-share distribution at a jump,
+  `D = price_{t−1} · (1 − R_{t−1}/R_t)`, matches published amounts — the pinned
+  spot checks sit in `tests/test_total_return.py` with their sources. Amounts
+  are stated in the current split basis: TQQQ split 2:1 on 2025-11-20, so
+  earlier published amounts are twice today's per-share figures.
+- The cumulative implied yield `y = −ln(R_first) / years` per symbol sits in
+  the per-symbol bands of the tests; `y ≈ 0` means the toggle was off — the
+  most likely operator error, and a loud test failure.
+
+**An adjusted export is not append-stable**: every new ex-date rescales the
+entire history, and integer shares plus fixed dollar contributions are not
+scale-invariant, so a run on live `data/` can move in the cents between
+refreshes even over an identical window. Pinned numbers only ever come from
+frozen snapshots, which is already the rule.
+
+**Live signal note**: to reproduce a signal on a TradingView chart, turn
+dividend adjustment **on** — the chart then shows the series the simulator
+trades.
+
+Measured on the 2026-08-20 export (pinned in `tests/data/2026-08-20/README.md`):
+flat-segment noise in `ln R` ≤ 4.3e-8, SMA parity ≤ 2.0e-12, implied
+distributions within $0.000011 of published amounts.
+
 ## Export settings
+
+Two passes per symbol, same chart, same session:
+
+1. Chart settings → **Adjust data for dividends: ON** → *Export chart data…* →
+   `data/<SYM>.csv`.
+2. Toggle **OFF** → export again → `data/price/<SYM>.csv`.
+3. Toggle back **ON**, so the chart's resting state matches the traded series.
 
 - Symbol: the ETF's primary listing; chart interval **1D**.
 - One indicator on the chart: *SMAs (50,100,200,15) by Veta* (source below), all four
@@ -107,11 +162,22 @@ plot(show3 ? sma3 : na, title = TITLE_3, color = color.new(color.blue,   50), li
 plot(show4 ? sma4 : na, title = TITLE_4, color = color.new(color.purple, 50), linewidth = 6)
 ```
 
-## Frozen snapshot
+## Frozen snapshots
 
-`tests/data/` holds a byte-identical copy of this directory, taken at the
-2026-08-14 export. Every test that asserts a number reads from there, so
-refreshing `data/` can never move a pinned result. **The snapshot is
-append-only** — never overwrite it; add `tests/data/<newdate>/` if a second one
-is ever needed. Live `data/` gets exactly one test
-(`test_every_bundle_loads_from_the_live_export`), which makes no numeric claims.
+Every test that asserts a number reads from a frozen snapshot under
+`tests/data/`, so refreshing `data/` can never move a pinned result. Snapshots
+are **append-only** — never overwrite one; add `tests/data/<newdate>/` for a
+new one, where `<newdate>` is the last bar of its TQQQ export.
+
+- `tests/data/*.csv` — the flat 2026-08-14 **price-only** snapshot, kept
+  byte-identical as the gross-of-distribution regression anchor (`GOLDEN`,
+  `COST_GOLDEN`, committed sweep artefacts).
+- `tests/data/2026-08-20/` — the first **total-return** snapshot: both series,
+  copied verbatim from the export, plus a README pinning the measured
+  tolerances. A dated snapshot holds `<SYM>.csv` (adjusted) and
+  `price/<SYM>.csv`; if a same-date price-only snapshot is ever needed,
+  suffix the directory `-price`.
+
+Live `data/` runs the bundle-loading smoke test plus the structural
+total-return invariants of `tests/test_total_return.py`, none of which make
+numeric claims — a bad refresh fails the suite the day it lands.
