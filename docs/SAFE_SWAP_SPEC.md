@@ -262,9 +262,9 @@ holdout test without its length warning.
 
 ## 8. Acceptance checklist
 
-- [ ] `spec.REQUIRED_KEYS` shared metadata; `sweep._substitute` null rule per §2;
+- [x] `spec.REQUIRED_KEYS` shared metadata; `sweep._substitute` null rule per §2;
       SWEEP_SPEC errata #3 note updated (superseded by this spec)
-- [ ] Tests T1–T4 in `tests/test_sweep.py`; whole suite green from a fresh clone
+- [x] Tests T1–T4 in `tests/test_sweep.py`; whole suite green from a fresh clone
       with `pip install polars matplotlib pytest`
 - [ ] `specs/sweep_safe_2021.json`, `sweep_safe_2019.json`, `sweep_safe_2012.json`
       exactly per §4
@@ -316,3 +316,27 @@ holdout test without its length warning.
 - **Synthetic pre-inception history for DBMF/KMLM**: the financing-model spec
   remains its own item; extending managed-futures ETFs backward with index data is
   a research project, not a data patch.
+
+## 10. Errata — deviations found and fixed during implementation
+
+Validated against the code before implementation; the design stands as proposed,
+with two factual corrections (the sections above are left as written):
+
+1. **§1 "dies in `build_bundle`"**: the null combination dies earlier, inside
+   `sweep.expand` — every expanded entry is validated through `spec._TYPES` at
+   `sweep.py:184` under the `template` path prefix, so the failure is
+   `template.safe: missing key` and `build_bundle` never sees it. The fix
+   location (`_substitute`) and the required-key premise are unaffected.
+2. **§6.5 "the exposure block"**: `summary.json` carries no exposure at all.
+   Average weights live in `runs.csv`/`runs.json` as `exposure.<SYM>.avg` (and
+   `.min`), and in `summary.md` as the single `avg risk wt` column, which
+   resolves `<SYM>` from the entry's `risk` key — so `fixed` baselines render
+   `-` there. The §6.4 and §6.5 baseline comparisons therefore read `runs.csv`,
+   not `summary.md`.
+
+Confirmed as proposed: the §3 window structures reproduce exactly (6/9/20
+sensitivity windows, the 2023-06-18 → 2023-06-20 snap, the primary lane's
+595-day test window tripping the short-test warning), and §2.2's expansion
+prediction holds verbatim — 128 unique labels, 32 per arm, the cash arm
+rendering `VT TQQQ/cash t25 w0-50 QQQ:VOL_EWMA80`, `params["safe"] = null`.
+The header's "395 tests" was 399 at `afd637e`; T1–T4 take it to 403.

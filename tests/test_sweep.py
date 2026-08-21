@@ -9,7 +9,7 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from spec import load_spec
+from spec import _TYPES, REQUIRED_KEYS, load_spec
 from sweep import Window, _window_plan, build_summary, expand, run_sweep, validate, windows
 from sweep import main as sweep_main
 
@@ -71,6 +71,64 @@ def test_null_grid_branch_omits_the_key_from_the_entry():
     # The entries are normalised: defaults and the auto-label are filled in.
     assert out[0]["entry"]["label"] == out[0]["label"]
     assert out[0]["entry"]["w_min"] == 0.0
+
+
+def test_null_over_a_required_key_substitutes_the_literal_null():
+    t = template()
+    t["safe"] = {"grid": ["BTAL", None]}  # required-but-nullable: null means cash
+
+    out = expand(t)
+
+    assert len(out) == 180  # 2 safe x 3 lam x 5 sigma x 3 w_max x 2 gate
+    cash = [e for e in out if e["params"]["safe"] is None]
+    assert len(cash) == 90
+    assert all(e["entry"]["safe"] is None for e in cash)
+    assert cash[0]["label"] == "VT TQQQ/cash t30 w0-60 QQQ:VOL_EWMA90"
+    # A null safe is a one-asset universe; the residual 1 - w stays in cash.
+    st = _TYPES["vol_target"](cash[0]["entry"], "template")
+    assert st.weights == {"TQQQ": 0.6}
+
+
+def test_null_over_an_optional_key_still_deletes_it():
+    t = template()
+    t["w_max"] = {"grid": [0.6, None]}
+
+    out = expand(t)
+
+    absent = [e for e in out if e["params"]["w_max"] is None]
+    assert len(absent) == 30  # 3 lam x 5 sigma x 2 gate
+    # Deleted rather than substituted, so the builder's default w_max = 1.0
+    # applies; a substituted None would fail its 0 <= w_min <= w_max <= 1 check.
+    assert all(e["entry"]["w_max"] == 1.0 for e in absent)
+    assert absent[0]["label"] == "VT TQQQ/BTAL t30 w0-100 QQQ:VOL_EWMA90"
+
+
+def test_null_over_a_required_key_the_builder_rejects_fails_loudly():
+    t = {"type": "fixed", "weights": {"grid": [{"TQQQ": 0.5, "BTAL": 0.5}, None]}}
+
+    with pytest.raises(ValueError, match=re.escape("template.weights")):
+        expand(t)
+
+
+def test_required_keys_is_the_builders_own_missing_key_set():
+    assert REQUIRED_KEYS["vol_target"] == {
+        "type", "risk", "safe", "vol_symbol", "vol", "sigma_target",
+    }
+    assert REQUIRED_KEYS["fixed"] == {"type", "weights"}
+
+    valid = {
+        "vol_target": {
+            "type": "vol_target", "risk": "TQQQ", "safe": "BTAL",
+            "vol_symbol": "QQQ", "vol": {"kind": "ewma", "lam": 0.9},
+            "sigma_target": 0.35,
+        },
+        "fixed": {"type": "fixed", "weights": {"TQQQ": 1.0}},
+    }
+    for name, entry in valid.items():
+        _TYPES[name](entry, "e")  # the full entry builds
+        for key in REQUIRED_KEYS[name]:
+            with pytest.raises(ValueError, match=re.escape(f"e.{key}: missing key")):
+                _TYPES[name]({k: v for k, v in entry.items() if k != key}, "e")
 
 
 def test_single_value_grid_raises():

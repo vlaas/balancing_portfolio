@@ -88,7 +88,10 @@ uv run sweep.py specs/sweep_vt.json --data tests/data --out results/sweep_vt
 - **Template**: one strategy entry in the ordinary grammar in which any leaf —
   including the whole `gate` object — may be `{"grid": [v1, v2, ...]}` (≥ 2
   distinct values). The Cartesian product in document order becomes the grid;
-  a `null` grid value drops the key (that's how "no gate" is a grid point).
+  a `null` grid value drops the key (that's how "no gate" is a grid point) —
+  except over a top-level *required* key (`spec.REQUIRED_KEYS`), where absence
+  is not legal and `null` substitutes literally (that's how `vol_target`'s
+  `"safe": {"grid": ["BTAL", null]}` makes cash an arm).
   Grid dimensions must be label-visible (`leverage`, `fallback`, `gate.assets`
   are not in auto-labels and collide loudly).
 - **Windows** own the dates: `full` (`start`..`end`), an optional holdout split

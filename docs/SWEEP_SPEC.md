@@ -282,6 +282,13 @@ agreed and applied (the sections above are left as proposed):
    as "has a gate", so a `null` grid value deletes the key from the entry
    rather than substituting `None`. Consequence: `[null, …]` grids work for
    optional keys only — not for `vol_target`'s required-but-nullable `safe`.
+   **Superseded by SAFE_SWAP_SPEC §2**: at a *top-level required* key (the
+   per-type sets now live in `spec.REQUIRED_KEYS`, consumed by both the
+   builders and `_substitute`) a `null` grid value substitutes the literal
+   `None`, because absence is not legal there and the builder is the right
+   place to judge whether `None` is a value it accepts — `vol_target`'s
+   `safe: null` is the cash arm, `fixed`'s `weights: null` fails with its JSON
+   path. Delete semantics stand unchanged for optional keys and nested paths.
 4. **§4.1 grids inside lists** (e.g. over `gate.assets` elements) are a
    `ValueError`, not supported.
 5. **§4.2 "objects are rendered through the same string the auto-label

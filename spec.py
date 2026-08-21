@@ -20,6 +20,16 @@ from strategies.vol_target import VolTarget
 
 SPEC_SCHEMA_VERSION = 1
 
+# The keys each strategy type requires, shared with sweep._substitute so the
+# grid grammar's "a null over a required key means null, not absent" rule
+# cannot drift from the validation that enforces it.
+REQUIRED_KEYS = {
+    "fixed": frozenset({"type", "weights"}),
+    "vol_target": frozenset(
+        {"type", "risk", "safe", "vol_symbol", "vol", "sigma_target"}
+    ),
+}
+
 
 def load_spec(path: Path) -> dict:
     return json.loads(Path(path).read_text())
@@ -109,7 +119,7 @@ def _gate_suffix(gate: Gate | None) -> str:
 
 
 def _fixed(entry: dict, path: str) -> Fixed:
-    _fields(entry, path, {"type", "weights"}, {"label", "gate"})
+    _fields(entry, path, REQUIRED_KEYS["fixed"], {"label", "gate"})
     weights = entry["weights"]
     if not isinstance(weights, dict) or not weights:
         _fail(_join(path, "weights"), "expected a non-empty object")
@@ -138,7 +148,7 @@ _VOL_KINDS = {"ewma": (ewma_vol, "lam"), "realized": (realized_vol, "n")}
 def _vol_target(entry: dict, path: str) -> VolTarget:
     _fields(
         entry, path,
-        {"type", "risk", "safe", "vol_symbol", "vol", "sigma_target"},
+        REQUIRED_KEYS["vol_target"],
         {"leverage", "w_max", "w_min", "fallback", "gate", "label"},
     )
     vol_entry, vol_path = entry["vol"], _join(path, "vol")
