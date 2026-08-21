@@ -13,6 +13,10 @@ from pathlib import Path
 import polars as pl
 import pytest
 
+from indicators import ewma_vol, sma
+from prices import load_prices
+
+GOLDEN_DIR = Path(__file__).parent / "data"
 TR_DIR = Path(__file__).parent / "data" / "2026-08-20"
 LIVE_DIR = Path(__file__).parents[1] / "data"
 ROOTS = [TR_DIR, LIVE_DIR]
@@ -131,3 +135,53 @@ def test_implied_distributions_match_published_amounts(root: Path, symbol: str) 
         implied = price["close"][i - 1] * (1 - ratio[i - 1] / ratio[i])
         # Spec ceiling $0.02; measured max deviation $0.000011 -> $0.0001.
         assert implied == pytest.approx(amount, abs=1e-4)
+
+
+# T5 — Signal-series deltas: switching the signal series from price to TR
+# barely moves the QQQ signals on the matched window. A violation means the
+# export is not the dividend adjustment §4 describes. Measured on the
+# 2026-08-20 snapshot: 1 of 115 gate states differs (2019-05-31), max EWMA94
+# vol delta 1.66% relative.
+
+MATCHED_START = dt.date(2017, 1, 3)
+MATCHED_END = dt.date(2026, 8, 14)
+
+
+def rebalance_days(data_dir: Path) -> pl.DataFrame:
+    frame = load_prices(
+        data_dir,
+        ("QQQ",),
+        MATCHED_START,
+        end=MATCHED_END,
+        indicators={"QQQ": (sma(200), ewma_vol(0.94))},
+    )
+    return frame.filter(pl.col("is_rebalance_day"))
+
+
+def test_sma_gate_state_changes_on_at_most_four_rebalance_days() -> None:
+    tr, price = rebalance_days(TR_DIR), rebalance_days(GOLDEN_DIR)
+    assert tr["date"].equals(price["date"])
+
+    gate_tr = tr["QQQ"] < tr["QQQ:SMA200"]
+    gate_price = price["QQQ"] < price["QQQ:SMA200"]
+    assert (gate_tr != gate_price).sum() <= 4
+
+
+def test_ewma_vol_moves_at_most_two_percent_relative() -> None:
+    tr, price = rebalance_days(TR_DIR), rebalance_days(GOLDEN_DIR)
+
+    relative = (tr["QQQ:VOL_EWMA94"] - price["QQQ:VOL_EWMA94"]) / price["QQQ:VOL_EWMA94"]
+    assert relative.abs().max() <= 0.02
+
+
+# T6 — Cross-snapshot calendar: the refresh neither lost nor invented
+# sessions, which is what T5's join and the golden comparability rest on.
+# If TradingView ever revises history, that is a finding: document the diff
+# in the snapshot README and adjust this pin in the same commit.
+
+
+@pytest.mark.parametrize("symbol", ["TQQQ", "BTAL", "QQQ", "SPY"])
+def test_snapshot_calendars_agree_through_the_old_end(symbol: str) -> None:
+    old = read_close(GOLDEN_DIR / f"{symbol}.csv")["time"]
+    new = read_close(TR_DIR / f"{symbol}.csv")["time"]
+    assert new.filter(new <= MATCHED_END).to_list() == old.to_list()
