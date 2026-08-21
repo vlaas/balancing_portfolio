@@ -17,7 +17,7 @@ program itself must never produce. The program is a script
 
 ```mermaid
 flowchart LR
-    CSV["data/*.csv<br/>(time, close)"] --> P["prices.py<br/>load_prices()"]
+    CSV["data/*.csv<br/>(time, total-return close)"] --> P["prices.py<br/>load_prices()"]
     I["indicators.py<br/>sma(), ewma_vol(), …"] --> P
     P --> W["one wide frame<br/>date | SYM… | SYM:COL… | is_rebalance_day"]
     W --> E["simulate.py<br/>simulate() — once per strategy"]
@@ -59,6 +59,13 @@ strategy's declarations.
 
 Decisions and their reasons:
 
+- **The loaded close is total-return.** `data/<SYM>.csv` is the
+  dividend-adjusted TradingView export, so trading, valuation and every
+  indicator include distributions reinvested at the ex-date close. The
+  unadjusted series (`data/price/<SYM>.csv`) is reference-only — the loader
+  reads named per-symbol files and never looks inside `price/`. Invariants and
+  spot checks live in `tests/test_total_return.py`; the convention is
+  documented in `data/README.md`.
 - **The trading calendar is the union of the *traded* symbols' dates only.**
   `symbols` are full-joined; `extra` symbols (data a strategy reads but never
   trades, e.g. QQQ) are left-joined afterwards so they can never add dates.

@@ -85,6 +85,10 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - A comparison intended for a real decision quotes cost-adjusted numbers and
   states the cost assumption (`cost_bps`, `cash_yield`) — gross (zero-cost)
   numbers are for regression only.
+- Numbers quoted for a real decision come from a **total-return dataset**
+  (live `data/` or a dated snapshot such as `tests/data/2026-08-20`) at stated
+  costs — price-series numbers (the flat `tests/data/*.csv` snapshot) are
+  regression artefacts only.
 - When a proposal needs a new strategy type or parameter: change
   `spec.py`/`strategies/` with tests first, write the spec second.
 - Never modify engine semantics (`simulate.py`, `strategy.py`) to make a spec

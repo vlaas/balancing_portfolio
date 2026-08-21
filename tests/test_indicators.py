@@ -19,7 +19,7 @@ from indicators import (
 GOLDEN_DIR = Path(__file__).parent / "data"
 DATA_DIR = Path(__file__).parent.parent / "data"
 
-CSV_FILES = sorted(GOLDEN_DIR.glob("*.csv")) + sorted(DATA_DIR.glob("*.csv"))
+CSV_FILES = sorted(GOLDEN_DIR.rglob("*.csv")) + sorted(DATA_DIR.rglob("*.csv"))
 
 
 def read_closes(path: Path) -> pl.DataFrame:
@@ -62,7 +62,7 @@ def first_value_index(series: pl.Series) -> int | None:
 # T1 — TradingView parity: the proof that the Python SMA reproduces the export.
 
 
-@pytest.mark.parametrize("path", CSV_FILES, ids=lambda p: f"{p.parent.name}/{p.stem}")
+@pytest.mark.parametrize("path", CSV_FILES, ids=lambda p: str(p.relative_to(DATA_DIR.parent)))
 @pytest.mark.parametrize("n", [15, 50, 100, 200])
 def test_sma_matches_the_tradingview_column(path: Path, n: int) -> None:
     frame = pl.read_csv(path, schema_overrides={"close": pl.Float64}, try_parse_dates=True)
