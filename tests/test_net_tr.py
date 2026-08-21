@@ -9,6 +9,7 @@ make_net_tr; tests/test_total_return.py keeps its own local TAU untouched.
 import dataclasses
 import datetime as dt
 import filecmp
+import json
 import math
 from pathlib import Path
 
@@ -18,6 +19,8 @@ import pytest
 from bundles import BUNDLES
 from main import run_bundle
 from make_net_tr import FLAT_MAX, JUMP_MIN, TAU, main as net_main
+from sweep import main as sweep_main
+from test_sweep import T6_SPEC
 
 GOLDEN_DIR = Path(__file__).parent / "data"
 TR_DIR = GOLDEN_DIR / "2026-08-20"
@@ -213,6 +216,30 @@ def test_default_bundle_reproduces_the_net_cost_golden_numbers() -> None:
         final, fees = COST_GOLDEN_NET[result.label]
         assert result.stats["final_value"] == pytest.approx(final, abs=0.005)
         assert result.stats["total_fees"] == pytest.approx(fees, abs=0.005)
+
+
+# --- N8 — sweep provenance: with three dataset conventions sharing identical -
+# date ranges, the artefacts must name the dataset directory themselves
+# (NET_TR_SPEC §6).
+
+
+def test_sweep_artefacts_record_the_data_directory(tmp_path, monkeypatch):
+    spec_path = tmp_path / "grid.json"
+    spec_path.write_text(json.dumps(T6_SPEC))
+    out = tmp_path / "out"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["sweep.py", str(spec_path), "--data", str(GOLDEN_DIR), "--out", str(out)],
+    )
+
+    sweep_main()
+
+    runs = pl.read_csv(out / "runs.csv")
+    assert runs["data_dir"].to_list() == [str(GOLDEN_DIR)] * runs.height
+    summary = json.loads((out / "summary.json").read_text())
+    assert summary["data"]["dir"] == str(GOLDEN_DIR)
+    md = (out / "summary.md").read_text()
+    assert f"- Data dir: {GOLDEN_DIR}" in md
 
 
 # --- N6 — generator guards, on synthetic pairs -------------------------------
