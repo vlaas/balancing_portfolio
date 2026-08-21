@@ -6,6 +6,7 @@ guards, N7 net goldens, N8 sweep provenance. Constants come from
 make_net_tr; tests/test_total_return.py keeps its own local TAU untouched.
 """
 
+import dataclasses
 import datetime as dt
 import filecmp
 import math
@@ -14,6 +15,8 @@ from pathlib import Path
 import polars as pl
 import pytest
 
+from bundles import BUNDLES
+from main import run_bundle
 from make_net_tr import FLAT_MAX, JUMP_MIN, TAU, main as net_main
 
 GOLDEN_DIR = Path(__file__).parent / "data"
@@ -21,6 +24,7 @@ TR_DIR = GOLDEN_DIR / "2026-08-20"
 NET_DIR = GOLDEN_DIR / "2026-08-20-net15"
 SYMBOLS = ["TQQQ", "BTAL", "QQQ", "SPY", "DBMF", "KMLM"]
 W = 0.15
+MATCHED_END = dt.date(2026, 8, 14)
 
 
 def read_close(path: Path) -> pl.DataFrame:
@@ -136,6 +140,79 @@ def test_generator_reproduces_the_committed_snapshot_byte_for_byte(tmp_path):
     assert len(produced) == 13
     for rel in committed:
         assert filecmp.cmp(out / rel, NET_DIR / rel, shallow=False), rel
+
+
+# --- N7 — net goldens: the default bundle on the net snapshot over the -------
+# matched window (the parent's calendar pin covers the net snapshot by
+# byte-copy). Reference values from NET_TR_SPEC §7, reproduced to the cent on
+# the first run — a larger deviation is a construction bug, not float noise
+# (C is a product of <= 135 doubles). The net-gross gap is small here
+# (~-0.19%/yr CAGR on the 50/50) because BTAL's yield is small; the
+# correction's weight is in the safe-swap universe.
+
+GOLDEN_NET = {
+    "TQQQ/BTAL 50/50": (254_913.36, 0.2467, -0.4478),
+    "TQQQ 100%": (688_470.64, 0.4222, -0.8167),
+    "TQQQ/BTAL SMA gate": (245_139.65, 0.2400, -0.3773),
+    "SPY benchmark": (167_200.29, 0.1521, -0.3374),
+}
+
+
+def matched_window_bundle(**config_changes):
+    bundle = BUNDLES["default"]
+    config = dataclasses.replace(bundle.config, end=MATCHED_END, **config_changes)
+    return dataclasses.replace(bundle, config=config)
+
+
+def test_default_bundle_reproduces_the_net_golden_numbers() -> None:
+    results = run_bundle(matched_window_bundle(), NET_DIR)
+
+    assert [r.label for r in results] == list(GOLDEN_NET)
+    for result in results:
+        final, cagr, max_dd = GOLDEN_NET[result.label]
+        assert result.stats["final_value"] == pytest.approx(final, abs=0.005)
+        assert result.stats["cagr"] == pytest.approx(cagr, abs=0.00005)
+        assert result.stats["max_drawdown"] == pytest.approx(max_dd, abs=0.00005)
+
+    # Cross-snapshot sandwich, same window: withholding gives back part of the
+    # distribution value, never all of it — price < net < gross finals.
+    price_finals = {
+        r.label: r.stats["final_value"] for r in run_bundle(BUNDLES["default"], GOLDEN_DIR)
+    }
+    gross_finals = {
+        r.label: r.stats["final_value"] for r in run_bundle(matched_window_bundle(), TR_DIR)
+    }
+    for label in ("TQQQ/BTAL 50/50", "SPY benchmark"):
+        assert price_finals[label] < GOLDEN_NET[label][0] < gross_finals[label]
+
+
+# Net cost golden: the same bundle under the tastytrade base schedule and 3%
+# cash yield — the exact configuration of every decision run from here on.
+# Values pinned by this implementation once and eyeballed: finals sit just
+# below the zero-cost net goldens (SPY just above, cash yield on the
+# contribution buffer outweighing its sub-bp fees, as in the gross twin) and
+# fees are within a few dollars of the gross T8 fees.
+
+COST_GOLDEN_NET = {
+    "TQQQ/BTAL 50/50": (254_199.59, 354.94),
+    "TQQQ 100%": (688_316.64, 10.12),
+    "TQQQ/BTAL SMA gate": (244_503.56, 277.56),
+    "SPY benchmark": (167_218.26, 4.71),
+}
+
+
+def test_default_bundle_reproduces_the_net_cost_golden_numbers() -> None:
+    bundle = matched_window_bundle(
+        cost_bps={"TQQQ": 1.5, "BTAL": 6, "QQQ": 1, "SPY": 0.7, "*": 6},
+        cash_yield=0.03,
+    )
+    results = run_bundle(bundle, NET_DIR)
+
+    assert [r.label for r in results] == list(COST_GOLDEN_NET)
+    for result in results:
+        final, fees = COST_GOLDEN_NET[result.label]
+        assert result.stats["final_value"] == pytest.approx(final, abs=0.005)
+        assert result.stats["total_fees"] == pytest.approx(fees, abs=0.005)
 
 
 # --- N6 — generator guards, on synthetic pairs -------------------------------
