@@ -269,21 +269,22 @@ which is why this spec must land first.
 
 ## 9. Acceptance checklist
 
-- [ ] Live `data/` re-exported per §6: six adjusted files + `data/price/`,
+- [x] Live `data/` re-exported per §6: six adjusted files + `data/price/`,
       `data/README.md` rewritten
-- [ ] Frozen snapshot `tests/data/<date>/` with both series, verbatim, plus README
+- [x] Frozen snapshot `tests/data/2026-08-20/` with both series, verbatim, plus README
       with pinned tolerances; existing flat snapshot byte-identical
-- [ ] `tests/test_total_return.py` T1–T3, T5–T8; `tests/test_indicators.py` rglob
+- [x] `tests/test_total_return.py` T1–T3, T5–T8; `tests/test_indicators.py` rglob
       (T4); measured tolerances and the T5 gate-delta count in the commit message
-- [ ] No change to `prices.py`, `simulate.py`, `indicators.py`, `stats.py`,
+- [x] No change to `prices.py`, `simulate.py`, `indicators.py`, `stats.py`,
       `results_json.py` (`SCHEMA_VERSION` stays 4), `spec.py`, `sweep.py`
-- [ ] Whole suite green from a fresh clone with `pip install polars matplotlib pytest`
-- [ ] Docs: `data/README.md` per §6; STRATEGY_DEVELOPMENT "Data files and indicators"
+- [x] Whole suite green from a fresh clone with `pip install polars matplotlib pytest`
+      (365 tests)
+- [x] Docs: `data/README.md` per §6; STRATEGY_DEVELOPMENT "Data files and indicators"
       (TR convention, signals on TR, live-signal note); ARCHITECTURE (data-flow: the
       loaded close is total-return, `price/` is reference-only); CLAUDE.md protocol:
       numbers quoted for real decisions come from a **TR dataset** at stated costs —
       price-series numbers are regression artefacts only
-- [ ] §8 rerun committed: `results/sweep_vt_tr_cbase/*`
+- [x] §8 rerun committed: `results/sweep_vt_tr_cbase/*`
 
 ## 10. Deliberately not in scope
 
