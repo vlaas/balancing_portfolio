@@ -31,7 +31,9 @@ cash flows.
 - **Initial purchase:** on the start date, buy shares of each asset at that day's close so
   the portfolio matches the target ratios as closely as integer shares allow (for each
   asset: `floor(capital × target_ratio / close)` shares). Unspent capital remains as cash.
-- **Monthly rebalance:** on the last trading day of each month:
+- **Monthly rebalance** (a strategy may set a weekly-to-quarterly `rebalance` cadence
+  instead; contributions stay monthly — see `docs/STRATEGY_DEVELOPMENT.md`): on the last
+  trading day of each month:
   1. Add the configured monthly contribution to cash.
   2. Compute total capital = market value of holdings (at close) + cash.
   3. For each asset, compute the target share count:

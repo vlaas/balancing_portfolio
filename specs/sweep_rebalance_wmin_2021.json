@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "config": {
+    "initial_capital": 10000,
+    "monthly_contribution": 500,
+    "cost_bps": {
+      "TQQQ": 1.5,
+      "BTAL": 6,
+      "DBMF": 2.5,
+      "KMLM": 6,
+      "QQQ": 1,
+      "SPY": 0.7,
+      "*": 6
+    },
+    "cash_yield": 0.03
+  },
+  "windows": {
+    "start": "2020-12-18",
+    "end": null,
+    "holdout": "2025-01-01",
+    "sensitivity": {
+      "every_months": 6,
+      "length_years": 3
+    }
+  },
+  "template": {
+    "type": "vol_target",
+    "risk": "TQQQ",
+    "safe": {
+      "BTAL": 0.75,
+      "DBMF": 0.25
+    },
+    "vol_symbol": "QQQ",
+    "vol": {
+      "kind": "ewma",
+      "lam": 0.8
+    },
+    "leverage": 3,
+    "sigma_target": 0.2,
+    "w_max": 0.8,
+    "gate": {
+      "symbol": "QQQ",
+      "assets": [
+        "TQQQ"
+      ],
+      "sma_days": 200
+    },
+    "rebalance": {
+      "grid": [
+        {
+          "weeks": 1
+        },
+        {
+          "weeks": 2
+        },
+        {
+          "weeks": 2,
+          "offset": 1
+        },
+        null,
+        {
+          "months": 2
+        },
+        {
+          "months": 3,
+          "offset": 2
+        }
+      ]
+    },
+    "w_min": {
+      "grid": [
+        0.0,
+        0.1,
+        0.2,
+        0.3
+      ]
+    }
+  },
+  "baselines": [
+    {
+      "type": "fixed",
+      "weights": {
+        "TQQQ": 0.5,
+        "BTAL": 0.5
+      },
+      "rebalance": {
+        "weeks": 1
+      }
+    },
+    {
+      "type": "fixed",
+      "label": "50/50",
+      "weights": {
+        "TQQQ": 0.5,
+        "BTAL": 0.5
+      }
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "TQQQ": 0.5,
+        "BTAL": 0.5
+      },
+      "rebalance": {
+        "months": 3
+      }
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "TQQQ": 0.5,
+        "BTAL": 0.5
+      },
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_days": 200
+      },
+      "rebalance": {
+        "weeks": 1
+      }
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "TQQQ": 0.5,
+        "BTAL": 0.5
+      },
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_days": 200
+      }
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "TQQQ": 0.5,
+        "BTAL": 0.5
+      },
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_days": 200
+      },
+      "rebalance": {
+        "months": 3
+      }
+    },
+    {
+      "type": "fixed",
+      "label": "SPY benchmark",
+      "weights": {
+        "SPY": 1.0
+      }
+    }
+  ],
+  "objective": "calmar",
+  "constraint": {
+    "max_drawdown": -0.5
+  }
+}

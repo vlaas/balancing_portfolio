@@ -76,6 +76,17 @@ either value is `None`. When closed, buys of its `assets` stop; with
 `"contribution_exempt": true` they continue up to that day's external cash ×
 the asset's weight of the day.
 
+A **`rebalance`** cadence also belongs to either type: `{"weeks": N}` or
+`{"months": N}` (exactly one), optional `"offset"` in `[0, N)`. The strategy
+rebalances on the last trading day of every N-th period, anchored to the
+calendar (weeks since a fixed Monday; for months, offset 0 is the calendar's
+own period end — Mar/Jun/Sep/Dec for `months: 3`), never to the run's start.
+Absent, or `{"months": 1}`, is the engine's month-end default, bit for bit.
+Contributions stay monthly: on a month-end that is not a rebalance day the
+deposit is invested at that day's target weights, buys only, gate applied —
+holdings are never sold until the next rebalance day
+(docs/REBALANCE_SPEC.md). Labels carry ` rb 1w`, ` rb 3m+2`.
+
 `label` is optional — a missing one is generated deterministically from the
 parameters (`TQQQ50/BTAL50 gate QQQ<SMA200`,
 `VT TQQQ/BTAL t45 w0-50 QQQ:VOL_EWMA94`) — and labels must be unique. The

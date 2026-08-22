@@ -17,6 +17,7 @@ from simulate import Config, fee_schedule
 from strategies.fixed import Fixed
 from strategies.gate import Gate
 from strategies.vol_target import VolTarget
+from strategy import Cadence
 
 SPEC_SCHEMA_VERSION = 1
 
@@ -107,6 +108,34 @@ def _gate(entry: dict, path: str, universe: set) -> tuple[Gate, dict]:
     return gate, normalised
 
 
+def _rebalance(entry: dict, path: str) -> tuple[Cadence, dict]:
+    _fields(entry, path, set(), {"weeks", "months", "offset"})
+    if ("weeks" in entry) == ("months" in entry):
+        _fail(path, "exactly one of weeks / months")
+    unit = "weeks" if "weeks" in entry else "months"
+    every, offset = entry[unit], entry.get("offset", 0)
+    for key, value in ((unit, every), ("offset", offset)):
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            _fail(_join(path, key), f"expected a non-negative integer, got {value!r}")
+    if every < 1:
+        _fail(_join(path, unit), f"expected >= 1, got {every!r}")
+    if offset >= every:
+        _fail(_join(path, "offset"), f"{offset} is not below {unit} = {every}")
+    cadence = Cadence(unit, every, offset)
+    return cadence, {unit: every, "offset": offset}
+
+
+def rebalance_str(cadence: Cadence) -> str:
+    """`1w`, `2w`, `3m`, `3m+2` — the rendering the auto-labels embed and
+    sweep params reuse."""
+    offset = f"+{cadence.offset}" if cadence.offset else ""
+    return f"{cadence.every}{cadence.unit[0]}{offset}"
+
+
+def _rebalance_suffix(cadence: Cadence | None) -> str:
+    return "" if cadence is None else f" rb {rebalance_str(cadence)}"
+
+
 def gate_str(gate: Gate) -> str:
     """`QQQ<SMA200`, plus `+contrib` when contributions are exempt — the
     rendering the auto-labels embed and sweep params reuse."""
@@ -158,7 +187,7 @@ def _safe(safe, path: str, risk: str) -> None:
 
 
 def _fixed(entry: dict, path: str) -> Fixed:
-    _fields(entry, path, REQUIRED_KEYS["fixed"], {"label", "gate"})
+    _fields(entry, path, REQUIRED_KEYS["fixed"], {"label", "gate", "rebalance"})
     weights = entry["weights"]
     if not isinstance(weights, dict) or not weights:
         _fail(_join(path, "weights"), "expected a non-empty object")
@@ -171,13 +200,19 @@ def _fixed(entry: dict, path: str) -> Fixed:
     gate = normalised_gate = None
     if "gate" in entry:
         gate, normalised_gate = _gate(entry["gate"], _join(path, "gate"), set(weights))
+    cadence = normalised_cadence = None
+    if "rebalance" in entry:
+        cadence, normalised_cadence = _rebalance(entry["rebalance"], _join(path, "rebalance"))
     label = entry.get(
-        "label", "/".join(f"{s}{_pct(w)}" for s, w in weights.items()) + _gate_suffix(gate)
+        "label",
+        "/".join(f"{s}{_pct(w)}" for s, w in weights.items())
+        + _gate_suffix(gate) + _rebalance_suffix(cadence),
     )
     st = Fixed(weights=dict(weights), gate=gate, label=label)
+    st.rebalance = cadence
     st.spec = {"type": "fixed", "label": label, "weights": dict(weights)} | (
         {"gate": normalised_gate} if normalised_gate else {}
-    )
+    ) | ({"rebalance": normalised_cadence} if normalised_cadence else {})
     return st
 
 
@@ -188,7 +223,7 @@ def _vol_target(entry: dict, path: str) -> VolTarget:
     _fields(
         entry, path,
         REQUIRED_KEYS["vol_target"],
-        {"leverage", "w_max", "w_min", "fallback", "gate", "label"},
+        {"leverage", "w_max", "w_min", "fallback", "gate", "label", "rebalance"},
     )
     vol_entry, vol_path = entry["vol"], _join(path, "vol")
     _fields(vol_entry, vol_path, {"kind"}, {"lam", "n"})
@@ -212,24 +247,30 @@ def _vol_target(entry: dict, path: str) -> VolTarget:
     if "gate" in entry:
         universe = {risk} | _sleeve(safe)
         gate, normalised_gate = _gate(entry["gate"], _join(path, "gate"), universe)
+    cadence = normalised_cadence = None
+    if "rebalance" in entry:
+        cadence, normalised_cadence = _rebalance(entry["rebalance"], _join(path, "rebalance"))
     label = entry.get(
         "label",
         f"VT {risk}/{safe_str(safe)} t{_pct(entry['sigma_target'])} "
         f"w{_pct(w_min)}-{_pct(w_max)} {entry['vol_symbol']}:{vol.name}"
-        + _gate_suffix(gate),
+        + _gate_suffix(gate) + _rebalance_suffix(cadence),
     )
     st = VolTarget(
         risk=risk, safe=safe, vol_symbol=entry["vol_symbol"], vol=vol,
         sigma_target=entry["sigma_target"], leverage=entry.get("leverage", 1.0),
         w_max=w_max, w_min=w_min, fallback=fallback, gate=gate, label=label,
     )
+    st.rebalance = cadence
     st.spec = {
         "type": "vol_target", "label": label, "risk": risk,
         "safe": dict(safe) if isinstance(safe, dict) else safe,
         "vol_symbol": entry["vol_symbol"], "vol": dict(vol_entry),
         "sigma_target": entry["sigma_target"], "leverage": st.leverage,
         "w_max": w_max, "w_min": w_min, "fallback": fallback,
-    } | ({"gate": normalised_gate} if normalised_gate else {})
+    } | ({"gate": normalised_gate} if normalised_gate else {}) | (
+        {"rebalance": normalised_cadence} if normalised_cadence else {}
+    )
     return st
 
 

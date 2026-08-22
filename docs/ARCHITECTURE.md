@@ -111,6 +111,12 @@ Decisions and their reasons:
   Consequence: the final data row is *not* a rebalance day
   (the month isn't over), so no contribution is deposited at the terminal close
   where it could never earn anything.
+- **A strategy's `rebalance` cadence** (`strategy.Cadence`) overrides *when it
+  rebalances*, not when contributions arrive: `simulate` derives the cadence
+  mask from the `date` column itself and still deposits on every
+  `is_rebalance_day` row, investing a deposit that falls between rebalances at
+  the day's target weights, buys only. With no cadence the two calendars
+  coincide and nothing changes (docs/REBALANCE_SPEC.md).
 - **`end` truncates after the start filter and before `is_rebalance_day`**, so
   a truncated frame's last row is a valuation day, never a trade day — the
   same rule the natural data end gets, which is what makes windows of

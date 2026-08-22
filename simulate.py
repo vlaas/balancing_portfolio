@@ -1,4 +1,4 @@
-"""Simulation of a monthly-rebalanced, integer-share portfolio."""
+"""Simulation of a periodically rebalanced, integer-share portfolio with monthly contributions."""
 
 import datetime as dt
 import math
@@ -48,6 +48,14 @@ def simulate(
     actually held. Columns the strategy does not trade — the extra symbols and
     indicators its hooks read — never count towards the portfolio's value.
 
+    The monthly contribution arrives on every `is_rebalance_day` (month-end)
+    row. The strategy rebalances on those same rows unless it sets a
+    `rebalance` cadence, in which case it rebalances on the cadence's days
+    and, on a month-end that is not one of them, only invests the day's
+    contribution at its target weights — buys only, gate applied, the budget
+    a gated asset declines rerouted as on a rebalance day. With no cadence the
+    two calendars coincide and the contribution-only branch never runs.
+
     Trading fees (config.cost_bps, per side) are paid from cash at execution;
     `buy_cap` caps the gross trade value, fee excluded — the cap is an intent
     limit, not an accounting identity. Interest (config.cash_yield) accrues on
@@ -62,6 +70,11 @@ def simulate(
     f = fee_schedule(config.cost_bps, assets)
     y = config.cash_yield
     prev_date = None
+    rebalance = (
+        prices["is_rebalance_day"]
+        if strategy.rebalance is None
+        else strategy.rebalance.mask(prices["date"])
+    )
 
     def log(date, action, asset=None, delta=0, price=None, amount=0.0, fee=0.0):
         trades.append(
@@ -97,7 +110,8 @@ def simulate(
             flow += config.monthly_contribution
             log(row["date"], "DEPOSIT", amount=config.monthly_contribution)
 
-        if i == 0 or row["is_rebalance_day"]:
+        full = i == 0 or rebalance[i]
+        if full or row["is_rebalance_day"]:
             ctx = MarketDay(row, contribution=flow)
             weights = strategy.balance(ctx)
             assert set(weights) == set(assets)
@@ -105,8 +119,15 @@ def simulate(
             assert sum(weights.values()) <= 1 + 1e-9
             total = sum(shares[a] * row[a] for a in assets) + cash
 
+            # A rebalance re-targets the whole portfolio; a contribution-only
+            # day keeps the holdings and spreads just the deposit by weight.
+            budget = total if full else flow
+            base = dict.fromkeys(assets, 0) if full else dict(shares)
+
             # What each asset would hold if nothing were gated.
-            target = {a: math.floor(total * weights[a] / row[a]) for a in assets}
+            target = {
+                a: base[a] + math.floor(budget * weights[a] / row[a]) for a in assets
+            }
             caps = {a: strategy.buy_cap(a, ctx) for a in assets}
             gated = [a for a in assets if caps[a] is not None]
             for asset in gated:
@@ -117,14 +138,14 @@ def simulate(
             # The budget a gated asset declines is spent on the assets still open,
             # split by their weights among themselves. Scaling by the weight sum
             # keeps any cash fraction the strategy left unallocated uninvested.
-            remaining = total * sum(weights.values()) - sum(
-                target[a] * row[a] for a in gated
+            remaining = budget * sum(weights.values()) - sum(
+                (target[a] - base[a]) * row[a] for a in gated
             )
             open_weight = sum(weights[a] for a in assets if a not in gated)
             if open_weight > 0:
                 for asset in assets:
                     if asset not in gated:
-                        target[asset] = math.floor(
+                        target[asset] = base[asset] + math.floor(
                             remaining * (weights[asset] / open_weight) / row[asset]
                         )
 

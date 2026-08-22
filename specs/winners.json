@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "config": {
+    "start": "2020-12-18",
+    "initial_capital": 10000,
+    "monthly_contribution": 500,
+    "cost_bps": { "TQQQ": 1.5, "BTAL": 6, "DBMF": 2.5, "KMLM": 6, "QQQ": 1, "SPY": 0.7, "*": 6 },
+    "cash_yield": 0.03
+  },
+  "strategies": [
+    {
+      "type": "vol_target",
+      "label": "VT BTAL75+KMLM25 gated",
+      "risk": "TQQQ",
+      "safe": { "BTAL": 0.75, "KMLM": 0.25 },
+      "vol_symbol": "QQQ",
+      "vol": { "kind": "ewma", "lam": 0.80 },
+      "leverage": 3,
+      "sigma_target": 0.20,
+      "w_max": 0.8,
+      "gate": { "symbol": "QQQ", "assets": ["TQQQ"], "sma_days": 200 }
+    },
+    {
+      "type": "vol_target",
+      "label": "VT BTAL75+DBMF25 gated",
+      "risk": "TQQQ",
+      "safe": { "BTAL": 0.75, "DBMF": 0.25 },
+      "vol_symbol": "QQQ",
+      "vol": { "kind": "ewma", "lam": 0.80 },
+      "leverage": 3,
+      "sigma_target": 0.20,
+      "w_max": 0.8,
+      "gate": { "symbol": "QQQ", "assets": ["TQQQ"], "sma_days": 200 }
+    },
+    {
+      "type": "vol_target",
+      "label": "VT BTAL50+KMLM50 gated",
+      "risk": "TQQQ",
+      "safe": { "BTAL": 0.5, "KMLM": 0.5 },
+      "vol_symbol": "QQQ",
+      "vol": { "kind": "ewma", "lam": 0.80 },
+      "leverage": 3,
+      "sigma_target": 0.20,
+      "w_max": 0.8,
+      "gate": { "symbol": "QQQ", "assets": ["TQQQ"], "sma_days": 200 }
+    },
+    {
+      "type": "fixed",
+      "label": "TQQQ/BTAL 50/50",
+      "weights": { "TQQQ": 0.5, "BTAL": 0.5 }
+    },
+    {
+      "type": "fixed",
+      "label": "TQQQ 100%",
+      "weights": { "TQQQ": 1.0 }
+    },
+    {
+      "type": "fixed",
+      "label": "SPY benchmark",
+      "weights": { "SPY": 1.0 }
+    }
+  ]
+}
