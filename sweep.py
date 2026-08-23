@@ -162,7 +162,9 @@ def _substitute(
 
 
 def _param_value(strategy, path: tuple[str, ...], value):
-    if value is None or not isinstance(value, dict):
+    # A composite gate is a list; render it (and any other structured value)
+    # as a string so params stay hashable and readable (REGIME_SPEC §5.3).
+    if value is None or not isinstance(value, (dict, list)):
         return value
     if path == ("gate",):
         return gate_str(strategy.gate)

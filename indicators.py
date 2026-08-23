@@ -17,10 +17,16 @@ class Indicator:
     and `close` (Float64, non-null) and returns a Float64 Series of the same
     length, null during warm-up. `name` is the column suffix and the identity:
     two Indicators with the same name are the same indicator.
+
+    When `inputs` is not empty, `fn` instead receives the frame restricted to
+    the intersection of the host's and every input's calendars, with one extra
+    Float64 column per input symbol (REGIME_SPEC §3.1); the loader carries the
+    result back onto the host's own rows by date, null outside the intersection.
     """
 
     name: str
     fn: Callable[[pl.DataFrame], pl.Series]
+    inputs: tuple[str, ...] = ()
 
 
 def _log_returns(frame: pl.DataFrame) -> pl.Series:
@@ -86,3 +92,65 @@ def drawdown() -> Indicator:
 def momentum(n: int) -> Indicator:
     """Total return over the last `n` bars."""
     return Indicator(f"MOM{n}", lambda frame: frame["close"] / frame["close"].shift(n) - 1)
+
+
+def ratio_sma(denominator: str, n: int) -> Indicator:
+    """Mean of the last `n` values of close / `denominator`, on joint days only.
+
+    `n = 1` is the raw ratio. The window counts joint trading days: a host day
+    the denominator lacks never enters it (REGIME_SPEC §3.1).
+    """
+    assert n >= 1, f"ratio_sma: n must be >= 1, got {n}"
+    return Indicator(
+        f"RATIO_{denominator}_SMA{n}",
+        lambda frame: (frame["close"] / frame[denominator]).rolling_mean(n),
+        inputs=(denominator,),
+    )
+
+
+def _pct_steps(name: str, value: float) -> int:
+    """`value` as a count of 0.01 steps; asserted exact so names are lossless."""
+    steps = round(value * 100)
+    assert value >= 0 and abs(value * 100 - steps) < 1e-9, (
+        f"ts_regime: {name} must be a non-negative multiple of 0.01, got {value}"
+    )
+    return steps
+
+
+def ts_regime(denominator: str, n: int, fire: float, hysteresis: float = 0.0) -> Indicator:
+    """Hysteresis risk-off state of the smoothed close / `denominator` ratio.
+
+    With `s` the `ratio_sma(denominator, n)` series (REGIME_SPEC §3.5): null
+    during warm-up; on the first value, off iff `s >= fire`; then fires at
+    `s >= fire` and releases below `fire - hysteresis`, else holds its state.
+    1.0 while off, 0.0 while on; with `hysteresis = 0` this collapses exactly
+    to `s >= fire`. Runs daily on the signal's own joint calendar; a strategy
+    reads it on rebalance days only.
+    """
+    fire_steps = _pct_steps("fire", fire)
+    hysteresis_steps = _pct_steps("hysteresis", hysteresis)
+    assert hysteresis < fire, (
+        f"ts_regime: hysteresis {hysteresis} must be below fire {fire}"
+    )
+    smooth = ratio_sma(denominator, n)
+    release = fire - hysteresis
+
+    def fn(frame: pl.DataFrame) -> pl.Series:
+        out: list[float | None] = []
+        off: bool | None = None
+        for s in smooth.fn(frame):
+            if s is None:
+                out.append(None)
+                continue
+            if off is None or (not off and s >= fire):
+                off = s >= fire
+            elif off and s < release:
+                off = False
+            out.append(1.0 if off else 0.0)
+        return pl.Series(out, dtype=pl.Float64)
+
+    return Indicator(
+        f"REGIME_{denominator}_{n}_{fire_steps}_{hysteresis_steps}",
+        fn,
+        inputs=(denominator,),
+    )

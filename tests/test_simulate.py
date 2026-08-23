@@ -8,7 +8,9 @@ import pytest
 from polars.testing import assert_frame_equal
 
 from simulate import Config, fee_schedule, simulate
-from strategy import MarketDay, Strategy
+from strategies.fixed import Fixed
+from strategies.gate import Gate
+from strategy import Cadence, MarketDay, Strategy
 
 GOLDEN_DIR = Path(__file__).parent / "data"  # frozen snapshot; numbers are pinned to it
 START = dt.date(2020, 1, 2)
@@ -577,3 +579,67 @@ def test_cash_yield_accrues_over_calendar_gaps():
     base, base_trades, _ = simulate(prices, strategy, Config(START, 1000.0, 100.0))
     assert result["flow"].to_list() == base["flow"].to_list() == [1000.0, 0.0, 100.0, 0.0]
     assert twr(result)["index"][-1] > twr(base)["index"][-1]
+
+
+# REGIME_SPEC R6 — engine effect of a closed w_off gate; simulate.py unchanged.
+
+REGIME = "X:REGIME_Y_1_100_0"
+
+
+def _regime_gate(**kwargs) -> Gate:
+    return Gate("X", ["A"], denominator="Y", ratio_sma=1, fire=1.00, **kwargs)
+
+
+def test_closed_w_off_zero_gate_sells_on_a_rebalance_day():
+    prices = frame(
+        {"A": [10.0, 10.0, 10.0], "B": [10.0, 10.0, 10.0], REGIME: [0.0, 1.0, 1.0]},
+        [False, True, False],
+    )
+    st = Fixed({"A": 0.5, "B": 0.5}, gate=_regime_gate(w_off=0.0), label="x")
+    _, trades, _ = simulate(prices, st, Config(START, 10000.0, 100.0))
+
+    # Day 0 (open): 500 A + 500 B. Day 1 (closed, full rebalance): the clip
+    # sells A to zero and the proceeds plus the deposit buy B.
+    day1 = trades.filter(pl.col("date") == START + dt.timedelta(days=1))
+    assert day1["action"].to_list() == ["DEPOSIT", "SELL", "BUY"]
+    sells = day1.filter(pl.col("action") == "SELL")
+    assert (sells["asset"].item(), sells["shares"].item()) == ("A", 500)
+    buys = day1.filter(pl.col("action") == "BUY")
+    assert (buys["asset"].item(), buys["shares"].item()) == ("B", 510)
+
+
+def test_cap_only_regime_gate_is_frame_equal_to_the_allow_buy_path():
+    columns = {
+        "A": [10.0, 10.0, 10.0], "B": [10.0, 12.0, 12.0],
+        REGIME: [0.0, 1.0, 1.0], "A:GATE": [1.0, 0.0, 0.0],
+    }
+    prices = frame(columns, [False, True, False])
+    config = Config(START, 10000.0, 100.0)
+
+    capped = Fixed({"A": 0.5, "B": 0.5}, gate=_regime_gate(), label="x")
+    legacy = Gated(label="x", blocked=("A",))
+
+    for a, b in zip(simulate(prices, capped, config), simulate(prices, legacy, config)):
+        assert_frame_equal(a, b)
+
+
+def test_closed_w_off_zero_gate_never_sells_on_a_contribution_only_day():
+    # A 2-month cadence puts no full-rebalance day inside the frame beyond day
+    # 0, so the month-end is contribution-only (REBALANCE_SPEC §2.2): the clip
+    # lowers a target and a contribution-only day never sells.
+    prices = frame(
+        {"A": [10.0, 10.0, 40.0, 40.0], "B": [10.0, 10.0, 10.0, 10.0],
+         REGIME: [0.0, 0.0, 1.0, 1.0]},
+        [False, False, True, False],
+    )
+    st = Fixed({"A": 0.5, "B": 0.5}, gate=_regime_gate(w_off=0.0), label="x")
+    st.rebalance = Cadence("months", 2)
+    _, trades, _ = simulate(prices, st, Config(START, 1000.0, 100.0))
+
+    assert trades.filter(pl.col("action") == "SELL").is_empty()
+    day2 = trades.filter(
+        (pl.col("date") == START + dt.timedelta(days=2)) & (pl.col("action") == "BUY")
+    )
+    # The whole deposit buys the open asset; A's holdings stay untouched.
+    assert day2["asset"].to_list() == ["B"]
+    assert day2["shares"].item() == 10

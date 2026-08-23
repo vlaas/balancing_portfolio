@@ -1,0 +1,5282 @@
+[
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0,
+        "ratio_sma": 1,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.90",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.90",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 1,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.90 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.90 off30",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.90 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.90 off0",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.05,
+        "ratio_sma": 1,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.90<0.85",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.90<0.85",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 1,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.05,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.90<0.85 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.90<0.85 off30",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.05,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.90<0.85 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.90<0.85 off0",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.1,
+        "ratio_sma": 1,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.90<0.80",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.90<0.80",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 1,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.1,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.90<0.80 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.90<0.80 off30",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.1,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.90<0.80 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.90<0.80 off0",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0,
+        "ratio_sma": 1,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.95",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.95",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 1,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.95 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.95 off30",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.95 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.95 off0",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.05,
+        "ratio_sma": 1,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.95<0.90",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.95<0.90",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 1,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.05,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.95<0.90 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.95<0.90 off30",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.05,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.95<0.90 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.95<0.90 off0",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.1,
+        "ratio_sma": 1,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.95<0.85",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.95<0.85",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 1,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.1,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.95<0.85 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.95<0.85 off30",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.1,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.95<0.85 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=0.95<0.85 off0",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0,
+        "ratio_sma": 1,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.00",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.00",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 1,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.00 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.00 off30",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.00 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.00 off0",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.05,
+        "ratio_sma": 1,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.00<0.95",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.00<0.95",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 1,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.05,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.00<0.95 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.00<0.95 off30",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.05,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.00<0.95 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.00<0.95 off0",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.1,
+        "ratio_sma": 1,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.00<0.90",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.00<0.90",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 1,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.1,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.00<0.90 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.00<0.90 off30",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.1,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.00<0.90 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.00<0.90 off0",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0,
+        "ratio_sma": 1,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.05",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.05",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 1,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.05 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.05 off30",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.05 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.05 off0",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.05,
+        "ratio_sma": 1,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.05<1.00",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.05<1.00",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 1,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.05,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.05<1.00 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.05<1.00 off30",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.05,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.05<1.00 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.05<1.00 off0",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.1,
+        "ratio_sma": 1,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.05<0.95",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.05<0.95",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 1,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.1,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.05<0.95 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.05<0.95 off30",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.1,
+        "ratio_sma": 1,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.05<0.95 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@1>=1.05<0.95 off0",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 1,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0,
+        "ratio_sma": 5,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.90",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.90",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 5,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.90 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.90 off30",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.90 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.90 off0",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.05,
+        "ratio_sma": 5,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.90<0.85",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.90<0.85",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 5,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.05,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.90<0.85 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.90<0.85 off30",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.05,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.90<0.85 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.90<0.85 off0",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.1,
+        "ratio_sma": 5,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.90<0.80",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.90<0.80",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 5,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.1,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.90<0.80 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.90<0.80 off30",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.1,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.90<0.80 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.90<0.80 off0",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0,
+        "ratio_sma": 5,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.95",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.95",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 5,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.95 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.95 off30",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.95 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.95 off0",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.05,
+        "ratio_sma": 5,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.95<0.90",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.95<0.90",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 5,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.05,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.95<0.90 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.95<0.90 off30",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.05,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.95<0.90 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.95<0.90 off0",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.1,
+        "ratio_sma": 5,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.95<0.85",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.95<0.85",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 5,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.1,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.95<0.85 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.95<0.85 off30",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.1,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.95<0.85 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=0.95<0.85 off0",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0,
+        "ratio_sma": 5,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.00",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.00",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 5,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.00 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.00 off30",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.00 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.00 off0",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.05,
+        "ratio_sma": 5,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.00<0.95",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.00<0.95",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 5,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.05,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.00<0.95 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.00<0.95 off30",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.05,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.00<0.95 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.00<0.95 off0",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.1,
+        "ratio_sma": 5,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.00<0.90",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.00<0.90",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 5,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.1,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.00<0.90 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.00<0.90 off30",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.1,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.00<0.90 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.00<0.90 off0",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0,
+        "ratio_sma": 5,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.05",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.05",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 5,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.05 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.05 off30",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.05 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.05 off0",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.05,
+        "ratio_sma": 5,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.05<1.00",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.05<1.00",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 5,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.05,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.05<1.00 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.05<1.00 off30",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.05,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.05<1.00 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.05<1.00 off0",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.1,
+        "ratio_sma": 5,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.05<0.95",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.05<0.95",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 5,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.1,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.05<0.95 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.05<0.95 off30",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.1,
+        "ratio_sma": 5,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.05<0.95 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@5>=1.05<0.95 off0",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 5,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0,
+        "ratio_sma": 10,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.90",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.90",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 10,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.90 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.90 off30",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.90 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.90 off0",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.05,
+        "ratio_sma": 10,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.90<0.85",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.90<0.85",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 10,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.05,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.90<0.85 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.90<0.85 off30",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.05,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.90<0.85 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.90<0.85 off0",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.1,
+        "ratio_sma": 10,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.90<0.80",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.90<0.80",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 10,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.1,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.90<0.80 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.90<0.80 off30",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.1,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.90<0.80 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.90<0.80 off0",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0,
+        "ratio_sma": 10,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.95",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.95",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 10,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.95 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.95 off30",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.95 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.95 off0",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.05,
+        "ratio_sma": 10,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.95<0.90",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.95<0.90",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 10,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.05,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.95<0.90 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.95<0.90 off30",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.05,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.95<0.90 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.95<0.90 off0",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.1,
+        "ratio_sma": 10,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.95<0.85",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.95<0.85",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 10,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.1,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.95<0.85 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.95<0.85 off30",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.1,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.95<0.85 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=0.95<0.85 off0",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0,
+        "ratio_sma": 10,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.00",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.00",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 10,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.00 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.00 off30",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.00 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.00 off0",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.05,
+        "ratio_sma": 10,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.00<0.95",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.00<0.95",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 10,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.05,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.00<0.95 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.00<0.95 off30",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.05,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.00<0.95 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.00<0.95 off0",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.1,
+        "ratio_sma": 10,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.00<0.90",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.00<0.90",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 10,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.1,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.00<0.90 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.00<0.90 off30",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.1,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.00<0.90 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.00<0.90 off0",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0,
+        "ratio_sma": 10,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.05",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.05",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 10,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.05 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.05 off30",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.05 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.05 off0",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.05,
+        "ratio_sma": 10,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.05<1.00",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.05<1.00",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 10,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.05,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.05<1.00 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.05<1.00 off30",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.05,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.05<1.00 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.05<1.00 off0",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.1,
+        "ratio_sma": 10,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.05<0.95",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.05<0.95",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 10,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.1,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.05<0.95 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.05<0.95 off30",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.1,
+        "ratio_sma": 10,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.05<0.95 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.05<0.95 off0",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 10,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0,
+        "ratio_sma": 20,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.90",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.90",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 20,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.90 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.90 off30",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.90 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.90 off0",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.05,
+        "ratio_sma": 20,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.90<0.85",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.90<0.85",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 20,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.05,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.90<0.85 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.90<0.85 off30",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.05,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.90<0.85 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.90<0.85 off0",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.1,
+        "ratio_sma": 20,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.90<0.80",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.90<0.80",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 20,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.1,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.90<0.80 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.90<0.80 off30",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.9,
+        "hysteresis": 0.1,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.90<0.80 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.90<0.80 off0",
+    "params": {
+      "gate.fire": 0.9,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0,
+        "ratio_sma": 20,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.95",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.95",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 20,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.95 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.95 off30",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.95 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.95 off0",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.05,
+        "ratio_sma": 20,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.95<0.90",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.95<0.90",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 20,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.05,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.95<0.90 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.95<0.90 off30",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.05,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.95<0.90 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.95<0.90 off0",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.1,
+        "ratio_sma": 20,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.95<0.85",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.95<0.85",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 20,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.1,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.95<0.85 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.95<0.85 off30",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 0.95,
+        "hysteresis": 0.1,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.95<0.85 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=0.95<0.85 off0",
+    "params": {
+      "gate.fire": 0.95,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0,
+        "ratio_sma": 20,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.00",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.00",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 20,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.00 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.00 off30",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.00 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.00 off0",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.05,
+        "ratio_sma": 20,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.00<0.95",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.00<0.95",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 20,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.05,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.00<0.95 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.00<0.95 off30",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.05,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.00<0.95 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.00<0.95 off0",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.1,
+        "ratio_sma": 20,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.00<0.90",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.00<0.90",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 20,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.1,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.00<0.90 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.00<0.90 off30",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.0,
+        "hysteresis": 0.1,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.00<0.90 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.00<0.90 off0",
+    "params": {
+      "gate.fire": 1.0,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0,
+        "ratio_sma": 20,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.05",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.05",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 20,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.05 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.05 off30",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.05 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.05 off0",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.05,
+        "ratio_sma": 20,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.05<1.00",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.05<1.00",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 20,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.05,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.05<1.00 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.05<1.00 off30",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.05,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.05<1.00 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.05<1.00 off0",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.05,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.1,
+        "ratio_sma": 20,
+        "symbol": "VIX"
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.05<0.95",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.05<0.95",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 20,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.1,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.05<0.95 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.05<0.95 off30",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "denominator": "VIX3M",
+        "fire": 1.05,
+        "hysteresis": 0.1,
+        "ratio_sma": 20,
+        "symbol": "VIX",
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.05<0.95 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@20>=1.05<0.95 off0",
+    "params": {
+      "gate.fire": 1.05,
+      "gate.hysteresis": 0.1,
+      "gate.ratio_sma": 20,
+      "gate.w_off": 0
+    }
+  }
+]

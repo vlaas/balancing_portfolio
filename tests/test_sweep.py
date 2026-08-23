@@ -184,6 +184,88 @@ def test_expand_is_deterministic():
     assert expand(template()) == expand(template())
 
 
+# --- REGIME_SPEC R8: regime and composite gates in grids ---------------------
+
+G_SMA = {"symbol": "QQQ", "assets": ["TQQQ"], "sma_days": 200}
+G_R1 = {
+    "symbol": "VIX", "denominator": "VIX3M", "assets": ["TQQQ"],
+    "ratio_sma": 1, "fire": 1.0,
+}
+
+
+def flat_template() -> dict:
+    return {
+        "type": "vol_target", "risk": "TQQQ", "safe": "BTAL", "vol_symbol": "QQQ",
+        "vol": {"kind": "ewma", "lam": 0.80}, "leverage": 3,
+        "sigma_target": 0.30, "w_max": 0.6,
+    }
+
+
+def test_categorical_gate_grid_renders_composites_as_strings():
+    t = flat_template()
+    t["gate"] = {"grid": [None, dict(G_SMA), dict(G_R1), [dict(G_SMA), dict(G_R1)]]}
+
+    out = expand(t)
+
+    assert [e["params"]["gate"] for e in out] == [
+        None, "QQQ<SMA200", "VIX/VIX3M@1>=1.00", "QQQ<SMA200|VIX/VIX3M@1>=1.00",
+    ]
+    assert len({e["label"] for e in out}) == 4
+    # The composite arm's entry embeds the normalised member list.
+    assert [g["symbol"] for g in out[3]["entry"]["gate"]] == ["QQQ", "VIX"]
+
+
+def test_nested_regime_grids_expand_to_the_product():
+    t = flat_template()
+    t["gate"] = G_R1 | {
+        "ratio_sma": {"grid": [1, 10]},
+        "fire": {"grid": [0.95, 1.00]},
+        "w_off": {"grid": [None, 0]},
+    }
+
+    out = expand(t)
+
+    assert len(out) == 8
+    assert set(out[0]["params"]) == {"gate.ratio_sma", "gate.fire", "gate.w_off"}
+    assert {e["params"]["gate.fire"] for e in out} == {0.95, 1.00}
+    # The null branch deletes the optional key (SWEEP_SPEC errata 3): no w_off
+    # in the entry, None in the params.
+    without = [e for e in out if e["params"]["gate.w_off"] is None]
+    assert len(without) == 4
+    assert all("w_off" not in e["entry"]["gate"] for e in without)
+    assert all(e["entry"]["gate"]["w_off"] == 0 for e in out if e not in without)
+    assert len({e["label"] for e in out}) == 8
+
+
+def test_fire_is_numeric_and_w_off_categorical_in_the_summary():
+    t = flat_template()
+    t["gate"] = G_R1 | {
+        "fire": {"grid": [0.95, 1.00, 1.05]},
+        "w_off": {"grid": [None, 0]},
+    }
+    spec = t5_spec(t)
+    expanded = expand(spec["template"])
+    labels = [e["label"] for e in expanded]
+    wins = [Window("full", "full", dt.date(2020, 1, 2), dt.date(2026, 1, 2))]
+    # Expansion order: fire varies slowest, w_off fastest.
+    records = {"full": {l: stats_of(o) for l, o in zip(labels, [1, 2, 3, 4, 5, 6])}}
+    records["full"]["bench"] = stats_of(0)
+
+    summary = build_summary(
+        spec, wins, expanded, ["bench"], records,
+        {l: True for l in labels}, notes=[], warnings=[],
+    )
+
+    s = summary["strategies"]
+    # (fire 1.00, w_off None) = 3: fire neighbours with the same w_off only.
+    assert s[2]["neighbourhood"] == {
+        "neighbour_min": 1, "neighbour_mean": 3.0, "edge": False,
+    }
+    # (fire 0.95, w_off 0) = 2: one fire neighbour, on the fire boundary.
+    assert s[1]["neighbourhood"]["neighbour_min"] == 4
+    assert s[1]["neighbourhood"]["edge"] is True
+
+
 def test_an_ordinary_spec_names_the_right_entry_point():
     with pytest.raises(ValueError, match=re.escape("run it with `uv run main.py --spec")):
         validate(load_spec(SPECS / "research.json"))
@@ -560,4 +642,21 @@ def test_dry_run_prints_the_counts_and_writes_nothing(tmp_path, monkeypatch, cap
     sweep_main()
 
     assert "4 grid + 1 baselines x 4 windows = 20 runs" in capsys.readouterr().out
+    assert not out.exists()
+
+
+def test_dry_run_counts_of_the_regime_tune_lane(tmp_path, monkeypatch, capsys):
+    # REGIME_SPEC R8: the §8.2 surface is 4 x 4 x 3 x 3 = 144 points over the
+    # 2012 lane's 23 windows (full + fit + test + 20 sensitivity).
+    net_dir = GOLDEN_DIR / "2026-08-20-net15"
+    out = tmp_path / "out"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["sweep.py", str(SPECS / "sweep_regime_tune_2012.json"),
+         "--data", str(net_dir), "--out", str(out), "--dry-run"],
+    )
+
+    sweep_main()
+
+    assert "144 grid + 6 baselines x 23 windows = 3450 runs" in capsys.readouterr().out
     assert not out.exists()

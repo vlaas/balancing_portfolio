@@ -6,9 +6,9 @@ import polars as pl
 import pytest
 
 from bundles import BUNDLES
-from indicators import sma
+from indicators import ratio_sma, sma
 from main import collect_indicators
-from prices import load_prices
+from prices import _read_symbol, load_prices
 
 GOLDEN_DIR = Path(__file__).parent / "data"  # frozen snapshot; numbers are pinned to it
 DATA_DIR = Path(__file__).parent.parent / "data"  # live export; no numeric assertions
@@ -171,6 +171,93 @@ def test_declaring_the_same_indicator_twice_loads_one_column(tmp_path):
     )
 
     assert prices.columns == ["date", "A", "A:SMA2", "is_rebalance_day"]
+
+
+# REGIME_SPEC R1 — cross-symbol indicators are computed on the intersection of
+# the host's and every input's calendars, then carried back onto the host's rows.
+
+
+def test_cross_symbol_indicator_is_null_outside_the_intersection(tmp_path):
+    write_csv(
+        tmp_path,
+        "A",
+        [("2020-01-02", 10.0), ("2020-01-03", 11.0), ("2020-01-06", 12.0), ("2020-01-07", 14.0)],
+    )
+    # B lacks 01-03 and 01-07, and has 01-08 which A lacks.
+    write_csv(tmp_path, "B", [("2020-01-02", 5.0), ("2020-01-06", 4.0), ("2020-01-08", 7.0)])
+
+    frame = _read_symbol(tmp_path, "A", (ratio_sma("B", 1),))
+
+    # The frame keeps the host's own calendar exactly: B-only dates never appear.
+    assert frame["date"].to_list() == [
+        dt.date(2020, 1, 2),
+        dt.date(2020, 1, 3),
+        dt.date(2020, 1, 6),
+        dt.date(2020, 1, 7),
+    ]
+    assert frame.columns == ["date", "A", "A:RATIO_B_SMA1"]
+    # A/B on the intersection, null on A-only dates.
+    assert frame["A:RATIO_B_SMA1"].to_list() == [2.0, None, 3.0, None]
+
+
+def test_cross_symbol_indicator_forward_fills_on_the_traded_calendar(tmp_path):
+    write_csv(
+        tmp_path,
+        "A",
+        [("2020-01-02", 10.0), ("2020-01-03", 11.0), ("2020-01-06", 12.0)],
+    )
+    write_csv(tmp_path, "B", [("2020-01-02", 5.0), ("2020-01-06", 4.0)])
+
+    prices = load_prices(
+        tmp_path, ["A"], dt.date(2020, 1, 2), indicators={"A": (ratio_sma("B", 1),)}
+    )
+
+    # 01-03 is outside the intersection; it carries 01-02's value forward.
+    assert prices["A:RATIO_B_SMA1"].to_list() == [2.0, 2.0, 3.0]
+
+
+def test_cross_symbol_window_counts_only_joint_days(tmp_path):
+    write_csv(
+        tmp_path,
+        "A",
+        [("2020-01-02", 10.0), ("2020-01-03", 10.0), ("2020-01-07", 10.0)],
+    )
+    # B trades on 01-06, a day A lacks: it must not enter the rolling window.
+    write_csv(
+        tmp_path,
+        "B",
+        [("2020-01-02", 5.0), ("2020-01-03", 2.0), ("2020-01-06", 100.0), ("2020-01-07", 5.0)],
+    )
+
+    frame = _read_symbol(tmp_path, "A", (ratio_sma("B", 3),))
+
+    # Ratios on the intersection are 2.0, 5.0, 2.0; the window at 01-07 spans
+    # exactly those three joint days.
+    assert frame["A:RATIO_B_SMA3"].to_list() == [None, None, 3.0]
+
+
+def test_cross_symbol_missing_input_names_the_input(tmp_path):
+    write_csv(tmp_path, "A", [("2020-01-02", 10.0), ("2020-01-03", 11.0)])
+
+    with pytest.raises(FileNotFoundError, match="Z"):
+        _read_symbol(tmp_path, "A", (ratio_sma("Z", 1),))
+
+
+def test_cross_symbol_disjoint_calendars_raise(tmp_path):
+    write_csv(tmp_path, "A", [("2020-01-02", 10.0), ("2020-01-03", 11.0)])
+    write_csv(tmp_path, "B", [("2020-03-02", 5.0), ("2020-03-03", 6.0)])
+
+    with pytest.raises(AssertionError, match=r"A:RATIO_B_SMA1: empty intersection"):
+        _read_symbol(tmp_path, "A", (ratio_sma("B", 1),))
+
+
+def test_mixed_declaration_keeps_declaration_order(tmp_path):
+    write_csv(tmp_path, "A", [("2020-01-02", 10.0), ("2020-01-03", 11.0)])
+    write_csv(tmp_path, "B", [("2020-01-02", 5.0), ("2020-01-03", 6.0)])
+
+    frame = _read_symbol(tmp_path, "A", (sma(2), ratio_sma("B", 1), sma(1)))
+
+    assert frame.columns == ["date", "A", "A:SMA2", "A:RATIO_B_SMA1", "A:SMA1"]
 
 
 def test_csv_columns_beyond_close_are_not_loaded(tmp_path):

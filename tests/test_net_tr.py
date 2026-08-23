@@ -9,6 +9,7 @@ make_net_tr; tests/test_total_return.py keeps its own local TAU untouched.
 import dataclasses
 import datetime as dt
 import filecmp
+import hashlib
 import json
 import math
 from pathlib import Path
@@ -140,7 +141,7 @@ def test_generator_reproduces_the_committed_snapshot_byte_for_byte(tmp_path):
     produced = sorted(p.relative_to(out) for p in out.rglob("*") if p.is_file())
     committed = sorted(p.relative_to(NET_DIR) for p in NET_DIR.rglob("*") if p.is_file())
     assert produced == committed
-    assert len(produced) == 13
+    assert len(produced) == 15  # 13 + the two REGIME_SPEC §2.2 index files
     for rel in committed:
         assert filecmp.cmp(out / rel, NET_DIR / rel, shallow=False), rel
 
@@ -311,6 +312,47 @@ def test_withholding_out_of_range_is_refused(tmp_path, rate):
     with pytest.raises(SystemExit):
         net_main([str(src), "--withholding", rate, "--out", str(tmp_path / "net")])
     assert not (tmp_path / "net").exists()
+
+
+# --- REGIME_SPEC R9 — the index-file pass-through and the ETF byte pins ------
+
+# SHA-256 of the six net ETF files, measured at 184f02b: the pass-through
+# change may not move a byte of them.
+ETF_SHA256 = {
+    "BTAL.csv": "93d1752638d2f8de4349a953bfbecc2a275758a681427f597d9c13d574669fbf",
+    "DBMF.csv": "7af62a046680a9b7072f1d0848ab92010afa4d4e51f2be93949eca4360bd775c",
+    "KMLM.csv": "c63907b899fc3e7ead79a10e030c3e3d229d8f475bc9b49d1f5d74eece80c0c8",
+    "QQQ.csv": "c9afaffa020c6ea195d2ebdeec4c2b339555c4871f75dc6e2e114668bb8236af",
+    "SPY.csv": "c885eedcbcdc3529a14de5e04684af9acb6ca798e58c56881a33f85bdfec4357",
+    "TQQQ.csv": "398911f0c9148318d71902cd467aa3a406c30c1be48ea022f39d9a3ededdf47f",
+}
+
+
+def test_net_etf_files_are_byte_identical_to_the_pre_regime_baseline():
+    for name, expected in ETF_SHA256.items():
+        assert hashlib.sha256((NET_DIR / name).read_bytes()).hexdigest() == expected, name
+
+
+def test_index_files_pass_through_byte_identical():
+    for symbol in ("VIX", "VIX3M"):
+        assert filecmp.cmp(NET_DIR / f"{symbol}.csv", TR_DIR / f"{symbol}.csv", shallow=False)
+        assert not (NET_DIR / "price" / f"{symbol}.csv").exists()
+    readme = (NET_DIR / "README.md").read_text()
+    assert "| VIX | index | — | — |" in readme
+    assert "| VIX3M | index | — | — |" in readme
+
+
+def test_synthetic_unpaired_symbol_is_copied_and_listed_as_index(tmp_path):
+    src = write_pair(tmp_path / "src", JUMPY_RATIOS)
+    (src / "IDX.csv").write_text("time,close\n2024-01-01,20.0\n2024-01-02,21.5\n")
+
+    net_main([str(src), "--out", str(tmp_path / "net")])
+
+    assert filecmp.cmp(src / "IDX.csv", tmp_path / "net" / "IDX.csv", shallow=False)
+    assert not (tmp_path / "net" / "price" / "IDX.csv").exists()
+    readme = (tmp_path / "net" / "README.md").read_text()
+    assert "| IDX | index | — | — |" in readme
+    assert "| SYN | 2 |" in readme  # the paired symbol still nets normally
 
 
 def test_existing_out_dir_refused_without_force(tmp_path):

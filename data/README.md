@@ -188,3 +188,15 @@ new one, where `<newdate>` is the last bar of its TQQQ export.
 Live `data/` runs the bundle-loading smoke test plus the structural
 total-return invariants of `tests/test_total_return.py`, none of which make
 numeric claims — a bad refresh fails the suite the day it lands.
+
+## Index series (VIX, VIX3M)
+
+`VIX.csv` and `VIX3M.csv` are cash volatility indices, exported from
+TradingView in the standard layout like every other file. They are **signal
+symbols**: never traded, carrying no distributions, so they have no `price/`
+twin and `make_net_tr.py` byte-copies them into a net snapshot as
+`| SYM | index | — | — |`. VIX carries values on US market holidays that
+VIX3M (and every traded symbol) lacks — TradingView artefacts, kept out of
+every rolling window by the cross-symbol loader's intersection rule
+(`docs/REGIME_SPEC.md` §2–§3). `regime_report.py` is the standing tool for
+reading a signal like this on its own calendar before running any lane.

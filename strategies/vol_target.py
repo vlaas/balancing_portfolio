@@ -2,7 +2,7 @@
 underlying (e.g. TQQQ sized by QQQ's vol × 3)."""
 
 from indicators import Indicator
-from strategies.gate import Gate
+from strategies.gate import AnyGate, Gate
 from strategy import MarketDay, Strategy
 
 
@@ -24,7 +24,7 @@ class VolTarget(Strategy):
         w_max: float = 1.0,
         w_min: float = 0.0,
         fallback: float | None = None,
-        gate: Gate | None = None,
+        gate: Gate | AnyGate | None = None,
         label: str | None = None,
     ):
         fallback = w_max if fallback is None else fallback
@@ -46,12 +46,13 @@ class VolTarget(Strategy):
         self.weights = self._allocation(fallback)  # the universe the engine sees
         self.data = tuple(
             s
-            for s in dict.fromkeys((vol_symbol, *((gate.symbol,) if gate else ())))
+            for s in dict.fromkeys((vol_symbol, *(gate.symbols if gate else ())))
             if s not in self.weights
         )
         indicators = {vol_symbol: (vol,)}
         if gate:
-            indicators[gate.symbol] = indicators.get(gate.symbol, ()) + (gate.indicator,)
+            for symbol, declared in gate.indicators.items():
+                indicators[symbol] = indicators.get(symbol, ()) + declared
         self.indicators = indicators
 
     def _allocation(self, w: float) -> dict[str, float]:
@@ -66,9 +67,11 @@ class VolTarget(Strategy):
     def balance(self, ctx: MarketDay) -> dict[str, float]:
         sigma = ctx.indicator(self.vol_symbol, self.vol.name)
         if sigma is None:
-            return self._allocation(self.fallback)
-        w = min(max(self.sigma_target / (self.leverage * sigma), self.w_min), self.w_max)
-        return self._allocation(w)
+            w = self.fallback
+        else:
+            w = min(max(self.sigma_target / (self.leverage * sigma), self.w_min), self.w_max)
+        allocation = self._allocation(w)
+        return self.gate.clip(allocation, ctx) if self.gate else allocation
 
     def buy_cap(self, asset: str, ctx: MarketDay) -> float | None:
         if self.gate is None:

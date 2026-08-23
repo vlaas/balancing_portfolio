@@ -17,3 +17,5 @@ JUMP_MIN = 2e-05, TAU = 1e-06.
 | QQQ | 88 | 0.62%/yr | 0.53%/yr |
 | SPY | 135 | 1.79%/yr | 1.52%/yr |
 | TQQQ | 21 | 0.31%/yr | 0.26%/yr |
+| VIX | index | — | — |
+| VIX3M | index | — | — |

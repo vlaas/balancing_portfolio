@@ -10,33 +10,50 @@ import polars as pl
 from indicators import Indicator
 
 
-def _read_symbol(
-    data_dir: Path, symbol: str, indicators: Iterable[Indicator] = ()
-) -> pl.DataFrame:
-    """Read one CSV as `date` and the close as `SYM`, plus a `SYM:NAME` per indicator.
-
-    Only `time` and `close` are read; every other CSV column is ignored. Each
-    indicator is computed on the symbol's own bar calendar, before the join onto
-    the traded calendar, and deduplicated by name.
-    """
+def _read_close(data_dir: Path, symbol: str) -> pl.DataFrame:
+    """Read one CSV as `date` and `close`. Every other CSV column is ignored."""
     frame = pl.read_csv(
         data_dir / f"{symbol}.csv",
         columns=["time", "close"],
         schema_overrides={"close": pl.Float64},
         try_parse_dates=True,
-    ).rename({"time": "date", "close": symbol})
+    ).rename({"time": "date"})
     assert frame["date"].is_sorted(), f"{symbol}: dates are not ascending"
     assert frame["date"].n_unique() == len(frame), f"{symbol}: duplicate dates"
-    assert frame[symbol].null_count() == 0, f"{symbol}: null close"
+    assert frame["close"].null_count() == 0, f"{symbol}: null close"
+    return frame
 
-    own = frame.select("date", pl.col(symbol).alias("close"))
+
+def _read_symbol(
+    data_dir: Path, symbol: str, indicators: Iterable[Indicator] = ()
+) -> pl.DataFrame:
+    """Read one CSV as `date` and the close as `SYM`, plus a `SYM:NAME` per indicator.
+
+    Each indicator is computed on the symbol's own bar calendar, before the
+    join onto the traded calendar, and deduplicated by name. A cross-symbol
+    indicator (non-empty `inputs`) is computed on the intersection of the
+    host's and every input's calendars and carried back onto the host's rows
+    by date, null outside the intersection (REGIME_SPEC §3.2).
+    """
+    own = _read_close(data_dir, symbol)
+    frame = own.rename({"close": symbol})
     unique = {indicator.name: indicator for indicator in indicators}
-    return frame.with_columns(
-        [
-            indicator.fn(own).alias(f"{symbol}:{name}")
-            for name, indicator in unique.items()
-        ]
-    )
+    for name, indicator in unique.items():
+        column = f"{symbol}:{name}"
+        if not indicator.inputs:
+            frame = frame.with_columns(indicator.fn(own).alias(column))
+            continue
+        joined = own
+        for sym in indicator.inputs:
+            joined = joined.join(
+                _read_close(data_dir, sym).rename({"close": sym}), on="date", how="inner"
+            )
+        assert len(joined) > 0, (
+            f"{symbol}:{name}: empty intersection with {indicator.inputs}"
+        )
+        values = joined.select("date", indicator.fn(joined).alias(column))
+        frame = frame.join(values, on="date", how="left")
+    return frame
 
 
 def load_prices(
