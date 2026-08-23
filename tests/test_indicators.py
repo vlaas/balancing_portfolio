@@ -11,9 +11,11 @@ from indicators import (
     drawdown,
     ewma_vol,
     momentum,
+    ratio_sma,
     realized_vol,
     sma,
     sma_monthly,
+    ts_regime,
 )
 
 GOLDEN_DIR = Path(__file__).parent / "data"
@@ -235,3 +237,169 @@ def test_the_partial_final_month_has_no_month_end() -> None:
     # The trailing rows of the partial month carry the last whole month's value.
     values = sma_monthly(10).fn(frame)
     assert values[-1] == values[month_ends[-1]]
+
+
+# REGIME_SPEC R2 — cross-symbol factories: the smoothed ratio and the
+# hysteresis state machine of §3.5.
+
+
+def joined_frame(rows: int = 200, seed: int = 7) -> pl.DataFrame:
+    """A synthetic joined frame: host `close` and denominator column `B`,
+    with a ratio that wanders across the 0.95/1.00 band."""
+    rng = random.Random(seed)
+    dates, day = [], dt.date(2020, 1, 1)
+    while len(dates) < rows:
+        if day.weekday() < 5:
+            dates.append(day)
+        day += dt.timedelta(days=1)
+    ratio = [1.0 + 0.12 * math.sin(i / 3) + rng.gauss(0, 0.02) for i in range(rows)]
+    denominator = [20.0 * (1 + rng.gauss(0, 0.01)) for _ in range(rows)]
+    return pl.DataFrame(
+        {
+            "date": dates,
+            "close": [r * d for r, d in zip(ratio, denominator)],
+            "B": denominator,
+        }
+    )
+
+
+def ratio_frame(ratio: list[float]) -> pl.DataFrame:
+    """A joined frame whose close / B ratio is exactly `ratio`."""
+    dates = [dt.date(2020, 1, 1) + dt.timedelta(days=i) for i in range(len(ratio))]
+    return pl.DataFrame({"date": dates, "close": ratio, "B": [1.0] * len(ratio)})
+
+
+def test_ratio_sma_equals_sma_of_the_ratio() -> None:
+    frame = joined_frame()
+    ratio = frame.select("date", close=pl.col("close") / pl.col("B"))
+
+    computed = ratio_sma("B", 10).fn(frame)
+    reference = sma(10).fn(ratio)
+
+    assert computed.null_count() == reference.null_count()
+    assert (computed - reference).abs().max() <= 1e-12
+
+
+def test_ratio_sma_of_one_is_the_raw_ratio() -> None:
+    frame = joined_frame()
+
+    computed = ratio_sma("B", 1).fn(frame)
+
+    assert (computed - frame["close"] / frame["B"]).abs().max() <= 1e-12
+
+
+def test_cross_symbol_warm_up_is_n_minus_one() -> None:
+    frame = joined_frame()
+
+    assert first_value_index(ratio_sma("B", 5).fn(frame)) == 4
+    assert first_value_index(ts_regime("B", 5, 1.00, 0.05).fn(frame)) == 4
+    assert first_value_index(ts_regime("B", 1, 1.00).fn(frame)) == 0
+
+
+def test_ts_regime_exercises_every_transition() -> None:
+    # below band, armed without firing, fire, linger inside the band, release,
+    # immediate re-fire, linger, release — with fire 1.00 and hysteresis 0.05.
+    frame = ratio_frame([0.90, 0.97, 1.02, 0.97, 0.92, 1.05, 0.96, 0.94])
+
+    values = ts_regime("B", 1, 1.00, 0.05).fn(frame)
+
+    assert values.to_list() == [0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0, 0.0]
+
+
+def test_ts_regime_first_value_can_fire() -> None:
+    frame = ratio_frame([1.10, 0.97, 0.90])
+
+    values = ts_regime("B", 1, 1.00, 0.05).fn(frame)
+
+    # Off from the first non-null reading, held inside the band, then released.
+    assert values.to_list() == [1.0, 1.0, 0.0]
+
+
+def test_ts_regime_matches_the_reference_loop() -> None:
+    frame = joined_frame()
+    fire, hysteresis, n = 1.00, 0.05, 10
+
+    computed = ts_regime("B", n, fire, hysteresis).fn(frame).to_list()
+
+    # A literal transcription of the §3.5 machine over the smoothed ratio.
+    smoothed = (frame["close"] / frame["B"]).rolling_mean(n).to_list()
+    off = None
+    for t, s in enumerate(smoothed):
+        if s is None:
+            assert computed[t] is None
+            continue
+        if off is None:
+            off = s >= fire
+        elif not off and s >= fire:
+            off = True
+        elif off and s < fire - hysteresis:
+            off = False
+        assert computed[t] == (1.0 if off else 0.0), f"row {t}"
+
+
+def test_ts_regime_zero_hysteresis_is_the_plain_threshold() -> None:
+    frame = joined_frame()
+
+    computed = ts_regime("B", 10, 1.00).fn(frame)
+
+    smoothed = ratio_sma("B", 10).fn(frame)
+    for t, s in enumerate(smoothed):
+        expected = None if s is None else (1.0 if s >= 1.00 else 0.0)
+        assert computed[t] == expected, f"row {t}"
+
+
+def test_ts_regime_is_never_null_after_warm_up() -> None:
+    values = ts_regime("B", 10, 1.00, 0.05).fn(joined_frame())
+
+    assert values[:9].null_count() == 9
+    assert values[9:].null_count() == 0
+
+
+def test_cross_symbol_names_and_inputs() -> None:
+    assert ratio_sma("VIX3M", 10).name == "RATIO_VIX3M_SMA10"
+    assert ratio_sma("VIX3M", 10).inputs == ("VIX3M",)
+    assert ts_regime("VIX3M", 10, 1.00, 0.05).name == "REGIME_VIX3M_10_100_5"
+    assert ts_regime("VIX3M", 1, 1.00).name == "REGIME_VIX3M_1_100_0"
+    assert ts_regime("VIX3M", 10, 0.95, 0.05).inputs == ("VIX3M",)
+
+
+def test_ts_regime_rejects_off_grid_thresholds() -> None:
+    with pytest.raises(AssertionError, match="multiple of 0.01"):
+        ts_regime("B", 10, 0.955)
+    with pytest.raises(AssertionError, match="below fire"):
+        ts_regime("B", 10, 1.00, 1.00)
+    with pytest.raises(AssertionError, match="below fire"):
+        ts_regime("B", 10, 0.95, 1.00)
+    with pytest.raises(AssertionError, match="n must be >= 1"):
+        ratio_sma("B", 0)
+
+
+# REGIME_SPEC R3 — causality on the joined frame: truncating the host and
+# every input after row t leaves row t unchanged, and no price look-ahead.
+# New tests in the T2 style (the strict lane feeds single-symbol frames).
+
+CROSS_INDICATORS = [ratio_sma("B", 10), ts_regime("B", 10, 1.0, 0.05)]
+
+
+@pytest.mark.parametrize("indicator", CROSS_INDICATORS, ids=lambda i: i.name)
+def test_cross_symbol_truncating_the_future_does_not_change_the_past(
+    indicator: Indicator,
+) -> None:
+    frame = joined_frame()
+    full = indicator.fn(frame)
+
+    for t in [9, 10, len(frame) // 2, len(frame) - 1]:
+        assert indicator.fn(frame[: t + 1])[t] == full[t], f"{indicator.name} at row {t}"
+
+
+@pytest.mark.parametrize("indicator", CROSS_INDICATORS, ids=lambda i: i.name)
+def test_cross_symbol_ignores_every_close_after_the_row(indicator: Indicator) -> None:
+    frame = joined_frame()
+    full = indicator.fn(frame)
+
+    for t in [9, 10, len(frame) // 2]:
+        tampered = frame.with_columns(
+            pl.when(pl.int_range(pl.len()) > t).then(pl.col(c) * 1000).otherwise(pl.col(c)).alias(c)
+            for c in ("close", "B")
+        )
+        assert indicator.fn(tampered)[t] == full[t], f"{indicator.name} at row {t}"
