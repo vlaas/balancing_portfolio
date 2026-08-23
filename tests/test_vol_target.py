@@ -12,7 +12,7 @@ from prices import load_prices
 from simulate import Config, simulate
 from stats import exposure
 from strategies.gate import Gate
-from strategies.vol_target import VolTarget
+from strategies.vol_target import SafeSwitch, VolTarget
 from strategy import MarketDay
 
 GOLDEN_DIR = Path(__file__).parent / "data"
@@ -109,6 +109,102 @@ def test_a_gated_risk_asset_splits_its_budget_across_the_sleeve():
 
     # Buys run in ascending delta order, so KMLM's 1250 precedes BTAL's 1500;
     # TQQQ never appears, its delta being zero.
+    assert trades["action"].to_list() == ["DEPOSIT", "BUY", "BUY"]
+    assert trades["asset"].to_list() == [None, "KMLM", "BTAL"]
+    assert trades["shares"].to_list() == [None, 1250, 1500]
+    assert trades["cash_after"].to_list() == pytest.approx([20_000.0, 15_000.0, 0.0])
+
+
+# The SafeSwitch conditional sleeve — SAFE_SWITCH_SPEC §2.2, T3.
+
+B25K75 = {"BTAL": 0.25, "KMLM": 0.75}
+B75K25 = {"BTAL": 0.75, "KMLM": 0.25}
+
+
+def switch(on=B25K75, off=B75K25, when=None) -> SafeSwitch:
+    return SafeSwitch(on=on, off=off, when=when or Gate("QQQ", [], sma_days=200))
+
+
+def switch_day(sigma, close=101.0, sma=100.0) -> MarketDay:
+    return MarketDay(
+        {"date": DAY, "QQQ:VOL_EWMA94": sigma, "QQQ": close, "QQQ:SMA200": sma}
+    )
+
+
+def test_a_switch_holds_on_while_open_and_off_while_closed():
+    st = vt(safe=switch(), w_max=0.7)
+    # 0.45 / (3 · 0.375) = 0.4; QQQ 101 > SMA 100 is open → the on sleeve.
+    assert st.balance(switch_day(0.375)) == pytest.approx(
+        {"TQQQ": 0.4, "BTAL": 0.15, "KMLM": 0.45}
+    )
+    assert st.balance(switch_day(0.375, close=99.0)) == pytest.approx(
+        {"TQQQ": 0.4, "BTAL": 0.45, "KMLM": 0.15}
+    )
+    # At w = w_max the active sleeve still splits the whole residual.
+    assert st.balance(switch_day(0.15)) == pytest.approx(
+        {"TQQQ": 0.7, "BTAL": 0.075, "KMLM": 0.225}
+    )
+
+
+def test_a_switch_holds_on_while_the_condition_warms_up():
+    st = vt(safe=switch(), w_max=0.7)
+    assert st.balance(switch_day(0.375, sma=None)) == pytest.approx(
+        {"TQQQ": 0.4, "BTAL": 0.15, "KMLM": 0.45}
+    )
+
+
+def test_the_inactive_sleeve_is_present_at_exactly_zero():
+    st = vt(safe=switch(on="KMLM", off="BTAL"), w_max=0.7)
+    # weights is the on allocation at fallback, padded with the off symbols.
+    assert st.weights == pytest.approx({"TQQQ": 0.7, "KMLM": 0.3, "BTAL": 0.0})
+    assert st.balance(switch_day(0.375)) == pytest.approx(
+        {"TQQQ": 0.4, "KMLM": 0.6, "BTAL": 0.0}
+    )
+    assert st.balance(switch_day(0.375, close=99.0)) == pytest.approx(
+        {"TQQQ": 0.4, "BTAL": 0.6, "KMLM": 0.0}
+    )
+
+    # A null off side leaves the residual in cash while closed (§2.1).
+    cash_off = vt(safe=switch(on="KMLM", off=None), w_max=0.7)
+    weights = cash_off.balance(switch_day(0.375, close=99.0))
+    assert weights == pytest.approx({"TQQQ": 0.4, "KMLM": 0.0})
+    assert sum(weights.values()) <= 1 + 1e-9
+
+
+def test_a_switch_merges_the_condition_into_data_and_indicators():
+    regime_when = Gate(
+        "VIX", [], denominator="VIX3M", ratio_sma=10, fire=1.00, hysteresis=0.05
+    )
+    st = vt(safe=switch(when=regime_when), gate=Gate("QQQ", ["TQQQ"], sma_days=200))
+    assert st.data == ("QQQ", "VIX", "VIX3M")
+    assert [i.name for i in st.indicators["QQQ"]] == ["VOL_EWMA94", "SMA200"]
+    assert [i.name for i in st.indicators["VIX"]] == ["REGIME_VIX3M_10_100_5"]
+
+    # A switch sharing the gate's condition declares SMA200 once.
+    shared = vt(safe=switch(), gate=Gate("QQQ", ["TQQQ"], sma_days=200))
+    assert [i.name for i in shared.indicators["QQQ"]] == ["VOL_EWMA94", "SMA200"]
+
+
+def test_a_gated_risk_asset_splits_its_budget_across_the_active_sleeve():
+    # The SAFE_BLEND §2.2 fixture rerun with a switch: QQQ below its SMA
+    # closes the risk gate and the switch at once, so the off sleeve (B75K25)
+    # receives TQQQ's whole budget in its own 3:1 — trades identical to the
+    # static-sleeve fixture above.
+    prices = frame(
+        {
+            "TQQQ": [10.0, 10.0],
+            "BTAL": [10.0, 10.0],
+            "KMLM": [4.0, 4.0],
+            "QQQ": [100.0, 100.0],
+            "QQQ:SMA200": [200.0, 200.0],
+            "QQQ:VOL_EWMA94": [0.375, 0.375],
+        },
+        [False, False],
+    )
+    st = vt(safe=switch(), w_max=0.7, gate=Gate("QQQ", ["TQQQ"], sma_days=200))
+
+    _, trades, _ = simulate(prices, st, Config(START, 20_000.0, 0.0))
+
     assert trades["action"].to_list() == ["DEPOSIT", "BUY", "BUY"]
     assert trades["asset"].to_list() == [None, "KMLM", "BTAL"]
     assert trades["shares"].to_list() == [None, 1250, 1500]
