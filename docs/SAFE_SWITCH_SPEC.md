@@ -1,7 +1,9 @@
 # Specification: regime-conditional safe sleeve
 
 Repo: `vlaas/balancing_portfolio` · baseline commit: `600f3a3` ("regime-gate
-merge", 535 tests green) · status: proposal
+merge", 535 tests green) · status: **implemented; nothing adopted** — the §6.3
+placebo fired in every artefact
+([notes/safe-switch-verdict.md](../notes/safe-switch-verdict.md)) · errata: §9
 
 ## 1. Goal
 
@@ -344,3 +346,51 @@ falsifier available in this data", never "switching works".
 - **Threshold/smoothing grids** — excluded by design, not by budget; tuning
   the condition inside the sweep would convert §6.4 from a falsifier into a
   formality.
+
+## 9. Errata (implementation, 2026-08-23)
+
+Deviations found while implementing at `600f3a3`; the code follows these
+corrected readings.
+
+1. **§2.2 "`weights` … is built from `on`"** was under-specified: taken
+   literally it breaks `simulate.py:117`'s `set(weights) == set(assets)`
+   assert on the first off day. Implemented as the *union* key set — the `on`
+   allocation at `fallback`, padded with off-only symbols at 0.0 (the same
+   paragraph's "every universe symbol present" sentence, applied to `weights`
+   too). `_allocation` gained an active-sleeve parameter for the same reason.
+2. **§2.2 omitted `data` / `indicators`**: only the gate's symbols and
+   indicators were merged before; the `when` condition's merge alongside
+   them, name-deduplicated (the `AnyGate.indicators` pattern), or the
+   `main.py` declaration asserts fire on a regime `when` with no gate.
+3. **§1 "`SCHEMA_VERSION` unchanged"** is three constants:
+   `results_json.SCHEMA_VERSION` (4), `spec.SPEC_SCHEMA_VERSION` (1),
+   `sweep.SWEEP_SCHEMA_VERSION` (1). All three are unchanged (the SAFE_BLEND
+   precedent: a grammar extension is not a version bump).
+4. **§3 T4 "a 2021 risk-on month-end"** must be late 2021: indicators are
+   computed causally from the window start (2020-12-18, KMLM inception), so
+   the SMA200 only warms up ~2021-10. The pinned date is **2021-11-30**.
+5. **§4.2 "the gated 50/50 benchmark set carried since the safe-swap lane"**
+   grew over the lanes; the switch specs carry the **blend** sets verbatim
+   (6 baselines in 2021, 5 in 2019, SPY benchmark last — the correlation
+   anchor), consistent with inheriting the blend config.
+6. **§4.3's budget counts three runs but §5 lists four** — the gross-TR
+   bracket adds another 14,454, so the protocol is ~53.6k sims, not ~40k.
+   "Single-process" is the only mode: `--jobs` is documented in SWEEP_SPEC
+   §4.4 but was never built.
+7. **§6.5 "`regime_report.py` prints the episodes"** — it printed only the
+   episode count and mean length. The tool now lists each off-episode's span
+   (`first -> last (N days)`), pinned by tests; the §6.5 read itself was moot
+   (zero promotion candidates).
+8. **§6.8 "WINNING_STRATEGIES.md changes"** — the file has never existed; a
+   promoting verdict would have *created* it. (It did not: nothing was
+   adopted.)
+9. **§3 T6 "embedded verbatim"** is read as "as a structured object": the
+   normalised switch form (`hysteresis` filled on a regime `when`, the
+   regime-gate precedent), not the raw input bytes.
+
+Validation notes recorded at implementation: every "(measured)" claim in §1
+reproduced exactly; `sweep._param_value` needed no change as §2.3 stated; the
+`Gate(assets=[])` pure-condition behaviour was emergent and untested at
+`600f3a3` and is now pinned in `tests/test_gate.py`. The §4.3 pre-run budget
+measurement: `1600 grid + 6 baselines x 9 windows = 14454 runs`,
+`850 grid + 5 baselines x 12 windows = 10260 runs` (both `--dry-run`).
