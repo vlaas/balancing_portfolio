@@ -100,6 +100,11 @@ def build(src: Path, w: float) -> dict[str, dict]:
         raise ValueError(f"{src}: no <SYM>.csv files found")
     results = {}
     for symbol in symbols:
+        if not (src / "price" / f"{symbol}.csv").exists():
+            # An index series with no distributions (REGIME_SPEC §2.2): the
+            # parent file is byte-copied into the net snapshot.
+            results[symbol] = {"index": True}
+            continue
         times, a, p = read_pair(src, symbol)
         jumps = classify(symbol, times, a, p)
         net = net_closes(a, p, jumps, w)
@@ -115,7 +120,9 @@ def build(src: Path, w: float) -> dict[str, dict]:
 
 def _table(results: dict[str, dict]) -> list[str]:
     rows = [
-        f"| {s} | {r['jumps']} | {100 * r['y_gross']:.2f}%/yr"
+        f"| {s} | index | — | — |"
+        if r.get("index")
+        else f"| {s} | {r['jumps']} | {100 * r['y_gross']:.2f}%/yr"
         f" | {100 * r['y_net']:.2f}%/yr |"
         for s, r in results.items()
     ]
@@ -146,6 +153,9 @@ def render_readme(parent: str, w: float, results: dict[str, dict]) -> str:
 def write_dataset(dst: Path, src: Path, results: dict[str, dict], readme: str) -> None:
     (dst / "price").mkdir(parents=True, exist_ok=True)
     for symbol, r in results.items():
+        if r.get("index"):
+            shutil.copyfile(src / f"{symbol}.csv", dst / f"{symbol}.csv")
+            continue
         rows = "\n".join(f"{t},{c!r}" for t, c in zip(r["times"], r["close"]))
         (dst / f"{symbol}.csv").write_text(f"time,close\n{rows}\n")
         shutil.copyfile(src / "price" / f"{symbol}.csv", dst / "price" / f"{symbol}.csv")

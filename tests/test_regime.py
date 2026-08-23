@@ -1,11 +1,20 @@
-# regime_report.py — REGIME_SPEC §6 function tests and (R4) real-data pins.
+# regime_report.py — REGIME_SPEC §6 function tests, the R4 real-data pins,
+# and the R10 anchors through the new code path.
 
 import datetime as dt
 from pathlib import Path
 
 import polars as pl
+import pytest
+from polars.testing import assert_frame_equal
 
+from main import collect_indicators, run_bundle
+from prices import load_prices
 from regime_report import episodes, month_ends, report, signal_frame
+from simulate import simulate
+from spec import build_bundle
+
+NET_DIR = Path(__file__).parent / "data" / "2026-08-20-net15"
 
 
 def write_csv(data_dir: Path, symbol: str, rows: list[tuple]) -> None:
@@ -71,3 +80,124 @@ def test_report_counts_on_a_synthetic_root(tmp_path):
     # 01-31: both off; 02-28: SMA only (Q 8 < SMA 9, regime released).
     assert "| full | 1 | 1 | 0 | 0 |" in text
     assert "| 2022 | 0 | 0 | 0 | 0 |" in text
+
+
+# --- R4: real-data pins on the net snapshot (VIX files byte-equal in both) ---
+
+
+def net_report(n: int, fire: float, hysteresis: float) -> str:
+    return report(
+        NET_DIR, "VIX", "VIX3M", n, fire, hysteresis,
+        start=dt.date(2012, 1, 3), end=None, sma_symbol="QQQ", sma_days=200,
+    )
+
+
+def test_r4_calendar_and_the_research_default():
+    text = net_report(10, 1.00, 0.05)
+
+    assert "- VIX: 1990-01-03 -> 2026-08-21 (9246 rows)" in text
+    assert "(4671 joint rows, full intersection)" in text
+    assert "- window: 2012-01-03 -> 2026-08-20, 3679 joint days" in text
+    assert "- VIX-only rows in the window: 22, on QQQ's calendar: 0" in text
+    assert "- risk-off: 305 of 3679 (8.3%)" in text
+    assert "- month-ends in the window: 175, risk-off: 13" in text
+    # QQQ<SMA200 closes 27 month-ends on the net series (the gross root gives
+    # 25); the 2022 line is the research's falsification criterion: 0 of 12.
+    assert "| full | 9 | 18 | 4 | 144 |" in text
+    assert "| 2022 | 0 | 12 | 0 | 0 |" in text
+
+
+def test_r4_raw_ratio_and_low_threshold():
+    raw = net_report(1, 1.00, 0.0)
+    assert "- risk-off: 249 of 3679 (6.8%)" in raw
+    assert "- month-ends in the window: 175, risk-off: 13" in raw
+    assert "| full | 7 | 20 | 6 | 142 |" in raw
+    assert "| 2022 | 12 | 2 |" in raw  # per-year line: 2 of 12 month-ends off
+
+    low = net_report(10, 0.95, 0.05)
+    assert "- risk-off: 964 of 3679 (26.2%)" in low
+    assert "- month-ends in the window: 175, risk-off: 44" in low
+    assert "| full | 20 | 7 | 24 | 124 |" in low
+    assert "| 2022 | 12 | 7 |" in low
+
+
+SPOTS = {  # date -> (raw ratio, 10-day SMA), REGIME_SPEC R4
+    "2020-01-31": (1.011, 0.920),
+    "2020-02-28": (1.344, 1.074),
+    "2022-02-28": (1.017, 0.974),
+    "2022-04-29": (1.006, 0.926),
+    "2025-03-31": (1.014, 0.952),
+}
+
+
+def test_r4_spot_values():
+    frame = signal_frame(NET_DIR, "VIX", "VIX3M", 10, 1.00, 0.05)
+    for date, (raw, smoothed) in SPOTS.items():
+        row = frame.filter(pl.col("date") == dt.date.fromisoformat(date))
+        assert row["ratio"].item() == pytest.approx(raw, abs=5e-4), date
+        assert row["smoothed"].item() == pytest.approx(smoothed, abs=5e-4), date
+
+
+# --- R10: the 2012-lane anchor through the new code path ---------------------
+
+COSTS = {"TQQQ": 1.5, "BTAL": 6, "DBMF": 2.5, "KMLM": 6, "QQQ": 1, "SPY": 0.7, "*": 6}
+
+
+def vt_entry(gate: dict | None = None) -> dict:
+    entry = {
+        "type": "vol_target", "risk": "TQQQ", "safe": "BTAL", "vol_symbol": "QQQ",
+        "vol": {"kind": "ewma", "lam": 0.80}, "leverage": 3,
+        "sigma_target": 0.30, "w_max": 0.6,
+    }
+    if gate is not None:
+        entry["gate"] = gate
+    return entry
+
+
+def bundle_of(*entries: dict):
+    return build_bundle(
+        {
+            "schema_version": 1,
+            "config": {
+                "start": "2012-01-03", "initial_capital": 10000,
+                "monthly_contribution": 500, "cost_bps": COSTS, "cash_yield": 0.03,
+            },
+            "strategies": [
+                *entries,
+                {"type": "fixed", "label": "SPY benchmark", "weights": {"SPY": 1.0}},
+            ],
+        }
+    )
+
+
+def test_r10_the_2012_anchor_reproduces():
+    # results/sweep_safe_2012/runs.csv, window `full` — a mismatch is a bug in
+    # this change, not data drift (REGIME_SPEC §9).
+    sma_gate = {"symbol": "QQQ", "assets": ["TQQQ"], "sma_days": 200}
+    results = run_bundle(bundle_of(vt_entry(sma_gate), vt_entry()), NET_DIR)
+
+    gated, plain = results[0], results[1]
+    assert gated.stats["calmar"] == pytest.approx(0.86254363, abs=1e-7)
+    assert gated.stats["cagr"] == pytest.approx(0.2385326, abs=1e-6)
+    assert gated.stats["max_drawdown"] == pytest.approx(-0.27654555, abs=1e-7)
+    assert plain.stats["calmar"] == pytest.approx(0.71731262, abs=1e-7)
+    assert plain.stats["cagr"] == pytest.approx(0.2479853, abs=1e-6)
+    assert plain.stats["max_drawdown"] == pytest.approx(-0.3457144, abs=1e-6)
+
+
+def test_r10_an_always_open_regime_gate_equals_the_no_gate_twin():
+    never_fires = {
+        "symbol": "VIX", "denominator": "VIX3M", "assets": ["TQQQ"],
+        "ratio_sma": 10, "fire": 2.0,
+    }
+    bundle = bundle_of(vt_entry(never_fires), vt_entry())
+    gated, plain = bundle.strategies[0], bundle.strategies[1]
+    prices = load_prices(
+        NET_DIR, sorted(gated.weights), bundle.config.start,
+        extra=sorted(set(gated.data) | set(plain.data)),
+        indicators=collect_indicators([gated, plain]),
+    )
+    for got, want in zip(
+        simulate(prices, gated, bundle.config), simulate(prices, plain, bundle.config)
+    ):
+        assert_frame_equal(got, want)

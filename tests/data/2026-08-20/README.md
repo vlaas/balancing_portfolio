@@ -32,3 +32,12 @@ one order above the measurement):
 - T5 on the matched window (2017-01-03..2026-08-14, QQQ, rebalance days):
   1 of 115 SMA200 gate states differs from the flat snapshot (2019-05-31);
   max EWMA94 vol delta 1.66% relative.
+
+`VIX.csv` and `VIX3M.csv` (added at the REGIME_SPEC baseline, verbatim from
+`data/` at `184f02b`) are cash index series: no distributions, so no `price/`
+twin — `make_net_tr.py` byte-copies them into the net snapshot. VIX carries
+values on 58 US market holidays that VIX3M lacks (22 since 2012, none on any
+traded symbol's calendar); they are TradingView artefacts, not observations,
+and the cross-symbol loader's intersection rule keeps them out of every
+rolling window. Last bar 2026-08-21, one day past TQQQ's — harmless, because
+extra symbols never extend the traded calendar.
