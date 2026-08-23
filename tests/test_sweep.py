@@ -643,3 +643,20 @@ def test_dry_run_prints_the_counts_and_writes_nothing(tmp_path, monkeypatch, cap
 
     assert "4 grid + 1 baselines x 4 windows = 20 runs" in capsys.readouterr().out
     assert not out.exists()
+
+
+def test_dry_run_counts_of_the_regime_tune_lane(tmp_path, monkeypatch, capsys):
+    # REGIME_SPEC R8: the §8.2 surface is 4 x 4 x 3 x 3 = 144 points over the
+    # 2012 lane's 23 windows (full + fit + test + 20 sensitivity).
+    net_dir = GOLDEN_DIR / "2026-08-20-net15"
+    out = tmp_path / "out"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["sweep.py", str(SPECS / "sweep_regime_tune_2012.json"),
+         "--data", str(net_dir), "--out", str(out), "--dry-run"],
+    )
+
+    sweep_main()
+
+    assert "144 grid + 6 baselines x 23 windows = 3450 runs" in capsys.readouterr().out
+    assert not out.exists()

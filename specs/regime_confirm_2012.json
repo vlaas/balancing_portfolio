@@ -1,0 +1,356 @@
+{
+  "schema_version": 1,
+  "config": {
+    "start": "2012-01-03",
+    "initial_capital": 10000,
+    "monthly_contribution": 500,
+    "cost_bps": {
+      "TQQQ": 1.5,
+      "BTAL": 6,
+      "DBMF": 2.5,
+      "KMLM": 6,
+      "QQQ": 1,
+      "SPY": 0.7,
+      "*": 6
+    },
+    "cash_yield": 0.03
+  },
+  "strategies": [
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.3,
+      "w_max": 0.6
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.3,
+      "w_max": 0.6,
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_days": 200
+      }
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.3,
+      "w_max": 0.6,
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_days": 200,
+        "w_off": 0
+      }
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.3,
+      "w_max": 0.6,
+      "gate": {
+        "symbol": "VIX",
+        "denominator": "VIX3M",
+        "assets": [
+          "TQQQ"
+        ],
+        "ratio_sma": 1,
+        "fire": 1.0
+      }
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.3,
+      "w_max": 0.6,
+      "gate": {
+        "symbol": "VIX",
+        "denominator": "VIX3M",
+        "assets": [
+          "TQQQ"
+        ],
+        "ratio_sma": 1,
+        "fire": 1.0,
+        "w_off": 0
+      }
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.3,
+      "w_max": 0.6,
+      "gate": {
+        "symbol": "VIX",
+        "denominator": "VIX3M",
+        "assets": [
+          "TQQQ"
+        ],
+        "ratio_sma": 10,
+        "fire": 1.0,
+        "hysteresis": 0.05
+      }
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.3,
+      "w_max": 0.6,
+      "gate": {
+        "symbol": "VIX",
+        "denominator": "VIX3M",
+        "assets": [
+          "TQQQ"
+        ],
+        "ratio_sma": 10,
+        "fire": 1.0,
+        "hysteresis": 0.05,
+        "w_off": 0
+      }
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.3,
+      "w_max": 0.6,
+      "gate": {
+        "symbol": "VIX",
+        "denominator": "VIX3M",
+        "assets": [
+          "TQQQ"
+        ],
+        "ratio_sma": 10,
+        "fire": 0.95,
+        "hysteresis": 0.05
+      }
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.3,
+      "w_max": 0.6,
+      "gate": [
+        {
+          "symbol": "QQQ",
+          "assets": [
+            "TQQQ"
+          ],
+          "sma_days": 200
+        },
+        {
+          "symbol": "VIX",
+          "denominator": "VIX3M",
+          "assets": [
+            "TQQQ"
+          ],
+          "ratio_sma": 1,
+          "fire": 1.0
+        }
+      ]
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.3,
+      "w_max": 0.6,
+      "gate": [
+        {
+          "symbol": "QQQ",
+          "assets": [
+            "TQQQ"
+          ],
+          "sma_days": 200
+        },
+        {
+          "symbol": "VIX",
+          "denominator": "VIX3M",
+          "assets": [
+            "TQQQ"
+          ],
+          "ratio_sma": 1,
+          "fire": 1.0,
+          "w_off": 0
+        }
+      ]
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.3,
+      "w_max": 0.6,
+      "gate": [
+        {
+          "symbol": "QQQ",
+          "assets": [
+            "TQQQ"
+          ],
+          "sma_days": 200
+        },
+        {
+          "symbol": "VIX",
+          "denominator": "VIX3M",
+          "assets": [
+            "TQQQ"
+          ],
+          "ratio_sma": 10,
+          "fire": 1.0,
+          "hysteresis": 0.05
+        }
+      ]
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.3,
+      "w_max": 0.6,
+      "gate": [
+        {
+          "symbol": "QQQ",
+          "assets": [
+            "TQQQ"
+          ],
+          "sma_days": 200
+        },
+        {
+          "symbol": "VIX",
+          "denominator": "VIX3M",
+          "assets": [
+            "TQQQ"
+          ],
+          "ratio_sma": 10,
+          "fire": 1.0,
+          "hysteresis": 0.05,
+          "w_off": 0
+        }
+      ]
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.3,
+      "w_max": 0.6,
+      "gate": [
+        {
+          "symbol": "QQQ",
+          "assets": [
+            "TQQQ"
+          ],
+          "sma_days": 200
+        },
+        {
+          "symbol": "VIX",
+          "denominator": "VIX3M",
+          "assets": [
+            "TQQQ"
+          ],
+          "ratio_sma": 10,
+          "fire": 0.95,
+          "hysteresis": 0.05
+        }
+      ]
+    },
+    {
+      "type": "fixed",
+      "label": "SPY benchmark",
+      "weights": {
+        "SPY": 1.0
+      }
+    }
+  ]
+}
