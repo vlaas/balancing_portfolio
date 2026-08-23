@@ -23,6 +23,7 @@ from strategies.spy_benchmark import SpyBenchmark
 from strategies.tqqq_100 import Tqqq100
 from strategies.tqqq_btal_5050 import TqqqBtal5050
 from strategies.tqqq_btal_qqq_sma200 import TqqqBtalQqqSma200
+from strategies.vol_target import SafeSwitch
 from strategy import MarketDay
 
 GOLDEN_DIR = Path(__file__).parent / "data"
@@ -51,6 +52,15 @@ G_R1 = {
     "ratio_sma": 1, "fire": 1.0,
 }
 
+# The SAFE_SWITCH_SPEC §2.1 objects the switch cases mutate with.
+W_SMA = {"symbol": "QQQ", "sma_days": 200}
+SWITCH = {
+    "kind": "switch",
+    "on": {"BTAL": 0.25, "KMLM": 0.75},
+    "off": {"BTAL": 0.75, "KMLM": 0.25},
+    "when": dict(W_SMA),
+}
+
 
 # research.json entries: [0] fixed labelled, [1] fixed TQQQ100, [2] fixed with a
 # daily gate, [3] fixed with a monthly exempt gate, [4] vol_target, [5] benchmark.
@@ -76,6 +86,20 @@ INVALID = {
     "sleeve fraction negative": (lambda s: s["strategies"][4].update(safe={"BTAL": 1.5, "KMLM": -0.5}), "strategies[4].safe.KMLM"),
     "sleeve holds the risk asset": (lambda s: s["strategies"][4].update(safe={"TQQQ": 0.5, "BTAL": 0.5}), "strategies[4].safe.TQQQ"),
     "sleeve key not a symbol": (lambda s: s["strategies"][4].update(safe={7: 0.5, "BTAL": 0.5}), "strategies[4].safe"),
+    # SAFE_SWITCH_SPEC §2.1 — the switch form of safe.
+    "switch kind unknown": (lambda s: s["strategies"][4].update(safe=SWITCH | {"kind": "sleeve"}), "strategies[4].safe.kind"),
+    "switch missing when": (lambda s: s["strategies"][4].update(safe={k: v for k, v in SWITCH.items() if k != "when"}), "strategies[4].safe.when"),
+    "switch carries a gate key": (lambda s: s["strategies"][4].update(safe=SWITCH | {"assets": ["TQQQ"]}), "strategies[4].safe.assets"),
+    "switch on equals off": (lambda s: s["strategies"][4].update(safe=SWITCH | {"off": {"KMLM": 0.75, "BTAL": 0.25}}), "strategies[4].safe"),
+    "switch both sides null": (lambda s: s["strategies"][4].update(safe=SWITCH | {"on": None, "off": None}), "strategies[4].safe"),
+    "switch both sides one string": (lambda s: s["strategies"][4].update(safe=SWITCH | {"on": "BTAL", "off": "BTAL"}), "strategies[4].safe"),
+    "nested switch": (lambda s: s["strategies"][4].update(safe=SWITCH | {"on": dict(SWITCH)}), "strategies[4].safe.on"),
+    "when carries assets": (lambda s: s["strategies"][4].update(safe=SWITCH | {"when": W_SMA | {"assets": ["TQQQ"]}}), "strategies[4].safe.when.assets"),
+    "when carries w_off": (lambda s: s["strategies"][4].update(safe=SWITCH | {"when": W_SMA | {"w_off": 0.0}}), "strategies[4].safe.when.w_off"),
+    "when carries contribution_exempt": (lambda s: s["strategies"][4].update(safe=SWITCH | {"when": W_SMA | {"contribution_exempt": True}}), "strategies[4].safe.when.contribution_exempt"),
+    "when with both condition kinds": (lambda s: s["strategies"][4].update(safe=SWITCH | {"when": W_SMA | {"denominator": "VIX3M", "ratio_sma": 10, "fire": 1.0}}), "strategies[4].safe.when"),
+    "switch on over-allocated": (lambda s: s["strategies"][4].update(safe=SWITCH | {"on": {"BTAL": 0.5, "KMLM": 0.6}}), "strategies[4].safe.on"),
+    "switch on holds the risk asset": (lambda s: s["strategies"][4].update(safe=SWITCH | {"on": {"TQQQ": 0.5, "BTAL": 0.5}}), "strategies[4].safe.on.TQQQ"),
     # REGIME_SPEC R7 — the regime gate grammar.
     "fire alongside an sma kind": (lambda s: s["strategies"][2]["gate"].update(denominator="VIX3M", ratio_sma=10, fire=1.0), "strategies[2].gate"),
     "denominator without fire": (lambda s: s["strategies"][2]["gate"].update(denominator="VIX3M"), "strategies[2].gate.denominator"),
@@ -112,6 +136,35 @@ def test_a_sleeve_builds_and_normalises_without_aliasing_the_entry():
     for form in ("BTAL", None):
         plain = build_bundle(broken(lambda s: s["strategies"][4].update(safe=form)))
         assert normalised_spec(plain)["strategies"][4]["safe"] == form
+
+
+def test_a_switch_builds_normalises_and_round_trips():
+    # SAFE_SWITCH_SPEC §2.1's example, hysteresis explicit so the input is
+    # already the normal form.
+    switch = {
+        "kind": "switch",
+        "on": {"BTAL": 0.25, "KMLM": 0.75},
+        "off": {"BTAL": 0.75, "KMLM": 0.25},
+        "when": {"symbol": "VIX", "denominator": "VIX3M",
+                 "ratio_sma": 10, "fire": 1.00, "hysteresis": 0.05},
+    }
+    bundle = build_bundle(broken(lambda s: s["strategies"][4].update(safe=switch)))
+    st = bundle.strategies[4]
+
+    # The universe is the on/off union; the condition symbols are declared.
+    assert set(st.weights) == {"TQQQ", "BTAL", "KMLM"}
+    assert {"VIX", "VIX3M"} <= set(st.data)
+    collect_indicators([st])  # the input rule holds without spec-author work
+
+    first = normalised_spec(bundle)
+    entry = first["strategies"][4]
+    assert entry["safe"] == switch
+    # Copied, not aliased — the sides included.
+    assert entry["safe"] is not switch
+    assert entry["safe"]["on"] is not switch["on"]
+
+    again = normalised_spec(build_bundle(copy.deepcopy(first)))
+    assert again == first
 
 
 def test_a_sleeve_symbol_may_carry_the_gate():
@@ -219,12 +272,40 @@ def test_sleeve_and_portfolio_fractions_slugify_apart():
     assert portfolio == "btal50-kmlm50"
 
 
+def test_a_switch_labels_its_sleeves_and_condition():
+    # SAFE_SWITCH_SPEC §2.3 — on~off@condition, sleeve key order irrelevant.
+    assert label_of(blend(SWITCH | {"on": {"KMLM": 0.75, "BTAL": 0.25}})) == (
+        "VT TQQQ/BTAL25+KMLM75~BTAL75+KMLM25@QQQ<SMA200 t45 w0-50 QQQ:VOL_EWMA94"
+    )
+    regime_switch = {
+        "kind": "switch", "on": "KMLM", "off": "BTAL",
+        "when": {"symbol": "VIX", "denominator": "VIX3M", "ratio_sma": 10,
+                 "fire": 1.00, "hysteresis": 0.05},
+    }
+    assert label_of(blend(regime_switch)) == (
+        "VT TQQQ/KMLM~BTAL@VIX/VIX3M@10>=1.00<0.95 t45 w0-50 QQQ:VOL_EWMA94"
+    )
+
+
+def test_a_switch_and_its_mirror_label_and_slug_apart():
+    mirror = SWITCH | {"on": SWITCH["off"], "off": SWITCH["on"]}
+    assert label_of(blend(SWITCH)) != label_of(blend(mirror))
+    assert slug(label_of(blend(SWITCH))) != slug(label_of(blend(mirror)))
+
+
 def test_safe_str_is_shared_by_the_label_and_sweep_params():
     # The gate_str precedent: one renderer, so params and labels cannot drift.
     assert sweep.safe_str is safe_str
     assert safe_str("BTAL") == "BTAL"
     assert safe_str(None) == "cash"
     assert safe_str({"KMLM": 0.25, "BTAL": 0.75}) == "BTAL75+KMLM25"
+    assert safe_str(
+        SafeSwitch(
+            on="KMLM", off="BTAL",
+            when=Gate("VIX", [], denominator="VIX3M", ratio_sma=10,
+                      fire=1.00, hysteresis=0.05),
+        )
+    ) == "KMLM~BTAL@VIX/VIX3M@10>=1.00<0.95"
 
 
 def test_explicit_label_wins():
