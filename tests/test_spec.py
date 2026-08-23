@@ -3,6 +3,7 @@
 
 import copy
 import datetime as dt
+import json
 import re
 from pathlib import Path
 
@@ -13,7 +14,7 @@ import sweep
 from bundles import BUNDLES
 from main import collect_indicators, run_bundle
 from prices import load_prices
-from results_json import results_payload, slug
+from results_json import dumps, results_payload, slug
 from simulate import simulate
 from spec import build_bundle, load_spec, normalised_spec, safe_str
 from stats import correlation
@@ -391,6 +392,53 @@ def test_identical_entries_collide_loudly():
     }
     with pytest.raises(ValueError, match="duplicate label"):
         build_bundle(spec)
+
+
+# --- SAFE_SWITCH_SPEC T6: a switch end to end on the net snapshot ------------
+
+
+NET_DIR = Path(__file__).parent / "data" / "2026-08-20-net15"
+
+
+def test_a_switch_strategy_runs_end_to_end_on_the_net_snapshot():
+    switch = {
+        "kind": "switch",
+        "on": {"BTAL": 0.25, "KMLM": 0.75},
+        "off": {"BTAL": 0.75, "KMLM": 0.25},
+        "when": {"symbol": "QQQ", "sma_days": 200},
+    }
+    bundle = build_bundle({
+        "schema_version": 1,
+        "config": {
+            "start": "2020-12-18", "initial_capital": 10000,
+            "monthly_contribution": 500,
+            "cost_bps": {"TQQQ": 1.5, "BTAL": 6, "KMLM": 6, "SPY": 0.7, "*": 6},
+            "cash_yield": 0.03,
+        },
+        "strategies": [
+            {"type": "vol_target", "risk": "TQQQ", "safe": switch,
+             "vol_symbol": "QQQ", "vol": {"kind": "ewma", "lam": 0.80},
+             "leverage": 3, "sigma_target": 0.30, "w_max": 0.6},
+            {"type": "fixed", "label": "SPY benchmark", "weights": {"SPY": 1.0}},
+        ],
+    })
+    results = run_bundle(bundle, NET_DIR)
+
+    # The exposure block spans the whole union universe, plus cash.
+    assert set(results[0].exposure) == {"TQQQ", "BTAL", "KMLM", "CASH"}
+
+    bench = results[-1]
+    correlations = [(r.label, correlation(r.twr, bench.twr)) for r in results[:-1]]
+    stamp = "2026-01-01T00:00:00Z"
+    text = dumps(results_payload(
+        bundle, "switch", results, correlations, stamp, data_dir=NET_DIR
+    ))
+    # The switch object is embedded in the strategy spec and round-trips.
+    assert json.loads(text)["strategies"][0]["spec"]["safe"] == switch
+    again = dumps(results_payload(
+        bundle, "switch", results, correlations, stamp, data_dir=NET_DIR
+    ))
+    assert again == text
 
 
 # --- T3: equivalence to the hand-written strategies --------------------------

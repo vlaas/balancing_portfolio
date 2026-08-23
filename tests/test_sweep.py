@@ -105,6 +105,35 @@ def test_a_sleeve_is_an_ordinary_grid_value():
     assert len({e["label"] for e in out}) == 270
 
 
+def test_a_switch_is_an_ordinary_safe_grid_value():
+    # SAFE_SWITCH_SPEC T5: strings, sleeves, null, and switch objects mix in
+    # one grid; the mirror arm expands as its own entry.
+    switch = {
+        "kind": "switch", "on": {"BTAL": 0.25, "KMLM": 0.75},
+        "off": {"BTAL": 0.75, "KMLM": 0.25},
+        "when": {"symbol": "QQQ", "sma_days": 200},
+    }
+    mirror = switch | {"on": switch["off"], "off": switch["on"]}
+    t = template()
+    t["safe"] = {"grid": ["BTAL", {"KMLM": 0.5, "BTAL": 0.5}, None, switch, mirror]}
+
+    out = expand(t)
+
+    assert len(out) == 450  # 5 safe x 3 lam x 5 sigma x 3 w_max x 2 gate
+    assert [e["params"]["safe"] for e in out[::90]] == [
+        "BTAL", "BTAL50+KMLM50", None,
+        "BTAL25+KMLM75~BTAL75+KMLM25@QQQ<SMA200",
+        "BTAL75+KMLM25~BTAL25+KMLM75@QQQ<SMA200",
+    ]
+    switched = [
+        e for e in out
+        if e["params"]["safe"] == "BTAL25+KMLM75~BTAL75+KMLM25@QQQ<SMA200"
+    ]
+    # The entry embeds the normalised switch object, not a rendering.
+    assert switched[0]["entry"]["safe"] == switch
+    assert len({e["label"] for e in out}) == 450
+
+
 def test_null_over_an_optional_key_still_deletes_it():
     t = template()
     t["w_max"] = {"grid": [0.6, None]}

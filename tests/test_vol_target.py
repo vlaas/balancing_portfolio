@@ -3,6 +3,7 @@
 import datetime as dt
 from pathlib import Path
 
+import polars as pl
 import pytest
 from test_simulate import START, frame
 
@@ -209,6 +210,47 @@ def test_a_gated_risk_asset_splits_its_budget_across_the_active_sleeve():
     assert trades["asset"].to_list() == [None, "KMLM", "BTAL"]
     assert trades["shares"].to_list() == [None, 1250, 1500]
     assert trades["cash_after"].to_list() == pytest.approx([20_000.0, 15_000.0, 0.0])
+
+
+# SAFE_SWITCH_SPEC T4 — real-data pins on the net snapshot, KMLM-inception
+# start (the primary lane's window).
+
+NET_DIR = Path(__file__).parent / "data" / "2026-08-20-net15"
+
+
+def net_prices(st):
+    return load_prices(
+        NET_DIR, sorted(st.weights), dt.date(2020, 12, 18),
+        extra=st.data, indicators=collect_indicators([st]),
+    )
+
+
+def net_day(prices, date) -> MarketDay:
+    return MarketDay(prices.filter(pl.col("date") == date).row(0, named=True))
+
+
+def test_a_switch_flips_on_the_real_sma_calendar():
+    st = vt(safe=switch())
+    prices = net_prices(st)
+    # 2022-06-30 is one of R4's 12 closed 2022 SMA month-ends → off fractions.
+    off_day = st.balance(net_day(prices, dt.date(2022, 6, 30)))
+    assert off_day["BTAL"] == pytest.approx(3 * off_day["KMLM"])
+    # 2021-11-30 is risk-on — the causal SMA200 is warm from ~2021-10, so an
+    # earlier month-end would test warm-up, not openness → on fractions.
+    on_day = st.balance(net_day(prices, dt.date(2021, 11, 30)))
+    assert on_day["KMLM"] == pytest.approx(3 * on_day["BTAL"])
+
+
+def test_the_r10lo_condition_flips_the_sleeve_on_2025_03_31():
+    # The R4 spot pin: the 10-day SMA prints 0.952 >= fire 0.95 on 2025-03-31.
+    st = vt(safe=switch(when=Gate(
+        "VIX", [], denominator="VIX3M", ratio_sma=10, fire=0.95, hysteresis=0.05,
+    )))
+    prices = net_prices(st)
+    feb = st.balance(net_day(prices, dt.date(2025, 2, 28)))
+    assert feb["KMLM"] == pytest.approx(3 * feb["BTAL"])
+    mar = st.balance(net_day(prices, dt.date(2025, 3, 31)))
+    assert mar["BTAL"] == pytest.approx(3 * mar["KMLM"])
 
 
 def test_validated_at_construction():
