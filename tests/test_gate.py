@@ -1,11 +1,11 @@
-# The Gate component — DECLARATIVE_SPEC.md T5.
+# The Gate component — DECLARATIVE_SPEC.md T5, REGIME_SPEC R5.
 
 import datetime as dt
 
 import pytest
 
 from strategies.fixed import Fixed
-from strategies.gate import Gate
+from strategies.gate import AnyGate, Gate
 
 from strategy import MarketDay
 
@@ -72,3 +72,142 @@ def test_fixed_declares_the_gate_symbol():
     traded = Fixed(weights={"QQQ": 1.0}, gate=Gate("QQQ", ["QQQ"], sma_days=200))
     assert traded.data == ()
     assert [i.name for i in traded.indicators["QQQ"]] == ["SMA200"]
+
+
+# REGIME_SPEC R5 — the regime kind, w_off / clip, and AnyGate composition.
+
+REGIME_COLUMN = "VIX:REGIME_VIX3M_10_100_5"
+
+
+def regime_day(state, contribution=0.0) -> MarketDay:
+    return MarketDay(
+        {"date": DAY, "VIX": 15.0, REGIME_COLUMN: state}, contribution=contribution
+    )
+
+
+def regime_gate(**kwargs) -> Gate:
+    return Gate(
+        "VIX", ["TQQQ"], denominator="VIX3M", ratio_sma=10, fire=1.00,
+        hysteresis=0.05, **kwargs,
+    )
+
+
+def test_regime_gate_closed_iff_the_column_reads_one():
+    assert regime_gate().closed(regime_day(1.0))
+    assert not regime_gate().closed(regime_day(0.0))
+    assert not regime_gate().closed(regime_day(None))  # warm-up stays open
+
+
+def test_gate_symbols_and_indicators_for_both_kinds():
+    sma_kind = gate()
+    assert sma_kind.symbols == ("QQQ",)
+    assert sma_kind.indicators["QQQ"][0].inputs == ()
+
+    regime = regime_gate()
+    assert regime.symbols == ("VIX", "VIX3M")
+    declared = regime.indicators
+    assert list(declared) == ["VIX"]
+    assert declared["VIX"][0].name == "REGIME_VIX3M_10_100_5"
+    assert declared["VIX"][0].inputs == ("VIX3M",)
+
+
+def test_exactly_one_gate_kind_and_its_required_keys():
+    with pytest.raises(AssertionError):  # fire alongside an sma kind
+        Gate("QQQ", ["TQQQ"], sma_days=200, denominator="VIX3M", ratio_sma=10, fire=1.0)
+    with pytest.raises(AssertionError):  # denominator without fire
+        Gate("QQQ", ["TQQQ"], sma_days=200, denominator="VIX3M")
+    with pytest.raises(AssertionError):  # fire without ratio_sma
+        Gate("VIX", ["TQQQ"], denominator="VIX3M", fire=1.0)
+    with pytest.raises(AssertionError):  # denominator equals the symbol
+        Gate("VIX", ["TQQQ"], denominator="VIX", ratio_sma=10, fire=1.0)
+    with pytest.raises(AssertionError):  # w_off outside [0, 1]
+        gate(w_off=1.5)
+
+
+def test_clip_is_the_identity_while_open():
+    weights = {"TQQQ": 0.5, "BTAL": 0.5}
+    assert gate(w_off=0.0).clip(weights, market_day(101.0, 100.0)) is weights
+    # Closed without w_off is today's gate exactly.
+    assert gate().clip(weights, market_day(99.0, 100.0)) is weights
+
+
+def test_clip_tilts_to_the_sleeve_while_closed():
+    closed = market_day(99.0, 100.0)
+    assert gate(w_off=0.0).clip({"TQQQ": 0.5, "BTAL": 0.5}, closed) == {
+        "TQQQ": 0.0, "BTAL": 1.0,
+    }
+    assert gate(w_off=0.2).clip({"TQQQ": 0.5, "BTAL": 0.5}, closed) == {
+        "TQQQ": 0.2, "BTAL": pytest.approx(0.8),
+    }
+    # A three-asset sleeve absorbs the excess in sleeve proportion.
+    assert gate(w_off=0.0).clip({"TQQQ": 0.6, "BTAL": 0.3, "KMLM": 0.1}, closed) == {
+        "TQQQ": 0.0, "BTAL": pytest.approx(0.75), "KMLM": pytest.approx(0.25),
+    }
+
+
+def test_clip_with_no_sleeve_leaves_the_excess_in_cash():
+    clipped = gate(w_off=0.0).clip({"TQQQ": 0.5}, market_day(99.0, 100.0))
+    assert clipped == {"TQQQ": 0.0}  # the sum drops; cash absorbs it
+
+
+def test_clip_never_raises_a_gated_weight():
+    weights = {"TQQQ": 0.5, "BTAL": 0.5}
+    assert gate(w_off=0.6).clip(weights, market_day(99.0, 100.0)) is weights
+
+
+def test_buy_cap_is_unchanged_by_w_off():
+    weights = {"TQQQ": 0.5, "BTAL": 0.5}
+    closed = market_day(99.0, 100.0, contribution=500.0)
+    assert gate(w_off=0.0).buy_cap("TQQQ", closed, weights) == 0.0
+    assert gate(w_off=0.0, contribution_exempt=True).buy_cap("TQQQ", closed, weights) == 250.0
+
+
+def both_day(close, sma_value, state, contribution=0.0) -> MarketDay:
+    return MarketDay(
+        {"date": DAY, "QQQ": close, "QQQ:SMA200": sma_value,
+         "VIX": 15.0, REGIME_COLUMN: state},
+        contribution=contribution,
+    )
+
+
+def test_composite_is_closed_iff_any_member_is():
+    both = AnyGate((gate(), regime_gate()))
+    assert not both.closed(both_day(101.0, 100.0, 0.0))
+    assert both.closed(both_day(99.0, 100.0, 0.0))  # sma member only
+    assert both.closed(both_day(101.0, 100.0, 1.0))  # regime member only
+    assert both.closed(both_day(99.0, 100.0, 1.0))
+
+
+def test_composite_buy_cap_is_the_most_restrictive_member():
+    weights = {"TQQQ": 0.5, "BTAL": 0.5}
+    plain_and_exempt = AnyGate((gate(), regime_gate(contribution_exempt=True)))
+    # 0.0 beats an exempt cap beats None.
+    assert plain_and_exempt.buy_cap("TQQQ", both_day(99.0, 100.0, 1.0, 500.0), weights) == 0.0
+    assert plain_and_exempt.buy_cap("TQQQ", both_day(101.0, 100.0, 1.0, 500.0), weights) == 250.0
+    assert plain_and_exempt.buy_cap("TQQQ", both_day(101.0, 100.0, 0.0, 500.0), weights) is None
+
+
+def test_composite_symbols_union_and_indicator_merge():
+    both = AnyGate((gate(), regime_gate()))
+    assert both.symbols == ("QQQ", "VIX", "VIX3M")
+    assert [i.name for i in both.indicators["QQQ"]] == ["SMA200"]
+    assert [i.name for i in both.indicators["VIX"]] == ["REGIME_VIX3M_10_100_5"]
+    # A duplicate indicator name collapses to one declaration.
+    twins = AnyGate((gate(), gate(contribution_exempt=True)))
+    assert [i.name for i in twins.indicators["QQQ"]] == ["SMA200"]
+
+
+def test_composite_clip_applies_members_in_order():
+    weights = {"TQQQ": 0.5, "BTAL": 0.5}
+    day = both_day(99.0, 100.0, 1.0)
+    forward = AnyGate((gate(w_off=0.3), regime_gate(w_off=0.2))).clip(weights, day)
+    backward = AnyGate((regime_gate(w_off=0.2), gate(w_off=0.3))).clip(weights, day)
+    # Members gate the same assets, so order cannot change the result beyond
+    # float rounding (REGIME_SPEC §4.3).
+    assert forward == {"TQQQ": 0.2, "BTAL": pytest.approx(0.8)}
+    assert backward == {key: pytest.approx(value) for key, value in forward.items()}
+
+
+def test_composite_rejects_a_single_member():
+    with pytest.raises(AssertionError):
+        AnyGate((gate(),))
