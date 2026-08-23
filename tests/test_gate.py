@@ -124,6 +124,29 @@ def test_exactly_one_gate_kind_and_its_required_keys():
         gate(w_off=1.5)
 
 
+def test_a_gate_with_no_assets_is_a_pure_condition():
+    # SAFE_SWITCH_SPEC §1: assets=[] observes — closed() works, buy_cap is
+    # None for every asset even while closed, clip is the identity.
+    weights = {"TQQQ": 0.5, "BTAL": 0.5}
+    condition = Gate("QQQ", [], sma_days=200)
+    closed = market_day(99.0, 100.0, contribution=500.0)
+    assert condition.closed(closed)
+    assert not condition.closed(market_day(101.0, 100.0))
+    assert condition.buy_cap("TQQQ", closed, weights) is None
+    assert condition.buy_cap("BTAL", closed, weights) is None
+    assert condition.clip(weights, closed) is weights
+    assert Gate("QQQ", [], sma_days=200, w_off=0.0).clip(weights, closed) is weights
+    assert condition.symbols == ("QQQ",)
+    assert [i.name for i in condition.indicators["QQQ"]] == ["SMA200"]
+
+    regime = Gate("VIX", [], denominator="VIX3M", ratio_sma=10, fire=1.00,
+                  hysteresis=0.05)
+    assert regime.closed(regime_day(1.0))
+    assert not regime.closed(regime_day(None))
+    assert regime.buy_cap("TQQQ", regime_day(1.0), weights) is None
+    assert regime.symbols == ("VIX", "VIX3M")
+
+
 def test_clip_is_the_identity_while_open():
     weights = {"TQQQ": 0.5, "BTAL": 0.5}
     assert gate(w_off=0.0).clip(weights, market_day(101.0, 100.0)) is weights

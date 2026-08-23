@@ -3,6 +3,7 @@
 import datetime as dt
 from pathlib import Path
 
+import polars as pl
 import pytest
 from test_simulate import START, frame
 
@@ -12,7 +13,7 @@ from prices import load_prices
 from simulate import Config, simulate
 from stats import exposure
 from strategies.gate import Gate
-from strategies.vol_target import VolTarget
+from strategies.vol_target import SafeSwitch, VolTarget
 from strategy import MarketDay
 
 GOLDEN_DIR = Path(__file__).parent / "data"
@@ -113,6 +114,143 @@ def test_a_gated_risk_asset_splits_its_budget_across_the_sleeve():
     assert trades["asset"].to_list() == [None, "KMLM", "BTAL"]
     assert trades["shares"].to_list() == [None, 1250, 1500]
     assert trades["cash_after"].to_list() == pytest.approx([20_000.0, 15_000.0, 0.0])
+
+
+# The SafeSwitch conditional sleeve — SAFE_SWITCH_SPEC §2.2, T3.
+
+B25K75 = {"BTAL": 0.25, "KMLM": 0.75}
+B75K25 = {"BTAL": 0.75, "KMLM": 0.25}
+
+
+def switch(on=B25K75, off=B75K25, when=None) -> SafeSwitch:
+    return SafeSwitch(on=on, off=off, when=when or Gate("QQQ", [], sma_days=200))
+
+
+def switch_day(sigma, close=101.0, sma=100.0) -> MarketDay:
+    return MarketDay(
+        {"date": DAY, "QQQ:VOL_EWMA94": sigma, "QQQ": close, "QQQ:SMA200": sma}
+    )
+
+
+def test_a_switch_holds_on_while_open_and_off_while_closed():
+    st = vt(safe=switch(), w_max=0.7)
+    # 0.45 / (3 · 0.375) = 0.4; QQQ 101 > SMA 100 is open → the on sleeve.
+    assert st.balance(switch_day(0.375)) == pytest.approx(
+        {"TQQQ": 0.4, "BTAL": 0.15, "KMLM": 0.45}
+    )
+    assert st.balance(switch_day(0.375, close=99.0)) == pytest.approx(
+        {"TQQQ": 0.4, "BTAL": 0.45, "KMLM": 0.15}
+    )
+    # At w = w_max the active sleeve still splits the whole residual.
+    assert st.balance(switch_day(0.15)) == pytest.approx(
+        {"TQQQ": 0.7, "BTAL": 0.075, "KMLM": 0.225}
+    )
+
+
+def test_a_switch_holds_on_while_the_condition_warms_up():
+    st = vt(safe=switch(), w_max=0.7)
+    assert st.balance(switch_day(0.375, sma=None)) == pytest.approx(
+        {"TQQQ": 0.4, "BTAL": 0.15, "KMLM": 0.45}
+    )
+
+
+def test_the_inactive_sleeve_is_present_at_exactly_zero():
+    st = vt(safe=switch(on="KMLM", off="BTAL"), w_max=0.7)
+    # weights is the on allocation at fallback, padded with the off symbols.
+    assert st.weights == pytest.approx({"TQQQ": 0.7, "KMLM": 0.3, "BTAL": 0.0})
+    assert st.balance(switch_day(0.375)) == pytest.approx(
+        {"TQQQ": 0.4, "KMLM": 0.6, "BTAL": 0.0}
+    )
+    assert st.balance(switch_day(0.375, close=99.0)) == pytest.approx(
+        {"TQQQ": 0.4, "BTAL": 0.6, "KMLM": 0.0}
+    )
+
+    # A null off side leaves the residual in cash while closed (§2.1).
+    cash_off = vt(safe=switch(on="KMLM", off=None), w_max=0.7)
+    weights = cash_off.balance(switch_day(0.375, close=99.0))
+    assert weights == pytest.approx({"TQQQ": 0.4, "KMLM": 0.0})
+    assert sum(weights.values()) <= 1 + 1e-9
+
+
+def test_a_switch_merges_the_condition_into_data_and_indicators():
+    regime_when = Gate(
+        "VIX", [], denominator="VIX3M", ratio_sma=10, fire=1.00, hysteresis=0.05
+    )
+    st = vt(safe=switch(when=regime_when), gate=Gate("QQQ", ["TQQQ"], sma_days=200))
+    assert st.data == ("QQQ", "VIX", "VIX3M")
+    assert [i.name for i in st.indicators["QQQ"]] == ["VOL_EWMA94", "SMA200"]
+    assert [i.name for i in st.indicators["VIX"]] == ["REGIME_VIX3M_10_100_5"]
+
+    # A switch sharing the gate's condition declares SMA200 once.
+    shared = vt(safe=switch(), gate=Gate("QQQ", ["TQQQ"], sma_days=200))
+    assert [i.name for i in shared.indicators["QQQ"]] == ["VOL_EWMA94", "SMA200"]
+
+
+def test_a_gated_risk_asset_splits_its_budget_across_the_active_sleeve():
+    # The SAFE_BLEND §2.2 fixture rerun with a switch: QQQ below its SMA
+    # closes the risk gate and the switch at once, so the off sleeve (B75K25)
+    # receives TQQQ's whole budget in its own 3:1 — trades identical to the
+    # static-sleeve fixture above.
+    prices = frame(
+        {
+            "TQQQ": [10.0, 10.0],
+            "BTAL": [10.0, 10.0],
+            "KMLM": [4.0, 4.0],
+            "QQQ": [100.0, 100.0],
+            "QQQ:SMA200": [200.0, 200.0],
+            "QQQ:VOL_EWMA94": [0.375, 0.375],
+        },
+        [False, False],
+    )
+    st = vt(safe=switch(), w_max=0.7, gate=Gate("QQQ", ["TQQQ"], sma_days=200))
+
+    _, trades, _ = simulate(prices, st, Config(START, 20_000.0, 0.0))
+
+    assert trades["action"].to_list() == ["DEPOSIT", "BUY", "BUY"]
+    assert trades["asset"].to_list() == [None, "KMLM", "BTAL"]
+    assert trades["shares"].to_list() == [None, 1250, 1500]
+    assert trades["cash_after"].to_list() == pytest.approx([20_000.0, 15_000.0, 0.0])
+
+
+# SAFE_SWITCH_SPEC T4 — real-data pins on the net snapshot, KMLM-inception
+# start (the primary lane's window).
+
+NET_DIR = Path(__file__).parent / "data" / "2026-08-20-net15"
+
+
+def net_prices(st):
+    return load_prices(
+        NET_DIR, sorted(st.weights), dt.date(2020, 12, 18),
+        extra=st.data, indicators=collect_indicators([st]),
+    )
+
+
+def net_day(prices, date) -> MarketDay:
+    return MarketDay(prices.filter(pl.col("date") == date).row(0, named=True))
+
+
+def test_a_switch_flips_on_the_real_sma_calendar():
+    st = vt(safe=switch())
+    prices = net_prices(st)
+    # 2022-06-30 is one of R4's 12 closed 2022 SMA month-ends → off fractions.
+    off_day = st.balance(net_day(prices, dt.date(2022, 6, 30)))
+    assert off_day["BTAL"] == pytest.approx(3 * off_day["KMLM"])
+    # 2021-11-30 is risk-on — the causal SMA200 is warm from ~2021-10, so an
+    # earlier month-end would test warm-up, not openness → on fractions.
+    on_day = st.balance(net_day(prices, dt.date(2021, 11, 30)))
+    assert on_day["KMLM"] == pytest.approx(3 * on_day["BTAL"])
+
+
+def test_the_r10lo_condition_flips_the_sleeve_on_2025_03_31():
+    # The R4 spot pin: the 10-day SMA prints 0.952 >= fire 0.95 on 2025-03-31.
+    st = vt(safe=switch(when=Gate(
+        "VIX", [], denominator="VIX3M", ratio_sma=10, fire=0.95, hysteresis=0.05,
+    )))
+    prices = net_prices(st)
+    feb = st.balance(net_day(prices, dt.date(2025, 2, 28)))
+    assert feb["KMLM"] == pytest.approx(3 * feb["BTAL"])
+    mar = st.balance(net_day(prices, dt.date(2025, 3, 31)))
+    assert mar["BTAL"] == pytest.approx(3 * mar["KMLM"])
 
 
 def test_validated_at_construction():

@@ -57,6 +57,23 @@ def episodes(off: list) -> list[int]:
     return runs
 
 
+def episode_spans(frame: pl.DataFrame) -> list[tuple[dt.date, dt.date, int]]:
+    """(first day, last day, length) of each consecutive risk-off run — the
+    grouping unit of the leave-one-episode-out read (SAFE_SWITCH_SPEC §6.5)."""
+    spans, start, last, length = [], None, None, 0
+    for date, value in zip(frame["date"], frame["off"]):
+        if value == 1.0:
+            if not length:
+                start = date
+            last, length = date, length + 1
+        elif length:
+            spans.append((start, last, length))
+            length = 0
+    if length:
+        spans.append((start, last, length))
+    return spans
+
+
 def report(
     data_dir: Path, symbol: str, denominator: str, n: int, fire: float,
     hysteresis: float, start: dt.date, end: dt.date | None,
@@ -112,6 +129,10 @@ def report(
         f"- risk-off: {off_days} of {len(window)} ({100 * off_days / len(window):.1f}%)",
         f"- episodes: {len(runs)}"
         + (f", mean length {sum(runs) / len(runs):.1f} days" if runs else ""),
+    ] + [
+        f"  - {first} -> {last} ({length} day{'s' if length != 1 else ''})"
+        for first, last, length in episode_spans(window)
+    ] + [
         "",
         f"## Month-ends ({sma_symbol} calendar)",
         "",

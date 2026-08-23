@@ -16,7 +16,7 @@ from results_json import slug
 from simulate import Config, fee_schedule
 from strategies.fixed import Fixed
 from strategies.gate import AnyGate, Gate
-from strategies.vol_target import VolTarget
+from strategies.vol_target import SafeSwitch, VolTarget
 from strategy import Cadence
 
 SPEC_SCHEMA_VERSION = 1
@@ -81,13 +81,10 @@ def _pct(x: float) -> str:
     return f"{x * 100:g}"
 
 
-def _gate_object(entry: dict, path: str, universe: set) -> tuple[Gate, dict]:
-    _fields(
-        entry, path,
-        {"symbol", "assets"},
-        {"sma_days", "sma_months", "denominator", "ratio_sma", "fire",
-         "hysteresis", "contribution_exempt", "w_off"},
-    )
+def _condition(entry: dict, path: str) -> None:
+    """The condition kind shared by a gate and a switch's `when`: exactly one
+    of sma_days / sma_months / fire, with the regime keys validated against
+    fire (REGIME_SPEC §4, SAFE_SWITCH_SPEC §2.1)."""
     kinds = ("sma_days" in entry) + ("sma_months" in entry) + ("fire" in entry)
     if kinds != 1:
         _fail(path, "exactly one of sma_days / sma_months / fire")
@@ -112,6 +109,28 @@ def _gate_object(entry: dict, path: str, universe: set) -> tuple[Gate, dict]:
         for key in ("denominator", "ratio_sma", "hysteresis"):
             if key in entry:
                 _fail(_join(path, key), "requires fire (the regime kind)")
+
+
+def _condition_normalised(entry: dict) -> dict:
+    """The condition keys of a normalised gate or `when` object: the regime
+    kind with hysteresis filled, or the single sma key."""
+    if "fire" in entry:
+        return {
+            "denominator": entry["denominator"], "ratio_sma": entry["ratio_sma"],
+            "fire": entry["fire"], "hysteresis": entry.get("hysteresis", 0.0),
+        }
+    key = "sma_days" if "sma_days" in entry else "sma_months"
+    return {key: entry[key]}
+
+
+def _gate_object(entry: dict, path: str, universe: set) -> tuple[Gate, dict]:
+    _fields(
+        entry, path,
+        {"symbol", "assets"},
+        {"sma_days", "sma_months", "denominator", "ratio_sma", "fire",
+         "hysteresis", "contribution_exempt", "w_off"},
+    )
+    _condition(entry, path)
     if "w_off" in entry:
         w_off = entry["w_off"]
         if isinstance(w_off, bool) or not isinstance(w_off, (int, float)) \
@@ -136,15 +155,7 @@ def _gate_object(entry: dict, path: str, universe: set) -> tuple[Gate, dict]:
         "symbol": gate.symbol,
         "assets": list(gate.assets),
         "contribution_exempt": gate.contribution_exempt,
-    }
-    if "fire" in entry:
-        normalised |= {
-            "denominator": gate.denominator, "ratio_sma": gate.ratio_sma,
-            "fire": gate.fire, "hysteresis": gate.hysteresis,
-        }
-    else:
-        key = "sma_days" if "sma_days" in entry else "sma_months"
-        normalised[key] = entry[key]
+    } | _condition_normalised(entry)
     if "w_off" in entry:
         normalised["w_off"] = gate.w_off
     return gate, normalised
@@ -217,32 +228,75 @@ def _gate_suffix(gate: Gate | AnyGate | None) -> str:
     return "" if gate is None else f" gate {gate_str(gate)}"
 
 
-def safe_str(safe: str | dict | None) -> str:
-    """`BTAL`, `cash`, or a blended sleeve as `BTAL75+KMLM25` — the rendering
-    the auto-label embeds and sweep params reuse.
+def safe_str(safe: str | dict | SafeSwitch | None) -> str:
+    """`BTAL`, `cash`, a blended sleeve as `BTAL75+KMLM25`, or a switch as
+    `on~off@condition` — the rendering the auto-label embeds and sweep params
+    reuse.
 
     Sorted by symbol, so one sleeve cannot spell two labels (and two slugs).
-    `+` joins sleeve fractions where `fixed`'s `/` joins portfolio fractions.
+    `+` joins sleeve fractions where `fixed`'s `/` joins portfolio fractions;
+    `~` joins a switch's sleeves, its condition rendered by `gate_str`
+    (SAFE_SWITCH_SPEC §2.3).
     """
+    if isinstance(safe, SafeSwitch):
+        return f"{safe_str(safe.on)}~{safe_str(safe.off)}@{gate_str(safe.when)}"
     if isinstance(safe, dict):
         return "+".join(f"{s}{_pct(f)}" for s, f in sorted(safe.items()))
     return safe or "cash"
 
 
-def _sleeve(safe: str | dict | None) -> set[str]:
+def _sleeve(safe: str | dict | SafeSwitch | None) -> set[str]:
     """The safe symbols a `safe` value names — empty for cash."""
+    if isinstance(safe, SafeSwitch):
+        return _sleeve(safe.on) | _sleeve(safe.off)
     if isinstance(safe, dict):
         return set(safe)
     return set() if safe is None else {safe}
 
 
-def _safe(safe, path: str, risk: str) -> None:
+def _safe(safe, path: str, risk: str) -> tuple:
     """A blended sleeve maps safe symbols to fractions *of the sleeve*, fully
     allocated. Blend-with-cash is deliberately inexpressible: `null` is the
     cash arm, and a partial sum would smuggle a second cash definition into
-    the arm taxonomy."""
+    the arm taxonomy. A dict carrying `"kind"` is the switch form
+    (SAFE_SWITCH_SPEC §2.1). Returns (runtime value, normalised spec value)."""
+    if isinstance(safe, dict) and "kind" in safe:
+        if safe["kind"] != "switch":
+            _fail(_join(path, "kind"), f"unknown kind {safe['kind']!r}")
+        _fields(safe, path, {"kind", "on", "off", "when"})
+        sides = {}
+        for key in ("on", "off"):
+            value = safe[key]
+            if isinstance(value, dict) and "kind" in value:
+                _fail(_join(path, key), "a switch does not nest")
+            sides[key] = _safe(value, _join(path, key), risk)
+        if sides["on"][1] == sides["off"][1]:
+            _fail(path, "on equals off; use the static form")
+        when, when_path = safe["when"], _join(path, "when")
+        _fields(
+            when, when_path, {"symbol"},
+            {"sma_days", "sma_months", "denominator", "ratio_sma", "fire",
+             "hysteresis"},
+        )
+        _condition(when, when_path)
+        condition = Gate(
+            symbol=when["symbol"],
+            assets=[],
+            sma_days=when.get("sma_days"),
+            sma_months=when.get("sma_months"),
+            denominator=when.get("denominator"),
+            ratio_sma=when.get("ratio_sma"),
+            fire=when.get("fire"),
+            hysteresis=when.get("hysteresis", 0.0),
+        )
+        runtime = SafeSwitch(on=sides["on"][0], off=sides["off"][0], when=condition)
+        normalised = {
+            "kind": "switch", "on": sides["on"][1], "off": sides["off"][1],
+            "when": {"symbol": when["symbol"]} | _condition_normalised(when),
+        }
+        return runtime, normalised
     if not isinstance(safe, dict):
-        return
+        return safe, safe
     if len(safe) < 2:
         _fail(path, f"a {len(safe)}-symbol sleeve is the string form; use it")
     for symbol, f in safe.items():
@@ -254,6 +308,7 @@ def _safe(safe, path: str, risk: str) -> None:
             _fail(_join(path, symbol), f"expected a fraction > 0, got {f!r}")
     if abs(sum(safe.values()) - 1) > 1e-9:
         _fail(path, f"sleeve fractions sum to {sum(safe.values()):g}, not 1")
+    return safe, dict(safe)
 
 
 def _fixed(entry: dict, path: str) -> Fixed:
@@ -311,8 +366,8 @@ def _vol_target(entry: dict, path: str) -> VolTarget:
     if not w_min <= fallback <= w_max:
         _fail(_join(path, "fallback"), f"{fallback} is outside [w_min, w_max]")
 
-    risk, safe = entry["risk"], entry["safe"]
-    _safe(safe, _join(path, "safe"), risk)
+    risk = entry["risk"]
+    safe, safe_normalised = _safe(entry["safe"], _join(path, "safe"), risk)
     gate = normalised_gate = None
     if "gate" in entry:
         universe = {risk} | _sleeve(safe)
@@ -334,7 +389,7 @@ def _vol_target(entry: dict, path: str) -> VolTarget:
     st.rebalance = cadence
     st.spec = {
         "type": "vol_target", "label": label, "risk": risk,
-        "safe": dict(safe) if isinstance(safe, dict) else safe,
+        "safe": safe_normalised,
         "vol_symbol": entry["vol_symbol"], "vol": dict(vol_entry),
         "sigma_target": entry["sigma_target"], "leverage": st.leverage,
         "w_max": w_max, "w_min": w_min, "fallback": fallback,
