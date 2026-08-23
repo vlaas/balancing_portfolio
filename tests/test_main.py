@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 from bundles import BUNDLES
-from indicators import ewma_vol, sma
+from indicators import ewma_vol, ratio_sma, sma
 from main import collect_indicators, main, run_bundle
 from strategy import Strategy
 
@@ -37,6 +37,36 @@ def test_indicator_on_an_undeclared_symbol_is_rejected():
 
     with pytest.raises(AssertionError, match="rogue: indicator on undeclared symbol QQQ"):
         collect_indicators([rogue])
+
+
+def test_indicator_with_an_undeclared_input_is_rejected():
+    # REGIME_SPEC §3.3 — the host and every input must be declared.
+    rogue = Strategy(
+        label="rogue",
+        weights={"A": 1.0},
+        data=("VIX",),
+        indicators={"VIX": (ratio_sma("VIX3M", 10),)},
+    )
+
+    with pytest.raises(
+        AssertionError,
+        match="rogue: indicator VIX:RATIO_VIX3M_SMA10 reads undeclared symbol VIX3M",
+    ):
+        collect_indicators([rogue])
+
+
+def test_indicator_with_a_declared_input_passes():
+    fine = Strategy(
+        label="fine",
+        weights={"A": 1.0},
+        data=("VIX", "VIX3M"),
+        indicators={"VIX": (ratio_sma("VIX3M", 10),)},
+    )
+
+    merged = collect_indicators([fine])
+
+    assert [i.name for i in merged["VIX"]] == ["RATIO_VIX3M_SMA10"]
+    assert merged["VIX"][0].inputs == ("VIX3M",)
 
 
 # T8 — Golden regression against the frozen snapshot.

@@ -17,10 +17,16 @@ class Indicator:
     and `close` (Float64, non-null) and returns a Float64 Series of the same
     length, null during warm-up. `name` is the column suffix and the identity:
     two Indicators with the same name are the same indicator.
+
+    When `inputs` is not empty, `fn` instead receives the frame restricted to
+    the intersection of the host's and every input's calendars, with one extra
+    Float64 column per input symbol (REGIME_SPEC §3.1); the loader carries the
+    result back onto the host's own rows by date, null outside the intersection.
     """
 
     name: str
     fn: Callable[[pl.DataFrame], pl.Series]
+    inputs: tuple[str, ...] = ()
 
 
 def _log_returns(frame: pl.DataFrame) -> pl.Series:
@@ -86,3 +92,17 @@ def drawdown() -> Indicator:
 def momentum(n: int) -> Indicator:
     """Total return over the last `n` bars."""
     return Indicator(f"MOM{n}", lambda frame: frame["close"] / frame["close"].shift(n) - 1)
+
+
+def ratio_sma(denominator: str, n: int) -> Indicator:
+    """Mean of the last `n` values of close / `denominator`, on joint days only.
+
+    `n = 1` is the raw ratio. The window counts joint trading days: a host day
+    the denominator lacks never enters it (REGIME_SPEC §3.1).
+    """
+    assert n >= 1, f"ratio_sma: n must be >= 1, got {n}"
+    return Indicator(
+        f"RATIO_{denominator}_SMA{n}",
+        lambda frame: (frame["close"] / frame[denominator]).rolling_mean(n),
+        inputs=(denominator,),
+    )

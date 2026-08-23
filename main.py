@@ -41,6 +41,12 @@ def collect_indicators(
             assert symbol in st.weights or symbol in st.data, (
                 f"{st.label}: indicator on undeclared symbol {symbol}"
             )
+            for indicator in declared:
+                for input_symbol in indicator.inputs:
+                    assert input_symbol in st.weights or input_symbol in st.data, (
+                        f"{st.label}: indicator {symbol}:{indicator.name}"
+                        f" reads undeclared symbol {input_symbol}"
+                    )
             merged.setdefault(symbol, {}).update({i.name: i for i in declared})
     return {symbol: tuple(d.values()) for symbol, d in merged.items()}
 
