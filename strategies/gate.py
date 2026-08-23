@@ -49,6 +49,10 @@ class Gate:
         self.column = self.indicator.name
         self.contribution_exempt = contribution_exempt
         self.w_off = w_off
+        self.denominator = denominator
+        self.ratio_sma = ratio_sma
+        self.fire = fire
+        self.hysteresis = hysteresis
 
     @property
     def indicators(self) -> dict:

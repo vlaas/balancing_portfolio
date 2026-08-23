@@ -15,7 +15,7 @@ from indicators import ewma_vol, realized_vol
 from results_json import slug
 from simulate import Config, fee_schedule
 from strategies.fixed import Fixed
-from strategies.gate import Gate
+from strategies.gate import AnyGate, Gate
 from strategies.vol_target import VolTarget
 from strategy import Cadence
 
@@ -81,13 +81,42 @@ def _pct(x: float) -> str:
     return f"{x * 100:g}"
 
 
-def _gate(entry: dict, path: str, universe: set) -> tuple[Gate, dict]:
+def _gate_object(entry: dict, path: str, universe: set) -> tuple[Gate, dict]:
     _fields(
         entry, path,
-        {"symbol", "assets"}, {"sma_days", "sma_months", "contribution_exempt"},
+        {"symbol", "assets"},
+        {"sma_days", "sma_months", "denominator", "ratio_sma", "fire",
+         "hysteresis", "contribution_exempt", "w_off"},
     )
-    if ("sma_days" in entry) == ("sma_months" in entry):
-        _fail(path, "exactly one of sma_days / sma_months")
+    kinds = ("sma_days" in entry) + ("sma_months" in entry) + ("fire" in entry)
+    if kinds != 1:
+        _fail(path, "exactly one of sma_days / sma_months / fire")
+    if "fire" in entry:
+        for key in ("denominator", "ratio_sma"):
+            if key not in entry:
+                _fail(_join(path, key), "required with fire")
+        if entry["denominator"] == entry["symbol"]:
+            _fail(_join(path, "denominator"), "equals the gate symbol")
+        n = entry["ratio_sma"]
+        if isinstance(n, bool) or not isinstance(n, int) or n < 1:
+            _fail(_join(path, "ratio_sma"), f"expected an integer >= 1, got {n!r}")
+        fire, hysteresis = entry["fire"], entry.get("hysteresis", 0.0)
+        for key, value in (("fire", fire), ("hysteresis", hysteresis)):
+            if isinstance(value, bool) or not isinstance(value, (int, float)) \
+                    or value < 0 or abs(value * 100 - round(value * 100)) > 1e-9:
+                _fail(_join(path, key),
+                      f"expected a non-negative multiple of 0.01, got {value!r}")
+        if hysteresis >= fire:
+            _fail(_join(path, "hysteresis"), f"{hysteresis} is not below fire = {fire}")
+    else:
+        for key in ("denominator", "ratio_sma", "hysteresis"):
+            if key in entry:
+                _fail(_join(path, key), "requires fire (the regime kind)")
+    if "w_off" in entry:
+        w_off = entry["w_off"]
+        if isinstance(w_off, bool) or not isinstance(w_off, (int, float)) \
+                or not 0 <= w_off <= 1:
+            _fail(_join(path, "w_off"), f"expected a weight in [0, 1], got {w_off!r}")
     for asset in entry["assets"]:
         if asset not in universe:
             _fail(_join(path, "assets"), f"{asset!r} is not among the strategy's assets")
@@ -96,16 +125,46 @@ def _gate(entry: dict, path: str, universe: set) -> tuple[Gate, dict]:
         assets=list(entry["assets"]),
         sma_days=entry.get("sma_days"),
         sma_months=entry.get("sma_months"),
+        denominator=entry.get("denominator"),
+        ratio_sma=entry.get("ratio_sma"),
+        fire=entry.get("fire"),
+        hysteresis=entry.get("hysteresis", 0.0),
         contribution_exempt=entry.get("contribution_exempt", False),
+        w_off=entry.get("w_off"),
     )
     normalised = {
         "symbol": gate.symbol,
         "assets": list(gate.assets),
         "contribution_exempt": gate.contribution_exempt,
     }
-    key = "sma_days" if "sma_days" in entry else "sma_months"
-    normalised[key] = entry[key]
+    if "fire" in entry:
+        normalised |= {
+            "denominator": gate.denominator, "ratio_sma": gate.ratio_sma,
+            "fire": gate.fire, "hysteresis": gate.hysteresis,
+        }
+    else:
+        key = "sma_days" if "sma_days" in entry else "sma_months"
+        normalised[key] = entry[key]
+    if "w_off" in entry:
+        normalised["w_off"] = gate.w_off
     return gate, normalised
+
+
+def _gate(entry, path: str, universe: set) -> tuple[Gate | AnyGate, dict | list]:
+    """A gate object, or a list of >= 2 of them composing to an AnyGate."""
+    if not isinstance(entry, list):
+        return _gate_object(entry, path, universe)
+    if len(entry) < 2:
+        _fail(path, "a composite gate needs at least 2 members; use the object form")
+    members, normalised = [], []
+    for i, member in enumerate(entry):
+        member_path = f"{path}[{i}]"
+        if isinstance(member, list):
+            _fail(member_path, "composite gates do not nest")
+        gate, norm = _gate_object(member, member_path, universe)
+        members.append(gate)
+        normalised.append(norm)
+    return AnyGate(tuple(members)), normalised
 
 
 def _rebalance(entry: dict, path: str) -> tuple[Cadence, dict]:
@@ -136,14 +195,25 @@ def _rebalance_suffix(cadence: Cadence | None) -> str:
     return "" if cadence is None else f" rb {rebalance_str(cadence)}"
 
 
-def gate_str(gate: Gate) -> str:
-    """`QQQ<SMA200`, plus `+contrib` when contributions are exempt — the
-    rendering the auto-labels embed and sweep params reuse."""
+def gate_str(gate: Gate | AnyGate) -> str:
+    """`QQQ<SMA200` or `VIX/VIX3M@10>=1.00<0.95`, plus `+contrib` when
+    contributions are exempt and ` off{pct}` when `w_off` is set; a composite
+    joins its members with `|` — the rendering the auto-labels embed and
+    sweep params reuse (REGIME_SPEC §5.2)."""
+    if isinstance(gate, AnyGate):
+        return "|".join(gate_str(member) for member in gate.members)
     exempt = "+contrib" if gate.contribution_exempt else ""
-    return f"{gate.symbol}<{gate.column}{exempt}"
+    off = f" off{_pct(gate.w_off)}" if gate.w_off is not None else ""
+    if gate.fire is not None:
+        band = f"<{gate.fire - gate.hysteresis:.2f}" if gate.hysteresis else ""
+        return (
+            f"{gate.symbol}/{gate.denominator}@{gate.ratio_sma}"
+            f">={gate.fire:.2f}{band}{exempt}{off}"
+        )
+    return f"{gate.symbol}<{gate.column}{exempt}{off}"
 
 
-def _gate_suffix(gate: Gate | None) -> str:
+def _gate_suffix(gate: Gate | AnyGate | None) -> str:
     return "" if gate is None else f" gate {gate_str(gate)}"
 
 

@@ -1,5 +1,5 @@
 # Spec parsing, auto-labels, and equivalence to the hand-written strategies —
-# DECLARATIVE_SPEC.md T1, T2, T3, T7, T8.
+# DECLARATIVE_SPEC.md T1, T2, T3, T7, T8; REGIME_SPEC R7.
 
 import copy
 import datetime as dt
@@ -44,6 +44,14 @@ def broken(mutate) -> dict:
     return spec
 
 
+# The §8.1 gate objects the regime cases mutate with.
+G_SMA = {"symbol": "QQQ", "assets": ["TQQQ"], "sma_days": 200}
+G_R1 = {
+    "symbol": "VIX", "denominator": "VIX3M", "assets": ["TQQQ"],
+    "ratio_sma": 1, "fire": 1.0,
+}
+
+
 # research.json entries: [0] fixed labelled, [1] fixed TQQQ100, [2] fixed with a
 # daily gate, [3] fixed with a monthly exempt gate, [4] vol_target, [5] benchmark.
 INVALID = {
@@ -68,6 +76,19 @@ INVALID = {
     "sleeve fraction negative": (lambda s: s["strategies"][4].update(safe={"BTAL": 1.5, "KMLM": -0.5}), "strategies[4].safe.KMLM"),
     "sleeve holds the risk asset": (lambda s: s["strategies"][4].update(safe={"TQQQ": 0.5, "BTAL": 0.5}), "strategies[4].safe.TQQQ"),
     "sleeve key not a symbol": (lambda s: s["strategies"][4].update(safe={7: 0.5, "BTAL": 0.5}), "strategies[4].safe"),
+    # REGIME_SPEC R7 — the regime gate grammar.
+    "fire alongside an sma kind": (lambda s: s["strategies"][2]["gate"].update(denominator="VIX3M", ratio_sma=10, fire=1.0), "strategies[2].gate"),
+    "denominator without fire": (lambda s: s["strategies"][2]["gate"].update(denominator="VIX3M"), "strategies[2].gate.denominator"),
+    "fire without ratio_sma": (lambda s: s["strategies"][2].update(gate={"symbol": "VIX", "assets": ["TQQQ"], "denominator": "VIX3M", "fire": 1.0}), "strategies[2].gate.ratio_sma"),
+    "ratio_sma zero": (lambda s: s["strategies"][2].update(gate=G_R1 | {"ratio_sma": 0}), "strategies[2].gate.ratio_sma"),
+    "hysteresis not below fire": (lambda s: s["strategies"][2].update(gate=G_R1 | {"hysteresis": 1.0}), "strategies[2].gate.hysteresis"),
+    "fire off the cent grid": (lambda s: s["strategies"][2].update(gate=G_R1 | {"fire": 0.955}), "strategies[2].gate.fire"),
+    "w_off above one": (lambda s: s["strategies"][2]["gate"].update(w_off=1.5), "strategies[2].gate.w_off"),
+    "w_off boolean": (lambda s: s["strategies"][2]["gate"].update(w_off=True), "strategies[2].gate.w_off"),
+    "denominator equals the symbol": (lambda s: s["strategies"][2].update(gate=G_R1 | {"denominator": "VIX"}), "strategies[2].gate.denominator"),
+    "one-element gate list": (lambda s: s["strategies"][2].update(gate=[dict(G_SMA)]), "strategies[2].gate"),
+    "nested gate list": (lambda s: s["strategies"][2].update(gate=[[dict(G_SMA)], dict(G_R1)]), "strategies[2].gate[0]"),
+    "unknown key inside a composite member": (lambda s: s["strategies"][2].update(gate=[dict(G_SMA), G_R1 | {"sma_day": 200}]), "strategies[2].gate[1].sma_day"),
 }
 
 
@@ -210,6 +231,76 @@ def test_explicit_label_wins():
     assert label_of({"type": "fixed", "label": "mine", "weights": {"TQQQ": 1.0}}) == "mine"
 
 
+# --- REGIME_SPEC R7: regime gate renderings and normalisation ----------------
+
+
+def fixed_with_gate(gate) -> dict:
+    return {"type": "fixed", "weights": {"TQQQ": 0.5, "BTAL": 0.5}, "gate": gate}
+
+
+def test_regime_gate_renderings():
+    # The five §5.2 renderings, exactly.
+    assert label_of(fixed_with_gate(dict(G_SMA))) == "TQQQ50/BTAL50 gate QQQ<SMA200"
+    assert label_of(
+        fixed_with_gate(G_R1 | {"ratio_sma": 10})
+    ) == "TQQQ50/BTAL50 gate VIX/VIX3M@10>=1.00"
+    assert label_of(
+        fixed_with_gate(G_R1 | {"ratio_sma": 10, "hysteresis": 0.05})
+    ) == "TQQQ50/BTAL50 gate VIX/VIX3M@10>=1.00<0.95"
+    assert label_of(
+        fixed_with_gate(G_SMA | {"w_off": 0})
+    ) == "TQQQ50/BTAL50 gate QQQ<SMA200 off0"
+    assert label_of(
+        fixed_with_gate([dict(G_SMA), G_R1 | {"w_off": 0}])
+    ) == "TQQQ50/BTAL50 gate QQQ<SMA200|VIX/VIX3M@1>=1.00 off0"
+
+
+def test_regime_gate_vt_label():
+    assert label_of(
+        {"type": "vol_target", "risk": "TQQQ", "safe": "BTAL", "vol_symbol": "QQQ",
+         "vol": {"kind": "ewma", "lam": 0.80}, "leverage": 3, "sigma_target": 0.30,
+         "w_max": 0.6,
+         "gate": G_R1 | {"ratio_sma": 10, "hysteresis": 0.05}}
+    ) == "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate VIX/VIX3M@10>=1.00<0.95"
+
+
+def test_regime_gate_normalises_with_hysteresis_filled():
+    bundle = build_bundle(broken(lambda s: s["strategies"][2].update(gate=dict(G_R1))))
+    entry = normalised_spec(bundle)["strategies"][2]
+
+    # hysteresis is always present on a regime gate; w_off only when given.
+    assert entry["gate"] == {
+        "symbol": "VIX", "assets": ["TQQQ"], "contribution_exempt": False,
+        "denominator": "VIX3M", "ratio_sma": 1, "fire": 1.0, "hysteresis": 0.0,
+    }
+
+    with_off = build_bundle(
+        broken(lambda s: s["strategies"][2].update(gate=G_R1 | {"w_off": 0.3}))
+    )
+    assert normalised_spec(with_off)["strategies"][2]["gate"]["w_off"] == 0.3
+
+    # The sma kind keeps its committed shape: no regime keys, no w_off.
+    plain = build_bundle(broken(lambda s: None))
+    sma_gate = normalised_spec(plain)["strategies"][2]["gate"]
+    assert set(sma_gate) == {"symbol", "assets", "contribution_exempt", "sma_days"}
+
+
+def test_composite_gate_round_trips_through_the_normalised_spec():
+    composite = [dict(G_SMA), G_R1 | {"w_off": 0.0}]
+    bundle = build_bundle(broken(lambda s: s["strategies"][2].update(gate=composite)))
+
+    first = normalised_spec(bundle)
+    assert [g["symbol"] for g in first["strategies"][2]["gate"]] == ["QQQ", "VIX"]
+
+    again = normalised_spec(build_bundle(copy.deepcopy(first)))
+    assert again == first
+
+    # The strategy declares both regime symbols, per §3.3.
+    st = bundle.strategies[2]
+    assert set(st.data) == {"QQQ", "VIX", "VIX3M"}
+    collect_indicators([st])  # the input rule holds without spec-author work
+
+
 def test_identical_entries_collide_loudly():
     entry = {"type": "fixed", "weights": {"TQQQ": 0.5, "BTAL": 0.5}}
     spec = {
@@ -260,6 +351,12 @@ def every_strategy():
         if path.stem.startswith("sweep_"):
             continue  # sweep specs have their own grammar; sweep.py reads them
         bundle = build_bundle(load_spec(path))
+        symbols = {s for st in bundle.strategies for s in (*st.weights, *st.data)}
+        if any(not (GOLDEN_DIR / f"{s}.csv").exists() for s in symbols):
+            # REGIME_SPEC §2.2 erratum: the flat snapshot gains no files, so a
+            # spec reading VIX/VIX3M cannot run here; R10 and the §9 protocol
+            # cover it on the dated snapshots instead.
+            continue
         for st in bundle.strategies:
             yield f"{path.stem}:{st.label}", st, bundle.config
 
