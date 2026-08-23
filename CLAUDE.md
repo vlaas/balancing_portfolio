@@ -93,5 +93,8 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
   (the flat `tests/data/*.csv` snapshot) are legacy regression artefacts only.
 - When a proposal needs a new strategy type or parameter: change
   `spec.py`/`strategies/` with tests first, write the spec second.
+- A new external signal starts with `uv run regime_report.py` — read it on
+  its own calendar (days off, month-ends off, contingency with the incumbent
+  gate) before proposing any lane (`docs/REGIME_SPEC.md` §6, §10).
 - Never modify engine semantics (`simulate.py`, `strategy.py`) to make a spec
   "work" without saying so explicitly in the commit message.

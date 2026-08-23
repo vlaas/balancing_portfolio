@@ -70,11 +70,27 @@ The two types (`spec.py` maps them to `strategies/fixed.py` and
   proportion. Labels render the sleeve sorted by symbol and joined by `+`
   (`VT TQQQ/BTAL75+KMLM25 …`), where `fixed`'s `/` joins portfolio fractions.
 
-A **`gate`** belongs to either type: it is closed on days
-`close(symbol) < SMA` (`sma_days` or `sma_months`, exactly one) and open while
-either value is `None`. When closed, buys of its `assets` stop; with
-`"contribution_exempt": true` they continue up to that day's external cash ×
-the asset's weight of the day.
+A **`gate`** belongs to either type and comes in two kinds — exactly one of
+`sma_days` / `sma_months` / `fire` picks it (docs/REGIME_SPEC.md):
+
+- **sma**: closed on days `close(symbol) < SMA`, open while either value is
+  `None`.
+- **regime**: closed while the term-structure state machine on
+  `symbol / denominator` reads risk-off — the ratio's `ratio_sma`-day mean
+  fires at ≥ `fire` and releases below `fire − hysteresis` (default 0), both
+  non-negative multiples of 0.01 with `hysteresis < fire`; `ratio_sma: 1` is
+  the raw ratio. Open during warm-up. Renders as `VIX/VIX3M@10>=1.00<0.95`.
+
+When closed, buys of its `assets` stop; with `"contribution_exempt": true`
+they continue up to that day's external cash × the asset's weight of the day.
+Optional **`w_off`** (either kind, `[0, 1]`, renders ` off{pct}`) additionally
+clips the assets' *target* weight to `w_off` while closed — the excess moves
+to the rest of the portfolio pro rata (to cash when there is no rest), so
+`w_off: 0` sells the asset down to zero on a rebalance day; a
+contribution-only day still never sells. `gate` may also be a **list of ≥ 2
+gate objects**: closed iff any member is closed, the most restrictive
+member's buy cap wins, clips apply in member order, labels join members with
+`|`. No nesting.
 
 A **`rebalance`** cadence also belongs to either type: `{"weeks": N}` or
 `{"months": N}` (exactly one), optional `"offset"` in `[0, N)`. The strategy
@@ -261,15 +277,22 @@ ctx.indicator("QQQ", "SMA200")    # "QQQ:SMA200" column, or None before it exist
   parameterisations coexist and the name *is* the indicator's identity —
   declarations are merged across the bundle and deduplicated by name.
 - A symbol you attach an indicator to must be one you trade (`weights`) or read
-  (`data`); anything else is an assertion error at load time.
+  (`data`); anything else is an assertion error at load time. A
+  **cross-symbol** indicator (non-empty `Indicator.inputs`) extends the rule:
+  the host *and every input* must be declared.
 - Available factories: `sma(n)`, `sma_monthly(m)`, `realized_vol(n)`,
-  `ewma_vol(lam)`, `drawdown()`, `momentum(n)`. Add one by writing a factory
-  and adding it to the causality test's parameter list in
-  `tests/test_indicators.py`.
+  `ewma_vol(lam)`, `drawdown()`, `momentum(n)`; cross-symbol:
+  `ratio_sma(denominator, n)` and `ts_regime(denominator, n, fire,
+  hysteresis)` (docs/REGIME_SPEC.md §3). Add one by writing a factory and
+  adding it to the causality tests in `tests/test_indicators.py`.
 - Every indicator is computed on the **symbol's own bar calendar**, before the
   join onto the traded calendar. Computing after the join would shift an SMA by
   one bar wherever a symbol has a gap (BTAL, 2017-01-24). Values are `None`
-  during warm-up — never zero, never a partial window.
+  during warm-up — never zero, never a partial window. A cross-symbol
+  indicator is computed on the **intersection** of the host's and every
+  input's calendars — a host day an input lacks never enters a rolling
+  window and carries `null`, forward-filled downstream like any indicator —
+  which is what keeps VIX's holiday-only rows out of the VIX/VIX3M ratio.
 - The trading calendar is defined by the **traded** symbols only. `data`
   symbols are joined onto it: their extra dates are ignored, their gaps are
   forward-filled, and they may begin after the simulation start (values are

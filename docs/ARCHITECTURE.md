@@ -95,6 +95,14 @@ Decisions and their reasons:
   `_read_symbol`, *before* the join onto the traded calendar. Computing after
   the join would shift an SMA by one bar wherever a symbol has a gap. Once
   computed they are ordinary columns and forward-fill like any other.
+- **Cross-symbol indicators** (`Indicator.inputs`, e.g.
+  `ratio_sma("VIX3M", 10)` on VIX) are computed on the **intersection** of
+  the host's and every input's calendars — `fn` sees `date`, `close` and one
+  column per input — then carried back onto the host's rows by date, null
+  outside the intersection (REGIME_SPEC §3). A host day an input lacks never
+  enters a rolling window; the empty intersection is an assertion.
+  `collect_indicators` requires the host *and every input* to be declared in
+  the strategy's `weights` or `data`.
 - **`SYM:NAME` naming** keeps indicator columns collision-free against symbol
   names by construction (a bare symbol never contains `:`). `NAME` embeds every
   parameter, so it is also the identity used to deduplicate declarations.
@@ -380,6 +388,14 @@ entries onto `strategies/fixed.py` / `strategies/vol_target.py` (plus
 key; labels are generated deterministically from the parameters when absent
 and asserted unique at slug level. The normalised spec — defaults and labels
 filled in — is what `results.json` embeds.
+
+A `gate` comes in two kinds sharing one class — **sma** (`close < SMA`) and
+**regime** (the `ts_regime` risk-off state on `symbol / denominator`,
+REGIME_SPEC §4) — and either kind takes `w_off`, a target-weight clip applied
+in `balance()` while closed (absent `w_off` is the buy-cap-only gate,
+engine-invariant). A list of ≥ 2 gate objects composes to `AnyGate`: closed
+iff any member, minimum buy cap, clips in member order. `simulate.py` and
+`strategy.py` know nothing about any of this.
 
 ## main.py — wiring
 

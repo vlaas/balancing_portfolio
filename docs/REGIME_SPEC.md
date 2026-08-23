@@ -1,7 +1,8 @@
 # Specification: VIX/VIX3M term-structure regime gate
 
 Repo: `vlaas/balancing_portfolio` · baseline commit: `184f02b` ("VIX and VIX3M data",
-434 tests green) · status: proposal
+434 tests green) · status: **implemented** (branch `regime-gate`, per-phase commits;
+verdict: `notes/regime-verdict.md` — not adopted, SMA-200 stands; errata §15)
 
 ## 1. Goal
 
@@ -652,16 +653,16 @@ What this predicts, each a falsifiable line for the verdict:
 
 ## 13. Acceptance checklist
 
-- [ ] `Indicator.inputs`; `prices._read_close`, intersection join and carry-back in `_read_symbol`; `collect_indicators` input assertion
-- [ ] `indicators.ratio_sma`, `indicators.ts_regime` with the §3.5 loop; T2 lane extended
-- [ ] `Gate` regime kind, `symbols`, `w_off` + `clip`; `AnyGate`; `Fixed.balance` and `VolTarget.balance` apply `clip`; `simulate.py`/`strategy.py` untouched
-- [ ] `spec.py` grammar (§5.1), `gate_str` (§5.2), composite parsing with `gate[i]` paths; `results.json` round-trip
-- [ ] `regime_report.py`
-- [ ] `tests/data/2026-08-20/{VIX,VIX3M}.csv` + README paragraph; `make_net_tr.py` pass-through; net snapshot regenerated (diff = two files + README rows); N5 count 15
-- [ ] Tests R1–R10 green from a fresh clone with `uv run pytest`
-- [ ] Five specs (§8.2–§8.6) and their artefacts committed together; anchors of §9 confirmed in the verdict
-- [ ] Docs: STRATEGY_DEVELOPMENT.md ("Declarative strategies" gate table, composite, `w_off`; "Data files and indicators" cross-symbol inputs), ARCHITECTURE.md (`Indicator.inputs`, loader intersection rule, gate kinds), `data/README.md` (index series paragraph), CLAUDE.md §6 (one line: a new external signal starts with `regime_report.py`)
-- [ ] `notes/regime-verdict.md` per §10; WINNING_STRATEGIES.md changed only if step 6 says so
+- [x] `Indicator.inputs`; `prices._read_close`, intersection join and carry-back in `_read_symbol`; `collect_indicators` input assertion
+- [x] `indicators.ratio_sma`, `indicators.ts_regime` with the §3.5 loop; T2 lane extended (as new tests in T2 style — errata 6)
+- [x] `Gate` regime kind, `symbols`, `w_off` + `clip`; `AnyGate`; `Fixed.balance` and `VolTarget.balance` apply `clip`; `simulate.py`/`strategy.py` untouched
+- [x] `spec.py` grammar (§5.1), `gate_str` (§5.2), composite parsing with `gate[i]` paths; `results.json` round-trip
+- [x] `regime_report.py`
+- [x] `tests/data/2026-08-20/{VIX,VIX3M}.csv` + README paragraph; `make_net_tr.py` pass-through; net snapshot regenerated (diff = two files + README rows); N5 count 15
+- [x] Tests R1–R10 green from a fresh clone with `uv run pytest`
+- [x] Five specs (§8.2–§8.6) and their artefacts committed together; anchors of §9 confirmed in the verdict
+- [x] Docs: STRATEGY_DEVELOPMENT.md ("Declarative strategies" gate table, composite, `w_off`; "Data files and indicators" cross-symbol inputs), ARCHITECTURE.md (`Indicator.inputs`, loader intersection rule, gate kinds), `data/README.md` (index series paragraph), CLAUDE.md §6 (one line: a new external signal starts with `regime_report.py`)
+- [x] `notes/regime-verdict.md` per §10; WINNING_STRATEGIES.md changed only if step 6 says so (step 6 said no — the file is not created)
 
 ## 14. Deliberately not in scope
 
@@ -676,3 +677,42 @@ Regime-conditional `sigma_target` (tightening the vol target instead of clipping
 weight) and asymmetric gate speeds — both are gate changes REBALANCE_SPEC §10 flagged, and
 both should wait for this spec's verdict on whether the signal carries anything at monthly
 cadence at all.
+
+## 15. Errata (found during implementation)
+
+1. **§5.3 "No runner change" was wrong.** `sweep._param_value` returned any
+   non-dict value raw, so a composite gate grid value (a JSON list) would have
+   landed in `params` as an unhashable list and crashed `build_summary`'s
+   `by_combo` keys. One-line fix: list values route through the renderers too
+   (`sweep.py`); R8's own expected strings already assumed it.
+2. **§2.1 "make_net_tr.py … iterate[s] a fixed symbol list" was wrong** about
+   the generator: `build()` globs `*.csv`, so copying the index files into the
+   parent without the §2.2 pass-through rule would have broken it. The
+   fixed-list claim is true only of `tests/test_total_return.py` /
+   `tests/test_net_tr.py`. The §2.2 design stands unchanged.
+3. **§8.6's confirm bundle collides with the spec auto-discovery test.**
+   `tests/test_spec.py::every_strategy` runs every non-`sweep_` spec against
+   the flat `tests/data` snapshot, which §2.2 forbids extending — so
+   `specs/regime_confirm_2012.json` would `FileNotFoundError` there. Resolution
+   (user-approved): `every_strategy` skips a spec whose declared symbols are
+   absent from the flat snapshot; the confirm bundle is covered by R10 and the
+   §9 run instead.
+4. **`regime_report.py` default window end** is pinned to
+   `min(last joint day, SMA symbol's last day)` so the §9 invocations (no
+   `--end`) reproduce R4's window (… → 2026-08-20, 3,679 joint days) even
+   though VIX/VIX3M run one day further.
+5. **§4.3's "order cannot matter" for `AnyGate.clip`** holds only when the
+   members' `assets` coincide (every shipped composite). With disjoint asset
+   sets a later member can re-inflate what an earlier one clipped. Normative
+   semantics: clips apply in member order; the order-invariance property is
+   tested for the shared-assets case only.
+6. **R3 "add to the T2 strict lane"** could not be a literal parametrize
+   entry — that lane feeds single-symbol frames. The causality tests land as
+   new tests in T2 style on a synthetic joined frame (truncation invariance
+   plus the ×1000 price-look-ahead form), as R3's own wording describes.
+7. **R10's "λ0.80" label shorthand** — the artefact label spells it
+   `QQQ:VOL_EWMA80`; same arm.
+8. **§8.6's per-episode table is bounded by the `drawdowns` block depth**
+   (top 5 per strategy): an episode shallower than an arm's fifth-deepest
+   drawdown does not appear for that arm. The verdict's panel marks those
+   cells `·`; every episode the read protocol needed was visible.
