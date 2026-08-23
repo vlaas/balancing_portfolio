@@ -75,6 +75,9 @@ def test_report_counts_on_a_synthetic_root(tmp_path):
     assert "- A-only rows in the window: 1, on Q's calendar: 0" in text
     assert "- risk-off: 3 of 5 (60.0%)" in text
     assert "- episodes: 2, mean length 1.5 days" in text
+    # Each episode's span follows the count (SAFE_SWITCH_SPEC §6.5).
+    assert "  - 2020-01-31 -> 2020-02-03 (2 days)" in text
+    assert "  - 2020-03-02 -> 2020-03-02 (1 day)" in text
     assert "- month-ends in the window: 2, risk-off: 1" in text
     assert "| 2020 | 2 | 1 |" in text
     # 01-31: both off; 02-28: SMA only (Q 8 < SMA 9, regime released).
@@ -100,6 +103,8 @@ def test_r4_calendar_and_the_research_default():
     assert "- window: 2012-01-03 -> 2026-08-20, 3679 joint days" in text
     assert "- VIX-only rows in the window: 22, on QQQ's calendar: 0" in text
     assert "- risk-off: 305 of 3679 (8.3%)" in text
+    assert "- episodes: 15, mean length 20.3 days" in text
+    assert "  - 2018-10-17 -> 2019-02-04 (74 days)" in text
     assert "- month-ends in the window: 175, risk-off: 13" in text
     # QQQ<SMA200 closes 27 month-ends on the net series (the gross root gives
     # 25); the 2022 line is the research's falsification criterion: 0 of 12.
