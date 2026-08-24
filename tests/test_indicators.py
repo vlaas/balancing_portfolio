@@ -30,6 +30,19 @@ CSV_FILES = [
 ]
 
 
+def _has_sma_columns(path: Path) -> bool:
+    with path.open() as handle:
+        return "SMA200" in handle.readline()
+
+
+# ROTATION_SPEC §3.1: the Pine SMA overlay left the export procedure with the
+# 2026-08 batch, so the TradingView-parity fixture collects only files whose
+# header still carries the reference columns — frozen snapshots and the flat
+# legacy CSVs. Live data/ is guarded by the §3.5 pair invariants instead
+# (tests/test_total_return.py).
+SMA_FILES = [p for p in CSV_FILES if _has_sma_columns(p)]
+
+
 def read_closes(path: Path) -> pl.DataFrame:
     """A symbol's own bar calendar: `date` and `close`, as an Indicator sees it."""
     return pl.read_csv(
@@ -70,7 +83,7 @@ def first_value_index(series: pl.Series) -> int | None:
 # T1 — TradingView parity: the proof that the Python SMA reproduces the export.
 
 
-@pytest.mark.parametrize("path", CSV_FILES, ids=lambda p: str(p.relative_to(DATA_DIR.parent)))
+@pytest.mark.parametrize("path", SMA_FILES, ids=lambda p: str(p.relative_to(DATA_DIR.parent)))
 @pytest.mark.parametrize("n", [15, 50, 100, 200])
 def test_sma_matches_the_tradingview_column(path: Path, n: int) -> None:
     frame = pl.read_csv(path, schema_overrides={"close": pl.Float64}, try_parse_dates=True)
@@ -79,6 +92,13 @@ def test_sma_matches_the_tradingview_column(path: Path, n: int) -> None:
 
     assert computed.null_count() == reference.null_count()
     assert (computed - reference).abs().max() <= 1e-9
+
+
+def test_the_parity_fixture_scope_is_pinned() -> None:
+    # ROTATION_SPEC §8 T9: a silent scope shrink (a snapshot losing its SMA
+    # columns, a broken rglob) must be loud. 20 = the 6 flat legacy CSVs +
+    # 8 top-level and 6 price/ files of tests/data/2026-08-20.
+    assert len(SMA_FILES) == 20
 
 
 # T2 — Causality: no value at row t may depend on a close after t.

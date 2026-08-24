@@ -456,3 +456,34 @@ momentum family. A CAGR win over SPY would be the surprise to distrust first.
 4. T8 golden on the net15 snapshot; verdict work (sweep specs per strategy
    family, pre-registered thresholds) is **not** this spec — each family gets
    its own run spec with kill conditions, as with every sweep so far.
+
+## 12. Errata
+
+Measured during implementation; each item is recorded in the commit that
+fixed it.
+
+**Phase 0:**
+
+1. **§2/§3.5 pair counts.** "All 43 paired symbols" measures **47** (§2 also
+   undercounts its own yield list); "currently 44 with GLD" is **48**. The
+   §3.5 universe pin is 48.
+2. **§2 yield table omissions.** IEF (2.81 %/yr) and NTSE (2.85 %/yr) exist
+   in both roots but are absent from the table; both are in the committed
+   band table with bands derived the same way.
+3. **§3.4 "identical history" is false for VIX.** On the shared dates,
+   1,285 VIX closes differ between the pre-batch `data/VIX.csv` and the new
+   export (all since 2021-05-21; 574 beyond ±0.01, four beyond 0.05, worst
+   0.28 on 2023-06-07 — TradingView revisions/rounding). VIX3M is a true
+   no-op (0 differing closes). Frozen snapshots keep their own VIX copies,
+   so no pinned number moves; recorded in `data/README.md` and the
+   2026-08-24 snapshot README.
+4. **§3.1 leaves zero live files in the parity fixture.** The only live
+   SMA-bearing files were the pre-batch VIX/VIX3M, which §3.4 replaces — the
+   fixture collects 20 files (80 params), all frozen snapshots or the flat
+   legacy CSVs. T9 pins that count.
+5. **NET_TR_SPEC §2.1 `JUMP_MIN` re-pinned 2e-5 → 1e-5.** The 48-pair
+   universe contains a genuine distribution below the six-symbol universe's
+   floor: BIL 2009-11-02, ln-step 1.247e-5 (~$0.0011 ZIRP-era payout).
+   Largest flat step is unchanged at 1.62e-6 (TQQQ), so the dead zone
+   (5e-6, 1e-5) stays empty and asserted. The 2026-08-20-net15 derivative is
+   byte-unchanged except its README's constant line (N5 regenerates it).

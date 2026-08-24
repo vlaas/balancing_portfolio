@@ -285,8 +285,8 @@ def test_zero_withholding_reproduces_the_parent_exactly(tmp_path):
 
 
 def test_dead_zone_step_is_a_hard_error(tmp_path):
-    src = write_pair(tmp_path / "src", [0.95, 0.95 * math.exp(1e-5), 1.0])
-    with pytest.raises(ValueError, match=r"SYN 2024-01-02: dead-zone step 9\.9"):
+    src = write_pair(tmp_path / "src", [0.95, 0.95 * math.exp(7e-6), 1.0])
+    with pytest.raises(ValueError, match=r"SYN 2024-01-02: dead-zone step 6\.9"):
         net_main([str(src), "--out", str(tmp_path / "net")])
     assert not (tmp_path / "net").exists()
 

@@ -1,20 +1,26 @@
 # Market data
 
-Daily bars exported from **TradingView**, two CSVs per symbol:
+Daily bars exported from **TradingView**, in three file classes
+(ROTATION_SPEC §3.2–§3.3):
 
-- `<SYM>.csv` — the **dividend-adjusted (total-return) export**. This is the
-  traded series: the close the loader reads and every indicator is computed on.
-- `price/<SYM>.csv` — the unadjusted export from the **same session**, reference
-  only. The loader never looks inside `price/`; the pair exists so the
-  adjustment is verifiable (see "The adjustment ratio" below).
+| class | files | loader reads |
+|---|---|---|
+| **Paired ETF** (48) | `<SYM>.csv` — the **dividend-adjusted (total-return) export**, the traded series; `price/<SYM>.csv` — the unadjusted export from the **same session**, reference only | `<SYM>.csv` |
+| **Single-series index** (SPX, XNDX, VIX, VIX3M) | `<SYM>.csv` only — indices have no adjustment toggle (XNDX embeds dividends by construction, SPX excludes them; VIX/VIX3M are cash vol indices), so no `price/` twin | `<SYM>.csv`, signal-only |
+| **Macro** (`macro/`: UNRATE, RRSFS, INDPRO, DTB3) | quarantined FRED series — see "Macro series" below | **never** |
+
+The loader resolves every read — traded, `extra`, or indicator `inputs` —
+against `data/<SYM>.csv` and never looks inside `price/` or `macro/`; the
+`price/` twin exists so the adjustment is verifiable (see "The adjustment
+ratio" below).
 
 ## Layout
 
-Both files use the same export layout:
+Both files of a pair use the same export layout:
 
 ```
-time,open,high,low,close,SMA50,SMA100,SMA200,SMA15,Volume
-2011-09-13,21.73271823,21.73271823,20.6162531,21.09352063,,,,,10500
+time,open,high,low,close,Volume
+1993-01-29,24.13552346,24.13562776,24.01541892,24.11861661,1003200.0
 ```
 
 `time` is `YYYY-MM-DD`, one row per trading day, ascending and unique. The
@@ -28,23 +34,21 @@ whitelists those two columns; everything else in the file is ignored at
 runtime. The engine trades and values on the total-return close, so results
 include distributions reinvested at the ex-date close (gross of withholding).
 
-## What the `SMA*` columns are for
+## Where the SMA verification fixture went
 
-They are a **verification fixture, not an input.** Indicators are computed in
-Python (`indicators.py`) and declared per strategy. The exported `SMA15`, `SMA50`,
-`SMA100` and `SMA200` columns are the independent reference that proves the Python
-implementation matches TradingView:
-`tests/test_indicators.py::test_sma_matches_the_tradingview_column` compares
-`indicators.sma(n)` against column `SMA{n}` in every CSV — adjusted and
-`price/` alike, since Pine's `close` follows the chart's adjustment setting —
-for `n ∈ {15, 50, 100, 200}`, requiring agreement to `1e-9` and an identical
-null count. Measured agreement is ~2e-12. That is why the dividend toggle must
-be set **before** each export: the indicator columns and the close column of
-one file must describe the same series.
-
-Because the comparison happens *within* a file, it stays valid when the export
-is refreshed. Keep the `SMA*` columns in future exports — dropping them would
-silently retire the check.
+Exports up to the 2026-08 batch carried Pine overlay columns
+(`SMA50,SMA100,SMA200,SMA15`) proving `indicators.sma(n)` reproduces
+TradingView. That proof is **permanently discharged by the frozen snapshots**,
+which keep their SMA columns and stay in scope of
+`tests/test_indicators.py::test_sma_matches_the_tradingview_column` — the
+test collects only files whose header carries the columns, with the count
+pinned so a silent scope shrink is loud. The overlay is no longer part of the
+export procedure (a two-pass export of 48 paired symbols with a chart overlay
+attached per pass is exactly the operator burden that produces mismatched
+sessions); live-data guard duty transferred to the pair invariants and
+per-symbol yield bands of `tests/test_total_return.py` (ROTATION_SPEC
+§3.1/§3.5). The overlay's Pine source survives in git history (this README
+before the 2026-08 batch).
 
 `Volume` is exported but unused.
 
@@ -78,9 +82,11 @@ frozen snapshots, which is already the rule.
 dividend adjustment **on** — the chart then shows the series the simulator
 trades.
 
-Measured on the 2026-08-20 export (pinned in `tests/data/2026-08-20/README.md`):
-flat-segment noise in `ln R` ≤ 4.3e-8, SMA parity ≤ 2.0e-12, implied
-distributions within $0.000011 of published amounts.
+Measured tolerances are pinned per snapshot: `tests/data/2026-08-20/README.md`
+(SMA parity ≤ 2.0e-12, implied distributions within $0.000011 of published
+amounts) and `tests/data/2026-08-24/README.md` (48 pairs: flat-segment noise
+≤ 4.3e-8, smallest genuine jump 1.247e-5, the full yield table behind the
+live-pair bands).
 
 ## Export settings
 
@@ -92,75 +98,26 @@ Two passes per symbol, same chart, same session:
 3. Toggle back **ON**, so the chart's resting state matches the traded series.
 
 - Symbol: the ETF's primary listing; chart interval **1D**.
-- One indicator on the chart: *SMAs (50,100,200,15) by Veta* (source below), all four
-  SMAs enabled, source `close`, lengths 50 / 100 / 200 / 15 — the plot order, and so the
-  column order in the export.
-- Exported via *Chart → Export chart data…*, "Chart data" with visible indicator
-  columns, ISO dates, `.` decimal separator, `,` field separator.
+- No indicator on the chart (the Pine SMA overlay left the procedure with the
+  2026-08 batch — see "Where the SMA verification fixture went").
+- Exported via *Chart → Export chart data…*, ISO dates, `.` decimal
+  separator, `,` field separator.
 - The full available history is exported; files therefore start at different
   dates (SPY 1993, QQQ 1999, TQQQ 2010, BTAL 2011, DBMF 2019, KMLM 2020) and may
   end on different dates.
 
-### Pine script
+## Macro series (`macro/`) — quarantined, never loaded
 
-Pine requires `plot()` titles to be compile-time constants, so the column header
-(`TITLE_n`) and the length it describes (`input.int` default) are two separate
-declarations that must be edited **together** — the script says so where they sit.
-Nothing in Pine enforces the pairing, and changing a length on the chart without
-touching the title would export a mislabelled column. That is precisely what T1
-catches: it compares `indicators.sma(n)` against column `SMA{n}`, so a header that
-disagrees with its length fails the suite loudly rather than silently poisoning a
-backtest.
-
-```pine
-//@version=6
-// Four SMAs in a single indicator slot. v6 port of "SMAs (10,50,100,200) by Veta".
-
-indicator(title = "SMAs (50,100,200,15) by Veta", shorttitle = "SMAs", overlay = true)
-
-// ── Plot titles ───────────────────────────────────────────────────────────────
-// plot() titles must be compile-time constants in Pine, so they cannot be
-// driven by inputs. These strings are the column headers in exported chart
-// data — edit them together with the default lengths in the inputs below.
-string TITLE_1 = "SMA50"
-string TITLE_2 = "SMA100"
-string TITLE_3 = "SMA200"
-string TITLE_4 = "SMA15"
-
-// ── Inputs ────────────────────────────────────────────────────────────────────
-string G1 = "1st SMA"
-string G2 = "2nd SMA"
-string G3 = "3rd SMA"
-string G4 = "4th SMA"
-
-bool  show1 = input.bool(true,     title = "Enable", inline = "sma1", group = G1)
-int   len1  = input.int(50,        title = "Length", minval = 1, inline = "sma1", group = G1)
-float src1  = input.source(close,  title = "Source", inline = "sma1", group = G1)
-
-bool  show2 = input.bool(true,     title = "Enable", inline = "sma2", group = G2)
-int   len2  = input.int(100,        title = "Length", minval = 1, inline = "sma2", group = G2)
-float src2  = input.source(close,  title = "Source", inline = "sma2", group = G2)
-
-bool  show3 = input.bool(true,     title = "Enable", inline = "sma3", group = G3)
-int   len3  = input.int(200,       title = "Length", minval = 1, inline = "sma3", group = G3)
-float src3  = input.source(close,  title = "Source", inline = "sma3", group = G3)
-
-bool  show4 = input.bool(true,     title = "Enable", inline = "sma4", group = G4)
-int   len4  = input.int(15,       title = "Length", minval = 1, inline = "sma4", group = G4)
-float src4  = input.source(close,  title = "Source", inline = "sma4", group = G4)
-
-// ── Calculations ──────────────────────────────────────────────────────────────
-float sma1 = ta.sma(src1, len1)
-float sma2 = ta.sma(src2, len2)
-float sma3 = ta.sma(src3, len3)
-float sma4 = ta.sma(src4, len4)
-
-// ── Plots ─────────────────────────────────────────────────────────────────────
-plot(show1 ? sma1 : na, title = TITLE_1, color = color.new(color.green,  50), linewidth = 3)
-plot(show2 ? sma2 : na, title = TITLE_2, color = color.new(color.teal,   50), linewidth = 4)
-plot(show3 ? sma3 : na, title = TITLE_3, color = color.new(color.blue,   50), linewidth = 5)
-plot(show4 ? sma4 : na, title = TITLE_4, color = color.new(color.purple, 50), linewidth = 6)
-```
+`UNRATE.csv`, `RRSFS.csv`, `INDPRO.csv`, `DTB3.csv` are FRED series, **not
+price series**, and the loader does not and must not read `macro/`.
+UNRATE/RRSFS/INDPRO are monthly observations stamped at the observation month
+(UNRATE from 1948-01-01) whose values are published ~1–5 weeks *after* that
+stamp and then revised; DTB3 is daily on its own calendar. Loading any of them
+through `load_prices` would forward-fill a value from a date on which it was
+not yet knowable — a silent look-ahead in every macro-gated backtest. They
+stay inert until a `MACRO_DATA_SPEC` pins the availability-date shift, the
+monthly-to-daily carry rule and the revised-vintage caveat (ROTATION_SPEC
+§3.3); GTT/LAA remain blocked on that spec.
 
 ## Frozen snapshots
 
@@ -184,19 +141,30 @@ new one, where `<newdate>` is the last bar of its TQQQ export.
   from the parent. This is the **decision series**; live `data/` stays gross —
   a net twin of any root is one invocation away
   (`uv run make_net_tr.py <ROOT>`).
+- `tests/data/2026-08-24/` — the ROTATION_SPEC Phase 0 snapshot: the full
+  2026-08 batch (48 pairs, four single-series indices, `macro/` carried for
+  provenance), no SMA columns.
+- `tests/data/2026-08-24-net15/` — its net-of-withholding derivative, the
+  **decision series for all rotation runs**. `macro/` is deliberately absent
+  (`make_net_tr.py` globs the root only).
 
-Live `data/` runs the bundle-loading smoke test plus the structural
-total-return invariants of `tests/test_total_return.py`, none of which make
-numeric claims — a bad refresh fails the suite the day it lands.
+Live `data/` runs the bundle-loading smoke test plus the live-pair lane of
+`tests/test_total_return.py` — pair invariants and the committed per-symbol
+implied-yield bands over all 48 pairs — so a bad refresh fails the suite the
+day it lands.
 
-## Index series (VIX, VIX3M)
+## Index series (SPX, XNDX, VIX, VIX3M)
 
-`VIX.csv` and `VIX3M.csv` are cash volatility indices, exported from
-TradingView in the standard layout like every other file. They are **signal
-symbols**: never traded, carrying no distributions, so they have no `price/`
-twin and `make_net_tr.py` byte-copies them into a net snapshot as
-`| SYM | index | — | — |`. VIX carries values on US market holidays that
-VIX3M (and every traded symbol) lacks — TradingView artefacts, kept out of
-every rolling window by the cross-symbol loader's intersection rule
-(`docs/REGIME_SPEC.md` §2–§3). `regime_report.py` is the standing tool for
+Single-series indices have no adjustment toggle and hence no `price/` twin;
+`make_net_tr.py` byte-copies them into a net snapshot as
+`| SYM | index | — | — |`. All four are **signal symbols**, never traded.
+`XNDX` (Nasdaq-100 TR) starts 2006-11-08 on TradingView; `SPX` excludes
+dividends by construction and must never seed a TR sim. `VIX.csv` and
+`VIX3M.csv` are cash volatility indices; VIX carries values on US market
+holidays that VIX3M (and every traded symbol) lacks — TradingView artefacts,
+kept out of every rolling window by the cross-symbol loader's intersection
+rule (`docs/REGIME_SPEC.md` §2–§3). The 2026-08 refresh revised VIX history:
+1,285 closes changed against the pre-batch export (all since 2021-05-21, four
+beyond 0.05, worst 0.28 on 2023-06-07); VIX3M was untouched
+(ROTATION_SPEC §3.4 errata). `regime_report.py` is the standing tool for
 reading a signal like this on its own calendar before running any lane.

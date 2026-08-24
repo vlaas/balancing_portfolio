@@ -20,14 +20,16 @@ from pathlib import Path
 
 import polars as pl
 
-# NET_TR_SPEC §2.1, pinned from the measured step distribution of the
-# 2026-08-20 snapshot: largest flat step 1.62e-6, smallest jump 5.08e-5,
+# NET_TR_SPEC §2.1, re-pinned from the measured step distribution of the
+# 48-pair 2026-08-24 universe (ROTATION_SPEC §3.5): largest flat step
+# 1.62e-6 (TQQQ), smallest jump 1.247e-5 (BIL 2009-11-02, a ZIRP-era
+# ~$0.0011 distribution under the six-symbol universe's old 2e-5 floor),
 # worst negative step -4.31e-8. FLAT_MAX equals T2's up-jump criterion
 # (5 * TAU) so tests/test_total_return.py and this generator agree on what
 # a jump is; the dead zone between FLAT_MAX and JUMP_MIN is a hard error.
 TAU = 1e-6
 FLAT_MAX = 5e-6
-JUMP_MIN = 2e-5
+JUMP_MIN = 1e-5
 
 
 def read_pair(root: Path, symbol: str) -> tuple[list[str], list[float], list[float]]:
