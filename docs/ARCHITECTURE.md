@@ -382,12 +382,13 @@ lines. One bundle ships: `default`.
 
 `build_bundle(load_spec(path))` turns a JSON spec (format in
 [STRATEGY_DEVELOPMENT.md](STRATEGY_DEVELOPMENT.md#declarative-strategies))
-into the same `Bundle` the registry holds, mapping `fixed` / `vol_target`
-entries onto `strategies/fixed.py` / `strategies/vol_target.py` (plus
-`strategies/gate.py`). Validation errors name the JSON path of the offending
-key; labels are generated deterministically from the parameters when absent
-and asserted unique at slug level. The normalised spec — defaults and labels
-filled in — is what `results.json` embeds.
+into the same `Bundle` the registry holds, mapping `fixed` / `vol_target` /
+`rotation` entries onto `strategies/fixed.py` / `strategies/vol_target.py` /
+`strategies/rotation.py` (plus `strategies/gate.py`). Validation errors name
+the JSON path of the offending key; labels are generated deterministically
+from the parameters when absent and asserted unique at slug level. The
+normalised spec — defaults and labels filled in — is what `results.json`
+embeds.
 
 A `gate` comes in two kinds sharing one class — **sma** (`close < SMA`) and
 **regime** (the `ts_regime` risk-off state on `symbol / denominator`,

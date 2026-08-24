@@ -6,9 +6,9 @@ machinery works internally, see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Declarative strategies
 
-**If it can be a spec, it should be a spec.** A strategy that is a `fixed` or
-`vol_target` parametrisation needs no Python at all: describe it in a JSON
-spec file under `specs/` and run the file directly:
+**If it can be a spec, it should be a spec.** A strategy that is a `fixed`,
+`vol_target` or `rotation` parametrisation needs no Python at all: describe
+it in a JSON spec file under `specs/` and run the file directly:
 
 ```json
 {
@@ -47,8 +47,8 @@ internal return — flows, TWR and XIRR need no adjustment. Ranges: cost rates
 in [0, 1000] bps, yield in [0, 0.20]. The calibrated tastytrade base schedule
 lives in `specs/sweep_vt_cbase.json`.
 
-The two types (`spec.py` maps them to `strategies/fixed.py` and
-`strategies/vol_target.py`):
+The three types (`spec.py` maps them to `strategies/fixed.py`,
+`strategies/vol_target.py` and `strategies/rotation.py`):
 
 - **`fixed`** — constant `weights` (values ≥ 0, sum ≤ 1; the residual is a
   deliberate cash reserve), optional `gate`.
@@ -70,7 +70,36 @@ The two types (`spec.py` maps them to `strategies/fixed.py` and
   proportion. Labels render the sleeve sorted by symbol and joined by `+`
   (`VT TQQQ/BTAL75+KMLM25 …`), where `fixed`'s `/` joins portfolio fractions.
 
-A **`gate`** belongs to either type and comes in two kinds — exactly one of
+- **`rotation`** — cross-sectional momentum rotation (ROTATION_SPEC.md): rank
+  `assets` by a monthly `score`, hold the top `k` equal-weight, route
+  disqualified or canary-flagged mass to a defensive selection. `score` is
+  `{"months": 12}` (12-month month-end total return), `{"kind": "avg",
+  "months": [1, 3, 6]}` / `{"kind": "weighted", "months": [1, 3, 6, 12],
+  "weights": [12, 4, 2, 1]}` (multi-horizon combinations — Keller's 13612W),
+  or `{"kind": "sma_gap", "months": 10}` (close vs its monthly SMA — Faber's
+  filter as a score). Optional `filter` `{"on": SYM?, "hurdle": SYM?}`: a
+  slot qualifies via strict `>` against the hurdle's score (0 without one),
+  tested once on `on` for all slots (Antonacci's absolute-momentum form) or
+  per asset. Optional `canary` (`{"symbols": [...], "breadth": B}`, score
+  defaulting to the main score) sends `d = min(1, n_bad / breadth)` of the
+  portfolio defensive, counting non-positive canary scores. Optional
+  `fallback` receives the defensive pool: `null` (cash, the default), a
+  symbol, a sleeve object, or `{"kind": "best_of", "symbols": [...]}` — the
+  whole pool to the argmax of its score (defaulting to the main), ties by
+  list order, no sign filter (listing BIL among the candidates *is* the
+  floor). Ranking ties break by `assets` order. While any required score is
+  still `None` everything sits in cash — and the run's `start` must postdate
+  every universe symbol's inception plus score warm-up, because the loader
+  requires traded symbols to be price-complete from `start` (indicator
+  warm-up cash never covers missing price history). Signals form at the
+  month-end close and the engine trades at that same close; papers that
+  trade the next session differ by one day's return per switch
+  (ROTATION_SPEC §6.6). No `gate` and no vol-target composition in v1
+  (§5.2). Labels: `ROT SPY+VEU top1 12M@SPY>BIL fb AGG`,
+  `ROT SPY+SCZ top1 1-3-6U fb best(TIP+TLT@1M)`.
+
+A **`gate`** belongs to `fixed` and `vol_target` (not `rotation`,
+ROTATION_SPEC §5.2) and comes in two kinds — exactly one of
 `sma_days` / `sma_months` / `fire` picks it (docs/REGIME_SPEC.md):
 
 - **sma**: closed on days `close(symbol) < SMA`, open while either value is
@@ -92,7 +121,7 @@ gate objects**: closed iff any member is closed, the most restrictive
 member's buy cap wins, clips apply in member order, labels join members with
 `|`. No nesting.
 
-A **`rebalance`** cadence also belongs to either type: `{"weeks": N}` or
+A **`rebalance`** cadence belongs to every type: `{"weeks": N}` or
 `{"months": N}` (exactly one), optional `"offset"` in `[0, N)`. The strategy
 rebalances on the last trading day of every N-th period, anchored to the
 calendar (weeks since a fixed Monday; for months, offset 0 is the calendar's

@@ -28,8 +28,9 @@ import results_json
 from main import run_bundle
 from prices import load_prices
 from spec import (
-    _TYPES, REQUIRED_KEYS, _costs, _fail, _fields, _join, build_bundle, gate_str,
-    load_spec, rebalance_str, safe_str,
+    _TYPES, REQUIRED_KEYS, _costs, _fail, _fields, _join, build_bundle,
+    canary_str, fallback_str, filter_str, gate_str, load_spec, rebalance_str,
+    safe_str, score_str,
 )
 
 SWEEP_SCHEMA_VERSION = 1
@@ -172,6 +173,18 @@ def _param_value(strategy, path: tuple[str, ...], value):
         return safe_str(strategy.safe)
     if path == ("rebalance",):
         return rebalance_str(strategy.rebalance)
+    # Rotation params render as their label fragments (ROTATION_SPEC §7);
+    # canary/fallback read the normalised spec so inherited scores are filled.
+    if path == ("assets",):
+        return "+".join(value)
+    if path == ("score",):
+        return score_str(value)
+    if path == ("filter",):
+        return filter_str(value)
+    if path == ("canary",):
+        return canary_str(strategy.spec["canary"], strategy.spec["score"])
+    if path == ("fallback",):
+        return fallback_str(strategy.spec["fallback"], strategy.spec["score"])
     return json.dumps(value, sort_keys=True, separators=(",", ":"))
 
 

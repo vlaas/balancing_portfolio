@@ -487,3 +487,27 @@ fixed it.
    Largest flat step is unchanged at 1.62e-6 (TQQQ), so the dead zone
    (5e-6, 1e-5) stays empty and asserted. The 2026-08-20-net15 derivative is
    byte-unchanged except its README's constant line (N5 regenerates it).
+
+**Phase 2 (§4–§7):**
+
+6. **§4 T1 gap: the causality lanes.** INDICATORS_SPEC §7 T2 obliges every
+   new factory to join the look-ahead guard, which §8 T1 does not mention.
+   The two monthly causality tests generalise to a `MONTHLY_INDICATORS`
+   parametrised lane (t+2 truncation slack plus the strict ×1000 tamper
+   check) that the three factories join.
+7. **§7 filter rendering: on-without-hurdle is `@SPY>0`, not `@SPY`.**
+   `@X` and `>X` slugify identically, so two rotations differing only in
+   the filter's structure would collide at `build_bundle` — breaking the
+   REGIME_SPEC §5.2 rule that auto-labels stay unique by construction. The
+   explicit zero hurdle is also the semantics. None of the four pinned
+   example labels use the form; they stand as written.
+8. **§7 overstates the `_param_value` requirement.** `sweep.py`'s
+   `json.dumps` fallback already keeps structured params hashable; the
+   `("assets",)`/`("score",)`/`("filter",)`/`("canary",)`/`("fallback",)`
+   renderings are for readability and label-consistency, not correctness.
+9. **§5 "warm-up capital sits in cash" covers indicator warm-up only.**
+   `prices.py` asserts every `weights` symbol has a close on every row from
+   `config.start`, so the all-0.0 universe forces a run to start after the
+   universe's latest inception — there is no cash-during-price-warm-up. The
+   §9 window table already respects this; recorded in
+   STRATEGY_DEVELOPMENT.md with the type's documentation.
