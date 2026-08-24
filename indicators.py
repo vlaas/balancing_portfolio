@@ -94,6 +94,96 @@ def momentum(n: int) -> Indicator:
     return Indicator(f"MOM{n}", lambda frame: frame["close"] / frame["close"].shift(n) - 1)
 
 
+def _month_end_values(frame: pl.DataFrame, value: pl.Expr) -> pl.Series:
+    """`value` evaluated over the month-end rows, carried forward between them.
+
+    The `sma_monthly` rule: a row is a month-end iff its month differs from
+    the next row's, on the symbol's own bar calendar, so the value on a
+    month-end row includes that day's close and the file's final
+    (partial-month) row is never a month-end.
+    """
+    month_end = (
+        pl.col("date").dt.month() != pl.col("date").shift(-1).dt.month()
+    ).fill_null(False)
+    month_ends = frame.filter(month_end).select("date", value=value)
+    return frame.join_asof(month_ends, on="date", strategy="backward")["value"]
+
+
+def mom_monthly(k: int) -> Indicator:
+    """Total return over the last `k` month-ends of the symbol's own calendar.
+
+    At month-end t: `close_t / close_{t-k month-ends} - 1`, carried forward;
+    null until k+1 month-ends exist (ROTATION_SPEC §4.1).
+    """
+    assert k >= 1, f"mom_monthly: k must be >= 1, got {k}"
+    return Indicator(
+        f"MOM{k}M",
+        lambda frame: _month_end_values(
+            frame, pl.col("close") / pl.col("close").shift(k) - 1
+        ),
+    )
+
+
+def mom_multi(months: tuple[int, ...], weights: tuple[float, ...] | None = None) -> Indicator:
+    """Weighted combination of month-end total returns over several horizons.
+
+    `sum_i w_i * (close_t / close_{t-m_i} - 1)` over month-end closes, the
+    unweighted mean when `weights` is None; null until max(months)+1
+    month-ends exist (ROTATION_SPEC §4.2). Ranking and sign are invariant to
+    positive scaling, so Keller's published /4 normalisations differ by a
+    constant factor only: 13612W is `mom_multi((1, 3, 6, 12), (12, 4, 2, 1))`,
+    13612U is `mom_multi((1, 3, 6, 12))`.
+    """
+    months = tuple(months)
+    assert months, f"mom_multi: months must be non-empty, got {months}"
+    assert all(m >= 1 for m in months), f"mom_multi: months must be >= 1, got {months}"
+    assert all(a < b for a, b in zip(months, months[1:])), (
+        f"mom_multi: months must be strictly ascending, got {months}"
+    )
+    if weights is None:
+        applied = tuple(1.0 / len(months) for _ in months)
+        suffix = "U"
+    else:
+        assert len(weights) == len(months), (
+            f"mom_multi: months and weights must have equal length, "
+            f"got {months} / {tuple(weights)}"
+        )
+        assert all(w > 0 for w in weights), (
+            f"mom_multi: weights must be > 0, got {tuple(weights)}"
+        )
+        applied = tuple(float(w) for w in weights)
+        suffix = "W" + "-".join(f"{w:g}" for w in applied)
+
+    def value() -> pl.Expr:
+        close = pl.col("close")
+        terms = [w * (close / close.shift(m) - 1) for m, w in zip(months, applied)]
+        total = terms[0]
+        for term in terms[1:]:
+            total = total + term  # `+` propagates nulls, unlike sum_horizontal
+        return total
+
+    return Indicator(
+        "MOMM" + "-".join(str(m) for m in months) + suffix,
+        lambda frame: _month_end_values(frame, value()),
+    )
+
+
+def sma_gap(m: int) -> Indicator:
+    """Gap of the month-end close above its own `sma_monthly(m)` value.
+
+    `close_t / SMA_mM(t) - 1` at month-ends, carried forward; reuses the
+    `sma_monthly(m)` window (m month-end closes, today's included). Faber's
+    10-month filter is the sign of `sma_gap(10)` (ROTATION_SPEC §4.3).
+    """
+    assert m >= 2, f"sma_gap: m must be >= 2, got {m}"
+    return Indicator(
+        f"SMAGAP{m}M",
+        lambda frame: _month_end_values(
+            frame, pl.col("close") / pl.col("close").rolling_mean(m) - 1
+        ),
+    )
+
+
 def ratio_sma(denominator: str, n: int) -> Indicator:
     """Mean of the last `n` values of close / `denominator`, on joint days only.
 
