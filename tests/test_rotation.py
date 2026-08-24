@@ -426,6 +426,59 @@ def test_rebalance_cadence_lands_in_label_and_spec():
     assert st.spec["rebalance"] == {"months": 3, "offset": 0}
 
 
+# --- T8 — real-data golden on the frozen net15 snapshot ----------------------
+#
+# Produced once by this implementation and eyeballed against direction
+# (ROTATION_SPEC §8/§9 pre-registration): GEM's drawdown undercuts SPY's on
+# the same window (-0.34 vs -0.47) and its CAGR does not beat SPY's, per the
+# out-of-sample literature; GTAA-5 cuts drawdown much further at a lower
+# CAGR (no cash yield in this config). Same rule as every golden: a later
+# failure means the engine changed; fix the bug or update the dict in the
+# same commit with the reason. Never refresh the snapshot.
+
+NET_DIR = GOLDEN_DIR / "2026-08-24-net15"
+
+GOLDEN_SPEC = {
+    "schema_version": 1,
+    "config": {
+        "start": "2008-07-01", "end": "2026-08-24",
+        "initial_capital": 10_000.0, "monthly_contribution": 500.0,
+    },
+    "strategies": [
+        {
+            "type": "rotation", "assets": ["SPY", "EFA"], "k": 1,
+            "score": {"months": 12},
+            "filter": {"on": "SPY", "hurdle": "BIL"}, "fallback": "AGG",
+        },
+        {
+            "type": "rotation", "assets": ["SPY", "EFA", "IEF", "DBC", "VNQ"],
+            "k": 5, "score": {"kind": "sma_gap", "months": 10},
+        },
+        {"type": "fixed", "label": "SPY benchmark", "weights": {"SPY": 1.0}},
+    ],
+}
+
+GOLDEN_ROT = {
+    "ROT SPY+EFA top1 12M@SPY>BIL fb AGG": (309_125.31, 0.0842, -0.3377),
+    "ROT SPY+EFA+IEF+DBC+VNQ top5 gap10M fb cash": (199_414.05, 0.0425, -0.1396),
+    "SPY benchmark": (546_186.86, 0.1203, -0.4716),
+}
+
+
+def test_rotation_bundle_reproduces_the_golden_numbers():
+    results = run_bundle(build_bundle(GOLDEN_SPEC), NET_DIR)
+
+    assert [r.label for r in results] == list(GOLDEN_ROT)
+    for result in results:
+        final, cagr, max_dd = GOLDEN_ROT[result.label]
+        assert result.stats["final_value"] == pytest.approx(final, abs=0.005)
+        assert result.stats["cagr"] == pytest.approx(cagr, abs=0.00005)
+        assert result.stats["max_drawdown"] == pytest.approx(max_dd, abs=0.00005)
+
+    gem, _, spy = results
+    assert gem.stats["max_drawdown"] > spy.stats["max_drawdown"]
+
+
 # --- Sweep params render as label fragments (§7) -----------------------------
 
 

@@ -1,6 +1,6 @@
 # Specification: monthly momentum indicators and the cross-sectional rotation strategy
 
-Repo: `vlaas/balancing_portfolio` · baseline commit: `0c9c731` ("New data for advanced strategies") · status: draft for review
+Repo: `vlaas/balancing_portfolio` · baseline commit: `0c9c731` ("New data for advanced strategies") · status: implemented (branch `rotation`, errata §12)
 
 All numbers in this spec are from sandbox runs on a fresh clone at `0c9c731`.
 
