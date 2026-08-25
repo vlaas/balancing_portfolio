@@ -1,0 +1,544 @@
+{
+  "baselines": [
+    {
+      "full": {
+        "avg_asset_deviation": 0.00233989,
+        "avg_misallocation": 0.00315296,
+        "best_year": {
+          "return": 0.24528174,
+          "year": 2019
+        },
+        "cagr": 0.08937346,
+        "calmar": 0.32214226,
+        "fee_drag": 0.00027562,
+        "final_value": 200977.03031885,
+        "max_asset_deviation": 0.00779943,
+        "max_drawdown": -0.27743475,
+        "max_drawdown_days": 994,
+        "max_misallocation": 0.01325508,
+        "net_profit": 103477.03031885,
+        "net_profit_pct": 1.06130288,
+        "objective": 0.32214226,
+        "sharpe": 0.8876814,
+        "sortino": 1.25274228,
+        "total_contributed": 97500.0,
+        "total_fees": 26.87325568,
+        "traded_value": 313189.51650512,
+        "turnover": 0.12089247,
+        "volatility": 0.10262751,
+        "worst_year": {
+          "return": -0.23480171,
+          "year": 2022
+        },
+        "xirr": 0.08465599
+      },
+      "holdout": {
+        "fit": 0.28428007,
+        "test": 0.93735667,
+        "test_minus_fit": 0.65307659
+      },
+      "label": "SPY60/TLT40",
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.16666721,
+          "max": -0.07950755,
+          "median": -0.18440772,
+          "min": -0.27678606
+        },
+        "objective": {
+          "iqr": 0.59277877,
+          "max": 1.34040516,
+          "median": 0.60382059,
+          "min": 0.16088453
+        }
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00256463,
+        "avg_misallocation": 0.00474748,
+        "best_year": {
+          "return": 0.19343389,
+          "year": 2019
+        },
+        "cagr": 0.0643379,
+        "calmar": 0.23988919,
+        "fee_drag": 0.0006191,
+        "final_value": 162564.67817525,
+        "max_asset_deviation": 0.00892687,
+        "max_drawdown": -0.26819842,
+        "max_drawdown_days": 1373,
+        "max_misallocation": 0.01751251,
+        "net_profit": 65064.67817525,
+        "net_profit_pct": 0.66733003,
+        "objective": 0.23988919,
+        "sharpe": 0.77281723,
+        "sortino": 1.08101847,
+        "total_contributed": 97500.0,
+        "total_fees": 60.36269023,
+        "traded_value": 282340.89962052,
+        "turnover": 0.12815408,
+        "volatility": 0.08564513,
+        "worst_year": {
+          "return": -0.20979921,
+          "year": 2022
+        },
+        "xirr": 0.0606741
+      },
+      "holdout": {
+        "fit": 0.20216089,
+        "test": 0.80120517,
+        "test_minus_fit": 0.59904427
+      },
+      "label": "EW SPY/SCZ/TIP/TLT",
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.15196399,
+          "max": -0.069078,
+          "median": -0.19356393,
+          "min": -0.26697056
+        },
+        "objective": {
+          "iqr": 0.40234904,
+          "max": 1.06109713,
+          "median": 0.38894778,
+          "min": 0.08598036
+        }
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00165813,
+        "avg_misallocation": 0.00165763,
+        "best_year": {
+          "return": 0.31819168,
+          "year": 2013
+        },
+        "cagr": 0.14643292,
+        "calmar": 0.43404677,
+        "fee_drag": 6.981e-05,
+        "final_value": 353051.02493906,
+        "max_asset_deviation": 0.00887535,
+        "max_drawdown": -0.33736669,
+        "max_drawdown_days": 173,
+        "max_misallocation": 0.00887397,
+        "net_profit": 255551.02493906,
+        "net_profit_pct": 2.62103615,
+        "objective": 0.43404677,
+        "sharpe": 0.91192795,
+        "sortino": 1.29098146,
+        "total_contributed": 97500.0,
+        "total_fees": 6.8063139,
+        "traded_value": 97233.05567962,
+        "turnover": 0.02779235,
+        "volatility": 0.16527492,
+        "worst_year": {
+          "return": -0.18365542,
+          "year": 2022
+        },
+        "xirr": 0.1463159
+      },
+      "holdout": {
+        "fit": 0.36376365,
+        "test": 1.18927495,
+        "test_minus_fit": 0.8255113
+      },
+      "label": "SPY benchmark",
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.14193584,
+          "max": -0.13090674,
+          "median": -0.28883059,
+          "min": -0.33765679
+        },
+        "objective": {
+          "iqr": 0.19546391,
+          "max": 1.14321205,
+          "median": 0.52447182,
+          "min": 0.25514055
+        }
+      }
+    }
+  ],
+  "constraint": {
+    "max_drawdown": -0.5
+  },
+  "costs": {
+    "cash_yield": 0.03,
+    "cost_bps": {
+      "*": 6,
+      "ACWX": 3,
+      "AGG": 1,
+      "BIL": 1,
+      "BND": 1.5,
+      "BTAL": 6,
+      "DBC": 3,
+      "DBMF": 3,
+      "EEM": 1,
+      "EFA": 1,
+      "IEF": 1,
+      "IWM": 1,
+      "KMLM": 6,
+      "LQD": 1.5,
+      "QQQ": 1,
+      "SCZ": 5,
+      "SHY": 1,
+      "SPY": 0.7,
+      "TIP": 2,
+      "TLT": 1,
+      "TQQQ": 1.5,
+      "VEA": 1.5,
+      "VEU": 2,
+      "VNQ": 1.5,
+      "VTI": 1,
+      "VWO": 2
+    }
+  },
+  "data": {
+    "dir": "tests/data/2026-08-24-net15",
+    "end": "2026-08-24",
+    "start": "2012-01-03"
+  },
+  "objective": "calmar",
+  "snapped": [
+    "windows.holdout 2023-01-01 -> 2023-01-03"
+  ],
+  "strategies": [
+    {
+      "full": {
+        "avg_asset_deviation": 0.00155374,
+        "avg_misallocation": 0.00145666,
+        "best_year": {
+          "return": 0.27056743,
+          "year": 2017
+        },
+        "cagr": 0.09560754,
+        "calmar": 0.42440694,
+        "feasible": true,
+        "fee_drag": 0.03225469,
+        "final_value": 226427.74795262,
+        "max_asset_deviation": 0.00513632,
+        "max_drawdown": -0.22527327,
+        "max_drawdown_days": 767,
+        "max_misallocation": 0.00513569,
+        "net_profit": 128927.74795262,
+        "net_profit_pct": 1.32233588,
+        "objective": 0.42440694,
+        "sharpe": 0.71448357,
+        "sortino": 0.99827476,
+        "total_contributed": 97500.0,
+        "total_fees": 3144.83232868,
+        "traded_value": 13755154.20530329,
+        "turnover": 5.30353637,
+        "volatility": 0.14235489,
+        "worst_year": {
+          "return": -0.15232346,
+          "year": 2022
+        },
+        "xirr": 0.0979181
+      },
+      "holdout": {
+        "fit": 0.34890304,
+        "test": 1.07666301,
+        "test_minus_fit": 0.72775997
+      },
+      "label": "ROT SPY+SCZ top1 1-3U fb best(TIP+TLT@1M)",
+      "neighbourhood": {
+        "edge": false,
+        "neighbour_mean": null,
+        "neighbour_min": null
+      },
+      "params": {
+        "score": "1-3U"
+      },
+      "robust_score": 0.34724297,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.02784869,
+          "max": -0.18474366,
+          "median": -0.21115568,
+          "min": -0.22528055
+        },
+        "objective": {
+          "iqr": 0.11195235,
+          "max": 0.87952942,
+          "median": 0.34724297,
+          "min": 0.2422496
+        },
+        "rank_median": 2.0,
+        "rank_worst": 3
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00146334,
+        "avg_misallocation": 0.00139365,
+        "best_year": {
+          "return": 0.28859262,
+          "year": 2020
+        },
+        "cagr": 0.10780442,
+        "calmar": 0.41819049,
+        "feasible": true,
+        "fee_drag": 0.02611043,
+        "final_value": 237672.36484234,
+        "max_asset_deviation": 0.00887535,
+        "max_drawdown": -0.25778782,
+        "max_drawdown_days": 1116,
+        "max_misallocation": 0.00887397,
+        "net_profit": 140172.36484234,
+        "net_profit_pct": 1.43766528,
+        "objective": 0.41819049,
+        "sharpe": 0.78794622,
+        "sortino": 1.09673877,
+        "total_contributed": 97500.0,
+        "total_fees": 2545.76684825,
+        "traded_value": 11251118.8351464,
+        "turnover": 3.90910863,
+        "volatility": 0.14336152,
+        "worst_year": {
+          "return": -0.23660064,
+          "year": 2022
+        },
+        "xirr": 0.10327048
+      },
+      "holdout": {
+        "fit": 0.38161258,
+        "test": 0.7643154,
+        "test_minus_fit": 0.38270282
+      },
+      "label": "ROT SPY+SCZ top1 1-3-6U fb best(TIP+TLT@1M)",
+      "neighbourhood": {
+        "edge": false,
+        "neighbour_mean": null,
+        "neighbour_min": null
+      },
+      "params": {
+        "score": "1-3-6U"
+      },
+      "robust_score": 0.41819049,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.08553938,
+          "max": -0.17026271,
+          "median": -0.18498793,
+          "min": -0.2575161
+        },
+        "objective": {
+          "iqr": 0.27534213,
+          "max": 0.95176669,
+          "median": 0.47955851,
+          "min": 0.21885862
+        },
+        "rank_median": 1.0,
+        "rank_worst": 3
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00155755,
+        "avg_misallocation": 0.00150263,
+        "best_year": {
+          "return": 0.32866848,
+          "year": 2020
+        },
+        "cagr": 0.1155011,
+        "calmar": 0.46589855,
+        "feasible": true,
+        "fee_drag": 0.01726032,
+        "final_value": 277082.68016746,
+        "max_asset_deviation": 0.00887535,
+        "max_drawdown": -0.24791041,
+        "max_drawdown_days": 892,
+        "max_misallocation": 0.00887397,
+        "net_profit": 179582.68016746,
+        "net_profit_pct": 1.84187364,
+        "objective": 0.46589855,
+        "sharpe": 0.82021057,
+        "sortino": 1.14707726,
+        "total_contributed": 97500.0,
+        "total_fees": 1682.88148204,
+        "traded_value": 7368679.42719538,
+        "turnover": 2.62622485,
+        "volatility": 0.14679138,
+        "worst_year": {
+          "return": -0.22680515,
+          "year": 2022
+        },
+        "xirr": 0.12008555
+      },
+      "holdout": {
+        "fit": 0.37004801,
+        "test": 1.16096319,
+        "test_minus_fit": 0.79091517
+      },
+      "label": "ROT SPY+SCZ top1 1-3-6-12U fb best(TIP+TLT@1M)",
+      "neighbourhood": {
+        "edge": false,
+        "neighbour_mean": null,
+        "neighbour_min": null
+      },
+      "params": {
+        "score": "1-3-6-12U"
+      },
+      "robust_score": 0.46589855,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.04169677,
+          "max": -0.19718333,
+          "median": -0.20575303,
+          "min": -0.24734259
+        },
+        "objective": {
+          "iqr": 0.21688636,
+          "max": 0.80158773,
+          "median": 0.467288,
+          "min": 0.20009566
+        },
+        "rank_median": 2.5,
+        "rank_worst": 3
+      }
+    }
+  ],
+  "warnings": [],
+  "windows": [
+    {
+      "end": "2026-08-24",
+      "kind": "full",
+      "name": "full",
+      "start": "2012-01-03"
+    },
+    {
+      "end": "2022-12-30",
+      "kind": "fit",
+      "name": "fit",
+      "start": "2012-01-03"
+    },
+    {
+      "end": "2026-08-24",
+      "kind": "test",
+      "name": "test",
+      "start": "2023-01-03"
+    },
+    {
+      "end": "2017-01-03",
+      "kind": "sens",
+      "name": "sens_2012-01-03",
+      "start": "2012-01-03"
+    },
+    {
+      "end": "2017-07-03",
+      "kind": "sens",
+      "name": "sens_2012-07-03",
+      "start": "2012-07-03"
+    },
+    {
+      "end": "2018-01-03",
+      "kind": "sens",
+      "name": "sens_2013-01-03",
+      "start": "2013-01-03"
+    },
+    {
+      "end": "2018-07-03",
+      "kind": "sens",
+      "name": "sens_2013-07-03",
+      "start": "2013-07-03"
+    },
+    {
+      "end": "2019-01-03",
+      "kind": "sens",
+      "name": "sens_2014-01-03",
+      "start": "2014-01-03"
+    },
+    {
+      "end": "2019-07-03",
+      "kind": "sens",
+      "name": "sens_2014-07-03",
+      "start": "2014-07-03"
+    },
+    {
+      "end": "2020-01-03",
+      "kind": "sens",
+      "name": "sens_2015-01-05",
+      "start": "2015-01-05"
+    },
+    {
+      "end": "2020-07-02",
+      "kind": "sens",
+      "name": "sens_2015-07-06",
+      "start": "2015-07-06"
+    },
+    {
+      "end": "2020-12-31",
+      "kind": "sens",
+      "name": "sens_2016-01-04",
+      "start": "2016-01-04"
+    },
+    {
+      "end": "2021-07-02",
+      "kind": "sens",
+      "name": "sens_2016-07-05",
+      "start": "2016-07-05"
+    },
+    {
+      "end": "2022-01-03",
+      "kind": "sens",
+      "name": "sens_2017-01-03",
+      "start": "2017-01-03"
+    },
+    {
+      "end": "2022-07-01",
+      "kind": "sens",
+      "name": "sens_2017-07-03",
+      "start": "2017-07-03"
+    },
+    {
+      "end": "2023-01-03",
+      "kind": "sens",
+      "name": "sens_2018-01-03",
+      "start": "2018-01-03"
+    },
+    {
+      "end": "2023-07-03",
+      "kind": "sens",
+      "name": "sens_2018-07-03",
+      "start": "2018-07-03"
+    },
+    {
+      "end": "2024-01-03",
+      "kind": "sens",
+      "name": "sens_2019-01-03",
+      "start": "2019-01-03"
+    },
+    {
+      "end": "2024-07-03",
+      "kind": "sens",
+      "name": "sens_2019-07-03",
+      "start": "2019-07-03"
+    },
+    {
+      "end": "2025-01-03",
+      "kind": "sens",
+      "name": "sens_2020-01-03",
+      "start": "2020-01-03"
+    },
+    {
+      "end": "2025-07-03",
+      "kind": "sens",
+      "name": "sens_2020-07-06",
+      "start": "2020-07-06"
+    },
+    {
+      "end": "2026-01-02",
+      "kind": "sens",
+      "name": "sens_2021-01-04",
+      "start": "2021-01-04"
+    },
+    {
+      "end": "2026-07-02",
+      "kind": "sens",
+      "name": "sens_2021-07-06",
+      "start": "2021-07-06"
+    }
+  ]
+}

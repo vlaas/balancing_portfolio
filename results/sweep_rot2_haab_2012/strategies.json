@@ -1,0 +1,560 @@
+[
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "IWM",
+        "VEA",
+        "VWO",
+        "VNQ",
+        "DBC",
+        "IEF",
+        "TLT"
+      ],
+      "canary": {
+        "breadth": 1,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbols": [
+          "TIP"
+        ]
+      },
+      "fallback": {
+        "kind": "best_of",
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbols": [
+          "BIL",
+          "IEF"
+        ]
+      },
+      "k": 3,
+      "label": "ROT SPY+IWM+VEA+VWO+VNQ+DBC+IEF+TLT top3 1-3-6-12U can TIP/1 fb best(BIL+IEF)",
+      "score": {
+        "kind": "avg",
+        "months": [
+          1,
+          3,
+          6,
+          12
+        ]
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+IWM+VEA+VWO+VNQ+DBC+IEF+TLT top3 1-3-6-12U can TIP/1 fb best(BIL+IEF)",
+    "params": {
+      "k": 3,
+      "score": "1-3-6-12U"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "IWM",
+        "VEA",
+        "VWO",
+        "VNQ",
+        "DBC",
+        "IEF",
+        "TLT"
+      ],
+      "canary": {
+        "breadth": 1,
+        "score": {
+          "kind": "weighted",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ],
+          "weights": [
+            12.0,
+            4.0,
+            2.0,
+            1.0
+          ]
+        },
+        "symbols": [
+          "TIP"
+        ]
+      },
+      "fallback": {
+        "kind": "best_of",
+        "score": {
+          "kind": "weighted",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ],
+          "weights": [
+            12.0,
+            4.0,
+            2.0,
+            1.0
+          ]
+        },
+        "symbols": [
+          "BIL",
+          "IEF"
+        ]
+      },
+      "k": 3,
+      "label": "ROT SPY+IWM+VEA+VWO+VNQ+DBC+IEF+TLT top3 13612W can TIP/1 fb best(BIL+IEF)",
+      "score": {
+        "kind": "weighted",
+        "months": [
+          1,
+          3,
+          6,
+          12
+        ],
+        "weights": [
+          12.0,
+          4.0,
+          2.0,
+          1.0
+        ]
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+IWM+VEA+VWO+VNQ+DBC+IEF+TLT top3 13612W can TIP/1 fb best(BIL+IEF)",
+    "params": {
+      "k": 3,
+      "score": "13612W"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "IWM",
+        "VEA",
+        "VWO",
+        "VNQ",
+        "DBC",
+        "IEF",
+        "TLT"
+      ],
+      "canary": {
+        "breadth": 1,
+        "score": {
+          "months": 12
+        },
+        "symbols": [
+          "TIP"
+        ]
+      },
+      "fallback": {
+        "kind": "best_of",
+        "score": {
+          "months": 12
+        },
+        "symbols": [
+          "BIL",
+          "IEF"
+        ]
+      },
+      "k": 3,
+      "label": "ROT SPY+IWM+VEA+VWO+VNQ+DBC+IEF+TLT top3 12M can TIP/1 fb best(BIL+IEF)",
+      "score": {
+        "months": 12
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+IWM+VEA+VWO+VNQ+DBC+IEF+TLT top3 12M can TIP/1 fb best(BIL+IEF)",
+    "params": {
+      "k": 3,
+      "score": "12M"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "IWM",
+        "VEA",
+        "VWO",
+        "VNQ",
+        "DBC",
+        "IEF",
+        "TLT"
+      ],
+      "canary": {
+        "breadth": 1,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbols": [
+          "TIP"
+        ]
+      },
+      "fallback": {
+        "kind": "best_of",
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbols": [
+          "BIL",
+          "IEF"
+        ]
+      },
+      "k": 4,
+      "label": "ROT SPY+IWM+VEA+VWO+VNQ+DBC+IEF+TLT top4 1-3-6-12U can TIP/1 fb best(BIL+IEF)",
+      "score": {
+        "kind": "avg",
+        "months": [
+          1,
+          3,
+          6,
+          12
+        ]
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+IWM+VEA+VWO+VNQ+DBC+IEF+TLT top4 1-3-6-12U can TIP/1 fb best(BIL+IEF)",
+    "params": {
+      "k": 4,
+      "score": "1-3-6-12U"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "IWM",
+        "VEA",
+        "VWO",
+        "VNQ",
+        "DBC",
+        "IEF",
+        "TLT"
+      ],
+      "canary": {
+        "breadth": 1,
+        "score": {
+          "kind": "weighted",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ],
+          "weights": [
+            12.0,
+            4.0,
+            2.0,
+            1.0
+          ]
+        },
+        "symbols": [
+          "TIP"
+        ]
+      },
+      "fallback": {
+        "kind": "best_of",
+        "score": {
+          "kind": "weighted",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ],
+          "weights": [
+            12.0,
+            4.0,
+            2.0,
+            1.0
+          ]
+        },
+        "symbols": [
+          "BIL",
+          "IEF"
+        ]
+      },
+      "k": 4,
+      "label": "ROT SPY+IWM+VEA+VWO+VNQ+DBC+IEF+TLT top4 13612W can TIP/1 fb best(BIL+IEF)",
+      "score": {
+        "kind": "weighted",
+        "months": [
+          1,
+          3,
+          6,
+          12
+        ],
+        "weights": [
+          12.0,
+          4.0,
+          2.0,
+          1.0
+        ]
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+IWM+VEA+VWO+VNQ+DBC+IEF+TLT top4 13612W can TIP/1 fb best(BIL+IEF)",
+    "params": {
+      "k": 4,
+      "score": "13612W"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "IWM",
+        "VEA",
+        "VWO",
+        "VNQ",
+        "DBC",
+        "IEF",
+        "TLT"
+      ],
+      "canary": {
+        "breadth": 1,
+        "score": {
+          "months": 12
+        },
+        "symbols": [
+          "TIP"
+        ]
+      },
+      "fallback": {
+        "kind": "best_of",
+        "score": {
+          "months": 12
+        },
+        "symbols": [
+          "BIL",
+          "IEF"
+        ]
+      },
+      "k": 4,
+      "label": "ROT SPY+IWM+VEA+VWO+VNQ+DBC+IEF+TLT top4 12M can TIP/1 fb best(BIL+IEF)",
+      "score": {
+        "months": 12
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+IWM+VEA+VWO+VNQ+DBC+IEF+TLT top4 12M can TIP/1 fb best(BIL+IEF)",
+    "params": {
+      "k": 4,
+      "score": "12M"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "IWM",
+        "VEA",
+        "VWO",
+        "VNQ",
+        "DBC",
+        "IEF",
+        "TLT"
+      ],
+      "canary": {
+        "breadth": 1,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbols": [
+          "TIP"
+        ]
+      },
+      "fallback": {
+        "kind": "best_of",
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbols": [
+          "BIL",
+          "IEF"
+        ]
+      },
+      "k": 5,
+      "label": "ROT SPY+IWM+VEA+VWO+VNQ+DBC+IEF+TLT top5 1-3-6-12U can TIP/1 fb best(BIL+IEF)",
+      "score": {
+        "kind": "avg",
+        "months": [
+          1,
+          3,
+          6,
+          12
+        ]
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+IWM+VEA+VWO+VNQ+DBC+IEF+TLT top5 1-3-6-12U can TIP/1 fb best(BIL+IEF)",
+    "params": {
+      "k": 5,
+      "score": "1-3-6-12U"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "IWM",
+        "VEA",
+        "VWO",
+        "VNQ",
+        "DBC",
+        "IEF",
+        "TLT"
+      ],
+      "canary": {
+        "breadth": 1,
+        "score": {
+          "kind": "weighted",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ],
+          "weights": [
+            12.0,
+            4.0,
+            2.0,
+            1.0
+          ]
+        },
+        "symbols": [
+          "TIP"
+        ]
+      },
+      "fallback": {
+        "kind": "best_of",
+        "score": {
+          "kind": "weighted",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ],
+          "weights": [
+            12.0,
+            4.0,
+            2.0,
+            1.0
+          ]
+        },
+        "symbols": [
+          "BIL",
+          "IEF"
+        ]
+      },
+      "k": 5,
+      "label": "ROT SPY+IWM+VEA+VWO+VNQ+DBC+IEF+TLT top5 13612W can TIP/1 fb best(BIL+IEF)",
+      "score": {
+        "kind": "weighted",
+        "months": [
+          1,
+          3,
+          6,
+          12
+        ],
+        "weights": [
+          12.0,
+          4.0,
+          2.0,
+          1.0
+        ]
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+IWM+VEA+VWO+VNQ+DBC+IEF+TLT top5 13612W can TIP/1 fb best(BIL+IEF)",
+    "params": {
+      "k": 5,
+      "score": "13612W"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "IWM",
+        "VEA",
+        "VWO",
+        "VNQ",
+        "DBC",
+        "IEF",
+        "TLT"
+      ],
+      "canary": {
+        "breadth": 1,
+        "score": {
+          "months": 12
+        },
+        "symbols": [
+          "TIP"
+        ]
+      },
+      "fallback": {
+        "kind": "best_of",
+        "score": {
+          "months": 12
+        },
+        "symbols": [
+          "BIL",
+          "IEF"
+        ]
+      },
+      "k": 5,
+      "label": "ROT SPY+IWM+VEA+VWO+VNQ+DBC+IEF+TLT top5 12M can TIP/1 fb best(BIL+IEF)",
+      "score": {
+        "months": 12
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+IWM+VEA+VWO+VNQ+DBC+IEF+TLT top5 12M can TIP/1 fb best(BIL+IEF)",
+    "params": {
+      "k": 5,
+      "score": "12M"
+    }
+  }
+]

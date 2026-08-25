@@ -861,6 +861,7 @@ def test_baselines_ride_every_window_of_a_rotation_sweep_and_never_rank():
 # --- ROTATION_STAGE2_SPEC T1/T3/T6: the six lanes and the three bundles ------
 
 NOTES = Path(__file__).parents[1] / "notes"
+RESULTS = Path(__file__).parents[1] / "results"
 
 # §8 T1, counted on the frozen snapshot: full + fit + test + the rolling 5-year
 # sensitivity windows every 6 months. ADM's native lane carries two score arms,
@@ -965,6 +966,22 @@ def test_the_frozen_labels_render_into_the_verdict_skeleton():
 
     for label in [*ROT2_ROSTER, "EW SPY/SCZ/TIP/TLT", "SPY60/AGG40"]:
         assert f"`{label}`" in doc, label
+
+
+# T4: R3a' reads `rank_median` out of every lane's committed summary, so the
+# tiering breaks silently if a runner change ever empties the block. This is
+# the guard that makes that loud.
+@pytest.mark.parametrize("name", ROT2_LANES, ids=lambda n: n[len("sweep_rot2_"):])
+def test_every_stage2_grid_point_carries_the_r3a_prime_inputs(name):
+    summary = json.loads((RESULTS / name / "summary.json").read_text())
+
+    assert len(summary["strategies"]) == int(ROT2_LANES[name].split()[0])
+    for s in summary["strategies"]:
+        assert s["sensitivity"]["rank_median"] is not None, s["label"]
+        assert s["sensitivity"]["rank_worst"] is not None, s["label"]
+    # A baseline is not a point: it never ranks, however it scores.
+    for b in summary["baselines"]:
+        assert "rank_median" not in b["sensitivity"]
 
 
 def test_a_k_grid_is_a_numeric_dimension_with_neighbours():

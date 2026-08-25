@@ -1,0 +1,101 @@
+[
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "SCZ"
+      ],
+      "fallback": {
+        "kind": "best_of",
+        "score": {
+          "months": 1
+        },
+        "symbols": [
+          "TIP",
+          "TLT"
+        ]
+      },
+      "k": 1,
+      "label": "ROT SPY+SCZ top1 1-3U fb best(TIP+TLT@1M)",
+      "score": {
+        "kind": "avg",
+        "months": [
+          1,
+          3
+        ]
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+SCZ top1 1-3U fb best(TIP+TLT@1M)",
+    "params": {
+      "score": "1-3U"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "SCZ"
+      ],
+      "fallback": {
+        "kind": "best_of",
+        "score": {
+          "months": 1
+        },
+        "symbols": [
+          "TIP",
+          "TLT"
+        ]
+      },
+      "k": 1,
+      "label": "ROT SPY+SCZ top1 1-3-6U fb best(TIP+TLT@1M)",
+      "score": {
+        "kind": "avg",
+        "months": [
+          1,
+          3,
+          6
+        ]
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+SCZ top1 1-3-6U fb best(TIP+TLT@1M)",
+    "params": {
+      "score": "1-3-6U"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "SCZ"
+      ],
+      "fallback": {
+        "kind": "best_of",
+        "score": {
+          "months": 1
+        },
+        "symbols": [
+          "TIP",
+          "TLT"
+        ]
+      },
+      "k": 1,
+      "label": "ROT SPY+SCZ top1 1-3-6-12U fb best(TIP+TLT@1M)",
+      "score": {
+        "kind": "avg",
+        "months": [
+          1,
+          3,
+          6,
+          12
+        ]
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+SCZ top1 1-3-6-12U fb best(TIP+TLT@1M)",
+    "params": {
+      "score": "1-3-6-12U"
+    }
+  }
+]
