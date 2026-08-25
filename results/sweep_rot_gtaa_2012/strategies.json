@@ -1,0 +1,146 @@
+[
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "EFA",
+        "IEF",
+        "DBC",
+        "VNQ"
+      ],
+      "fallback": null,
+      "k": 5,
+      "label": "ROT SPY+EFA+IEF+DBC+VNQ top5 gap8M fb cash",
+      "score": {
+        "kind": "sma_gap",
+        "months": 8
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+EFA+IEF+DBC+VNQ top5 gap8M fb cash",
+    "params": {
+      "fallback": null,
+      "score.months": 8
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "EFA",
+        "IEF",
+        "DBC",
+        "VNQ"
+      ],
+      "fallback": "BIL",
+      "k": 5,
+      "label": "ROT SPY+EFA+IEF+DBC+VNQ top5 gap8M fb BIL",
+      "score": {
+        "kind": "sma_gap",
+        "months": 8
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+EFA+IEF+DBC+VNQ top5 gap8M fb BIL",
+    "params": {
+      "fallback": "BIL",
+      "score.months": 8
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "EFA",
+        "IEF",
+        "DBC",
+        "VNQ"
+      ],
+      "fallback": null,
+      "k": 5,
+      "label": "ROT SPY+EFA+IEF+DBC+VNQ top5 gap10M fb cash",
+      "score": {
+        "kind": "sma_gap",
+        "months": 10
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+EFA+IEF+DBC+VNQ top5 gap10M fb cash",
+    "params": {
+      "fallback": null,
+      "score.months": 10
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "EFA",
+        "IEF",
+        "DBC",
+        "VNQ"
+      ],
+      "fallback": "BIL",
+      "k": 5,
+      "label": "ROT SPY+EFA+IEF+DBC+VNQ top5 gap10M fb BIL",
+      "score": {
+        "kind": "sma_gap",
+        "months": 10
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+EFA+IEF+DBC+VNQ top5 gap10M fb BIL",
+    "params": {
+      "fallback": "BIL",
+      "score.months": 10
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "EFA",
+        "IEF",
+        "DBC",
+        "VNQ"
+      ],
+      "fallback": null,
+      "k": 5,
+      "label": "ROT SPY+EFA+IEF+DBC+VNQ top5 gap12M fb cash",
+      "score": {
+        "kind": "sma_gap",
+        "months": 12
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+EFA+IEF+DBC+VNQ top5 gap12M fb cash",
+    "params": {
+      "fallback": null,
+      "score.months": 12
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "EFA",
+        "IEF",
+        "DBC",
+        "VNQ"
+      ],
+      "fallback": "BIL",
+      "k": 5,
+      "label": "ROT SPY+EFA+IEF+DBC+VNQ top5 gap12M fb BIL",
+      "score": {
+        "kind": "sma_gap",
+        "months": 12
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+EFA+IEF+DBC+VNQ top5 gap12M fb BIL",
+    "params": {
+      "fallback": "BIL",
+      "score.months": 12
+    }
+  }
+]

@@ -1,0 +1,692 @@
+{
+  "baselines": [
+    {
+      "full": {
+        "avg_asset_deviation": 0.0024091,
+        "avg_misallocation": 0.00449576,
+        "best_year": {
+          "return": 0.22631404,
+          "year": 2021
+        },
+        "cagr": 0.06923468,
+        "calmar": 0.26531293,
+        "fee_drag": 0.0005189,
+        "final_value": 187097.47755938,
+        "max_asset_deviation": 0.00802122,
+        "max_drawdown": -0.2609548,
+        "max_drawdown_days": 270,
+        "max_misallocation": 0.01883163,
+        "net_profit": 89597.47755938,
+        "net_profit_pct": 0.91894849,
+        "objective": 0.26531293,
+        "sharpe": 0.67581211,
+        "sortino": 0.93006711,
+        "total_contributed": 97500.0,
+        "total_fees": 50.5926783,
+        "traded_value": 309362.54442139,
+        "turnover": 0.1420672,
+        "volatility": 0.10797646,
+        "worst_year": {
+          "return": -0.11652876,
+          "year": 2022
+        },
+        "xirr": 0.07662525
+      },
+      "holdout": {
+        "fit": 0.19825453,
+        "test": 1.17836009,
+        "test_minus_fit": 0.98010556
+      },
+      "label": "SPY20/EFA20/IEF20/DBC20/VNQ20",
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.09259269,
+          "max": -0.14941898,
+          "median": -0.2189465,
+          "min": -0.2607706
+        },
+        "objective": {
+          "iqr": 0.10811407,
+          "max": 0.47557607,
+          "median": 0.26151059,
+          "min": 0.09735939
+        }
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00165813,
+        "avg_misallocation": 0.00165763,
+        "best_year": {
+          "return": 0.31819168,
+          "year": 2013
+        },
+        "cagr": 0.14643292,
+        "calmar": 0.43404677,
+        "fee_drag": 6.981e-05,
+        "final_value": 353051.02493906,
+        "max_asset_deviation": 0.00887535,
+        "max_drawdown": -0.33736669,
+        "max_drawdown_days": 173,
+        "max_misallocation": 0.00887397,
+        "net_profit": 255551.02493906,
+        "net_profit_pct": 2.62103615,
+        "objective": 0.43404677,
+        "sharpe": 0.91192795,
+        "sortino": 1.29098146,
+        "total_contributed": 97500.0,
+        "total_fees": 6.8063139,
+        "traded_value": 97233.05567962,
+        "turnover": 0.02779235,
+        "volatility": 0.16527492,
+        "worst_year": {
+          "return": -0.18365542,
+          "year": 2022
+        },
+        "xirr": 0.1463159
+      },
+      "holdout": {
+        "fit": 0.36376365,
+        "test": 1.18927495,
+        "test_minus_fit": 0.8255113
+      },
+      "label": "SPY benchmark",
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.14193584,
+          "max": -0.13090674,
+          "median": -0.28883059,
+          "min": -0.33765679
+        },
+        "objective": {
+          "iqr": 0.19546391,
+          "max": 1.14321205,
+          "median": 0.52447182,
+          "min": 0.25514055
+        }
+      }
+    }
+  ],
+  "constraint": {
+    "max_drawdown": -0.5
+  },
+  "costs": {
+    "cash_yield": 0.03,
+    "cost_bps": {
+      "*": 6,
+      "ACWX": 3,
+      "AGG": 1,
+      "BIL": 1,
+      "BND": 1.5,
+      "BTAL": 6,
+      "DBC": 3,
+      "DBMF": 3,
+      "EEM": 1,
+      "EFA": 1,
+      "IEF": 1,
+      "IWM": 1,
+      "KMLM": 6,
+      "LQD": 1.5,
+      "QQQ": 1,
+      "SCZ": 5,
+      "SHY": 1,
+      "SPY": 0.7,
+      "TIP": 2,
+      "TLT": 1,
+      "TQQQ": 1.5,
+      "VEA": 1.5,
+      "VEU": 2,
+      "VNQ": 1.5,
+      "VTI": 1,
+      "VWO": 2
+    }
+  },
+  "data": {
+    "dir": "tests/data/2026-08-24-net15",
+    "end": "2026-08-24",
+    "start": "2012-01-03"
+  },
+  "objective": "calmar",
+  "snapped": [
+    "windows.holdout 2023-01-01 -> 2023-01-03"
+  ],
+  "strategies": [
+    {
+      "full": {
+        "avg_asset_deviation": 0.00211676,
+        "avg_misallocation": 0.00355654,
+        "best_year": {
+          "return": 0.2227842,
+          "year": 2021
+        },
+        "cagr": 0.05790343,
+        "calmar": 0.78978103,
+        "feasible": true,
+        "fee_drag": 0.0034788,
+        "final_value": 169729.77731282,
+        "max_asset_deviation": 0.00791787,
+        "max_drawdown": -0.0733158,
+        "max_drawdown_days": 302,
+        "max_misallocation": 0.01604927,
+        "net_profit": 72229.77731282,
+        "net_profit_pct": 0.74081823,
+        "objective": 0.78978103,
+        "sharpe": 0.87794678,
+        "sortino": 1.20923538,
+        "total_contributed": 97500.0,
+        "total_fees": 339.18274294,
+        "traded_value": 2362899.45961056,
+        "turnover": 1.11345295,
+        "volatility": 0.06682735,
+        "worst_year": {
+          "return": -0.0221334,
+          "year": 2022
+        },
+        "xirr": 0.06559579
+      },
+      "holdout": {
+        "fit": 0.70259354,
+        "test": 1.13808359,
+        "test_minus_fit": 0.43549005
+      },
+      "label": "ROT SPY+EFA+IEF+DBC+VNQ top5 gap8M fb cash",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.74950854,
+        "neighbour_min": 0.74950854
+      },
+      "params": {
+        "fallback": null,
+        "score.months": 8
+      },
+      "robust_score": 0.74950854,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.00094367,
+          "max": -0.06651433,
+          "median": -0.0690743,
+          "min": -0.0733158
+        },
+        "objective": {
+          "iqr": 0.44703305,
+          "max": 1.30064087,
+          "median": 0.84824185,
+          "min": 0.40124598
+        },
+        "rank_median": 1.0,
+        "rank_worst": 3
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00283203,
+        "avg_misallocation": 0.00500187,
+        "best_year": {
+          "return": 0.21660445,
+          "year": 2021
+        },
+        "cagr": 0.05187973,
+        "calmar": 0.62500681,
+        "feasible": true,
+        "fee_drag": 0.00528161,
+        "final_value": 163448.07541176,
+        "max_asset_deviation": 0.00835758,
+        "max_drawdown": -0.08300666,
+        "max_drawdown_days": 814,
+        "max_misallocation": 0.01975132,
+        "net_profit": 65948.07541176,
+        "net_profit_pct": 0.67639052,
+        "objective": 0.62500681,
+        "sharpe": 0.7925281,
+        "sortino": 1.0884481,
+        "total_contributed": 97500.0,
+        "total_fees": 514.95700327,
+        "traded_value": 4159251.33053028,
+        "turnover": 2.03995318,
+        "volatility": 0.06680355,
+        "worst_year": {
+          "return": -0.03263514,
+          "year": 2022
+        },
+        "xirr": 0.06129387
+      },
+      "holdout": {
+        "fit": 0.5145148,
+        "test": 1.18756814,
+        "test_minus_fit": 0.67305334
+      },
+      "label": "ROT SPY+EFA+IEF+DBC+VNQ top5 gap8M fb BIL",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.57999674,
+        "neighbour_min": 0.57999674
+      },
+      "params": {
+        "fallback": "BIL",
+        "score.months": 8
+      },
+      "robust_score": 0.57999674,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.01395903,
+          "max": -0.06601964,
+          "median": -0.06908486,
+          "min": -0.08300666
+        },
+        "objective": {
+          "iqr": 0.60121159,
+          "max": 1.20659982,
+          "median": 0.79316895,
+          "min": 0.22963471
+        },
+        "rank_median": 3.0,
+        "rank_worst": 6
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.0024049,
+        "avg_misallocation": 0.0038472,
+        "best_year": {
+          "return": 0.22429115,
+          "year": 2021
+        },
+        "cagr": 0.05833136,
+        "calmar": 0.74950854,
+        "feasible": true,
+        "fee_drag": 0.00330403,
+        "final_value": 166990.07486074,
+        "max_asset_deviation": 0.00773573,
+        "max_drawdown": -0.07782614,
+        "max_drawdown_days": 514,
+        "max_misallocation": 0.0158107,
+        "net_profit": 69490.07486074,
+        "net_profit_pct": 0.71271872,
+        "objective": 0.74950854,
+        "sharpe": 0.8932562,
+        "sortino": 1.23299928,
+        "total_contributed": 97500.0,
+        "total_fees": 322.14334178,
+        "traded_value": 2293993.36795604,
+        "turnover": 1.08138941,
+        "volatility": 0.06608003,
+        "worst_year": {
+          "return": -0.0410157,
+          "year": 2022
+        },
+        "xirr": 0.06374178
+      },
+      "holdout": {
+        "fit": 0.67223988,
+        "test": 1.17603927,
+        "test_minus_fit": 0.5037994
+      },
+      "label": "ROT SPY+EFA+IEF+DBC+VNQ top5 gap10M fb cash",
+      "neighbourhood": {
+        "edge": false,
+        "neighbour_mean": 0.70291308,
+        "neighbour_min": 0.61604513
+      },
+      "params": {
+        "fallback": null,
+        "score.months": 10
+      },
+      "robust_score": 0.61604513,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.00928466,
+          "max": -0.06664767,
+          "median": -0.07307721,
+          "min": -0.07785812
+        },
+        "objective": {
+          "iqr": 0.29445759,
+          "max": 1.25346327,
+          "median": 0.78465441,
+          "min": 0.40982222
+        },
+        "rank_median": 2.0,
+        "rank_worst": 5
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00249986,
+        "avg_misallocation": 0.00461293,
+        "best_year": {
+          "return": 0.21804532,
+          "year": 2021
+        },
+        "cagr": 0.05233336,
+        "calmar": 0.57999674,
+        "feasible": true,
+        "fee_drag": 0.00507762,
+        "final_value": 160618.95923705,
+        "max_asset_deviation": 0.00797357,
+        "max_drawdown": -0.09023044,
+        "max_drawdown_days": 802,
+        "max_misallocation": 0.01928564,
+        "net_profit": 63118.95923705,
+        "net_profit_pct": 0.64737394,
+        "objective": 0.57999674,
+        "sharpe": 0.80700079,
+        "sortino": 1.11068093,
+        "total_contributed": 97500.0,
+        "total_fees": 495.06758051,
+        "traded_value": 4059381.28190011,
+        "turnover": 1.99259874,
+        "volatility": 0.06608136,
+        "worst_year": {
+          "return": -0.05077919,
+          "year": 2022
+        },
+        "xirr": 0.05929562
+      },
+      "holdout": {
+        "fit": 0.48336626,
+        "test": 1.23029799,
+        "test_minus_fit": 0.74693173
+      },
+      "label": "ROT SPY+EFA+IEF+DBC+VNQ top5 gap10M fb BIL",
+      "neighbourhood": {
+        "edge": false,
+        "neighbour_mean": 0.56037784,
+        "neighbour_min": 0.49574886
+      },
+      "params": {
+        "fallback": "BIL",
+        "score.months": 10
+      },
+      "robust_score": 0.49574886,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.02085839,
+          "max": -0.06806648,
+          "median": -0.07912411,
+          "min": -0.09023044
+        },
+        "objective": {
+          "iqr": 0.36174407,
+          "max": 1.11836927,
+          "median": 0.65381054,
+          "min": 0.255647
+        },
+        "rank_median": 4.0,
+        "rank_worst": 6
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00229208,
+        "avg_misallocation": 0.00358119,
+        "best_year": {
+          "return": 0.22115647,
+          "year": 2021
+        },
+        "cagr": 0.05908383,
+        "calmar": 0.61604513,
+        "feasible": true,
+        "fee_drag": 0.00330569,
+        "final_value": 168306.32147665,
+        "max_asset_deviation": 0.00773573,
+        "max_drawdown": -0.09590828,
+        "max_drawdown_days": 899,
+        "max_misallocation": 0.01870104,
+        "net_profit": 70806.32147665,
+        "net_profit_pct": 0.72621868,
+        "objective": 0.61604513,
+        "sharpe": 0.91166268,
+        "sortino": 1.25816964,
+        "total_contributed": 97500.0,
+        "total_fees": 322.30466086,
+        "traded_value": 2211356.36498391,
+        "turnover": 1.06751557,
+        "volatility": 0.0654843,
+        "worst_year": {
+          "return": -0.03802199,
+          "year": 2015
+        },
+        "xirr": 0.06463671
+      },
+      "holdout": {
+        "fit": 0.51852183,
+        "test": 0.96905813,
+        "test_minus_fit": 0.4505363
+      },
+      "label": "ROT SPY+EFA+IEF+DBC+VNQ top5 gap12M fb cash",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.74950854,
+        "neighbour_min": 0.74950854
+      },
+      "params": {
+        "fallback": null,
+        "score.months": 12
+      },
+      "robust_score": 0.61604513,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.02756557,
+          "max": -0.06244431,
+          "median": -0.07942152,
+          "min": -0.09598926
+        },
+        "objective": {
+          "iqr": 0.51027218,
+          "max": 1.08120109,
+          "median": 0.69443977,
+          "min": 0.20474232
+        },
+        "rank_median": 4.0,
+        "rank_worst": 5
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00256933,
+        "avg_misallocation": 0.00450185,
+        "best_year": {
+          "return": 0.21545359,
+          "year": 2021
+        },
+        "cagr": 0.05289692,
+        "calmar": 0.49574886,
+        "feasible": true,
+        "fee_drag": 0.00506287,
+        "final_value": 161771.45937972,
+        "max_asset_deviation": 0.00773573,
+        "max_drawdown": -0.10670103,
+        "max_drawdown_days": 959,
+        "max_misallocation": 0.01731457,
+        "net_profit": 64271.45937972,
+        "net_profit_pct": 0.65919446,
+        "objective": 0.49574886,
+        "sharpe": 0.82178663,
+        "sortino": 1.13078897,
+        "total_contributed": 97500.0,
+        "total_fees": 493.62997764,
+        "traded_value": 3965336.90938802,
+        "turnover": 1.99361731,
+        "volatility": 0.06549865,
+        "worst_year": {
+          "return": -0.05110813,
+          "year": 2015
+        },
+        "xirr": 0.06011437
+      },
+      "holdout": {
+        "fit": 0.38256884,
+        "test": 1.00695899,
+        "test_minus_fit": 0.62439014
+      },
+      "label": "ROT SPY+EFA+IEF+DBC+VNQ top5 gap12M fb BIL",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.57999674,
+        "neighbour_min": 0.57999674
+      },
+      "params": {
+        "fallback": "BIL",
+        "score.months": 12
+      },
+      "robust_score": 0.49574886,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.03312553,
+          "max": -0.06499306,
+          "median": -0.08150266,
+          "min": -0.10676176
+        },
+        "objective": {
+          "iqr": 0.52604891,
+          "max": 0.91535532,
+          "median": 0.61116714,
+          "min": 0.10426845
+        },
+        "rank_median": 6.0,
+        "rank_worst": 6
+      }
+    }
+  ],
+  "warnings": [],
+  "windows": [
+    {
+      "end": "2026-08-24",
+      "kind": "full",
+      "name": "full",
+      "start": "2012-01-03"
+    },
+    {
+      "end": "2022-12-30",
+      "kind": "fit",
+      "name": "fit",
+      "start": "2012-01-03"
+    },
+    {
+      "end": "2026-08-24",
+      "kind": "test",
+      "name": "test",
+      "start": "2023-01-03"
+    },
+    {
+      "end": "2017-01-03",
+      "kind": "sens",
+      "name": "sens_2012-01-03",
+      "start": "2012-01-03"
+    },
+    {
+      "end": "2017-07-03",
+      "kind": "sens",
+      "name": "sens_2012-07-03",
+      "start": "2012-07-03"
+    },
+    {
+      "end": "2018-01-03",
+      "kind": "sens",
+      "name": "sens_2013-01-03",
+      "start": "2013-01-03"
+    },
+    {
+      "end": "2018-07-03",
+      "kind": "sens",
+      "name": "sens_2013-07-03",
+      "start": "2013-07-03"
+    },
+    {
+      "end": "2019-01-03",
+      "kind": "sens",
+      "name": "sens_2014-01-03",
+      "start": "2014-01-03"
+    },
+    {
+      "end": "2019-07-03",
+      "kind": "sens",
+      "name": "sens_2014-07-03",
+      "start": "2014-07-03"
+    },
+    {
+      "end": "2020-01-03",
+      "kind": "sens",
+      "name": "sens_2015-01-05",
+      "start": "2015-01-05"
+    },
+    {
+      "end": "2020-07-02",
+      "kind": "sens",
+      "name": "sens_2015-07-06",
+      "start": "2015-07-06"
+    },
+    {
+      "end": "2020-12-31",
+      "kind": "sens",
+      "name": "sens_2016-01-04",
+      "start": "2016-01-04"
+    },
+    {
+      "end": "2021-07-02",
+      "kind": "sens",
+      "name": "sens_2016-07-05",
+      "start": "2016-07-05"
+    },
+    {
+      "end": "2022-01-03",
+      "kind": "sens",
+      "name": "sens_2017-01-03",
+      "start": "2017-01-03"
+    },
+    {
+      "end": "2022-07-01",
+      "kind": "sens",
+      "name": "sens_2017-07-03",
+      "start": "2017-07-03"
+    },
+    {
+      "end": "2023-01-03",
+      "kind": "sens",
+      "name": "sens_2018-01-03",
+      "start": "2018-01-03"
+    },
+    {
+      "end": "2023-07-03",
+      "kind": "sens",
+      "name": "sens_2018-07-03",
+      "start": "2018-07-03"
+    },
+    {
+      "end": "2024-01-03",
+      "kind": "sens",
+      "name": "sens_2019-01-03",
+      "start": "2019-01-03"
+    },
+    {
+      "end": "2024-07-03",
+      "kind": "sens",
+      "name": "sens_2019-07-03",
+      "start": "2019-07-03"
+    },
+    {
+      "end": "2025-01-03",
+      "kind": "sens",
+      "name": "sens_2020-01-03",
+      "start": "2020-01-03"
+    },
+    {
+      "end": "2025-07-03",
+      "kind": "sens",
+      "name": "sens_2020-07-06",
+      "start": "2020-07-06"
+    },
+    {
+      "end": "2026-01-02",
+      "kind": "sens",
+      "name": "sens_2021-01-04",
+      "start": "2021-01-04"
+    },
+    {
+      "end": "2026-07-02",
+      "kind": "sens",
+      "name": "sens_2021-07-06",
+      "start": "2021-07-06"
+    }
+  ]
+}

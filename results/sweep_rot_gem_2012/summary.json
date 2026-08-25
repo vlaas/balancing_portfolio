@@ -1,0 +1,1661 @@
+{
+  "baselines": [
+    {
+      "full": {
+        "avg_asset_deviation": 0.00216615,
+        "avg_misallocation": 0.00287809,
+        "best_year": {
+          "return": 0.2147426,
+          "year": 2019
+        },
+        "cagr": 0.09426728,
+        "calmar": 0.43641913,
+        "fee_drag": 0.00022536,
+        "final_value": 218679.30034456,
+        "max_asset_deviation": 0.00784154,
+        "max_drawdown": -0.21600171,
+        "max_drawdown_days": 152,
+        "max_misallocation": 0.01398803,
+        "net_profit": 121179.30034456,
+        "net_profit_pct": 1.24286462,
+        "objective": 0.43641913,
+        "sharpe": 0.94118936,
+        "sortino": 1.32770855,
+        "total_contributed": 97500.0,
+        "total_fees": 21.97246082,
+        "traded_value": 255935.67929349,
+        "turnover": 0.09858285,
+        "volatility": 0.10144465,
+        "worst_year": {
+          "return": -0.15989938,
+          "year": 2022
+        },
+        "xirr": 0.09405963
+      },
+      "holdout": {
+        "fit": 0.36300981,
+        "test": 1.27300344,
+        "test_minus_fit": 0.90999362
+      },
+      "label": "SPY60/AGG40",
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.1015766,
+          "max": -0.07200369,
+          "median": -0.21041031,
+          "min": -0.21631261
+        },
+        "objective": {
+          "iqr": 0.29095114,
+          "max": 1.34170868,
+          "median": 0.47253374,
+          "min": 0.24716293
+        }
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00247535,
+        "avg_misallocation": 0.0035627,
+        "best_year": {
+          "return": 0.19907565,
+          "year": 2019
+        },
+        "cagr": 0.08096054,
+        "calmar": 0.34614142,
+        "fee_drag": 0.00029385,
+        "final_value": 199084.04682061,
+        "max_asset_deviation": 0.00936796,
+        "max_drawdown": -0.2338944,
+        "max_drawdown_days": 175,
+        "max_misallocation": 0.01679465,
+        "net_profit": 101584.04682061,
+        "net_profit_pct": 1.04188766,
+        "objective": 0.34614142,
+        "sharpe": 0.77504567,
+        "sortino": 1.0830019,
+        "total_contributed": 97500.0,
+        "total_fees": 28.64994435,
+        "traded_value": 240807.33886755,
+        "turnover": 0.10281417,
+        "volatility": 0.10829873,
+        "worst_year": {
+          "return": -0.15526318,
+          "year": 2022
+        },
+        "xirr": 0.0835972
+      },
+      "holdout": {
+        "fit": 0.25882684,
+        "test": 1.43375792,
+        "test_minus_fit": 1.17493108
+      },
+      "label": "EW SPY/VEU/AGG",
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.09853607,
+          "max": -0.125119,
+          "median": -0.22584675,
+          "min": -0.23399243
+        },
+        "objective": {
+          "iqr": 0.19646613,
+          "max": 0.62069871,
+          "median": 0.34207376,
+          "min": 0.13869878
+        }
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00194677,
+        "avg_misallocation": 0.00194052,
+        "best_year": {
+          "return": 0.31794858,
+          "year": 2013
+        },
+        "cagr": 0.10596832,
+        "calmar": 0.31420942,
+        "fee_drag": 0.00133766,
+        "final_value": 244636.09527177,
+        "max_asset_deviation": 0.00887535,
+        "max_drawdown": -0.33725379,
+        "max_drawdown_days": 351,
+        "max_misallocation": 0.00887397,
+        "net_profit": 147136.09527177,
+        "net_profit_pct": 1.50908816,
+        "objective": 0.31420942,
+        "sharpe": 0.75178076,
+        "sortino": 1.04550369,
+        "total_contributed": 97500.0,
+        "total_fees": 130.42210434,
+        "traded_value": 1547351.77098058,
+        "turnover": 0.58902283,
+        "volatility": 0.14918608,
+        "worst_year": {
+          "return": -0.16688955,
+          "year": 2022
+        },
+        "xirr": 0.10644992
+      },
+      "holdout": {
+        "fit": 0.2472113,
+        "test": 0.93565421,
+        "test_minus_fit": 0.68844291
+      },
+      "label": "ROT SPY top1 12M@SPY>BIL fb AGG",
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.14217823,
+          "max": -0.18694674,
+          "median": -0.27296891,
+          "min": -0.33751136
+        },
+        "objective": {
+          "iqr": 0.2886891,
+          "max": 0.64884401,
+          "median": 0.31504287,
+          "min": 0.07404338
+        }
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00146841,
+        "avg_misallocation": 0.00145642,
+        "best_year": {
+          "return": 0.3082533,
+          "year": 2019
+        },
+        "cagr": 0.13556333,
+        "calmar": 0.40148812,
+        "fee_drag": 0.00646151,
+        "final_value": 319411.18558896,
+        "max_asset_deviation": 0.00887535,
+        "max_drawdown": -0.33765215,
+        "max_drawdown_days": 173,
+        "max_misallocation": 0.00887397,
+        "net_profit": 221911.18558896,
+        "net_profit_pct": 2.27601216,
+        "objective": 0.40148812,
+        "sharpe": 0.84748452,
+        "sortino": 1.19794219,
+        "total_contributed": 97500.0,
+        "total_fees": 629.99735607,
+        "traded_value": 4697223.52158029,
+        "turnover": 1.45424803,
+        "volatility": 0.16688244,
+        "worst_year": {
+          "return": -0.18384518,
+          "year": 2022
+        },
+        "xirr": 0.13551757
+      },
+      "holdout": {
+        "fit": 0.33345305,
+        "test": 1.10040822,
+        "test_minus_fit": 0.76695517
+      },
+      "label": "ROT SPY+VEU top1 12M all fb AGG",
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.13535569,
+          "max": -0.13090674,
+          "median": -0.2880466,
+          "min": -0.33728671
+        },
+        "objective": {
+          "iqr": 0.17672029,
+          "max": 1.125793,
+          "median": 0.46921452,
+          "min": 0.21800551
+        }
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00165813,
+        "avg_misallocation": 0.00165763,
+        "best_year": {
+          "return": 0.31819168,
+          "year": 2013
+        },
+        "cagr": 0.14643292,
+        "calmar": 0.43404677,
+        "fee_drag": 6.981e-05,
+        "final_value": 353051.02493906,
+        "max_asset_deviation": 0.00887535,
+        "max_drawdown": -0.33736669,
+        "max_drawdown_days": 173,
+        "max_misallocation": 0.00887397,
+        "net_profit": 255551.02493906,
+        "net_profit_pct": 2.62103615,
+        "objective": 0.43404677,
+        "sharpe": 0.91192795,
+        "sortino": 1.29098146,
+        "total_contributed": 97500.0,
+        "total_fees": 6.8063139,
+        "traded_value": 97233.05567962,
+        "turnover": 0.02779235,
+        "volatility": 0.16527492,
+        "worst_year": {
+          "return": -0.18365542,
+          "year": 2022
+        },
+        "xirr": 0.1463159
+      },
+      "holdout": {
+        "fit": 0.36376365,
+        "test": 1.18927495,
+        "test_minus_fit": 0.8255113
+      },
+      "label": "SPY benchmark",
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.14193584,
+          "max": -0.13090674,
+          "median": -0.28883059,
+          "min": -0.33765679
+        },
+        "objective": {
+          "iqr": 0.19546391,
+          "max": 1.14321205,
+          "median": 0.52447182,
+          "min": 0.25514055
+        }
+      }
+    }
+  ],
+  "constraint": {
+    "max_drawdown": -0.5
+  },
+  "costs": {
+    "cash_yield": 0.03,
+    "cost_bps": {
+      "*": 6,
+      "ACWX": 3,
+      "AGG": 1,
+      "BIL": 1,
+      "BND": 1.5,
+      "BTAL": 6,
+      "DBC": 3,
+      "DBMF": 3,
+      "EEM": 1,
+      "EFA": 1,
+      "IEF": 1,
+      "IWM": 1,
+      "KMLM": 6,
+      "LQD": 1.5,
+      "QQQ": 1,
+      "SCZ": 5,
+      "SHY": 1,
+      "SPY": 0.7,
+      "TIP": 2,
+      "TLT": 1,
+      "TQQQ": 1.5,
+      "VEA": 1.5,
+      "VEU": 2,
+      "VNQ": 1.5,
+      "VTI": 1,
+      "VWO": 2
+    }
+  },
+  "data": {
+    "dir": "tests/data/2026-08-24-net15",
+    "end": "2026-08-24",
+    "start": "2012-01-03"
+  },
+  "objective": "calmar",
+  "snapped": [
+    "windows.holdout 2023-01-01 -> 2023-01-03"
+  ],
+  "strategies": [
+    {
+      "full": {
+        "avg_asset_deviation": 0.00166897,
+        "avg_misallocation": 0.00164762,
+        "best_year": {
+          "return": 0.24590243,
+          "year": 2024
+        },
+        "cagr": 0.09817939,
+        "calmar": 0.29140055,
+        "feasible": true,
+        "fee_drag": 0.00668155,
+        "final_value": 220651.45240254,
+        "max_asset_deviation": 0.00950283,
+        "max_drawdown": -0.33692246,
+        "max_drawdown_days": 341,
+        "max_misallocation": 0.00942058,
+        "net_profit": 123151.45240254,
+        "net_profit_pct": 1.26309182,
+        "objective": 0.29140055,
+        "sharpe": 0.70311142,
+        "sortino": 0.97745738,
+        "total_contributed": 97500.0,
+        "total_fees": 651.45100641,
+        "traded_value": 5775215.88344257,
+        "turnover": 2.25629907,
+        "volatility": 0.14949794,
+        "worst_year": {
+          "return": -0.16710879,
+          "year": 2022
+        },
+        "xirr": 0.0950556
+      },
+      "holdout": {
+        "fit": 0.23490448,
+        "test": 0.83070306,
+        "test_minus_fit": 0.59579858
+      },
+      "label": "ROT SPY+VEU top1 10M@SPY>BIL fb AGG",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.29263371,
+        "neighbour_min": 0.29263371
+      },
+      "params": {
+        "assets": "SPY+VEU",
+        "filter": "@SPY>BIL",
+        "score.months": 10
+      },
+      "robust_score": 0.29140055,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.20812643,
+          "max": -0.11847353,
+          "median": -0.27258396,
+          "min": -0.33750129
+        },
+        "objective": {
+          "iqr": 0.53261415,
+          "max": 1.09994478,
+          "median": 0.32746923,
+          "min": 0.05705242
+        },
+        "rank_median": 9.5,
+        "rank_worst": 18
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00167106,
+        "avg_misallocation": 0.0016497,
+        "best_year": {
+          "return": 0.24592551,
+          "year": 2024
+        },
+        "cagr": 0.10560249,
+        "calmar": 0.31343264,
+        "feasible": true,
+        "fee_drag": 0.00675601,
+        "final_value": 241800.25146343,
+        "max_asset_deviation": 0.00950283,
+        "max_drawdown": -0.33692246,
+        "max_drawdown_days": 341,
+        "max_misallocation": 0.00942058,
+        "net_profit": 144300.25146343,
+        "net_profit_pct": 1.48000258,
+        "objective": 0.31343264,
+        "sharpe": 0.74648569,
+        "sortino": 1.03948303,
+        "total_contributed": 97500.0,
+        "total_fees": 658.71071693,
+        "traded_value": 5567993.09672545,
+        "turnover": 2.11492816,
+        "volatility": 0.1499531,
+        "worst_year": {
+          "return": -0.16710879,
+          "year": 2022
+        },
+        "xirr": 0.10516706
+      },
+      "holdout": {
+        "fit": 0.23490448,
+        "test": 1.00279225,
+        "test_minus_fit": 0.76788777
+      },
+      "label": "ROT SPY+VEU top1 10M>BIL fb AGG",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.28731071,
+        "neighbour_min": 0.28731071
+      },
+      "params": {
+        "assets": "SPY+VEU",
+        "filter": ">BIL",
+        "score.months": 10
+      },
+      "robust_score": 0.28731071,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.20812643,
+          "max": -0.11847353,
+          "median": -0.26837751,
+          "min": -0.33750129
+        },
+        "objective": {
+          "iqr": 0.51082603,
+          "max": 1.09994478,
+          "median": 0.38814219,
+          "min": 0.05705242
+        },
+        "rank_median": 6.5,
+        "rank_worst": 17
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00175165,
+        "avg_misallocation": 0.00173544,
+        "best_year": {
+          "return": 0.28410651,
+          "year": 2013
+        },
+        "cagr": 0.09862432,
+        "calmar": 0.29263371,
+        "feasible": true,
+        "fee_drag": 0.00536827,
+        "final_value": 231481.4454558,
+        "max_asset_deviation": 0.00887535,
+        "max_drawdown": -0.33702309,
+        "max_drawdown_days": 341,
+        "max_misallocation": 0.00887397,
+        "net_profit": 133981.4454558,
+        "net_profit_pct": 1.37416867,
+        "objective": 0.29263371,
+        "sharpe": 0.69900122,
+        "sortino": 0.97279495,
+        "total_contributed": 97500.0,
+        "total_fees": 523.40609985,
+        "traded_value": 4420958.87351163,
+        "turnover": 1.78029512,
+        "volatility": 0.15135715,
+        "worst_year": {
+          "return": -0.16692953,
+          "year": 2022
+        },
+        "xirr": 0.10035837
+      },
+      "holdout": {
+        "fit": 0.21821787,
+        "test": 0.93622849,
+        "test_minus_fit": 0.71801062
+      },
+      "label": "ROT SPY+VEU top1 12M@SPY>BIL fb AGG",
+      "neighbourhood": {
+        "edge": false,
+        "neighbour_mean": 0.30512556,
+        "neighbour_min": 0.29140055
+      },
+      "params": {
+        "assets": "SPY+VEU",
+        "filter": "@SPY>BIL",
+        "score.months": 12
+      },
+      "robust_score": 0.26236673,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.13527247,
+          "max": -0.18679228,
+          "median": -0.27296891,
+          "min": -0.33689117
+        },
+        "objective": {
+          "iqr": 0.27396656,
+          "max": 0.634289,
+          "median": 0.26236673,
+          "min": 0.04730564
+        },
+        "rank_median": 15.0,
+        "rank_worst": 17
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00186963,
+        "avg_misallocation": 0.00185172,
+        "best_year": {
+          "return": 0.28410651,
+          "year": 2013
+        },
+        "cagr": 0.09683034,
+        "calmar": 0.28731071,
+        "feasible": true,
+        "fee_drag": 0.00600081,
+        "final_value": 226645.40390917,
+        "max_asset_deviation": 0.00887535,
+        "max_drawdown": -0.33702309,
+        "max_drawdown_days": 341,
+        "max_misallocation": 0.00887397,
+        "net_profit": 129145.40390917,
+        "net_profit_pct": 1.32456825,
+        "objective": 0.28731071,
+        "sharpe": 0.68746783,
+        "sortino": 0.95643343,
+        "total_contributed": 97500.0,
+        "total_fees": 585.07853109,
+        "traded_value": 4823882.58675913,
+        "turnover": 1.96066829,
+        "volatility": 0.15155624,
+        "worst_year": {
+          "return": -0.16692953,
+          "year": 2022
+        },
+        "xirr": 0.09802441
+      },
+      "holdout": {
+        "fit": 0.21821787,
+        "test": 0.90070145,
+        "test_minus_fit": 0.68248358
+      },
+      "label": "ROT SPY+VEU top1 12M>BIL fb AGG",
+      "neighbourhood": {
+        "edge": false,
+        "neighbour_mean": 0.31614161,
+        "neighbour_min": 0.31343264
+      },
+      "params": {
+        "assets": "SPY+VEU",
+        "filter": ">BIL",
+        "score.months": 12
+      },
+      "robust_score": 0.25706798,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.13527247,
+          "max": -0.18679228,
+          "median": -0.28212577,
+          "min": -0.33689117
+        },
+        "objective": {
+          "iqr": 0.24695567,
+          "max": 0.634289,
+          "median": 0.25706798,
+          "min": 0.04730564
+        },
+        "rank_median": 15.0,
+        "rank_worst": 17
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00170501,
+        "avg_misallocation": 0.0016907,
+        "best_year": {
+          "return": 0.31819168,
+          "year": 2013
+        },
+        "cagr": 0.10753229,
+        "calmar": 0.31885058,
+        "feasible": true,
+        "fee_drag": 0.00561716,
+        "final_value": 236850.13354636,
+        "max_asset_deviation": 0.00887535,
+        "max_drawdown": -0.33724979,
+        "max_drawdown_days": 302,
+        "max_misallocation": 0.00887397,
+        "net_profit": 139350.13354636,
+        "net_profit_pct": 1.42923214,
+        "objective": 0.31885058,
+        "sharpe": 0.73350693,
+        "sortino": 1.01996956,
+        "total_contributed": 97500.0,
+        "total_fees": 547.6727671,
+        "traded_value": 4556968.89333373,
+        "turnover": 1.71623533,
+        "volatility": 0.15632477,
+        "worst_year": {
+          "return": -0.22766352,
+          "year": 2022
+        },
+        "xirr": 0.10288846
+      },
+      "holdout": {
+        "fit": 0.26203901,
+        "test": 0.88280186,
+        "test_minus_fit": 0.62076285
+      },
+      "label": "ROT SPY+VEU top1 14M@SPY>BIL fb AGG",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.29263371,
+        "neighbour_min": 0.29263371
+      },
+      "params": {
+        "assets": "SPY+VEU",
+        "filter": "@SPY>BIL",
+        "score.months": 14
+      },
+      "robust_score": 0.29263371,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.13629337,
+          "max": -0.11847353,
+          "median": -0.30147105,
+          "min": -0.3373474
+        },
+        "objective": {
+          "iqr": 0.16926701,
+          "max": 1.12020824,
+          "median": 0.30760904,
+          "min": 0.0959578
+        },
+        "rank_median": 9.0,
+        "rank_worst": 13
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00170501,
+        "avg_misallocation": 0.0016907,
+        "best_year": {
+          "return": 0.31819168,
+          "year": 2013
+        },
+        "cagr": 0.10753229,
+        "calmar": 0.31885058,
+        "feasible": true,
+        "fee_drag": 0.00561716,
+        "final_value": 236850.13354636,
+        "max_asset_deviation": 0.00887535,
+        "max_drawdown": -0.33724979,
+        "max_drawdown_days": 302,
+        "max_misallocation": 0.00887397,
+        "net_profit": 139350.13354636,
+        "net_profit_pct": 1.42923214,
+        "objective": 0.31885058,
+        "sharpe": 0.73350693,
+        "sortino": 1.01996956,
+        "total_contributed": 97500.0,
+        "total_fees": 547.6727671,
+        "traded_value": 4556968.89333373,
+        "turnover": 1.71623533,
+        "volatility": 0.15632477,
+        "worst_year": {
+          "return": -0.22766352,
+          "year": 2022
+        },
+        "xirr": 0.10288846
+      },
+      "holdout": {
+        "fit": 0.26203901,
+        "test": 0.88280186,
+        "test_minus_fit": 0.62076285
+      },
+      "label": "ROT SPY+VEU top1 14M>BIL fb AGG",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.28731071,
+        "neighbour_min": 0.28731071
+      },
+      "params": {
+        "assets": "SPY+VEU",
+        "filter": ">BIL",
+        "score.months": 14
+      },
+      "robust_score": 0.28731071,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.13629337,
+          "max": -0.11847353,
+          "median": -0.30147105,
+          "min": -0.3373474
+        },
+        "objective": {
+          "iqr": 0.16926701,
+          "max": 1.12020824,
+          "median": 0.30760904,
+          "min": 0.0959578
+        },
+        "rank_median": 9.0,
+        "rank_worst": 13
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00156104,
+        "avg_misallocation": 0.00154377,
+        "best_year": {
+          "return": 0.2461827,
+          "year": 2024
+        },
+        "cagr": 0.09726656,
+        "calmar": 0.28860652,
+        "feasible": true,
+        "fee_drag": 0.00630958,
+        "final_value": 222557.48489819,
+        "max_asset_deviation": 0.00950283,
+        "max_drawdown": -0.33702135,
+        "max_drawdown_days": 341,
+        "max_misallocation": 0.00942058,
+        "net_profit": 125057.48489819,
+        "net_profit_pct": 1.28264087,
+        "objective": 0.28860652,
+        "sharpe": 0.70307676,
+        "sortino": 0.97541991,
+        "total_contributed": 97500.0,
+        "total_fees": 615.18373263,
+        "traded_value": 7052081.64568446,
+        "turnover": 2.72185358,
+        "volatility": 0.14800523,
+        "worst_year": {
+          "return": -0.16705323,
+          "year": 2022
+        },
+        "xirr": 0.09600905
+      },
+      "holdout": {
+        "fit": 0.24729942,
+        "test": 0.73980327,
+        "test_minus_fit": 0.49250385
+      },
+      "label": "ROT SPY+EFA top1 10M@SPY>BIL fb AGG",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.26410148,
+        "neighbour_min": 0.26410148
+      },
+      "params": {
+        "assets": "SPY+EFA",
+        "filter": "@SPY>BIL",
+        "score.months": 10
+      },
+      "robust_score": 0.26410148,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.21716838,
+          "max": -0.11863087,
+          "median": -0.29149944,
+          "min": -0.33696395
+        },
+        "objective": {
+          "iqr": 0.58205457,
+          "max": 0.98366041,
+          "median": 0.3407834,
+          "min": 0.12693807
+        },
+        "rank_median": 4.0,
+        "rank_worst": 16
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00161715,
+        "avg_misallocation": 0.00160158,
+        "best_year": {
+          "return": 0.24591266,
+          "year": 2024
+        },
+        "cagr": 0.10686288,
+        "calmar": 0.31708045,
+        "feasible": true,
+        "fee_drag": 0.00576514,
+        "final_value": 250268.15948863,
+        "max_asset_deviation": 0.00950283,
+        "max_drawdown": -0.33702135,
+        "max_drawdown_days": 341,
+        "max_misallocation": 0.00942058,
+        "net_profit": 152768.15948863,
+        "net_profit_pct": 1.56685292,
+        "objective": 0.31708045,
+        "sharpe": 0.75733205,
+        "sortino": 1.05246763,
+        "total_contributed": 97500.0,
+        "total_fees": 562.10092373,
+        "traded_value": 6572493.84770546,
+        "turnover": 2.43823934,
+        "volatility": 0.14916007,
+        "worst_year": {
+          "return": -0.16705323,
+          "year": 2022
+        },
+        "xirr": 0.10895094
+      },
+      "holdout": {
+        "fit": 0.24729942,
+        "test": 0.9558127,
+        "test_minus_fit": 0.70851328
+      },
+      "label": "ROT SPY+EFA top1 10M>BIL fb AGG",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.2675812,
+        "neighbour_min": 0.2675812
+      },
+      "params": {
+        "assets": "SPY+EFA",
+        "filter": ">BIL",
+        "score.months": 10
+      },
+      "robust_score": 0.2675812,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.21716838,
+          "max": -0.11863087,
+          "median": -0.26882779,
+          "min": -0.33696395
+        },
+        "objective": {
+          "iqr": 0.54657363,
+          "max": 0.98366041,
+          "median": 0.44069562,
+          "min": 0.1306747
+        },
+        "rank_median": 3.0,
+        "rank_worst": 11
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00183789,
+        "avg_misallocation": 0.00182348,
+        "best_year": {
+          "return": 0.28429884,
+          "year": 2021
+        },
+        "cagr": 0.08905167,
+        "calmar": 0.26410148,
+        "feasible": true,
+        "fee_drag": 0.00424196,
+        "final_value": 218260.40990117,
+        "max_asset_deviation": 0.00887535,
+        "max_drawdown": -0.33718733,
+        "max_drawdown_days": 341,
+        "max_misallocation": 0.00887397,
+        "net_profit": 120760.40990117,
+        "net_profit_pct": 1.23856831,
+        "objective": 0.26410148,
+        "sharpe": 0.64453366,
+        "sortino": 0.89290216,
+        "total_contributed": 97500.0,
+        "total_fees": 413.59133669,
+        "traded_value": 4873258.48475964,
+        "turnover": 2.03885314,
+        "volatility": 0.15028241,
+        "worst_year": {
+          "return": -0.16698073,
+          "year": 2022
+        },
+        "xirr": 0.09384682
+      },
+      "holdout": {
+        "fit": 0.19572873,
+        "test": 0.85448259,
+        "test_minus_fit": 0.65875385
+      },
+      "label": "ROT SPY+EFA top1 12M@SPY>BIL fb AGG",
+      "neighbourhood": {
+        "edge": false,
+        "neighbour_mean": 0.29298006,
+        "neighbour_min": 0.28860652
+      },
+      "params": {
+        "assets": "SPY+EFA",
+        "filter": "@SPY>BIL",
+        "score.months": 12
+      },
+      "robust_score": 0.26410148,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.14153236,
+          "max": -0.18663217,
+          "median": -0.2803559,
+          "min": -0.33670555
+        },
+        "objective": {
+          "iqr": 0.20150203,
+          "max": 0.53150884,
+          "median": 0.26471019,
+          "min": 0.04129732
+        },
+        "rank_median": 11.0,
+        "rank_worst": 17
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00188361,
+        "avg_misallocation": 0.00186864,
+        "best_year": {
+          "return": 0.28429884,
+          "year": 2021
+        },
+        "cagr": 0.09022499,
+        "calmar": 0.2675812,
+        "feasible": true,
+        "fee_drag": 0.00451799,
+        "final_value": 221347.16800704,
+        "max_asset_deviation": 0.00887535,
+        "max_drawdown": -0.33718733,
+        "max_drawdown_days": 341,
+        "max_misallocation": 0.00887397,
+        "net_profit": 123847.16800704,
+        "net_profit_pct": 1.27022736,
+        "objective": 0.2675812,
+        "sharpe": 0.65010267,
+        "sortino": 0.90078051,
+        "total_contributed": 97500.0,
+        "total_fees": 440.50423715,
+        "traded_value": 5149379.3849175,
+        "turnover": 2.14101035,
+        "volatility": 0.15076884,
+        "worst_year": {
+          "return": -0.16698073,
+          "year": 2022
+        },
+        "xirr": 0.09540465
+      },
+      "holdout": {
+        "fit": 0.19572873,
+        "test": 0.88824519,
+        "test_minus_fit": 0.69251646
+      },
+      "label": "ROT SPY+EFA top1 12M>BIL fb AGG",
+      "neighbourhood": {
+        "edge": false,
+        "neighbour_mean": 0.30391488,
+        "neighbour_min": 0.29074932
+      },
+      "params": {
+        "assets": "SPY+EFA",
+        "filter": ">BIL",
+        "score.months": 12
+      },
+      "robust_score": 0.2675812,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.14153236,
+          "max": -0.18663217,
+          "median": -0.27416099,
+          "min": -0.33670555
+        },
+        "objective": {
+          "iqr": 0.22652486,
+          "max": 0.57828102,
+          "median": 0.26969153,
+          "min": 0.04129732
+        },
+        "rank_median": 11.0,
+        "rank_worst": 17
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00169937,
+        "avg_misallocation": 0.00168677,
+        "best_year": {
+          "return": 0.28427429,
+          "year": 2021
+        },
+        "cagr": 0.1001971,
+        "calmar": 0.2973536,
+        "feasible": true,
+        "fee_drag": 0.00448356,
+        "final_value": 218353.31952164,
+        "max_asset_deviation": 0.00887535,
+        "max_drawdown": -0.33696279,
+        "max_drawdown_days": 302,
+        "max_misallocation": 0.00887397,
+        "net_profit": 120853.31952164,
+        "net_profit_pct": 1.23952123,
+        "objective": 0.2973536,
+        "sharpe": 0.69378541,
+        "sortino": 0.96438517,
+        "total_contributed": 97500.0,
+        "total_fees": 437.14742666,
+        "traded_value": 5109374.68217049,
+        "turnover": 1.95069144,
+        "volatility": 0.15547844,
+        "worst_year": {
+          "return": -0.22759168,
+          "year": 2022
+        },
+        "xirr": 0.09389406
+      },
+      "holdout": {
+        "fit": 0.2577273,
+        "test": 0.74649243,
+        "test_minus_fit": 0.48876513
+      },
+      "label": "ROT SPY+EFA top1 14M@SPY>BIL fb AGG",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.26410148,
+        "neighbour_min": 0.26410148
+      },
+      "params": {
+        "assets": "SPY+EFA",
+        "filter": "@SPY>BIL",
+        "score.months": 14
+      },
+      "robust_score": 0.26410148,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.14169622,
+          "max": -0.11856308,
+          "median": -0.3058086,
+          "min": -0.33693858
+        },
+        "objective": {
+          "iqr": 0.18175384,
+          "max": 1.07140841,
+          "median": 0.30945857,
+          "min": 0.10346054
+        },
+        "rank_median": 7.0,
+        "rank_worst": 17
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00176315,
+        "avg_misallocation": 0.00174941,
+        "best_year": {
+          "return": 0.28427429,
+          "year": 2021
+        },
+        "cagr": 0.0979717,
+        "calmar": 0.29074932,
+        "feasible": true,
+        "fee_drag": 0.00490181,
+        "final_value": 212704.3830718,
+        "max_asset_deviation": 0.00887535,
+        "max_drawdown": -0.33696279,
+        "max_drawdown_days": 302,
+        "max_misallocation": 0.00887397,
+        "net_profit": 115204.3830718,
+        "net_profit_pct": 1.18158342,
+        "objective": 0.29074932,
+        "sharpe": 0.68011474,
+        "sortino": 0.94490579,
+        "total_contributed": 97500.0,
+        "total_fees": 477.92625782,
+        "traded_value": 5505034.88300663,
+        "turnover": 2.1252269,
+        "volatility": 0.15565954,
+        "worst_year": {
+          "return": -0.22759168,
+          "year": 2022
+        },
+        "xirr": 0.0909815
+      },
+      "holdout": {
+        "fit": 0.2577273,
+        "test": 0.70172641,
+        "test_minus_fit": 0.44399911
+      },
+      "label": "ROT SPY+EFA top1 14M>BIL fb AGG",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.2675812,
+        "neighbour_min": 0.2675812
+      },
+      "params": {
+        "assets": "SPY+EFA",
+        "filter": ">BIL",
+        "score.months": 14
+      },
+      "robust_score": 0.2675812,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.14169622,
+          "max": -0.11856308,
+          "median": -0.31632497,
+          "min": -0.33693858
+        },
+        "objective": {
+          "iqr": 0.20289163,
+          "max": 1.07140841,
+          "median": 0.28706005,
+          "min": 0.10346054
+        },
+        "rank_median": 7.0,
+        "rank_worst": 18
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00163277,
+        "avg_misallocation": 0.00160867,
+        "best_year": {
+          "return": 0.24621571,
+          "year": 2024
+        },
+        "cagr": 0.10183036,
+        "calmar": 0.30201508,
+        "feasible": true,
+        "fee_drag": 0.00798417,
+        "final_value": 227659.23411259,
+        "max_asset_deviation": 0.00950283,
+        "max_drawdown": -0.33716978,
+        "max_drawdown_days": 341,
+        "max_misallocation": 0.00942058,
+        "net_profit": 130159.23411259,
+        "net_profit_pct": 1.3349665,
+        "objective": 0.30201508,
+        "sharpe": 0.72360782,
+        "sortino": 1.00685507,
+        "total_contributed": 97500.0,
+        "total_fees": 778.45697138,
+        "traded_value": 5666234.98739051,
+        "turnover": 2.14953999,
+        "volatility": 0.14995922,
+        "worst_year": {
+          "return": -0.16695281,
+          "year": 2022
+        },
+        "xirr": 0.09851814
+      },
+      "holdout": {
+        "fit": 0.24979086,
+        "test": 0.826676,
+        "test_minus_fit": 0.57688513
+      },
+      "label": "ROT SPY+ACWX top1 10M@SPY>BIL fb AGG",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.29185905,
+        "neighbour_min": 0.29185905
+      },
+      "params": {
+        "assets": "SPY+ACWX",
+        "filter": "@SPY>BIL",
+        "score.months": 10
+      },
+      "robust_score": 0.29185905,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.21727964,
+          "max": -0.11847353,
+          "median": -0.27491105,
+          "min": -0.33741006
+        },
+        "objective": {
+          "iqr": 0.6611961,
+          "max": 1.10459864,
+          "median": 0.34347262,
+          "min": 0.08674684
+        },
+        "rank_median": 8.0,
+        "rank_worst": 18
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00158315,
+        "avg_misallocation": 0.00155848,
+        "best_year": {
+          "return": 0.24605385,
+          "year": 2024
+        },
+        "cagr": 0.10912174,
+        "calmar": 0.32364033,
+        "feasible": true,
+        "fee_drag": 0.00837642,
+        "final_value": 249038.40769384,
+        "max_asset_deviation": 0.00950283,
+        "max_drawdown": -0.33716978,
+        "max_drawdown_days": 341,
+        "max_misallocation": 0.00942058,
+        "net_profit": 151538.40769384,
+        "net_profit_pct": 1.55424008,
+        "objective": 0.32364033,
+        "sharpe": 0.76568216,
+        "sortino": 1.06727692,
+        "total_contributed": 97500.0,
+        "total_fees": 816.70072939,
+        "traded_value": 5452722.99451298,
+        "turnover": 2.01179462,
+        "volatility": 0.15045488,
+        "worst_year": {
+          "return": -0.16695281,
+          "year": 2022
+        },
+        "xirr": 0.10841004
+      },
+      "holdout": {
+        "fit": 0.24979086,
+        "test": 0.99483157,
+        "test_minus_fit": 0.74504071
+      },
+      "label": "ROT SPY+ACWX top1 10M>BIL fb AGG",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.28577773,
+        "neighbour_min": 0.28577773
+      },
+      "params": {
+        "assets": "SPY+ACWX",
+        "filter": ">BIL",
+        "score.months": 10
+      },
+      "robust_score": 0.28577773,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.21727964,
+          "max": -0.11847353,
+          "median": -0.26884229,
+          "min": -0.33741006
+        },
+        "objective": {
+          "iqr": 0.64536308,
+          "max": 1.10459864,
+          "median": 0.40406551,
+          "min": 0.08674684
+        },
+        "rank_median": 6.0,
+        "rank_worst": 15
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00173199,
+        "avg_misallocation": 0.00171208,
+        "best_year": {
+          "return": 0.28896695,
+          "year": 2013
+        },
+        "cagr": 0.09851187,
+        "calmar": 0.29185905,
+        "feasible": true,
+        "fee_drag": 0.00689157,
+        "final_value": 230493.32419764,
+        "max_asset_deviation": 0.00887535,
+        "max_drawdown": -0.33753234,
+        "max_drawdown_days": 351,
+        "max_misallocation": 0.00887397,
+        "net_profit": 132993.32419764,
+        "net_profit_pct": 1.36403409,
+        "objective": 0.29185905,
+        "sharpe": 0.69664019,
+        "sortino": 0.96927493,
+        "total_contributed": 97500.0,
+        "total_fees": 671.92763202,
+        "traded_value": 4421634.66126691,
+        "turnover": 1.77956914,
+        "volatility": 0.1518251,
+        "worst_year": {
+          "return": -0.16689943,
+          "year": 2022
+        },
+        "xirr": 0.0998858
+      },
+      "holdout": {
+        "fit": 0.21920179,
+        "test": 0.92721,
+        "test_minus_fit": 0.70800821
+      },
+      "label": "ROT SPY+ACWX top1 12M@SPY>BIL fb AGG",
+      "neighbourhood": {
+        "edge": false,
+        "neighbour_mean": 0.31029361,
+        "neighbour_min": 0.30201508
+      },
+      "params": {
+        "assets": "SPY+ACWX",
+        "filter": "@SPY>BIL",
+        "score.months": 12
+      },
+      "robust_score": 0.26267845,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.13542584,
+          "max": -0.18700079,
+          "median": -0.27296927,
+          "min": -0.33703734
+        },
+        "objective": {
+          "iqr": 0.27000909,
+          "max": 0.63494069,
+          "median": 0.26267845,
+          "min": 0.04733446
+        },
+        "rank_median": 13.0,
+        "rank_worst": 15
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00176442,
+        "avg_misallocation": 0.00174225,
+        "best_year": {
+          "return": 0.28896695,
+          "year": 2013
+        },
+        "cagr": 0.09645923,
+        "calmar": 0.28577773,
+        "feasible": true,
+        "fee_drag": 0.0077221,
+        "final_value": 224995.53129893,
+        "max_asset_deviation": 0.00887535,
+        "max_drawdown": -0.33753234,
+        "max_drawdown_days": 351,
+        "max_misallocation": 0.00887397,
+        "net_profit": 127495.53129893,
+        "net_profit_pct": 1.30764647,
+        "objective": 0.28577773,
+        "sharpe": 0.68350958,
+        "sortino": 0.95065883,
+        "total_contributed": 97500.0,
+        "total_fees": 752.90464452,
+        "traded_value": 4818410.26919584,
+        "turnover": 1.9599931,
+        "volatility": 0.15204687,
+        "worst_year": {
+          "return": -0.16689943,
+          "year": 2022
+        },
+        "xirr": 0.09721579
+      },
+      "holdout": {
+        "fit": 0.21920179,
+        "test": 0.88114611,
+        "test_minus_fit": 0.66194432
+      },
+      "label": "ROT SPY+ACWX top1 12M>BIL fb AGG",
+      "neighbourhood": {
+        "edge": false,
+        "neighbour_mean": 0.32110624,
+        "neighbour_min": 0.31857215
+      },
+      "params": {
+        "assets": "SPY+ACWX",
+        "filter": ">BIL",
+        "score.months": 12
+      },
+      "robust_score": 0.2572402,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.13542584,
+          "max": -0.18700079,
+          "median": -0.28360484,
+          "min": -0.33703734
+        },
+        "objective": {
+          "iqr": 0.23722713,
+          "max": 0.63494069,
+          "median": 0.2572402,
+          "min": 0.04733446
+        },
+        "rank_median": 13.0,
+        "rank_worst": 18
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00168947,
+        "avg_misallocation": 0.00167355,
+        "best_year": {
+          "return": 0.31819168,
+          "year": 2013
+        },
+        "cagr": 0.10749878,
+        "calmar": 0.31857215,
+        "feasible": true,
+        "fee_drag": 0.00681273,
+        "final_value": 236534.58995557,
+        "max_asset_deviation": 0.00887535,
+        "max_drawdown": -0.33743935,
+        "max_drawdown_days": 302,
+        "max_misallocation": 0.00887397,
+        "net_profit": 139034.58995557,
+        "net_profit_pct": 1.42599579,
+        "objective": 0.31857215,
+        "sharpe": 0.73232879,
+        "sortino": 1.01827181,
+        "total_contributed": 97500.0,
+        "total_fees": 664.24137555,
+        "traded_value": 4317789.64638388,
+        "turnover": 1.62463302,
+        "volatility": 0.15659231,
+        "worst_year": {
+          "return": -0.22772419,
+          "year": 2022
+        },
+        "xirr": 0.10274147
+      },
+      "holdout": {
+        "fit": 0.26268652,
+        "test": 0.87756225,
+        "test_minus_fit": 0.61487573
+      },
+      "label": "ROT SPY+ACWX top1 14M@SPY>BIL fb AGG",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.29185905,
+        "neighbour_min": 0.29185905
+      },
+      "params": {
+        "assets": "SPY+ACWX",
+        "filter": "@SPY>BIL",
+        "score.months": 14
+      },
+      "robust_score": 0.29185905,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.13833734,
+          "max": -0.11847353,
+          "median": -0.30147105,
+          "min": -0.33676201
+        },
+        "objective": {
+          "iqr": 0.17036892,
+          "max": 1.12150932,
+          "median": 0.31369056,
+          "min": 0.09779741
+        },
+        "rank_median": 9.0,
+        "rank_worst": 15
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00168947,
+        "avg_misallocation": 0.00167355,
+        "best_year": {
+          "return": 0.31819168,
+          "year": 2013
+        },
+        "cagr": 0.10749878,
+        "calmar": 0.31857215,
+        "feasible": true,
+        "fee_drag": 0.00681273,
+        "final_value": 236534.58995557,
+        "max_asset_deviation": 0.00887535,
+        "max_drawdown": -0.33743935,
+        "max_drawdown_days": 302,
+        "max_misallocation": 0.00887397,
+        "net_profit": 139034.58995557,
+        "net_profit_pct": 1.42599579,
+        "objective": 0.31857215,
+        "sharpe": 0.73232879,
+        "sortino": 1.01827181,
+        "total_contributed": 97500.0,
+        "total_fees": 664.24137555,
+        "traded_value": 4317789.64638388,
+        "turnover": 1.62463302,
+        "volatility": 0.15659231,
+        "worst_year": {
+          "return": -0.22772419,
+          "year": 2022
+        },
+        "xirr": 0.10274147
+      },
+      "holdout": {
+        "fit": 0.26268652,
+        "test": 0.87756225,
+        "test_minus_fit": 0.61487573
+      },
+      "label": "ROT SPY+ACWX top1 14M>BIL fb AGG",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.28577773,
+        "neighbour_min": 0.28577773
+      },
+      "params": {
+        "assets": "SPY+ACWX",
+        "filter": ">BIL",
+        "score.months": 14
+      },
+      "robust_score": 0.28577773,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.13833734,
+          "max": -0.11847353,
+          "median": -0.30147105,
+          "min": -0.33676201
+        },
+        "objective": {
+          "iqr": 0.17036892,
+          "max": 1.12150932,
+          "median": 0.31369056,
+          "min": 0.09779741
+        },
+        "rank_median": 9.0,
+        "rank_worst": 15
+      }
+    }
+  ],
+  "warnings": [],
+  "windows": [
+    {
+      "end": "2026-08-24",
+      "kind": "full",
+      "name": "full",
+      "start": "2012-01-03"
+    },
+    {
+      "end": "2022-12-30",
+      "kind": "fit",
+      "name": "fit",
+      "start": "2012-01-03"
+    },
+    {
+      "end": "2026-08-24",
+      "kind": "test",
+      "name": "test",
+      "start": "2023-01-03"
+    },
+    {
+      "end": "2017-01-03",
+      "kind": "sens",
+      "name": "sens_2012-01-03",
+      "start": "2012-01-03"
+    },
+    {
+      "end": "2017-07-03",
+      "kind": "sens",
+      "name": "sens_2012-07-03",
+      "start": "2012-07-03"
+    },
+    {
+      "end": "2018-01-03",
+      "kind": "sens",
+      "name": "sens_2013-01-03",
+      "start": "2013-01-03"
+    },
+    {
+      "end": "2018-07-03",
+      "kind": "sens",
+      "name": "sens_2013-07-03",
+      "start": "2013-07-03"
+    },
+    {
+      "end": "2019-01-03",
+      "kind": "sens",
+      "name": "sens_2014-01-03",
+      "start": "2014-01-03"
+    },
+    {
+      "end": "2019-07-03",
+      "kind": "sens",
+      "name": "sens_2014-07-03",
+      "start": "2014-07-03"
+    },
+    {
+      "end": "2020-01-03",
+      "kind": "sens",
+      "name": "sens_2015-01-05",
+      "start": "2015-01-05"
+    },
+    {
+      "end": "2020-07-02",
+      "kind": "sens",
+      "name": "sens_2015-07-06",
+      "start": "2015-07-06"
+    },
+    {
+      "end": "2020-12-31",
+      "kind": "sens",
+      "name": "sens_2016-01-04",
+      "start": "2016-01-04"
+    },
+    {
+      "end": "2021-07-02",
+      "kind": "sens",
+      "name": "sens_2016-07-05",
+      "start": "2016-07-05"
+    },
+    {
+      "end": "2022-01-03",
+      "kind": "sens",
+      "name": "sens_2017-01-03",
+      "start": "2017-01-03"
+    },
+    {
+      "end": "2022-07-01",
+      "kind": "sens",
+      "name": "sens_2017-07-03",
+      "start": "2017-07-03"
+    },
+    {
+      "end": "2023-01-03",
+      "kind": "sens",
+      "name": "sens_2018-01-03",
+      "start": "2018-01-03"
+    },
+    {
+      "end": "2023-07-03",
+      "kind": "sens",
+      "name": "sens_2018-07-03",
+      "start": "2018-07-03"
+    },
+    {
+      "end": "2024-01-03",
+      "kind": "sens",
+      "name": "sens_2019-01-03",
+      "start": "2019-01-03"
+    },
+    {
+      "end": "2024-07-03",
+      "kind": "sens",
+      "name": "sens_2019-07-03",
+      "start": "2019-07-03"
+    },
+    {
+      "end": "2025-01-03",
+      "kind": "sens",
+      "name": "sens_2020-01-03",
+      "start": "2020-01-03"
+    },
+    {
+      "end": "2025-07-03",
+      "kind": "sens",
+      "name": "sens_2020-07-06",
+      "start": "2020-07-06"
+    },
+    {
+      "end": "2026-01-02",
+      "kind": "sens",
+      "name": "sens_2021-01-04",
+      "start": "2021-01-04"
+    },
+    {
+      "end": "2026-07-02",
+      "kind": "sens",
+      "name": "sens_2021-07-06",
+      "start": "2021-07-06"
+    }
+  ]
+}

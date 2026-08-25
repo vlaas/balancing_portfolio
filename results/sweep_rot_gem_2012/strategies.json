@@ -1,0 +1,443 @@
+[
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "VEU"
+      ],
+      "fallback": "AGG",
+      "filter": {
+        "hurdle": "BIL",
+        "on": "SPY"
+      },
+      "k": 1,
+      "label": "ROT SPY+VEU top1 10M@SPY>BIL fb AGG",
+      "score": {
+        "months": 10
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+VEU top1 10M@SPY>BIL fb AGG",
+    "params": {
+      "assets": "SPY+VEU",
+      "filter": "@SPY>BIL",
+      "score.months": 10
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "VEU"
+      ],
+      "fallback": "AGG",
+      "filter": {
+        "hurdle": "BIL"
+      },
+      "k": 1,
+      "label": "ROT SPY+VEU top1 10M>BIL fb AGG",
+      "score": {
+        "months": 10
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+VEU top1 10M>BIL fb AGG",
+    "params": {
+      "assets": "SPY+VEU",
+      "filter": ">BIL",
+      "score.months": 10
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "VEU"
+      ],
+      "fallback": "AGG",
+      "filter": {
+        "hurdle": "BIL",
+        "on": "SPY"
+      },
+      "k": 1,
+      "label": "ROT SPY+VEU top1 12M@SPY>BIL fb AGG",
+      "score": {
+        "months": 12
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+VEU top1 12M@SPY>BIL fb AGG",
+    "params": {
+      "assets": "SPY+VEU",
+      "filter": "@SPY>BIL",
+      "score.months": 12
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "VEU"
+      ],
+      "fallback": "AGG",
+      "filter": {
+        "hurdle": "BIL"
+      },
+      "k": 1,
+      "label": "ROT SPY+VEU top1 12M>BIL fb AGG",
+      "score": {
+        "months": 12
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+VEU top1 12M>BIL fb AGG",
+    "params": {
+      "assets": "SPY+VEU",
+      "filter": ">BIL",
+      "score.months": 12
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "VEU"
+      ],
+      "fallback": "AGG",
+      "filter": {
+        "hurdle": "BIL",
+        "on": "SPY"
+      },
+      "k": 1,
+      "label": "ROT SPY+VEU top1 14M@SPY>BIL fb AGG",
+      "score": {
+        "months": 14
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+VEU top1 14M@SPY>BIL fb AGG",
+    "params": {
+      "assets": "SPY+VEU",
+      "filter": "@SPY>BIL",
+      "score.months": 14
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "VEU"
+      ],
+      "fallback": "AGG",
+      "filter": {
+        "hurdle": "BIL"
+      },
+      "k": 1,
+      "label": "ROT SPY+VEU top1 14M>BIL fb AGG",
+      "score": {
+        "months": 14
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+VEU top1 14M>BIL fb AGG",
+    "params": {
+      "assets": "SPY+VEU",
+      "filter": ">BIL",
+      "score.months": 14
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "EFA"
+      ],
+      "fallback": "AGG",
+      "filter": {
+        "hurdle": "BIL",
+        "on": "SPY"
+      },
+      "k": 1,
+      "label": "ROT SPY+EFA top1 10M@SPY>BIL fb AGG",
+      "score": {
+        "months": 10
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+EFA top1 10M@SPY>BIL fb AGG",
+    "params": {
+      "assets": "SPY+EFA",
+      "filter": "@SPY>BIL",
+      "score.months": 10
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "EFA"
+      ],
+      "fallback": "AGG",
+      "filter": {
+        "hurdle": "BIL"
+      },
+      "k": 1,
+      "label": "ROT SPY+EFA top1 10M>BIL fb AGG",
+      "score": {
+        "months": 10
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+EFA top1 10M>BIL fb AGG",
+    "params": {
+      "assets": "SPY+EFA",
+      "filter": ">BIL",
+      "score.months": 10
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "EFA"
+      ],
+      "fallback": "AGG",
+      "filter": {
+        "hurdle": "BIL",
+        "on": "SPY"
+      },
+      "k": 1,
+      "label": "ROT SPY+EFA top1 12M@SPY>BIL fb AGG",
+      "score": {
+        "months": 12
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+EFA top1 12M@SPY>BIL fb AGG",
+    "params": {
+      "assets": "SPY+EFA",
+      "filter": "@SPY>BIL",
+      "score.months": 12
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "EFA"
+      ],
+      "fallback": "AGG",
+      "filter": {
+        "hurdle": "BIL"
+      },
+      "k": 1,
+      "label": "ROT SPY+EFA top1 12M>BIL fb AGG",
+      "score": {
+        "months": 12
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+EFA top1 12M>BIL fb AGG",
+    "params": {
+      "assets": "SPY+EFA",
+      "filter": ">BIL",
+      "score.months": 12
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "EFA"
+      ],
+      "fallback": "AGG",
+      "filter": {
+        "hurdle": "BIL",
+        "on": "SPY"
+      },
+      "k": 1,
+      "label": "ROT SPY+EFA top1 14M@SPY>BIL fb AGG",
+      "score": {
+        "months": 14
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+EFA top1 14M@SPY>BIL fb AGG",
+    "params": {
+      "assets": "SPY+EFA",
+      "filter": "@SPY>BIL",
+      "score.months": 14
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "EFA"
+      ],
+      "fallback": "AGG",
+      "filter": {
+        "hurdle": "BIL"
+      },
+      "k": 1,
+      "label": "ROT SPY+EFA top1 14M>BIL fb AGG",
+      "score": {
+        "months": 14
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+EFA top1 14M>BIL fb AGG",
+    "params": {
+      "assets": "SPY+EFA",
+      "filter": ">BIL",
+      "score.months": 14
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "ACWX"
+      ],
+      "fallback": "AGG",
+      "filter": {
+        "hurdle": "BIL",
+        "on": "SPY"
+      },
+      "k": 1,
+      "label": "ROT SPY+ACWX top1 10M@SPY>BIL fb AGG",
+      "score": {
+        "months": 10
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+ACWX top1 10M@SPY>BIL fb AGG",
+    "params": {
+      "assets": "SPY+ACWX",
+      "filter": "@SPY>BIL",
+      "score.months": 10
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "ACWX"
+      ],
+      "fallback": "AGG",
+      "filter": {
+        "hurdle": "BIL"
+      },
+      "k": 1,
+      "label": "ROT SPY+ACWX top1 10M>BIL fb AGG",
+      "score": {
+        "months": 10
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+ACWX top1 10M>BIL fb AGG",
+    "params": {
+      "assets": "SPY+ACWX",
+      "filter": ">BIL",
+      "score.months": 10
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "ACWX"
+      ],
+      "fallback": "AGG",
+      "filter": {
+        "hurdle": "BIL",
+        "on": "SPY"
+      },
+      "k": 1,
+      "label": "ROT SPY+ACWX top1 12M@SPY>BIL fb AGG",
+      "score": {
+        "months": 12
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+ACWX top1 12M@SPY>BIL fb AGG",
+    "params": {
+      "assets": "SPY+ACWX",
+      "filter": "@SPY>BIL",
+      "score.months": 12
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "ACWX"
+      ],
+      "fallback": "AGG",
+      "filter": {
+        "hurdle": "BIL"
+      },
+      "k": 1,
+      "label": "ROT SPY+ACWX top1 12M>BIL fb AGG",
+      "score": {
+        "months": 12
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+ACWX top1 12M>BIL fb AGG",
+    "params": {
+      "assets": "SPY+ACWX",
+      "filter": ">BIL",
+      "score.months": 12
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "ACWX"
+      ],
+      "fallback": "AGG",
+      "filter": {
+        "hurdle": "BIL",
+        "on": "SPY"
+      },
+      "k": 1,
+      "label": "ROT SPY+ACWX top1 14M@SPY>BIL fb AGG",
+      "score": {
+        "months": 14
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+ACWX top1 14M@SPY>BIL fb AGG",
+    "params": {
+      "assets": "SPY+ACWX",
+      "filter": "@SPY>BIL",
+      "score.months": 14
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY",
+        "ACWX"
+      ],
+      "fallback": "AGG",
+      "filter": {
+        "hurdle": "BIL"
+      },
+      "k": 1,
+      "label": "ROT SPY+ACWX top1 14M>BIL fb AGG",
+      "score": {
+        "months": 14
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY+ACWX top1 14M>BIL fb AGG",
+    "params": {
+      "assets": "SPY+ACWX",
+      "filter": ">BIL",
+      "score.months": 14
+    }
+  }
+]

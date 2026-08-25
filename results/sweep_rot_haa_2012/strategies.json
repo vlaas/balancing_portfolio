@@ -1,0 +1,494 @@
+[
+  {
+    "entry": {
+      "assets": [
+        "SPY"
+      ],
+      "canary": {
+        "breadth": 1,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbols": [
+          "TIP"
+        ]
+      },
+      "fallback": {
+        "kind": "best_of",
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbols": [
+          "BIL",
+          "IEF"
+        ]
+      },
+      "k": 1,
+      "label": "ROT SPY top1 1-3-6-12U can TIP/1 fb best(BIL+IEF)",
+      "score": {
+        "kind": "avg",
+        "months": [
+          1,
+          3,
+          6,
+          12
+        ]
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY top1 1-3-6-12U can TIP/1 fb best(BIL+IEF)",
+    "params": {
+      "canary": "TIP/1",
+      "fallback": "best(BIL+IEF)",
+      "score": "1-3-6-12U"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY"
+      ],
+      "canary": {
+        "breadth": 1,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbols": [
+          "TIP"
+        ]
+      },
+      "fallback": "IEF",
+      "k": 1,
+      "label": "ROT SPY top1 1-3-6-12U can TIP/1 fb IEF",
+      "score": {
+        "kind": "avg",
+        "months": [
+          1,
+          3,
+          6,
+          12
+        ]
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY top1 1-3-6-12U can TIP/1 fb IEF",
+    "params": {
+      "canary": "TIP/1",
+      "fallback": "IEF",
+      "score": "1-3-6-12U"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY"
+      ],
+      "fallback": {
+        "kind": "best_of",
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbols": [
+          "BIL",
+          "IEF"
+        ]
+      },
+      "k": 1,
+      "label": "ROT SPY top1 1-3-6-12U fb best(BIL+IEF)",
+      "score": {
+        "kind": "avg",
+        "months": [
+          1,
+          3,
+          6,
+          12
+        ]
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY top1 1-3-6-12U fb best(BIL+IEF)",
+    "params": {
+      "canary": null,
+      "fallback": "best(BIL+IEF)",
+      "score": "1-3-6-12U"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY"
+      ],
+      "fallback": "IEF",
+      "k": 1,
+      "label": "ROT SPY top1 1-3-6-12U fb IEF",
+      "score": {
+        "kind": "avg",
+        "months": [
+          1,
+          3,
+          6,
+          12
+        ]
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY top1 1-3-6-12U fb IEF",
+    "params": {
+      "canary": null,
+      "fallback": "IEF",
+      "score": "1-3-6-12U"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY"
+      ],
+      "canary": {
+        "breadth": 1,
+        "score": {
+          "kind": "weighted",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ],
+          "weights": [
+            12.0,
+            4.0,
+            2.0,
+            1.0
+          ]
+        },
+        "symbols": [
+          "TIP"
+        ]
+      },
+      "fallback": {
+        "kind": "best_of",
+        "score": {
+          "kind": "weighted",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ],
+          "weights": [
+            12.0,
+            4.0,
+            2.0,
+            1.0
+          ]
+        },
+        "symbols": [
+          "BIL",
+          "IEF"
+        ]
+      },
+      "k": 1,
+      "label": "ROT SPY top1 13612W can TIP/1 fb best(BIL+IEF)",
+      "score": {
+        "kind": "weighted",
+        "months": [
+          1,
+          3,
+          6,
+          12
+        ],
+        "weights": [
+          12.0,
+          4.0,
+          2.0,
+          1.0
+        ]
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY top1 13612W can TIP/1 fb best(BIL+IEF)",
+    "params": {
+      "canary": "TIP/1",
+      "fallback": "best(BIL+IEF)",
+      "score": "13612W"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY"
+      ],
+      "canary": {
+        "breadth": 1,
+        "score": {
+          "kind": "weighted",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ],
+          "weights": [
+            12.0,
+            4.0,
+            2.0,
+            1.0
+          ]
+        },
+        "symbols": [
+          "TIP"
+        ]
+      },
+      "fallback": "IEF",
+      "k": 1,
+      "label": "ROT SPY top1 13612W can TIP/1 fb IEF",
+      "score": {
+        "kind": "weighted",
+        "months": [
+          1,
+          3,
+          6,
+          12
+        ],
+        "weights": [
+          12.0,
+          4.0,
+          2.0,
+          1.0
+        ]
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY top1 13612W can TIP/1 fb IEF",
+    "params": {
+      "canary": "TIP/1",
+      "fallback": "IEF",
+      "score": "13612W"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY"
+      ],
+      "fallback": {
+        "kind": "best_of",
+        "score": {
+          "kind": "weighted",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ],
+          "weights": [
+            12.0,
+            4.0,
+            2.0,
+            1.0
+          ]
+        },
+        "symbols": [
+          "BIL",
+          "IEF"
+        ]
+      },
+      "k": 1,
+      "label": "ROT SPY top1 13612W fb best(BIL+IEF)",
+      "score": {
+        "kind": "weighted",
+        "months": [
+          1,
+          3,
+          6,
+          12
+        ],
+        "weights": [
+          12.0,
+          4.0,
+          2.0,
+          1.0
+        ]
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY top1 13612W fb best(BIL+IEF)",
+    "params": {
+      "canary": null,
+      "fallback": "best(BIL+IEF)",
+      "score": "13612W"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY"
+      ],
+      "fallback": "IEF",
+      "k": 1,
+      "label": "ROT SPY top1 13612W fb IEF",
+      "score": {
+        "kind": "weighted",
+        "months": [
+          1,
+          3,
+          6,
+          12
+        ],
+        "weights": [
+          12.0,
+          4.0,
+          2.0,
+          1.0
+        ]
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY top1 13612W fb IEF",
+    "params": {
+      "canary": null,
+      "fallback": "IEF",
+      "score": "13612W"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY"
+      ],
+      "canary": {
+        "breadth": 1,
+        "score": {
+          "months": 12
+        },
+        "symbols": [
+          "TIP"
+        ]
+      },
+      "fallback": {
+        "kind": "best_of",
+        "score": {
+          "months": 12
+        },
+        "symbols": [
+          "BIL",
+          "IEF"
+        ]
+      },
+      "k": 1,
+      "label": "ROT SPY top1 12M can TIP/1 fb best(BIL+IEF)",
+      "score": {
+        "months": 12
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY top1 12M can TIP/1 fb best(BIL+IEF)",
+    "params": {
+      "canary": "TIP/1",
+      "fallback": "best(BIL+IEF)",
+      "score": "12M"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY"
+      ],
+      "canary": {
+        "breadth": 1,
+        "score": {
+          "months": 12
+        },
+        "symbols": [
+          "TIP"
+        ]
+      },
+      "fallback": "IEF",
+      "k": 1,
+      "label": "ROT SPY top1 12M can TIP/1 fb IEF",
+      "score": {
+        "months": 12
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY top1 12M can TIP/1 fb IEF",
+    "params": {
+      "canary": "TIP/1",
+      "fallback": "IEF",
+      "score": "12M"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY"
+      ],
+      "fallback": {
+        "kind": "best_of",
+        "score": {
+          "months": 12
+        },
+        "symbols": [
+          "BIL",
+          "IEF"
+        ]
+      },
+      "k": 1,
+      "label": "ROT SPY top1 12M fb best(BIL+IEF)",
+      "score": {
+        "months": 12
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY top1 12M fb best(BIL+IEF)",
+    "params": {
+      "canary": null,
+      "fallback": "best(BIL+IEF)",
+      "score": "12M"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "SPY"
+      ],
+      "fallback": "IEF",
+      "k": 1,
+      "label": "ROT SPY top1 12M fb IEF",
+      "score": {
+        "months": 12
+      },
+      "type": "rotation"
+    },
+    "label": "ROT SPY top1 12M fb IEF",
+    "params": {
+      "canary": null,
+      "fallback": "IEF",
+      "score": "12M"
+    }
+  }
+]
