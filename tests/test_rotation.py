@@ -10,15 +10,18 @@ from test_simulate import START, frame
 
 import sweep
 from indicators import mom_monthly
-from main import run_bundle
+from main import collect_indicators, run_bundle
+from prices import load_prices
 from results_json import dumps, results_payload, slug
 from simulate import Config, simulate
-from spec import build_bundle, normalised_spec
+from spec import build_bundle, load_spec, normalised_spec
 from stats import correlation
 from strategies.rotation import BestOf, Canary, Rotation
 from strategy import MarketDay
 
 GOLDEN_DIR = Path(__file__).parent / "data"
+NET_DIR = GOLDEN_DIR / "2026-08-24-net15"
+SPECS = Path(__file__).parents[1] / "specs"
 DAY = dt.date(2020, 1, 2)
 M1 = mom_monthly(1)  # MOM1M
 
@@ -209,6 +212,70 @@ def test_warm_up_and_transitions_row_by_row_through_the_engine():
     for i, targets in enumerate(expected):
         rows = allocations[5 * i : 5 * (i + 1)]
         assert rows["target"].to_list() == pytest.approx(targets), f"day {i}"
+
+
+# --- ROTATION_SWEEP_SPEC T4 — the native lanes open warm (§4) ----------------
+
+NATIVE_LANES = ["sweep_rot_gem_native", "sweep_rot_gtaa_native", "sweep_rot_haa_native"]
+
+
+def opening_rows(spec: dict, days: int = 45):
+    """The lane's strategies, their normalised entries, and its opening
+    rebalance rows: day 0 — which `simulate` always rebalances — plus the
+    first month-end.
+
+    Read straight off the frame rather than simulated. The warm-up
+    short-circuit is a property of `balance()`, and truncating the frame
+    cannot fake warmth: `prices._read_symbol` computes every indicator on the
+    symbol's own full history before the join and the `date >= start` filter.
+    (A short `Config.end` is not an option anyway — a window with no drawdown
+    yet takes `stats.top_drawdowns` to an empty list.)"""
+    entries = [e["entry"] for e in sweep.expand(spec["template"])] + spec["baselines"]
+    start = dt.date.fromisoformat(spec["windows"]["start"])
+    end = start + dt.timedelta(days=days)
+    strategies = build_bundle(
+        sweep._ordinary(spec, entries, start.isoformat(), end.isoformat())
+    ).strategies
+    traded = sorted({s for st in strategies for s in st.weights})
+    prices = load_prices(
+        NET_DIR, traded, start, end=end,
+        extra=sorted({s for st in strategies for s in st.data} - set(traded)),
+        indicators=collect_indicators(strategies),
+    )
+    rows = [
+        row for i, row in enumerate(prices.iter_rows(named=True))
+        if i == 0 or row["is_rebalance_day"]
+    ]
+    return strategies, entries, rows
+
+
+@pytest.mark.parametrize("name", NATIVE_LANES, ids=lambda n: n.split("_")[2])
+def test_every_native_grid_point_opens_warm(name):
+    # ROTATION_SWEEP_SPEC §4 asserted rather than trusted: on its native
+    # window no grid point — and no baseline — spends its opening months in
+    # the §5.1 step-1 cash short-circuit. Loading is itself part of the test:
+    # a start before a traded fallback's inception dies inside load_prices,
+    # which is what moved GTAA's native window to 2007-06 (§12.2).
+    spec = load_spec(SPECS / f"{name}.json")
+    strategies, entries, rows = opening_rows(spec)
+
+    # The lanes start on trading days, so the window needs no snapping.
+    assert rows[0]["date"] == dt.date.fromisoformat(spec["windows"]["start"])
+    for st, entry in zip(strategies, entries):
+        for symbol, declared in st.indicators.items():
+            for indicator in declared:
+                column = f"{symbol}:{indicator.name}"
+                assert rows[0][column] is not None, f"{st.label}: {column} is warming up"
+        # Warm and with somewhere to route a failed slot: every ranked slot's
+        # mass lands. A cash fallback may legitimately sit a month out on the
+        # signal, so for those points warmth is the whole invariant.
+        if entry.get("fallback") is None:
+            continue
+        for row in rows:
+            weights = st.balance(MarketDay(row))
+            assert sum(weights.values()) == pytest.approx(1.0), (
+                f"{st.label} is all cash on {row['date']}"
+            )
 
 
 # --- T5 — determinism --------------------------------------------------------
@@ -489,7 +556,6 @@ def test_rebalance_cadence_lands_in_label_and_spec():
 # failure means the engine changed; fix the bug or update the dict in the
 # same commit with the reason. Never refresh the snapshot.
 
-NET_DIR = GOLDEN_DIR / "2026-08-24-net15"
 
 GOLDEN_SPEC = {
     "schema_version": 1,

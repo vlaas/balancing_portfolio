@@ -1,6 +1,6 @@
 # Specification: Stage-1 rotation sweeps — GEM, GTAA-5, HAA-Simple
 
-Repo: `vlaas/balancing_portfolio` · baseline commit: `761ab57` (rotation merge, 626 tests green) · status: draft for review
+Repo: `vlaas/balancing_portfolio` · baseline commit: `761ab57` (rotation merge, 626 tests green) · status: implemented (§12 errata)
 
 All numbers in this spec are from sandbox runs on a fresh clone at `761ab57`, including
 an independent recomputation of the T8 golden (TWR CAGR and max DD rebuilt from the
@@ -299,3 +299,66 @@ tooling (active-return correlation reports).
 3. Execute native lanes, then 2012 lanes, then brackets; commit
    `results/sweep_rot_*/{runs.json,summary.json}` and `results/rot_points_*`.
 4. Fill `notes/rot-verdict.md` strictly from committed artefacts; verdict PR.
+
+## 12. Errata — deviations found before execution
+
+Validated against the code and the `2026-08-24-net15` snapshot before any sweep ran;
+these corrections were agreed and applied (the sections above are left as proposed).
+Items 1 and 2 are data-bound collisions of exactly the class §4 documents for
+`months = 14` — §4 found one of the three and missed two.
+
+1. **§5.1 GEM native lane: the `assets` grid drops ACWX.** ACWX's first bar is
+   2008-03-31, so its first `MOM12M` value is **2009-03-31**. On the 2008-07-01
+   native window the two `SPY+ACWX` points sit in the §5.1 step-1 cash
+   short-circuit from the opening rebalance to 2009-02 — through the entire
+   crash — printing an artificially shallow drawdown and corrupting the very
+   neighborhood comparison the grid exists to make. Same resolution as §4's:
+   the native lane carries only the dimensions the data supports, so its
+   universes are `SPY+VEU` and `SPY+EFA` and it expands to **4 points, not 6**;
+   the 2012 lane keeps all three universes and its 18 points, ACWX being warm
+   from 2009-03 for every `months` in the grid. T3's expected counts are
+   therefore 4/18, 6/6, 12/12, and T4 is the assertion that catches this.
+
+2. **§4 GTAA-5 native window: start 2007-06-01, not 2007-03-01.** The published
+   `fallback: "BIL"` makes BIL a *traded* symbol (`Rotation.weights` = assets +
+   the fallback's held symbols), and `prices.load_prices` asserts every traded
+   symbol is price-complete from the window start. BIL's first bar is
+   2007-05-30, so a 2007-03 start does not print a shallow drawdown — it raises
+   an `AssertionError` at load, for the whole lane, because one `load_prices`
+   serves the union of the grid's symbols. 2007-06-01 is the first trading day
+   BIL exists; `sma_gap(12)` on DBC is warm from 2007-01-31 either way, so every
+   grid point still allocates at its first rebalance. The window keeps the 2007
+   top and the whole 2008 crisis; it loses March–May 2007. §4's underlying
+   analysis was right about the score and blind to the price series.
+
+3. **§6 and T3: the bracket bundle is 10 strategies, not 9.** §6's "the five
+   GEM/GTAA/HAA baselines above (deduplicated)" does not reconcile with §5,
+   which lists six distinct nulls: 60/40 SPY/AGG, EW SPY/VEU/AGG, the
+   absolute-only ablation, the relative-only ablation, EW-5 and 60/40 SPY/IEF.
+   All six are carried, so the roster is 3 as-published points + 6 + SPY last.
+   Keeping the ablation arms costs two rows and buys §7's "where does the
+   drawdown protection live" sentence at bracket costs too. `specs/rot_points.json`
+   and `specs/rot_points_c20.json` are one roster at two cost maps; T3 freezes it
+   as a label list rather than a count, so the choice stays visible.
+
+4. **§2 label vs param rendering.** `filter_str` keeps returning the bare
+   fragment, so `_param_value(("filter",))` renders `"all"` as §2 requires; the
+   separating space the word needs (`12M all`, where the operator forms abut as
+   `12M@SPY>BIL`) is added by a new `_filter_suffix`, the existing
+   `rebalance_str` / `_rebalance_suffix` pattern.
+
+5. **§2's required-set clause needs no code.** "With `kind: none` the main score
+   of `filter_on`/`hurdle` drops out of the required set" is already true by
+   grammar: both keys are rejected alongside `kind`, so they are `None`, and
+   `balance()`'s required list never contained them (`hurdle` degrades to the
+   literal `0.0`). Only §5.1 step 4 changes.
+
+6. **§2's second pinned capability was already implemented.** A numeric grid
+   inside the score object registers as the dotted param `score.months` and is
+   classified numeric by `build_summary`, with one-step neighbours and `edge`,
+   with no runner change at all. T2 pins it; nothing was built for it.
+
+7. **§3 extended cost map: DBMF is 3 here, 2.5 in every earlier spec**
+   (`COST_MODEL_SPEC.md` §5 records measured 3, modeled 2.5/2.8). §3's own text
+   sets 3 and the map is written as specified. No Stage-1 strategy trades DBMF,
+   so the divergence is inert until a spec carries both.
