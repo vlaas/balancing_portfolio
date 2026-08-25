@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "config": {
+    "start": "2012-01-03",
+    "initial_capital": 10000,
+    "monthly_contribution": 500,
+    "cost_bps": {
+      "SPY": 0.7,
+      "QQQ": 1,
+      "TQQQ": 1.5,
+      "BTAL": 6,
+      "KMLM": 6,
+      "DBMF": 3,
+      "IEF": 1,
+      "TLT": 1,
+      "SHY": 1,
+      "AGG": 1,
+      "EFA": 1,
+      "EEM": 1,
+      "IWM": 1,
+      "VTI": 1,
+      "BIL": 1,
+      "LQD": 1.5,
+      "VNQ": 1.5,
+      "BND": 1.5,
+      "VEA": 1.5,
+      "TIP": 2,
+      "VEU": 2,
+      "VWO": 2,
+      "DBC": 3,
+      "ACWX": 3,
+      "SCZ": 5,
+      "*": 6
+    },
+    "cash_yield": 0.015
+  },
+  "strategies": [
+    {
+      "type": "rotation",
+      "assets": [
+        "SPY",
+        "EFA",
+        "IEF",
+        "DBC",
+        "VNQ"
+      ],
+      "k": 5,
+      "score": {
+        "kind": "sma_gap",
+        "months": 10
+      },
+      "fallback": "BIL"
+    },
+    {
+      "type": "rotation",
+      "assets": [
+        "SPY",
+        "EFA",
+        "IEF",
+        "DBC",
+        "VNQ"
+      ],
+      "k": 5,
+      "score": {
+        "kind": "sma_gap",
+        "months": 8
+      },
+      "fallback": null
+    },
+    {
+      "type": "rotation",
+      "assets": [
+        "SPY",
+        "EFA",
+        "IEF",
+        "DBC",
+        "VNQ"
+      ],
+      "k": 5,
+      "score": {
+        "kind": "sma_gap",
+        "months": 10
+      },
+      "fallback": null
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "SPY": 0.2,
+        "EFA": 0.2,
+        "IEF": 0.2,
+        "DBC": 0.2,
+        "VNQ": 0.2
+      }
+    },
+    {
+      "type": "fixed",
+      "label": "SPY benchmark",
+      "weights": {
+        "SPY": 1.0
+      }
+    }
+  ]
+}
