@@ -1,0 +1,278 @@
+[
+  {
+    "entry": {
+      "assets": [
+        "QQQ",
+        "VWO",
+        "VEA",
+        "BND"
+      ],
+      "canary": {
+        "breadth": 1,
+        "score": {
+          "kind": "weighted",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ],
+          "weights": [
+            12.0,
+            4.0,
+            2.0,
+            1.0
+          ]
+        },
+        "symbols": [
+          "SPY",
+          "VEA",
+          "VWO",
+          "BND"
+        ]
+      },
+      "fallback": {
+        "floor": "BIL",
+        "kind": "best_of",
+        "n": 3,
+        "score": {
+          "kind": "sma_gap",
+          "months": 13
+        },
+        "symbols": [
+          "TIP",
+          "DBC",
+          "BIL",
+          "IEF",
+          "TLT",
+          "LQD",
+          "AGG"
+        ]
+      },
+      "filter": {
+        "kind": "none"
+      },
+      "k": 1,
+      "label": "ROT QQQ+VWO+VEA+BND top1 gap13M all can SPY+VEA+VWO+BND/1@13612W fb best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)",
+      "score": {
+        "kind": "sma_gap",
+        "months": 13
+      },
+      "type": "rotation"
+    },
+    "label": "ROT QQQ+VWO+VEA+BND top1 gap13M all can SPY+VEA+VWO+BND/1@13612W fb best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)",
+    "params": {
+      "canary.score": "13612W",
+      "score": "gap13M"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "QQQ",
+        "VWO",
+        "VEA",
+        "BND"
+      ],
+      "canary": {
+        "breadth": 1,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbols": [
+          "SPY",
+          "VEA",
+          "VWO",
+          "BND"
+        ]
+      },
+      "fallback": {
+        "floor": "BIL",
+        "kind": "best_of",
+        "n": 3,
+        "score": {
+          "kind": "sma_gap",
+          "months": 13
+        },
+        "symbols": [
+          "TIP",
+          "DBC",
+          "BIL",
+          "IEF",
+          "TLT",
+          "LQD",
+          "AGG"
+        ]
+      },
+      "filter": {
+        "kind": "none"
+      },
+      "k": 1,
+      "label": "ROT QQQ+VWO+VEA+BND top1 gap13M all can SPY+VEA+VWO+BND/1@1-3-6-12U fb best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)",
+      "score": {
+        "kind": "sma_gap",
+        "months": 13
+      },
+      "type": "rotation"
+    },
+    "label": "ROT QQQ+VWO+VEA+BND top1 gap13M all can SPY+VEA+VWO+BND/1@1-3-6-12U fb best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)",
+    "params": {
+      "canary.score": "1-3-6-12U",
+      "score": "gap13M"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "QQQ",
+        "VWO",
+        "VEA",
+        "BND"
+      ],
+      "canary": {
+        "breadth": 1,
+        "score": {
+          "kind": "weighted",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ],
+          "weights": [
+            12.0,
+            4.0,
+            2.0,
+            1.0
+          ]
+        },
+        "symbols": [
+          "SPY",
+          "VEA",
+          "VWO",
+          "BND"
+        ]
+      },
+      "fallback": {
+        "floor": "BIL",
+        "kind": "best_of",
+        "n": 3,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbols": [
+          "TIP",
+          "DBC",
+          "BIL",
+          "IEF",
+          "TLT",
+          "LQD",
+          "AGG"
+        ]
+      },
+      "filter": {
+        "kind": "none"
+      },
+      "k": 1,
+      "label": "ROT QQQ+VWO+VEA+BND top1 1-3-6-12U all can SPY+VEA+VWO+BND/1@13612W fb best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)",
+      "score": {
+        "kind": "avg",
+        "months": [
+          1,
+          3,
+          6,
+          12
+        ]
+      },
+      "type": "rotation"
+    },
+    "label": "ROT QQQ+VWO+VEA+BND top1 1-3-6-12U all can SPY+VEA+VWO+BND/1@13612W fb best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)",
+    "params": {
+      "canary.score": "13612W",
+      "score": "1-3-6-12U"
+    }
+  },
+  {
+    "entry": {
+      "assets": [
+        "QQQ",
+        "VWO",
+        "VEA",
+        "BND"
+      ],
+      "canary": {
+        "breadth": 1,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbols": [
+          "SPY",
+          "VEA",
+          "VWO",
+          "BND"
+        ]
+      },
+      "fallback": {
+        "floor": "BIL",
+        "kind": "best_of",
+        "n": 3,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbols": [
+          "TIP",
+          "DBC",
+          "BIL",
+          "IEF",
+          "TLT",
+          "LQD",
+          "AGG"
+        ]
+      },
+      "filter": {
+        "kind": "none"
+      },
+      "k": 1,
+      "label": "ROT QQQ+VWO+VEA+BND top1 1-3-6-12U all can SPY+VEA+VWO+BND/1 fb best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)",
+      "score": {
+        "kind": "avg",
+        "months": [
+          1,
+          3,
+          6,
+          12
+        ]
+      },
+      "type": "rotation"
+    },
+    "label": "ROT QQQ+VWO+VEA+BND top1 1-3-6-12U all can SPY+VEA+VWO+BND/1 fb best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)",
+    "params": {
+      "canary.score": "1-3-6-12U",
+      "score": "1-3-6-12U"
+    }
+  }
+]

@@ -1139,3 +1139,35 @@ def test_the_stage3_frozen_labels_render_into_the_verdict_skeleton():
 
     for label in ROT3_ROSTER:
         assert f"`{label}`" in doc, label
+
+
+# T5: R3a' reads `rank_median` out of every lane's committed summary and R2d
+# reads holdout-test max drawdown out of its committed runs, so both break
+# silently if a runner change ever empties what the tiering and the diagnostic
+# read. This is the guard that makes that loud.
+@pytest.mark.parametrize("name", ROT3_LANES, ids=lambda n: n[len("sweep_rot3_"):])
+def test_every_stage3_grid_point_carries_the_r3a_prime_inputs(name):
+    summary = json.loads((RESULTS / name / "summary.json").read_text())
+
+    assert len(summary["strategies"]) == int(ROT3_LANES[name].split()[0])
+    for s in summary["strategies"]:
+        assert s["sensitivity"]["rank_median"] is not None, s["label"]
+        assert s["sensitivity"]["rank_worst"] is not None, s["label"]
+    # A baseline is not a point: it never ranks, however it scores.
+    for b in summary["baselines"]:
+        assert "rank_median" not in b["sensitivity"]
+
+
+@pytest.mark.parametrize("name", ROT3_LANES, ids=lambda n: n[len("sweep_rot3_"):])
+def test_the_r2d_diagnostic_reads_its_input_off_the_committed_runs(name):
+    # §6's R2d is holdout-test max DD, which `summary.json`'s holdout block
+    # does not carry — it holds objective values only. The rows are in
+    # `runs.json`, for the published point and for its K1 null alike.
+    runs = json.loads((RESULTS / name / "runs.json").read_text())
+    test = {r["label"]: r for r in runs if r["kind"] == "test"}
+
+    for label in (ROT3_PUBLISHED[name.split("_")[2]], ROT3_ROSTER[2], ROT3_ROSTER[3]):
+        if label not in test:
+            continue  # each lane carries only its own family's K1 null
+        assert test[label]["max_drawdown"] is not None, label
+        assert test[label]["max_drawdown"] <= 0
