@@ -11,11 +11,12 @@ from pathlib import Path
 from typing import NoReturn
 
 from bundles import Bundle
-from indicators import ewma_vol, realized_vol
+from indicators import ewma_vol, mom_monthly, mom_multi, realized_vol, sma_gap
 from results_json import slug
 from simulate import Config, fee_schedule
 from strategies.fixed import Fixed
 from strategies.gate import AnyGate, Gate
+from strategies.rotation import BestOf, Canary, Rotation
 from strategies.vol_target import SafeSwitch, VolTarget
 from strategy import Cadence
 
@@ -29,6 +30,7 @@ REQUIRED_KEYS = {
     "vol_target": frozenset(
         {"type", "risk", "safe", "vol_symbol", "vol", "sigma_target"}
     ),
+    "rotation": frozenset({"type", "assets", "k", "score"}),
 }
 
 
@@ -399,7 +401,242 @@ def _vol_target(entry: dict, path: str) -> VolTarget:
     return st
 
 
-_TYPES = {"fixed": _fixed, "vol_target": _vol_target}
+def _score(entry, path: str) -> tuple:
+    """A ROTATION_SPEC §6.1 score object. Returns (Indicator, normalised)."""
+    if not isinstance(entry, dict):
+        _fail(path, "expected an object")
+    if "kind" not in entry:
+        _fields(entry, path, {"months"})
+        k = entry["months"]
+        if isinstance(k, bool) or not isinstance(k, int) or k < 1:
+            _fail(_join(path, "months"), f"expected an integer >= 1, got {k!r}")
+        return mom_monthly(k), {"months": k}
+    if entry["kind"] == "sma_gap":
+        _fields(entry, path, {"kind", "months"})
+        m = entry["months"]
+        if isinstance(m, bool) or not isinstance(m, int) or m < 2:
+            _fail(_join(path, "months"), f"expected an integer >= 2, got {m!r}")
+        return sma_gap(m), {"kind": "sma_gap", "months": m}
+    if entry["kind"] not in ("avg", "weighted"):
+        _fail(_join(path, "kind"), f"unknown kind {entry['kind']!r}")
+    weighted = entry["kind"] == "weighted"
+    _fields(entry, path, {"kind", "months"} | ({"weights"} if weighted else set()))
+    months = entry["months"]
+    if not isinstance(months, list) or len(months) < 2:
+        _fail(_join(path, "months"), f"expected a list of >= 2 months, got {months!r}")
+    for i, m in enumerate(months):
+        if isinstance(m, bool) or not isinstance(m, int) or m < 1:
+            _fail(f"{_join(path, 'months')}[{i}]", f"expected an integer >= 1, got {m!r}")
+    if any(a >= b for a, b in zip(months, months[1:])):
+        _fail(_join(path, "months"), f"expected strictly ascending months, got {months}")
+    if not weighted:
+        return mom_multi(tuple(months)), {"kind": "avg", "months": list(months)}
+    weights = entry["weights"]
+    if not isinstance(weights, list) or len(weights) != len(months):
+        _fail(_join(path, "weights"),
+              f"expected a list of {len(months)} weights, got {weights!r}")
+    for i, w in enumerate(weights):
+        if isinstance(w, bool) or not isinstance(w, (int, float)) or w <= 0:
+            _fail(f"{_join(path, 'weights')}[{i}]", f"expected a weight > 0, got {w!r}")
+    return (
+        mom_multi(tuple(months), tuple(weights)),
+        {"kind": "weighted", "months": list(months), "weights": [float(w) for w in weights]},
+    )
+
+
+def score_str(score: dict) -> str:
+    """`12M`, `1-3-6U`, the canonical `13612W`, `1-3-6-12w12-4-2-1`, `gap10M`
+    — the rendering the auto-labels embed and sweep params reuse (§7)."""
+    if "kind" not in score:
+        return f"{score['months']}M"
+    if score["kind"] == "sma_gap":
+        return f"gap{score['months']}M"
+    months = "-".join(str(m) for m in score["months"])
+    if score["kind"] == "avg":
+        return f"{months}U"
+    if list(score["months"]) == [1, 3, 6, 12] and list(score["weights"]) == [12, 4, 2, 1]:
+        return "13612W"
+    return f"{months}w" + "-".join(f"{w:g}" for w in score["weights"])
+
+
+def _score_suffix(score: dict, main: dict) -> str:
+    """`@1M`-style score marker, empty when the score is the inherited main."""
+    return "" if score == main else f"@{score_str(score)}"
+
+
+def filter_str(entry: dict | None) -> str:
+    """`` (default), `>BIL`, `@SPY>0`, `@SPY>BIL`. The on-without-hurdle form
+    renders its explicit zero hurdle: `@SPY` and `>SPY` would slugify
+    identically and collide at build (§7 errata)."""
+    if not entry:
+        return ""
+    on, hurdle = entry.get("on"), entry.get("hurdle")
+    if on:
+        return f"@{on}>{hurdle}" if hurdle else f"@{on}>0"
+    return f">{hurdle}"
+
+
+def canary_str(entry: dict, main_score: dict) -> str:
+    """`TIP/1`, `VWO+BND/2`, score appended `@13612W`-style only when it
+    differs from the main score."""
+    suffix = _score_suffix(entry["score"], main_score) if "score" in entry else ""
+    return "+".join(entry["symbols"]) + f"/{entry['breadth']}" + suffix
+
+
+def fallback_str(entry, main_score: dict) -> str:
+    """`cash`, `AGG`, `IEF60+TLT40`, `best(BIL+IEF)` / `best(TIP+TLT@1M)` —
+    sleeves sorted by symbol like `safe_str`, so one sleeve cannot spell two
+    labels."""
+    if entry is None:
+        return "cash"
+    if isinstance(entry, str):
+        return entry
+    if entry.get("kind") == "best_of":
+        suffix = _score_suffix(entry["score"], main_score) if "score" in entry else ""
+        return "best(" + "+".join(entry["symbols"]) + suffix + ")"
+    return "+".join(f"{s}{_pct(f)}" for s, f in sorted(entry.items()))
+
+
+def _filter(entry: dict, path: str) -> None:
+    """§6.2: at least one of on / hurdle — an empty object fails because
+    absence is the spelling of the default (per-asset > 0)."""
+    _fields(entry, path, set(), {"on", "hurdle"})
+    if not entry:
+        _fail(path, "empty filter; absence is the spelling of the default")
+    for key in ("on", "hurdle"):
+        if key in entry and not isinstance(entry[key], str):
+            _fail(_join(path, key), f"expected a symbol string, got {entry[key]!r}")
+    if entry.get("on") is not None and entry.get("on") == entry.get("hurdle"):
+        _fail(path, "on equals hurdle")
+
+
+def _symbol_list(entry, path: str, minimum: int, hint: str) -> None:
+    if (
+        not isinstance(entry, list)
+        or len(entry) < minimum
+        or len(set(entry)) != len(entry)
+    ):
+        _fail(path, f"expected >= {minimum} unique symbols{hint}, got {entry!r}")
+    for i, s in enumerate(entry):
+        if not isinstance(s, str):
+            _fail(f"{path}[{i}]", f"expected a symbol string, got {s!r}")
+
+
+def _fallback(entry, path: str, main: tuple) -> tuple:
+    """§6.3: null (cash) | "SYM" | sleeve dict | best_of. Returns
+    (runtime value, normalised) with the inherited best_of score filled."""
+    if entry is None or isinstance(entry, str):
+        return entry, entry
+    if not isinstance(entry, dict):
+        _fail(path, f"expected null, a symbol, a sleeve object or best_of, got {entry!r}")
+    if "kind" in entry:
+        if entry["kind"] != "best_of":
+            _fail(_join(path, "kind"), f"unknown kind {entry['kind']!r}")
+        _fields(entry, path, {"kind", "symbols"}, {"score"})
+        _symbol_list(entry["symbols"], _join(path, "symbols"), 2,
+                     " (one symbol is the string form)")
+        if "score" in entry:
+            indicator, normalised_score = _score(entry["score"], _join(path, "score"))
+        else:
+            indicator, normalised_score = main
+        return (
+            BestOf(tuple(entry["symbols"]), indicator),
+            {"kind": "best_of", "symbols": list(entry["symbols"]),
+             "score": normalised_score},
+        )
+    if len(entry) < 2:
+        _fail(path, f"a {len(entry)}-symbol sleeve is the string form; use it")
+    for symbol, f in entry.items():
+        if not isinstance(symbol, str):
+            _fail(path, f"expected a symbol string, got {symbol!r}")
+        if isinstance(f, bool) or not isinstance(f, (int, float)) or f <= 0:
+            _fail(_join(path, symbol), f"expected a fraction > 0, got {f!r}")
+    if abs(sum(entry.values()) - 1) > 1e-9:
+        _fail(path, f"sleeve fractions sum to {sum(entry.values()):g}, not 1")
+    return dict(entry), dict(entry)
+
+
+def _canary(entry: dict, path: str, main: tuple) -> tuple:
+    """§6.4. Returns (Canary, normalised) with the inherited score filled."""
+    _fields(entry, path, {"symbols", "breadth"}, {"score"})
+    _symbol_list(entry["symbols"], _join(path, "symbols"), 1, "")
+    breadth = entry["breadth"]
+    if isinstance(breadth, bool) or not isinstance(breadth, int) \
+            or not 1 <= breadth <= len(entry["symbols"]):
+        _fail(_join(path, "breadth"),
+              f"expected an integer in [1, {len(entry['symbols'])}], got {breadth!r}")
+    if "score" in entry:
+        indicator, normalised_score = _score(entry["score"], _join(path, "score"))
+    else:
+        indicator, normalised_score = main
+    return (
+        Canary(tuple(entry["symbols"]), breadth, indicator),
+        {"symbols": list(entry["symbols"]), "breadth": breadth,
+         "score": normalised_score},
+    )
+
+
+def _rotation(entry: dict, path: str) -> Rotation:
+    _fields(
+        entry, path,
+        REQUIRED_KEYS["rotation"],
+        {"filter", "fallback", "canary", "label", "rebalance"},
+    )
+    _symbol_list(entry["assets"], _join(path, "assets"), 1, "")
+    assets = list(entry["assets"])
+    k = entry["k"]
+    if isinstance(k, bool) or not isinstance(k, int) or not 1 <= k <= len(assets):
+        _fail(_join(path, "k"),
+              f"expected an integer in [1, {len(assets)}], got {k!r}")
+    score, normalised_score = _score(entry["score"], _join(path, "score"))
+    main = (score, normalised_score)
+
+    filter_on = hurdle = normalised_filter = None
+    if "filter" in entry:
+        _filter(entry["filter"], _join(path, "filter"))
+        filter_on = entry["filter"].get("on")
+        hurdle = entry["filter"].get("hurdle")
+        normalised_filter = {
+            key: value
+            for key, value in (("on", filter_on), ("hurdle", hurdle))
+            if value is not None
+        }
+    fallback = normalised_fallback = None
+    if "fallback" in entry:
+        fallback, normalised_fallback = _fallback(
+            entry["fallback"], _join(path, "fallback"), main
+        )
+    canary = normalised_canary = None
+    if "canary" in entry:
+        canary, normalised_canary = _canary(entry["canary"], _join(path, "canary"), main)
+    cadence = normalised_cadence = None
+    if "rebalance" in entry:
+        cadence, normalised_cadence = _rebalance(entry["rebalance"], _join(path, "rebalance"))
+
+    label = entry.get(
+        "label",
+        f"ROT {'+'.join(assets)} top{k} {score_str(normalised_score)}"
+        + filter_str(normalised_filter)
+        + (f" can {canary_str(normalised_canary, normalised_score)}"
+           if normalised_canary else "")
+        + f" fb {fallback_str(normalised_fallback, normalised_score)}"
+        + _rebalance_suffix(cadence),
+    )
+    st = Rotation(
+        assets=assets, k=k, score=score, filter_on=filter_on, hurdle=hurdle,
+        fallback=fallback, canary=canary, label=label,
+    )
+    st.rebalance = cadence
+    st.spec = {
+        "type": "rotation", "label": label, "assets": assets, "k": k,
+        "score": normalised_score, "fallback": normalised_fallback,
+    } | ({"filter": normalised_filter} if normalised_filter else {}) | (
+        {"canary": normalised_canary} if normalised_canary else {}
+    ) | ({"rebalance": normalised_cadence} if normalised_cadence else {})
+    return st
+
+
+_TYPES = {"fixed": _fixed, "vol_target": _vol_target, "rotation": _rotation}
 
 
 def build_bundle(spec: dict) -> Bundle:

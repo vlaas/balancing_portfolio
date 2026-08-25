@@ -10,10 +10,13 @@ from indicators import (
     Indicator,
     drawdown,
     ewma_vol,
+    mom_monthly,
+    mom_multi,
     momentum,
     ratio_sma,
     realized_vol,
     sma,
+    sma_gap,
     sma_monthly,
     ts_regime,
 )
@@ -28,6 +31,19 @@ CSV_FILES = [
     for p in sorted(GOLDEN_DIR.rglob("*.csv")) + sorted(DATA_DIR.rglob("*.csv"))
     if not any("-net" in part for part in p.parts)
 ]
+
+
+def _has_sma_columns(path: Path) -> bool:
+    with path.open() as handle:
+        return "SMA200" in handle.readline()
+
+
+# ROTATION_SPEC §3.1: the Pine SMA overlay left the export procedure with the
+# 2026-08 batch, so the TradingView-parity fixture collects only files whose
+# header still carries the reference columns — frozen snapshots and the flat
+# legacy CSVs. Live data/ is guarded by the §3.5 pair invariants instead
+# (tests/test_total_return.py).
+SMA_FILES = [p for p in CSV_FILES if _has_sma_columns(p)]
 
 
 def read_closes(path: Path) -> pl.DataFrame:
@@ -70,7 +86,7 @@ def first_value_index(series: pl.Series) -> int | None:
 # T1 — TradingView parity: the proof that the Python SMA reproduces the export.
 
 
-@pytest.mark.parametrize("path", CSV_FILES, ids=lambda p: str(p.relative_to(DATA_DIR.parent)))
+@pytest.mark.parametrize("path", SMA_FILES, ids=lambda p: str(p.relative_to(DATA_DIR.parent)))
 @pytest.mark.parametrize("n", [15, 50, 100, 200])
 def test_sma_matches_the_tradingview_column(path: Path, n: int) -> None:
     frame = pl.read_csv(path, schema_overrides={"close": pl.Float64}, try_parse_dates=True)
@@ -79,6 +95,13 @@ def test_sma_matches_the_tradingview_column(path: Path, n: int) -> None:
 
     assert computed.null_count() == reference.null_count()
     assert (computed - reference).abs().max() <= 1e-9
+
+
+def test_the_parity_fixture_scope_is_pinned() -> None:
+    # ROTATION_SPEC §8 T9: a silent scope shrink (a snapshot losing its SMA
+    # columns, a broken rglob) must be loud. 20 = the 6 flat legacy CSVs +
+    # 8 top-level and 6 price/ files of tests/data/2026-08-20.
+    assert len(SMA_FILES) == 20
 
 
 # T2 — Causality: no value at row t may depend on a close after t.
@@ -111,27 +134,43 @@ def test_truncating_the_future_does_not_change_the_past(
         assert indicator.fn(frame[: t + 1])[t] == full[t], f"{indicator.name} at row {t}"
 
 
+# The month-end lane: every factory built on the `sma_monthly` rule joins
+# this list (INDICATORS_SPEC §7 T2; ROTATION_SPEC §4 for the momentum family).
+
+MONTHLY_INDICATORS = [
+    sma_monthly(10),
+    mom_monthly(12),
+    mom_multi((1, 3, 6, 12), (12, 4, 2, 1)),
+    mom_multi((1, 3, 6)),
+    sma_gap(10),
+]
+
+
 @pytest.mark.parametrize("symbol", ["QQQ", "BTAL"])
-def test_monthly_sma_is_causal_one_row_past_the_month_end_flag(symbol: str) -> None:
-    """`sma_monthly` needs row t+1's *date* to know t is a month-end — never its close.
+@pytest.mark.parametrize("indicator", MONTHLY_INDICATORS, ids=lambda i: i.name)
+def test_monthly_indicator_is_causal_one_row_past_the_month_end_flag(
+    symbol: str, indicator: Indicator
+) -> None:
+    """A month-end factory needs row t+1's *date* to know t is a month-end — never its close.
 
     So it is truncation-invariant from t+2 on, not from t+1, exactly like
     `is_rebalance_day`. The next test pins the part that matters: no price
     look-ahead.
     """
     frame = read_closes(GOLDEN_DIR / f"{symbol}.csv")
-    indicator = sma_monthly(10)
     full = indicator.fn(frame)
 
     for t in cut_points(frame):
         truncated = indicator.fn(frame[: min(t + 2, len(frame))])
-        assert truncated[t] == full[t], f"SMA10M at row {t}"
+        assert truncated[t] == full[t], f"{indicator.name} at row {t}"
 
 
 @pytest.mark.parametrize("symbol", ["QQQ", "BTAL"])
-def test_monthly_sma_ignores_every_close_after_the_row(symbol: str) -> None:
+@pytest.mark.parametrize("indicator", MONTHLY_INDICATORS, ids=lambda i: i.name)
+def test_monthly_indicator_ignores_every_close_after_the_row(
+    symbol: str, indicator: Indicator
+) -> None:
     frame = read_closes(GOLDEN_DIR / f"{symbol}.csv")
-    indicator = sma_monthly(10)
     full = indicator.fn(frame)
 
     for t in cut_points(frame)[:-1]:
@@ -140,7 +179,7 @@ def test_monthly_sma_ignores_every_close_after_the_row(symbol: str) -> None:
             .then(pl.col("close") * 1000)
             .otherwise(pl.col("close"))
         )
-        assert indicator.fn(tampered)[t] == full[t], f"SMA10M at row {t}"
+        assert indicator.fn(tampered)[t] == full[t], f"{indicator.name} at row {t}"
 
 
 # T3 — Warm-up: the first row that carries a value, per the table in the spec.
@@ -156,6 +195,10 @@ def test_warm_up_lengths() -> None:
     assert first_value_index(ewma_vol(0.94).fn(frame)) == 20
     assert first_value_index(drawdown().fn(frame)) == 0
     assert first_value_index(momentum(20).fn(frame)) == 20
+    assert first_value_index(mom_monthly(12).fn(frame)) == month_ends[12]
+    assert first_value_index(mom_monthly(1).fn(frame)) == month_ends[1]
+    assert first_value_index(mom_multi((1, 3, 6)).fn(frame)) == month_ends[6]
+    assert first_value_index(sma_gap(10).fn(frame)) == month_ends[9]
 
 
 def test_drawdown_is_never_positive() -> None:
@@ -237,6 +280,125 @@ def test_the_partial_final_month_has_no_month_end() -> None:
     # The trailing rows of the partial month carry the last whole month's value.
     values = sma_monthly(10).fn(frame)
     assert values[-1] == values[month_ends[-1]]
+
+
+# ROTATION_SPEC §4 / §8 T1 — the monthly momentum family: month-end returns,
+# carry-forward, exact warm-up, weighted sums, gap-vs-SMA consistency, names.
+
+
+def test_monthly_momentum_on_a_month_end_is_the_k_month_return() -> None:
+    frame, month_ends, closes = monthly_frame()
+
+    for k in (1, 12):
+        values = mom_monthly(k).fn(frame)
+        for t in range(k, len(month_ends)):
+            expected = closes[month_ends[t]] / closes[month_ends[t - k]] - 1
+            assert values[month_ends[t]] == pytest.approx(expected), f"MOM{k}M at {t}"
+
+
+def test_monthly_momentum_carries_the_previous_month_end_forward() -> None:
+    frame, month_ends, _ = monthly_frame()
+    values = mom_monthly(12).fn(frame)
+
+    for start, end in zip(month_ends[12:], month_ends[13:]):
+        for row in range(start + 1, end):
+            assert values[row] == values[start]
+    # The partial final month carries the last whole month's value.
+    assert values[-1] == values[month_ends[-1]]
+
+
+def test_monthly_momentum_is_null_before_the_k_plus_first_month_end() -> None:
+    frame, month_ends, _ = monthly_frame()
+    values = mom_monthly(12).fn(frame)
+
+    assert values[: month_ends[12]].null_count() == month_ends[12]
+    assert values[month_ends[12]] is not None
+
+
+def test_multi_horizon_momentum_matches_the_hand_weighted_sum() -> None:
+    frame, month_ends, closes = monthly_frame()
+    weighted = mom_multi((1, 3, 6, 12), (12, 4, 2, 1)).fn(frame)
+    unweighted = mom_multi((1, 3, 6)).fn(frame)
+
+    def ret(t: int, m: int) -> float:
+        return closes[month_ends[t]] / closes[month_ends[t - m]] - 1
+
+    for t in range(12, len(month_ends)):
+        expected = sum(w * ret(t, m) for m, w in zip((1, 3, 6, 12), (12, 4, 2, 1)))
+        assert weighted[month_ends[t]] == pytest.approx(expected), f"13612W at {t}"
+    for t in range(6, len(month_ends)):
+        expected = sum(ret(t, m) for m in (1, 3, 6)) / 3
+        assert unweighted[month_ends[t]] == pytest.approx(expected), f"1-3-6U at {t}"
+
+
+def test_multi_horizon_momentum_is_null_before_max_months_plus_one() -> None:
+    frame, month_ends, _ = monthly_frame()
+    values = mom_multi((1, 3, 6, 12), (12, 4, 2, 1)).fn(frame)
+
+    assert values[: month_ends[12]].null_count() == month_ends[12]
+    assert values[month_ends[12]] is not None
+
+
+def test_sma_gap_is_consistent_with_the_monthly_sma() -> None:
+    frame, month_ends, closes = monthly_frame()
+    gap = sma_gap(10).fn(frame)
+    reference = sma_monthly(10).fn(frame)
+
+    # gap = close / SMA - 1 on every month-end row past warm-up, carried
+    # forward between them exactly like the SMA itself.
+    for t in range(9, len(month_ends)):
+        row = month_ends[t]
+        assert gap[row] == pytest.approx(closes[row] / reference[row] - 1)
+    for start, end in zip(month_ends[9:], month_ends[10:]):
+        for row in range(start + 1, end):
+            assert gap[row] == gap[start]
+    assert gap[: month_ends[9]].null_count() == month_ends[9]
+
+
+def test_a_symbol_missing_the_calendar_month_end_uses_its_own_last_bar() -> None:
+    # Drop one true month-end bar: the month's last *own* bar becomes the
+    # month-end, same as `sma_monthly` today (ROTATION_SPEC §4).
+    frame, month_ends, _ = monthly_frame()
+    dropped = month_ends[13]
+    trimmed = frame.filter(pl.int_range(pl.len()) != dropped)
+    trimmed_ends = [i for i, flag in enumerate(month_end_mask(trimmed)) if flag]
+
+    assert trimmed_ends[13] == dropped - 1  # the predecessor, same month
+    values = mom_monthly(1).fn(trimmed)
+    expected = (
+        trimmed["close"][trimmed_ends[13]] / trimmed["close"][trimmed_ends[12]] - 1
+    )
+    assert values[trimmed_ends[13]] == pytest.approx(expected)
+
+
+def test_monthly_momentum_names() -> None:
+    assert mom_monthly(12).name == "MOM12M"
+    assert mom_monthly(1).name == "MOM1M"
+    assert mom_multi((1, 3, 6, 12), (12, 4, 2, 1)).name == "MOMM1-3-6-12W12-4-2-1"
+    assert mom_multi((1, 3, 6, 12)).name == "MOMM1-3-6-12U"
+    assert mom_multi((1, 3, 6)).name == "MOMM1-3-6U"
+    assert mom_multi((1, 3), (0.5, 1)).name == "MOMM1-3W0.5-1"  # %g keeps '.'
+    assert sma_gap(10).name == "SMAGAP10M"
+    assert sma_gap(13).name == "SMAGAP13M"
+
+
+def test_monthly_momentum_rejects_bad_parameters() -> None:
+    with pytest.raises(AssertionError, match="k must be >= 1"):
+        mom_monthly(0)
+    with pytest.raises(AssertionError, match="non-empty"):
+        mom_multi(())
+    with pytest.raises(AssertionError, match="months must be >= 1"):
+        mom_multi((0, 3))
+    with pytest.raises(AssertionError, match="strictly ascending"):
+        mom_multi((3, 1))
+    with pytest.raises(AssertionError, match="strictly ascending"):
+        mom_multi((3, 3))
+    with pytest.raises(AssertionError, match="equal length"):
+        mom_multi((1, 3), (1.0,))
+    with pytest.raises(AssertionError, match="weights must be > 0"):
+        mom_multi((1, 3), (1.0, 0.0))
+    with pytest.raises(AssertionError, match="m must be >= 2"):
+        sma_gap(1)
 
 
 # REGIME_SPEC R2 — cross-symbol factories: the smoothed ratio and the

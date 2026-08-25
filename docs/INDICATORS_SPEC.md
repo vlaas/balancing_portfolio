@@ -29,7 +29,9 @@ Non-goals (separate specs): declarative strategy specs, JSON results, sweeps, MC
 5. **Column naming.** Loaded as `SYM:NAME`, exactly like CSV indicators today. `NAME` is
    produced by the factory and **embeds every parameter** (`SMA200`, `VOL_EWMA94`,
    `SMA10M`), so two parameterisations of the same indicator coexist and the name is the
-   indicator's identity. `NAME` matches `[A-Z0-9_]+`.
+   indicator's identity. `NAME` matches `[A-Z0-9_.\-]+` (originally `[A-Z0-9_]+`;
+   widened for the ROTATION_SPEC §4.2 multi-horizon names, whose month lists are
+   `-`-separated and whose `%g`-rendered weights may carry `.` — errata §11).
 6. **Deterministic.** Same file, same code → bit-identical column. No randomness, no
    dependence on today's date.
 7. **Symbols must be declared.** A strategy may only attach indicators to symbols it trades
@@ -72,6 +74,9 @@ Polars expressions or plain Python as long as the tests in §7 pass.
 | `ewma_vol(lam=0.94)` | `VOL_EWMA{round(lam*100)}` | RiskMetrics zero-mean EWMA of squared log returns (§3.2), √ and × √252 | `20` |
 | `drawdown()` | `DD` | `close / cummax(close) - 1` over the file's whole history (≤ 0) | `0` |
 | `momentum(n)` | `MOM{n}` | `close / close.shift(n) - 1` | `n` |
+| `mom_monthly(k)` | `MOM{k}M` | `close / close.shift(k) - 1` over month-end closes (§3.1 rule), carried forward (ROTATION_SPEC §4.1) | first row on/after the `k+1`-th month-end |
+| `mom_multi(months, weights=None)` | `MOMM{m1}-{m2}…` + `U` \| `W{w1}-{w2}…` | `Σ wᵢ · (close / close.shift(mᵢ) - 1)` over month-end closes; unweighted mean when `weights` is None (ROTATION_SPEC §4.2) | first row on/after the `max(months)+1`-th month-end |
+| `sma_gap(m)` | `SMAGAP{m}M` | `close / sma_monthly(m) - 1` at month-ends, carried forward (ROTATION_SPEC §4.3) | first row on/after the `m`-th month-end |
 
 `sma(200)` must reproduce today's `QQQ:SMA200` exactly (this is what keeps the shipped
 SMA-gate strategy's results unchanged, §8).
@@ -310,3 +315,18 @@ instead of the CSV). Any deviation is a bug in the indicator or the loader, not 
 Parametrised strategy classes / declarative specs, sweeps, cost model, MCP server. Each
 depends on this spec landing first; none should be folded into it. (`--json` output has
 since landed — see `results_json.py` and `docs/ARCHITECTURE.md`.)
+
+## 11. Errata (amendments)
+
+1. **Name charset widened to `[A-Z0-9_.\-]+`** (was `[A-Z0-9_]+`; 2026-08-25,
+   ROTATION_SPEC §4.2). The multi-horizon momentum names separate month lists
+   with `-` (`MOMM1-3-6-12W12-4-2-1`) and render weights with `%g`, which may
+   carry `.` (`MOMM1-3W0.5-1`). The convention was documented, never enforced
+   in code; names stay lossless and remain the indicator's identity. Earlier
+   specs restating the old charset (REGIME_SPEC §3.4) describe the factories
+   they introduced, all of which still satisfy it.
+2. **The month-end causality lane is a parametrised list** (`MONTHLY_INDICATORS`
+   in `tests/test_indicators.py`): every factory built on the §3.1 month-end
+   rule joins the T2 one-row-of-slack lane and the strict tamper check, the
+   same obligation §7 T2 states for the strict lane. Added with the
+   ROTATION_SPEC §4 family.
