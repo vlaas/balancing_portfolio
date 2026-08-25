@@ -277,6 +277,10 @@ NATIVE_LANES = [
     # ROTATION_STAGE2_SPEC §8 T2 — the same invariant, institutionalized: the
     # §3 pre-flight table asserted against the simulation, per family.
     "sweep_rot2_adm_native", "sweep_rot2_haab_native", "sweep_rot2_vaa_native",
+    # ROTATION_STAGE3_SPEC §8 T4 — and the first lane whose binding warm-up is
+    # a *data-only* symbol: the canary's VEA, which `load_prices` would never
+    # have complained about (§4).
+    "sweep_rot3_baa12_native", "sweep_rot3_baa4_native",
 ]
 
 
