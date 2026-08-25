@@ -295,6 +295,46 @@ def test_fire_is_numeric_and_w_off_categorical_in_the_summary():
     assert s[1]["neighbourhood"]["edge"] is True
 
 
+def test_a_nested_score_months_grid_is_a_numeric_dimension():
+    # ROTATION_SWEEP_SPEC §2: a grid *inside* the score object must register as
+    # the dotted numeric param `score.months` with full one-step neighbourhood
+    # semantics — the whole-score-object grid the rotation tests cover is
+    # categorical and would prove nothing about §4.5's numeric rules.
+    spec = t5_spec({
+        "type": "rotation", "assets": ["SPY", "VEU"], "k": 1,
+        "score": {"months": {"grid": [10, 12, 14]}},
+        "filter": {"on": "SPY", "hurdle": "BIL"}, "fallback": "AGG",
+    })
+    expanded = expand(spec["template"])
+    labels = [e["label"] for e in expanded]
+    assert [e["params"] for e in expanded] == [
+        {"score.months": 10}, {"score.months": 12}, {"score.months": 14},
+    ]
+    assert labels == [
+        "ROT SPY+VEU top1 10M@SPY>BIL fb AGG",
+        "ROT SPY+VEU top1 12M@SPY>BIL fb AGG",
+        "ROT SPY+VEU top1 14M@SPY>BIL fb AGG",
+    ]
+    wins = [Window("full", "full", dt.date(2020, 1, 2), dt.date(2026, 1, 2))]
+    records = {"full": {l: stats_of(o) for l, o in zip(labels, [3, 1, 2])}}
+    records["full"]["bench"] = stats_of(0)
+
+    summary = build_summary(
+        spec, wins, expanded, ["bench"], records,
+        {l: True for l in labels}, notes=[], warnings=[],
+    )
+
+    s = summary["strategies"]
+    # The interior point has both neighbours; the ends have one each and are
+    # flagged `edge`. robust_score is the minimum of own and neighbour_min.
+    assert s[1]["neighbourhood"] == {
+        "neighbour_min": 2, "neighbour_mean": 2.5, "edge": False,
+    }
+    assert s[1]["robust_score"] == 1
+    assert [e["neighbourhood"]["edge"] for e in s] == [True, False, True]
+    assert [e["neighbourhood"]["neighbour_min"] for e in s] == [1, 2, 1]
+
+
 def test_an_ordinary_spec_names_the_right_entry_point():
     with pytest.raises(ValueError, match=re.escape("run it with `uv run main.py --spec")):
         validate(load_spec(SPECS / "research.json"))

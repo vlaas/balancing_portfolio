@@ -78,6 +78,30 @@ def test_absolute_filter_gates_all_slots_together():
     }
 
 
+def test_filter_none_holds_a_negative_momentum_slot_anyway():
+    # Every asset is below zero: the default qualification sends the whole
+    # portfolio defensive, the unconditional form still holds the top two.
+    unconditional = rot(filter_none=True, fallback="F")
+    default = rot(fallback="F")
+    scores = dict(A=-0.05, B=-0.30, C=-0.10)
+    assert unconditional.balance(day(**scores)) == {
+        "A": 0.5, "B": 0.0, "C": 0.5, "F": 0.0,
+    }
+    assert default.balance(day(**scores)) == {
+        "A": 0.0, "B": 0.0, "C": 0.0, "F": 1.0,
+    }
+    # Only the test drops out: the canary still routes its fraction.
+    with_canary = rot(filter_none=True, canary=Canary(("X",), 1, M1), fallback="F")
+    assert with_canary.balance(day(A=-0.05, B=-0.30, C=-0.10, X=-0.01)) == {
+        "A": 0.0, "B": 0.0, "C": 0.0, "F": 1.0,
+    }
+
+
+def test_filter_none_excludes_the_absolute_test():
+    with pytest.raises(AssertionError, match="filter_none excludes"):
+        rot(filter_none=True, hurdle="H")
+
+
 # --- T3 — canary fractions, slot replacement, role collisions ----------------
 
 
@@ -356,6 +380,14 @@ INVALID = {
         lambda e: e.update(filter={}), GEM, "absence is the spelling"),
     "on equals hurdle": (
         lambda e: e.update(filter={"on": "SPY", "hurdle": "SPY"}), GEM, "on equals hurdle"),
+    "unknown filter kind": (
+        lambda e: e.update(filter={"kind": "all"}), GEM, "unknown kind 'all'"),
+    "filter kind beside on": (
+        lambda e: e.update(filter={"kind": "none", "on": "SPY"}), GEM,
+        r"strategies\[0\].filter.on: unknown key"),
+    "filter kind beside hurdle": (
+        lambda e: e.update(filter={"kind": "none", "hurdle": "BIL"}), GEM,
+        r"strategies\[0\].filter.hurdle: unknown key"),
     "single-symbol best_of": (
         lambda e: e["fallback"].update(symbols=["TIP"]), ADM, "string form"),
     "single-symbol sleeve": (
@@ -411,6 +443,27 @@ def test_on_only_and_hurdle_only_filters_slugify_apart():
         "ROT SPY+VEU top1 12M>SPY fb AGG",
     ]
     assert len({slug(l) for l in labels}) == 2
+
+
+def test_the_unconditional_filter_labels_and_normalises_as_a_word():
+    # ` all` takes the separating space the operator forms do not, and the
+    # three filter spellings stay three distinct labels and slugs.
+    unconditional = broken(GEM, lambda e: e.update(filter={"kind": "none"}))
+    default = broken(GEM, lambda e: e.pop("filter"))
+
+    bundle = build(unconditional, default, dict(EXAMPLES[GEM]))
+    labels = [st.label for st in bundle.strategies[:3]]
+    assert labels == [
+        "ROT SPY+VEU top1 12M all fb AGG",
+        "ROT SPY+VEU top1 12M fb AGG",
+        "ROT SPY+VEU top1 12M@SPY>BIL fb AGG",
+    ]
+    assert len({slug(l) for l in labels}) == 3
+    # Carried verbatim, and the default's absence stays an absence.
+    assert bundle.strategies[0].spec["filter"] == {"kind": "none"}
+    assert "filter" not in bundle.strategies[1].spec
+    normalised = normalised_spec(bundle)
+    assert normalised_spec(build_bundle(normalised)) == normalised
 
 
 def test_two_identical_rotations_collide_at_build():
@@ -504,3 +557,30 @@ def test_sweep_params_render_as_label_fragments():
     assert {p["fallback"] for p in params} == {"AGG", "best(BIL+IEF)"}
     labels = [e["label"] for e in elements]
     assert len(set(labels)) == 16  # every grid combination is label-visible
+
+
+def test_a_filter_grid_spells_three_distinct_behaviours():
+    # ROTATION_SWEEP_SPEC §2: `null` deletes the key (per-asset > 0),
+    # `{"kind": "none"}` is unconditional, and the object form is the test.
+    # All three must survive expansion as separate points.
+    template = {
+        "type": "rotation", "assets": ["SPY", "VEU"], "k": 1,
+        "score": {"months": 12}, "fallback": "AGG",
+        "filter": {"grid": [
+            {"kind": "none"}, {"on": "SPY", "hurdle": "BIL"}, None,
+        ]},
+    }
+
+    elements = sweep.expand(template)
+
+    assert [e["params"]["filter"] for e in elements] == [
+        "all", "@SPY>BIL", None,
+    ]
+    assert [e["label"] for e in elements] == [
+        "ROT SPY+VEU top1 12M all fb AGG",
+        "ROT SPY+VEU top1 12M@SPY>BIL fb AGG",
+        "ROT SPY+VEU top1 12M fb AGG",
+    ]
+    assert [e["entry"].get("filter") for e in elements] == [
+        {"kind": "none"}, {"on": "SPY", "hurdle": "BIL"}, None,
+    ]

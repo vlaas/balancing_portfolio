@@ -80,7 +80,9 @@ The three types (`spec.py` maps them to `strategies/fixed.py`,
   filter as a score). Optional `filter` `{"on": SYM?, "hurdle": SYM?}`: a
   slot qualifies via strict `>` against the hurdle's score (0 without one),
   tested once on `on` for all slots (Antonacci's absolute-momentum form) or
-  per asset. Optional `canary` (`{"symbols": [...], "breadth": B}`, score
+  per asset; `{"kind": "none"}` is the unconditional form — every ranked slot
+  qualifies, labelled ` all` — which a sweep grid needs because a `null` there
+  deletes the key and means the per-asset default instead. Optional `canary` (`{"symbols": [...], "breadth": B}`, score
   defaulting to the main score) sends `d = min(1, n_bad / breadth)` of the
   portfolio defensive, counting non-positive canary scores. Optional
   `fallback` receives the defensive pool: `null` (cash, the default), a
