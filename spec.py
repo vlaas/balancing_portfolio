@@ -465,15 +465,24 @@ def _score_suffix(score: dict, main: dict) -> str:
 
 
 def filter_str(entry: dict | None) -> str:
-    """`` (default), `>BIL`, `@SPY>0`, `@SPY>BIL`. The on-without-hurdle form
-    renders its explicit zero hurdle: `@SPY` and `>SPY` would slugify
-    identically and collide at build (§7 errata)."""
+    """`` (default), `all` (unconditional), `>BIL`, `@SPY>0`, `@SPY>BIL`. The
+    on-without-hurdle form renders its explicit zero hurdle: `@SPY` and `>SPY`
+    would slugify identically and collide at build (§7 errata)."""
     if not entry:
         return ""
+    if "kind" in entry:
+        return "all"
     on, hurdle = entry.get("on"), entry.get("hurdle")
     if on:
         return f"@{on}>{hurdle}" if hurdle else f"@{on}>0"
     return f">{hurdle}"
+
+
+def _filter_suffix(entry: dict | None) -> str:
+    """The label fragment: the operator forms abut the score (`12M@SPY>BIL`),
+    the unconditional one is a word and needs its space (`12M all`)."""
+    text = filter_str(entry)
+    return f" {text}" if text == "all" else text
 
 
 def canary_str(entry: dict, main_score: dict) -> str:
@@ -499,7 +508,13 @@ def fallback_str(entry, main_score: dict) -> str:
 
 def _filter(entry: dict, path: str) -> None:
     """§6.2: at least one of on / hurdle — an empty object fails because
-    absence is the spelling of the default (per-asset > 0)."""
+    absence is the spelling of the default (per-asset > 0). `{"kind": "none"}`
+    is the unconditional form and takes no other key."""
+    if isinstance(entry, dict) and "kind" in entry:
+        _fields(entry, path, {"kind"})
+        if entry["kind"] != "none":
+            _fail(_join(path, "kind"), f"unknown kind {entry['kind']!r}")
+        return
     _fields(entry, path, set(), {"on", "hurdle"})
     if not entry:
         _fail(path, "empty filter; absence is the spelling of the default")
@@ -592,11 +607,13 @@ def _rotation(entry: dict, path: str) -> Rotation:
     main = (score, normalised_score)
 
     filter_on = hurdle = normalised_filter = None
+    filter_none = False
     if "filter" in entry:
         _filter(entry["filter"], _join(path, "filter"))
+        filter_none = "kind" in entry["filter"]
         filter_on = entry["filter"].get("on")
         hurdle = entry["filter"].get("hurdle")
-        normalised_filter = {
+        normalised_filter = {"kind": "none"} if filter_none else {
             key: value
             for key, value in (("on", filter_on), ("hurdle", hurdle))
             if value is not None
@@ -616,7 +633,7 @@ def _rotation(entry: dict, path: str) -> Rotation:
     label = entry.get(
         "label",
         f"ROT {'+'.join(assets)} top{k} {score_str(normalised_score)}"
-        + filter_str(normalised_filter)
+        + _filter_suffix(normalised_filter)
         + (f" can {canary_str(normalised_canary, normalised_score)}"
            if normalised_canary else "")
         + f" fb {fallback_str(normalised_fallback, normalised_score)}"
@@ -624,7 +641,7 @@ def _rotation(entry: dict, path: str) -> Rotation:
     )
     st = Rotation(
         assets=assets, k=k, score=score, filter_on=filter_on, hurdle=hurdle,
-        fallback=fallback, canary=canary, label=label,
+        filter_none=filter_none, fallback=fallback, canary=canary, label=label,
     )
     st.rebalance = cadence
     st.spec = {

@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "config": {
+    "start": "2012-01-03",
+    "initial_capital": 10000,
+    "monthly_contribution": 500,
+    "cost_bps": {
+      "*": 20
+    },
+    "cash_yield": 0.03
+  },
+  "strategies": [
+    {
+      "type": "rotation",
+      "assets": [
+        "SPY",
+        "VEU"
+      ],
+      "k": 1,
+      "score": {
+        "months": 12
+      },
+      "filter": {
+        "on": "SPY",
+        "hurdle": "BIL"
+      },
+      "fallback": "AGG"
+    },
+    {
+      "type": "rotation",
+      "assets": [
+        "SPY",
+        "EFA",
+        "IEF",
+        "DBC",
+        "VNQ"
+      ],
+      "k": 5,
+      "score": {
+        "kind": "sma_gap",
+        "months": 10
+      },
+      "fallback": "BIL"
+    },
+    {
+      "type": "rotation",
+      "assets": [
+        "SPY"
+      ],
+      "k": 1,
+      "score": {
+        "kind": "avg",
+        "months": [
+          1,
+          3,
+          6,
+          12
+        ]
+      },
+      "canary": {
+        "symbols": [
+          "TIP"
+        ],
+        "breadth": 1
+      },
+      "fallback": {
+        "kind": "best_of",
+        "symbols": [
+          "BIL",
+          "IEF"
+        ]
+      }
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "SPY": 0.6,
+        "AGG": 0.4
+      }
+    },
+    {
+      "type": "fixed",
+      "label": "EW SPY/VEU/AGG",
+      "weights": {
+        "SPY": 0.3333333333,
+        "VEU": 0.3333333333,
+        "AGG": 0.3333333333
+      }
+    },
+    {
+      "type": "rotation",
+      "assets": [
+        "SPY"
+      ],
+      "k": 1,
+      "score": {
+        "months": 12
+      },
+      "filter": {
+        "on": "SPY",
+        "hurdle": "BIL"
+      },
+      "fallback": "AGG"
+    },
+    {
+      "type": "rotation",
+      "assets": [
+        "SPY",
+        "VEU"
+      ],
+      "k": 1,
+      "score": {
+        "months": 12
+      },
+      "filter": {
+        "kind": "none"
+      },
+      "fallback": "AGG"
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "SPY": 0.2,
+        "EFA": 0.2,
+        "IEF": 0.2,
+        "DBC": 0.2,
+        "VNQ": 0.2
+      }
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "SPY": 0.6,
+        "IEF": 0.4
+      }
+    },
+    {
+      "type": "fixed",
+      "label": "SPY benchmark",
+      "weights": {
+        "SPY": 1.0
+      }
+    }
+  ]
+}

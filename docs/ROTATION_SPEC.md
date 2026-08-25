@@ -233,9 +233,10 @@ unheld — `set(balance) == set(weights)` holds always, and day-0/warm-up capita
 sits in cash.
 
 Constructor: `assets` (offensive list), `k`, `score` (an Indicator from §4),
-`filter_on: str | None`, `hurdle: str | None`, `fallback` (None | symbol |
-sleeve dict | `BestOf(symbols, score)`), `canary: Canary(symbols, breadth,
-score) | None`, `label`, optional `rebalance` cadence.
+`filter_on: str | None`, `hurdle: str | None`, `filter_none: bool` (mutually
+exclusive with the two above), `fallback` (None | symbol | sleeve dict |
+`BestOf(symbols, score)`), `canary: Canary(symbols, breadth, score) | None`,
+`label`, optional `rebalance` cadence.
 
 ### 5.1 Balance semantics — normative, in order
 
@@ -255,9 +256,10 @@ the same pure `balance()`):
 3. **Ranking.** Offensive assets sorted by score descending; **ties broken by
    `assets` list order** (deterministic; exact float ties are the degenerate
    case, but a pinned rule beats a hash-order surprise). Top-k selected.
-4. **Qualification.** If `filter_on` is set: one test for all slots —
-   `score(filter_on) > (score(hurdle) if hurdle else 0)` (Antonacci's
-   absolute-momentum-on-SPY form). Else per slot:
+4. **Qualification.** If `filter_none` is set: every top-k slot qualifies, no
+   test at all (ranking without an absolute filter). Else if `filter_on` is
+   set: one test for all slots — `score(filter_on) > (score(hurdle) if hurdle
+   else 0)` (Antonacci's absolute-momentum-on-SPY form). Else per slot:
    `score(asset) > (score(hurdle) if hurdle else 0)`. Strict `>`.
 5. **Allocation.** Each qualified slot's asset gets `(1−d)/k`; each unqualified
    slot's `(1−d)/k` joins the defensive pool. Pool = `d` + failed-slot mass.
@@ -303,6 +305,14 @@ house rule: every error names the JSON path; unknown keys fail.
 fails: absence is the spelling of the default, per-asset > 0). `on` and
 `hurdle` may be any symbol, including offensive assets; `on == hurdle` fails.
 
+`{"kind": "none"}` is the unconditional form — every ranked slot qualifies,
+no absolute test — and takes no other key (`on`/`hurdle` alongside `kind`
+fail). It is a spelling absence cannot carry: in a sweep grid a `null` over an
+optional key deletes it, which resolves to the per-asset default, not to
+unconditional (SWEEP_SPEC §11.3). Ranking-without-a-filter is the relative
+half of the dual-momentum decomposition, and `k = len(assets)` with it is a
+monthly-rebalanced equal weight of the universe — the in-type static null.
+
 ### 6.3 `fallback`
 
 `null` (cash, the default) | `"SYM"` | a sleeve dict (fractions > 0, sum 1,
@@ -345,8 +355,9 @@ weighted `(1,3,6,12)/(12,4,2,1)` → the canonical `13612W`; other weighted →
 
 Auto-label:
 `ROT {A+B+…} top{k} {score}{filter}{canary} fb {fallback}{rb-suffix}` where
-`filter` renders as `` (default), `>BIL`, `@SPY` (`on` without hurdle), or
-`@SPY>BIL`; `canary` as ` can TIP/1` — score appended `@13612W`-style only when
+`filter` renders as `` (default), ` all` (unconditional — a word, so it takes
+the separating space the operator forms do not), `>BIL`, `@SPY` (`on` without
+hurdle), or `@SPY>BIL`; `canary` as ` can TIP/1` — score appended `@13612W`-style only when
 it differs from the main score; `fallback` as `cash`, `AGG`,
 `IEF60+TLT40`, or `best(BIL+IEF)` / `best(TIP+TLT@1M)`. Examples the tests pin:
 

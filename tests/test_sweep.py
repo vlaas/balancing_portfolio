@@ -9,7 +9,7 @@ from pathlib import Path
 import polars as pl
 import pytest
 
-from spec import _TYPES, REQUIRED_KEYS, load_spec
+from spec import _TYPES, REQUIRED_KEYS, build_bundle, load_spec
 from sweep import Window, _window_plan, build_summary, expand, run_sweep, validate, windows
 from sweep import main as sweep_main
 
@@ -293,6 +293,46 @@ def test_fire_is_numeric_and_w_off_categorical_in_the_summary():
     # (fire 0.95, w_off 0) = 2: one fire neighbour, on the fire boundary.
     assert s[1]["neighbourhood"]["neighbour_min"] == 4
     assert s[1]["neighbourhood"]["edge"] is True
+
+
+def test_a_nested_score_months_grid_is_a_numeric_dimension():
+    # ROTATION_SWEEP_SPEC §2: a grid *inside* the score object must register as
+    # the dotted numeric param `score.months` with full one-step neighbourhood
+    # semantics — the whole-score-object grid the rotation tests cover is
+    # categorical and would prove nothing about §4.5's numeric rules.
+    spec = t5_spec({
+        "type": "rotation", "assets": ["SPY", "VEU"], "k": 1,
+        "score": {"months": {"grid": [10, 12, 14]}},
+        "filter": {"on": "SPY", "hurdle": "BIL"}, "fallback": "AGG",
+    })
+    expanded = expand(spec["template"])
+    labels = [e["label"] for e in expanded]
+    assert [e["params"] for e in expanded] == [
+        {"score.months": 10}, {"score.months": 12}, {"score.months": 14},
+    ]
+    assert labels == [
+        "ROT SPY+VEU top1 10M@SPY>BIL fb AGG",
+        "ROT SPY+VEU top1 12M@SPY>BIL fb AGG",
+        "ROT SPY+VEU top1 14M@SPY>BIL fb AGG",
+    ]
+    wins = [Window("full", "full", dt.date(2020, 1, 2), dt.date(2026, 1, 2))]
+    records = {"full": {l: stats_of(o) for l, o in zip(labels, [3, 1, 2])}}
+    records["full"]["bench"] = stats_of(0)
+
+    summary = build_summary(
+        spec, wins, expanded, ["bench"], records,
+        {l: True for l in labels}, notes=[], warnings=[],
+    )
+
+    s = summary["strategies"]
+    # The interior point has both neighbours; the ends have one each and are
+    # flagged `edge`. robust_score is the minimum of own and neighbour_min.
+    assert s[1]["neighbourhood"] == {
+        "neighbour_min": 2, "neighbour_mean": 2.5, "edge": False,
+    }
+    assert s[1]["robust_score"] == 1
+    assert [e["neighbourhood"]["edge"] for e in s] == [True, False, True]
+    assert [e["neighbourhood"]["neighbour_min"] for e in s] == [1, 2, 1]
 
 
 def test_an_ordinary_spec_names_the_right_entry_point():
@@ -689,3 +729,130 @@ def test_dry_run_counts_of_the_regime_tune_lane(tmp_path, monkeypatch, capsys):
 
     assert "144 grid + 6 baselines x 23 windows = 3450 runs" in capsys.readouterr().out
     assert not out.exists()
+
+
+# --- ROTATION_SWEEP_SPEC T3: the six lanes and the two bracket bundles -------
+
+NET_DIR = GOLDEN_DIR / "2026-08-24-net15"
+
+# §5 and §12.1-2, counted on the frozen snapshot: full + fit + test + the
+# rolling 5-year sensitivity windows every 6 months. GEM's native `assets`
+# axis is SPY+VEU / SPY+EFA only — ACWX's 2008-03 inception leaves a 12-month
+# score cold until 2009-03 (§12.1) — and GTAA's native window opens 2007-06,
+# the first month its traded BIL fallback has prices (§12.2).
+ROT_LANES = {
+    "sweep_rot_gem_native": "4 grid + 5 baselines x 30 windows = 270 runs",
+    "sweep_rot_gem_2012": "18 grid + 5 baselines x 23 windows = 529 runs",
+    "sweep_rot_gtaa_native": "6 grid + 2 baselines x 32 windows = 256 runs",
+    "sweep_rot_gtaa_2012": "6 grid + 2 baselines x 23 windows = 184 runs",
+    "sweep_rot_haa_native": "12 grid + 2 baselines x 30 windows = 420 runs",
+    "sweep_rot_haa_2012": "12 grid + 2 baselines x 23 windows = 322 runs",
+}
+
+# §5: the only adoptable point per family, quoted verbatim by the verdict doc.
+PUBLISHED = {
+    "gem": "ROT SPY+VEU top1 12M@SPY>BIL fb AGG",
+    "gtaa": "ROT SPY+EFA+IEF+DBC+VNQ top5 gap10M fb BIL",
+    "haa": "ROT SPY top1 1-3-6-12U can TIP/1 fb best(BIL+IEF)",
+}
+
+
+@pytest.mark.parametrize("name", ROT_LANES, ids=lambda n: n[len("sweep_rot_"):])
+def test_the_rotation_lanes_dry_run_to_their_frozen_counts(
+    name, tmp_path, monkeypatch, capsys
+):
+    out = tmp_path / "out"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["sweep.py", str(SPECS / f"{name}.json"),
+         "--data", str(NET_DIR), "--out", str(out), "--dry-run"],
+    )
+
+    sweep_main()
+
+    assert ROT_LANES[name] in capsys.readouterr().out
+    assert not out.exists()
+
+
+@pytest.mark.parametrize("name", ROT_LANES, ids=lambda n: n[len("sweep_rot_"):])
+def test_every_lane_carries_its_as_published_point(name):
+    labels = [e["label"] for e in expand(load_spec(SPECS / f"{name}.json")["template"])]
+
+    assert PUBLISHED[name.split("_")[2]] in labels
+    assert len(set(labels)) == len(labels)
+
+
+# §6 and §12.3: the three as-published points, the six deduplicated family
+# nulls — both rotation ablation arms included — and SPY last.
+BRACKET_ROSTER = [
+    "ROT SPY+VEU top1 12M@SPY>BIL fb AGG",
+    "ROT SPY+EFA+IEF+DBC+VNQ top5 gap10M fb BIL",
+    "ROT SPY top1 1-3-6-12U can TIP/1 fb best(BIL+IEF)",
+    "SPY60/AGG40",
+    "EW SPY/VEU/AGG",
+    "ROT SPY top1 12M@SPY>BIL fb AGG",
+    "ROT SPY+VEU top1 12M all fb AGG",
+    "SPY20/EFA20/IEF20/DBC20/VNQ20",
+    "SPY60/IEF40",
+    "SPY benchmark",
+]
+
+
+@pytest.mark.parametrize("name", ["rot_points", "rot_points_c20"])
+def test_the_bracket_bundles_are_one_roster_at_two_cost_maps(name):
+    bundle = build_bundle(load_spec(SPECS / f"{name}.json"))
+
+    assert [st.label for st in bundle.strategies] == BRACKET_ROSTER
+    assert bundle.config.start == dt.date(2012, 1, 3)  # §6: the common window
+    # The twins differ in exactly one thing: the §6 cost bracket.
+    assert (bundle.config.cost_bps == {"*": 20.0}) == (name == "rot_points_c20")
+
+
+# --- ROTATION_SWEEP_SPEC T5: baselines are immune on a rotation sweep --------
+
+ROT_SWEEP = {
+    "schema_version": 1,
+    "config": {"initial_capital": 10000, "monthly_contribution": 500},
+    "windows": {
+        "start": "2017-01-03", "holdout": "2023-01-03",
+        "sensitivity": {"every_months": 24, "length_years": 5},
+    },
+    "template": {
+        "type": "rotation", "assets": ["QQQ", "SPY", "TQQQ"],
+        "k": {"grid": [1, 2]}, "score": {"months": {"grid": [6, 12]}},
+        "fallback": "BTAL",
+    },
+    "baselines": [
+        {"type": "fixed", "label": "QQQ/BTAL 60/40",
+         "weights": {"QQQ": 0.6, "BTAL": 0.4}},
+        # A rotation baseline: the one that would rank if any baseline did.
+        {"type": "rotation", "assets": ["QQQ"], "k": 1,
+         "score": {"months": 12}, "fallback": "BTAL"},
+        {"type": "fixed", "label": "SPY benchmark", "weights": {"SPY": 1.0}},
+    ],
+    "constraint": {"max_drawdown": -0.99},
+}
+
+
+def test_baselines_ride_every_window_of_a_rotation_sweep_and_never_rank():
+    runs, summary = run_sweep(ROT_SWEEP, GOLDEN_DIR)
+
+    names = [w["name"] for w in summary["windows"]]
+    labels = ["QQQ/BTAL 60/40", "ROT QQQ top1 12M fb BTAL", "SPY benchmark"]
+    assert [b["label"] for b in summary["baselines"]] == labels
+
+    baseline_rows = runs.filter(pl.col("is_baseline"))
+    assert baseline_rows.height == len(labels) * len(names)
+    for name in names:
+        assert baseline_rows.filter(pl.col("window") == name)["label"].to_list() == labels
+    # No grid coordinates, no constraint verdict: a baseline is not a point.
+    assert baseline_rows["params.k"].null_count() == baseline_rows.height
+    assert baseline_rows["params.score.months"].null_count() == baseline_rows.height
+    assert baseline_rows["feasible"].all()
+
+    for b in summary["baselines"]:
+        assert set(b) == {"label", "full", "holdout", "sensitivity"}
+        assert "feasible" not in b["full"]
+        assert "rank_median" not in b["sensitivity"]
+    # The competition is among the four grid points, however a baseline scores.
+    assert {s["sensitivity"]["rank_worst"] for s in summary["strategies"]} <= {1, 2, 3, 4}

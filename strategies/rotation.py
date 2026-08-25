@@ -44,7 +44,8 @@ class Rotation(Strategy):
     """Each rebalance day: rank `assets` by `score` descending (ties by list
     order), take the top `k`; a slot qualifies via strict `>` against the
     hurdle score (0 without a `hurdle` symbol) — one absolute test on
-    `filter_on` for all slots when set, else per asset. Each qualified slot
+    `filter_on` for all slots when set, else per asset; `filter_none` skips
+    the test entirely and every ranked slot qualifies. Each qualified slot
     holds `(1 - d) / k`; the canary fraction `d` plus every failed slot's
     share is routed to `fallback` (None = cash). An asset selected both
     offensively and defensively accumulates weight. While any required score
@@ -63,6 +64,7 @@ class Rotation(Strategy):
         score: Indicator,
         filter_on: str | None = None,
         hurdle: str | None = None,
+        filter_none: bool = False,
         fallback: str | dict[str, float] | BestOf | None = None,
         canary: Canary | None = None,
         label: str | None = None,
@@ -77,6 +79,9 @@ class Rotation(Strategy):
         assert filter_on is None or filter_on != hurdle, (
             f"rotation: filter_on equals hurdle {hurdle!r}"
         )
+        assert not (filter_none and (filter_on or hurdle)), (
+            "rotation: filter_none excludes filter_on and hurdle"
+        )
         if isinstance(fallback, dict):
             assert abs(sum(fallback.values()) - 1) <= 1e-9, (
                 f"rotation: fallback sleeve fractions sum to {sum(fallback.values()):g}"
@@ -86,6 +91,7 @@ class Rotation(Strategy):
         self.score = score
         self.filter_on = filter_on
         self.hurdle = hurdle
+        self.filter_none = filter_none
         self.fallback = fallback
         self.canary = canary
         if label is not None:
@@ -147,9 +153,12 @@ class Rotation(Strategy):
             d = min(1.0, n_bad / self.canary.breadth)
 
         # 3-4. Rank (stable sort over `assets` order breaks exact ties) and
-        # qualify each top-k slot with strict `>`.
+        # qualify each top-k slot with strict `>` — unconditionally under
+        # `filter_none`, which is ranking without an absolute test.
         top = sorted(self.assets, key=lambda s: -scores[s])[: self.k]
-        if self.filter_on:
+        if self.filter_none:
+            qualified = top
+        elif self.filter_on:
             qualified = top if gate > hurdle else []
         else:
             qualified = [s for s in top if scores[s] > hurdle]
