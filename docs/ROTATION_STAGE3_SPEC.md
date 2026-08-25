@@ -52,7 +52,14 @@ with no floor. Addition, backward-compatible:
 
 - `n`: int, `1 ≤ n ≤ len(symbols)`, default 1 (existing behavior unchanged).
 - `floor`: optional symbol, **must be a member of `symbols`** (keeps the score
-  set closed; BIL is a member in BAA). Absent = no floor (existing behavior).
+  set closed; BIL is a member in BAA), and **requires an explicit `n ≥ 2`**.
+  Absent = no floor (existing behavior). The `n` constraint is not stylistic:
+  because the floor is itself a ranking candidate, at `n = 1` the selected
+  argmax's score is ≥ the floor's by construction, so the replacement can fire
+  only on an exact score tie — an inert key that looks load-bearing, which is
+  the spelling class the grammar rejects loudly elsewhere (single-symbol
+  `best_of`, the empty `filter` object). The error message names the cure:
+  drop `floor` or set `n ≥ 2`.
 - Semantics, normative: rank `symbols` by the fallback score descending, ties by
   list order; select the top-`n`; split the defensive pool equally, `pool/n` per
   slot; if `floor` is set, any selected symbol whose score is **not strictly
@@ -167,7 +174,11 @@ delivered in the holdout** — holdout-test max DD of the published point vs the
 K1 null's, reported for both Stage-3 points *and* recomputed for all six prior
 published points in the verdict's context section. It is the input to the future
 bar redesign that accompanies a bear holdout, collected now while the lanes are
-identical; it moves no tier this stage.
+identical; it moves no tier this stage. **Source:** the `kind == "test"` rows of
+committed `runs.json` — the same rows K2 already reads — for both the Stage-3
+lanes and the six prior points (whose Stage-1/2 `runs.json` files are frozen and
+already carry the values, so R2d requires no re-run, no summary regeneration and
+no `sweep.py` change; the verdict skeleton names the six source files).
 
 K1 nulls: `EW-12` (G12), `EW-4` (G4). The HAA-Simple context row carries the
 same pre-registered reading as Stage 2's: relevant only as the family-incumbent
@@ -197,8 +208,9 @@ open next to VAA's 3.68 points.
 ## 8. Tests
 
 - **T1 — grammar.** `n`/`floor` validation: acceptance of the BAA form;
-  rejections for `n > len(symbols)`, `n < 1`, floor not a member, floor with
-  `n` absent-defaulting; normalised spec fills `n`; `best(A+B)` rendering
+  rejections for `n > len(symbols)`, `n < 1`, floor not a member, and floor
+  with `n` absent **or** `n = 1` (the inert form, per §2); normalised spec
+  fills `n` when floor is absent; `best(A+B)` rendering
   unchanged for `n = 1` (existing golden labels byte-stable).
 - **T2 — floor semantics.** Synthetic fixture: top-3 split `pool/3` each; one
   selected symbol at exactly the floor's score routes to the floor (strict `>`);
@@ -211,8 +223,11 @@ open next to VAA's 3.68 points.
   allocates at its first rebalance day — the check that has now caught four
   window defects across three stages, including this stage's data-only VEA
   canary binding.
-- **T5 — R3a′/R2d inputs.** `rank_median` present per point per lane; holdout
-  `test` max-DD fields present for the R2d rows.
+- **T5 — R3a′/R2d inputs.** `rank_median` present per point per lane; a
+  `kind == "test"` row with `max_drawdown` present in each Stage-3 lane's
+  `runs.json` for the published point and the K1 null (the R2d rows read these;
+  prior-stage values come from the frozen Stage-1/2 `runs.json` files and are
+  not re-verified here — they are quoted, frozen artefacts).
 - **T6 — filter-none fidelity.** A G12-shaped fixture where an offensive asset
   with negative `sma_gap` is ranked top-6 while all canaries are positive: the
   asset is held (BAA rule), and the same fixture under the default filter would
