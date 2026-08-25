@@ -170,6 +170,62 @@ def test_best_of_routes_the_whole_pool_to_the_argmax():
     )
 
 
+# --- ROTATION_STAGE3_SPEC T2 — the ranked defensive top-n and its floor (§2) --
+
+
+def best3(floor: str | None = None) -> Rotation:
+    """BAA's defensive shape: the pool split over the top 3 of four
+    candidates, optionally floored on BIL."""
+    return rot(fallback=BestOf(("F", "G", "H", "BIL"), M1, 3, floor))
+
+
+def test_a_ranked_best_of_splits_the_pool_over_the_top_n():
+    # Every offensive slot fails, so the whole portfolio is the pool: the top
+    # three candidates take a third each and the fourth gets nothing. Without
+    # a floor there is still no sign filter — H is out on rank, not on sign.
+    assert best3().balance(
+        day(A=-0.3, B=-0.2, C=-0.1, F=0.05, G=0.02, H=-0.02, BIL=0.01)
+    ) == pytest.approx(
+        {"A": 0.0, "B": 0.0, "C": 0.0, "F": 1 / 3, "G": 1 / 3, "H": 0.0, "BIL": 1 / 3}
+    )
+
+
+def test_the_floor_replaces_every_slice_that_does_not_clear_it():
+    st = best3("BIL")
+    # Strict `>`, so G and H tying BIL's score both route to it — and BIL
+    # accumulates 2/3 without having been selected itself.
+    assert st.balance(
+        day(A=-0.3, B=-0.2, C=-0.1, F=0.05, G=0.02, H=0.02, BIL=0.02)
+    ) == pytest.approx(
+        {"A": 0.0, "B": 0.0, "C": 0.0, "F": 1 / 3, "G": 0.0, "H": 0.0, "BIL": 2 / 3}
+    )
+    # A genuinely below-floor pick routes too, and the floor selected on its
+    # own merits trivially routes to itself.
+    below = day(A=-0.3, B=-0.2, C=-0.1, F=0.05, G=0.01, H=-0.02, BIL=0.02)
+    assert st.balance(below) == pytest.approx(
+        {"A": 0.0, "B": 0.0, "C": 0.0, "F": 1 / 3, "G": 0.0, "H": 0.0, "BIL": 2 / 3}
+    )
+    # The same day without the floor leaves G's slice on G.
+    assert best3().balance(below) == pytest.approx(
+        {"A": 0.0, "B": 0.0, "C": 0.0, "F": 1 / 3, "G": 1 / 3, "H": 0.0, "BIL": 1 / 3}
+    )
+
+
+def test_the_slices_are_pool_over_n_not_one_over_n():
+    # d = 0.5 from the canary plus one failed offensive slot: pool = 0.75,
+    # split three ways over the defensive top 3.
+    st = rot(
+        canary=Canary(("X", "Y"), 2, M1),
+        fallback=BestOf(("F", "G", "H", "BIL"), M1, 3, "BIL"),
+    )
+    assert st.balance(
+        day(A=0.3, B=-0.3, C=-0.2, X=0.0, Y=0.1, F=0.05, G=0.02, H=-0.02, BIL=0.01)
+    ) == pytest.approx(
+        {"A": 0.25, "B": 0.0, "C": 0.0,
+         "F": 0.25, "G": 0.25, "H": 0.0, "BIL": 0.25}
+    )
+
+
 # --- T4 — warm-up short-circuit ----------------------------------------------
 
 
@@ -335,6 +391,39 @@ def test_the_default_qualification_is_inert_under_a_universe_wide_canary():
     )
 
 
+# --- ROTATION_STAGE3_SPEC T6 — BAA's `filter: none` is load-bearing (§2) -----
+
+
+def baa(**kwargs) -> Rotation:
+    """BAA-G12's shape in miniature: an all-or-nothing canary that is *not*
+    the offensive universe, no per-asset filter, ranked defensive top-2."""
+    args = dict(
+        assets=["QQQ", "SPY", "GLD"], k=3, score=M1, filter_none=True,
+        canary=Canary(("SPY", "VEA", "VWO", "BND"), 1, M1),
+        fallback=BestOf(("TIP", "BIL"), M1, 2, "BIL"),
+        label="baa",
+    )
+    args.update(kwargs)
+    return Rotation(**args)
+
+
+def test_filter_none_holds_a_negative_ranked_asset_while_the_canary_is_green():
+    # Unlike VAA-G4 the default per-asset test is *not* inert here: the canary
+    # is not the offensive universe, so an offensive asset can be negative
+    # while all four canaries are positive. BAA holds it regardless of sign,
+    # which is exactly what `filter: {"kind": "none"}` spells.
+    scores = dict(QQQ=0.05, SPY=0.04, GLD=-0.01, VEA=0.02, VWO=0.01, BND=0.03,
+                  TIP=0.02, BIL=0.01)
+    assert baa().balance(day(**scores)) == pytest.approx(
+        {"QQQ": 1 / 3, "SPY": 1 / 3, "GLD": 1 / 3, "TIP": 0.0, "BIL": 0.0}
+    )
+    # The same day under the engine's default filter routes GLD's slot to the
+    # defensive selection: the `none` form is load-bearing, not decoration.
+    assert baa(filter_none=False).balance(day(**scores)) == pytest.approx(
+        {"QQQ": 1 / 3, "SPY": 1 / 3, "GLD": 0.0, "TIP": 1 / 6, "BIL": 1 / 6}
+    )
+
+
 # --- T5 — determinism --------------------------------------------------------
 
 
@@ -418,6 +507,12 @@ def test_constructor_validation():
         rot(filter_on="S", hurdle="S")
     with pytest.raises(AssertionError, match="sum"):
         rot(fallback={"F": 0.5, "G": 0.3})
+    # A hand-built best_of that over-counts would silently under-allocate the
+    # pool, so the structural invariants live on the dataclass too.
+    with pytest.raises(AssertionError, match="1 <= n"):
+        BestOf(("F", "G"), M1, 3)
+    with pytest.raises(AssertionError, match="floor 'H' is not one of"):
+        BestOf(("F", "G"), M1, 2, "H")
 
 
 # --- T6 — grammar ------------------------------------------------------------
@@ -425,7 +520,7 @@ def test_constructor_validation():
 BENCH = {"type": "fixed", "label": "SPY benchmark", "weights": {"SPY": 1.0}}
 CONFIG = {"start": "2008-07-01", "initial_capital": 10_000.0, "monthly_contribution": 0.0}
 
-# The four §7 examples, labels pinned (T7).
+# The four §7 examples plus BAA-G4, labels pinned (T7).
 EXAMPLES = {
     "ROT SPY+VEU top1 12M@SPY>BIL fb AGG": {
         "type": "rotation", "assets": ["SPY", "VEU"], "k": 1,
@@ -449,6 +544,24 @@ EXAMPLES = {
         "k": 4, "score": {"kind": "avg", "months": [1, 3, 6, 12]},
         "canary": {"symbols": ["TIP"], "breadth": 1},
         "fallback": {"kind": "best_of", "symbols": ["BIL", "IEF"]},
+    },
+    # ROTATION_STAGE3_SPEC §5.2 — the BAA-G4 published point, the ranked
+    # defensive form with a floor.
+    "ROT QQQ+VWO+VEA+BND top1 gap13M all can SPY+VEA+VWO+BND/1@13612W"
+    " fb best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)": {
+        "type": "rotation", "assets": ["QQQ", "VWO", "VEA", "BND"], "k": 1,
+        "score": {"kind": "sma_gap", "months": 13},
+        "filter": {"kind": "none"},
+        "canary": {
+            "symbols": ["SPY", "VEA", "VWO", "BND"], "breadth": 1,
+            "score": {"kind": "weighted", "months": [1, 3, 6, 12],
+                      "weights": [12, 4, 2, 1]},
+        },
+        "fallback": {
+            "kind": "best_of",
+            "symbols": ["TIP", "DBC", "BIL", "IEF", "TLT", "LQD", "AGG"],
+            "n": 3, "floor": "BIL",
+        },
     },
 }
 
@@ -477,6 +590,9 @@ def test_the_normalised_spec_fills_inherited_scores():
     assert spec["score"] == main
     assert spec["canary"]["score"] == main
     assert spec["fallback"]["score"] == main
+    # The best_of's top-1 default is filled too, and no floor is invented.
+    assert spec["fallback"]["n"] == 1
+    assert "floor" not in spec["fallback"]
     # An explicit best_of score survives as written.
     adm = list(EXAMPLES)[2]
     spec = build(EXAMPLES[adm]).strategies[0].spec
@@ -484,6 +600,10 @@ def test_the_normalised_spec_fills_inherited_scores():
     # The cash default is explicit, so results.json is self-describing.
     gtaa = list(EXAMPLES)[1]
     assert build(EXAMPLES[gtaa]).strategies[0].spec["fallback"] is None
+    # BAA's ranked form carries both keys as written (§2).
+    baa = list(EXAMPLES)[4]
+    spec = build(EXAMPLES[baa]).strategies[0].spec
+    assert (spec["fallback"]["n"], spec["fallback"]["floor"]) == (3, "BIL")
 
 
 def broken(label: str, mutate) -> dict:
@@ -492,7 +612,7 @@ def broken(label: str, mutate) -> dict:
     return entry
 
 
-GEM, GTAA, ADM, HAA = EXAMPLES
+GEM, GTAA, ADM, HAA, BAA = EXAMPLES
 
 
 INVALID = {
@@ -541,6 +661,17 @@ INVALID = {
         lambda e: e.update(hurdle="BIL"), GEM, r"strategies\[0\].hurdle: unknown key"),
     "fallback of the wrong type": (
         lambda e: e.update(fallback=3), GEM, "expected null, a symbol"),
+    # ROTATION_STAGE3_SPEC §8 T1 — the ranked defensive form.
+    "best_of n above the candidates": (
+        lambda e: e["fallback"].update(n=3), ADM, r"fallback\.n.*in \[1, 2\]"),
+    "best_of n below one": (
+        lambda e: e["fallback"].update(n=0), ADM, r"fallback\.n.*in \[1, 2\]"),
+    "floor outside the candidates": (
+        lambda e: e["fallback"].update(floor="SPY"), BAA, "not one of symbols"),
+    "floor without an explicit n": (
+        lambda e: e["fallback"].pop("n"), BAA, "inert at n = 1"),
+    "floor at n = 1": (
+        lambda e: e["fallback"].update(n=1), BAA, "drop floor or set n >= 2"),
 }
 
 
@@ -588,6 +719,22 @@ def test_the_unconditional_filter_labels_and_normalises_as_a_word():
     assert "filter" not in bundle.strategies[1].spec
     normalised = normalised_spec(bundle)
     assert normalised_spec(build_bundle(normalised)) == normalised
+
+
+def test_the_ranked_best_of_renders_its_count_and_floor():
+    # `n = 1` without a floor keeps the original rendering byte-for-byte, so
+    # every Stage-1/2 golden label is unmoved; the count rides the word and
+    # the floor renders as a hurdle. All three slugify apart.
+    def fb(**keys):
+        return broken(HAA, lambda e: e["fallback"].update(
+            symbols=["BIL", "IEF", "AGG"], **keys))
+
+    bundle = build(fb(), fb(n=2), fb(n=2, floor="BIL"))
+    labels = [st.label for st in bundle.strategies[:3]]
+    assert [l.rsplit(" fb ", 1)[1] for l in labels] == [
+        "best(BIL+IEF+AGG)", "best2(BIL+IEF+AGG)", "best2(BIL+IEF+AGG>BIL)",
+    ]
+    assert len({slug(l) for l in labels}) == 3
 
 
 def test_two_identical_rotations_collide_at_build():

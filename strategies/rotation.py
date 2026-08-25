@@ -10,12 +10,27 @@ from strategy import MarketDay, Strategy
 
 @dataclass(frozen=True)
 class BestOf:
-    """Defensive selection: the whole routed pool to the argmax of `score`
-    over `symbols`, ties by list order. No further sign filter — listing BIL
-    (or SHY) among the candidates *is* the floor, exactly as HAA uses it."""
+    """Defensive selection: the routed pool split equally over the top `n` of
+    `symbols` by `score`, ties by list order.
+
+    Without a `floor` there is no sign filter — listing BIL (or SHY) among the
+    candidates *is* the floor, exactly as HAA uses it. With one, a selected
+    symbol whose score is not strictly greater than the floor symbol's routes
+    its slice to the floor instead, which is BAA's ranked defensive rule
+    (ROTATION_STAGE3_SPEC §2); floor mass accumulates."""
 
     symbols: tuple[str, ...]
     score: Indicator
+    n: int = 1
+    floor: str | None = None
+
+    def __post_init__(self) -> None:
+        assert 1 <= self.n <= len(self.symbols), (
+            f"best_of: need 1 <= n <= {len(self.symbols)}, got {self.n}"
+        )
+        assert self.floor is None or self.floor in self.symbols, (
+            f"best_of: floor {self.floor!r} is not one of {self.symbols}"
+        )
 
 
 @dataclass(frozen=True)
@@ -174,9 +189,16 @@ class Rotation(Strategy):
         # simply leaves the pool unallocated.
         if pool > 0 and self.fallback is not None:
             if isinstance(self.fallback, BestOf):
-                # max keeps the first maximal element: ties go to list order.
-                winner = max(range(len(best)), key=best.__getitem__)
-                allocation[self.fallback.symbols[winner]] += pool
+                # A stable sort keeps ties in list order, as the top-1 argmax
+                # did; each of the top n takes pool/n, and with a floor a slice
+                # whose score does not clear the floor's goes to the floor.
+                fb = self.fallback
+                floor = fb.symbols.index(fb.floor) if fb.floor else None
+                share = pool / fb.n
+                for i in sorted(range(len(best)), key=lambda i: -best[i])[: fb.n]:
+                    if floor is not None and not best[i] > best[floor]:
+                        i = floor
+                    allocation[fb.symbols[i]] += share
             elif isinstance(self.fallback, dict):
                 for s, f in self.fallback.items():
                     allocation[s] += pool * f

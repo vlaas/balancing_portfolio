@@ -317,8 +317,18 @@ monthly-rebalanced equal weight of the universe — the in-type static null.
 
 `null` (cash, the default) | `"SYM"` | a sleeve dict (fractions > 0, sum 1,
 ≥ 2 symbols — the single-symbol dict fails with "use the string form", matching
-`_safe`) | `{"kind": "best_of", "symbols": [...], "score": {...}?}` — symbols
-≥ 2 unique (one symbol is the string form), score defaulting to the main score.
+`_safe`) | `{"kind": "best_of", "symbols": [...], "score": {...}?, "n": N?,
+"floor": SYM?}` — symbols ≥ 2 unique (one symbol is the string form), score
+defaulting to the main score.
+
+`n` (int, `1 <= n <= len(symbols)`, default 1) is how many candidates share the
+pool, `pool/n` each. `floor` (a member of `symbols`, absent = no floor) is BAA's
+replacement rule: a selected symbol whose score is **not strictly greater** than
+the floor symbol's routes its slice to the floor, which accumulates. `floor`
+requires an explicit `n >= 2` — at `n = 1` the argmax's score is ≥ the floor's by
+construction, so the key could only fire on an exact tie, and an inert key that
+looks load-bearing is the spelling class this grammar rejects loudly
+(ROTATION_STAGE3_SPEC §2).
 
 ### 6.4 `canary`
 
@@ -359,7 +369,9 @@ Auto-label:
 the separating space the operator forms do not), `>BIL`, `@SPY` (`on` without
 hurdle), or `@SPY>BIL`; `canary` as ` can TIP/1` — score appended `@13612W`-style only when
 it differs from the main score; `fallback` as `cash`, `AGG`,
-`IEF60+TLT40`, or `best(BIL+IEF)` / `best(TIP+TLT@1M)`. Examples the tests pin:
+`IEF60+TLT40`, or `best(BIL+IEF)` / `best(TIP+TLT@1M)` — with `n > 1` the count
+rides the word and the floor renders as a hurdle,
+`best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)`. Examples the tests pin:
 
 - GEM: `ROT SPY+VEU top1 12M@SPY>BIL fb AGG`
 - GTAA-5: `ROT SPY+EFA+IEF+DBC+VNQ top5 gap10M fb cash`
