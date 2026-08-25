@@ -1,8 +1,8 @@
 # Specification: Stage-2 rotation sweeps — ADM, HAA-Balanced, VAA-G4
 
 Repo: `vlaas/balancing_portfolio` · baseline commit: `a4ae7a4` (Stage-1 verdict merge,
-652 tests green) · status: draft for review · predecessor:
-`docs/ROTATION_SWEEP_SPEC.md` (+ §12 errata), `notes/rot-verdict.md`
+652 tests green) · status: implemented (branch `rotation-sweeps-2`, errata §10) ·
+predecessor: `docs/ROTATION_SWEEP_SPEC.md` (+ §12 errata), `notes/rot-verdict.md`
 
 All numbers in this spec are from sandbox runs on a fresh clone at `a4ae7a4`: the
 Stage-1 verdict's headline numbers were independently recomputed from the committed
@@ -247,3 +247,62 @@ with gates or vol targeting; synthetic pre-inception history.
 4. Commit `results/sweep_rot2_*/{runs.json,summary.json}`, `results/rot2_points_*`,
    `results/rot_points_cy15.json`; fill the verdict strictly from committed
    artefacts; verdict PR.
+
+## 10. Errata — deviations found during execution
+
+Measured on a fresh run of the six lanes; each item is recorded in the commit
+that carried it. The sections above are left as proposed.
+
+1. **§3's pre-flight table reproduces exactly, and so does its collision.**
+   Independently recomputed on `2026-08-24-net15` before the specs were
+   written: `MOMM1-3-6U` first values on SCZ 2008-06-30, `MOMM1-3-6-12U` on VEA
+   2008-07-31, BIL's best-of score 2008-05-30, `MOMM1-3-6-12W12-4-2-1` on AGG
+   2004-09-30, and ADM's `avg[1,3,6,12]` on SCZ **2008-12-31**. All four window
+   starts (including 2012-01-03) are trading days, so no lane snaps its start.
+   §8 T2 is load-bearing and was confirmed so: putting ADM's 12-month arm back
+   on the native lane leaves `SCZ:MOMM1-3-6-12U` null at the opening rebalance.
+
+2. **§8 T2 does not have to wait for the runs.** §9 step 3 says "T2 asserts on
+   the native runs", but the check reads `balance()` off a truncated price
+   frame and never simulates, so it belongs in the step-2 pre-registration
+   commit — where it is a pre-flight rather than a post-mortem. It ships there.
+
+3. **§9.4's artefact list is narrower than what is committed.** It names
+   `results/sweep_rot2_*/{runs.json,summary.json}`; all five files per lane are
+   committed, matching Stage-1's `a2b01bc` and `CLAUDE.md` §6. The wording is
+   inherited from ROTATION_SWEEP_SPEC §11.3 and is a shorthand, not a rule.
+
+4. **§4.2's context-row trigger reads a field baselines do not carry.** It asks
+   whether Balanced beats Simple on `robust_score`, but `summary.json` emits
+   `robust_score` only on grid points — a baseline block has `full`, `holdout`
+   and `sensitivity` and nothing else (`sweep.py` `build_summary`). Simple's is
+   therefore recomputed by hand with the runner's own formula over the
+   components its block does carry, `min(full.objective,
+   sensitivity.objective.median, holdout.test)`, frozen in the verdict skeleton
+   before any run. Balanced's own score additionally mins over `neighbour_min`,
+   so the comparison is conservative against Balanced; it did not change the
+   answer, which Simple wins on full CAGR as well.
+
+5. **§2's R3a′ needed one reading fixed in advance.** "N = the lane's grid
+   size" is taken literally rather than as the count of feasible points, so an
+   infeasible arm cannot loosen a bar. Inert this time — no arm was infeasible
+   in any of the six lanes — and recorded because the two readings diverge the
+   first time the `max_drawdown ≥ −0.50` constraint bites.
+
+6. **§4.1's turnover caveat lands on the wrong family.** It warned that ADM's
+   1–6 month lookbacks make it "the highest-turnover score family yet tested"
+   and that the flat-20 bracket "matters more here than anywhere in Stage 1".
+   Measured, VAA-G4 is the outlier: it loses 3.68 CAGR points across the
+   gross-TR → flat-20 bracket against ADM's 1.98 and HAA-Balanced's 2.26, and
+   its max-DD edge halves from 13.67 to 6.98 points. Binary
+   canary-equals-universe switching dominates lookback length. ADM's bracket
+   failure is a window effect, not a friction one.
+
+7. **§1's expectation and §7's R2 collide, and R2 was applied as written.**
+   §1 pre-registers that the 2023-01 → 2026-08 holdout "remains a bull where
+   this family lags by construction"; R2's second clause requires the published
+   point's holdout-test Calmar to reach the no-timing null's in that same
+   window. All three families failed on that clause and no other, and
+   HAA-Balanced would be REFERENCE without it. Recorded as residual 1 of the
+   verdict rather than fixed here: changing a frozen bar after reading the
+   artefacts is the move pre-registration exists to prevent.

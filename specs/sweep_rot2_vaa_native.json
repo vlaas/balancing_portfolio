@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "config": {
+    "initial_capital": 10000,
+    "monthly_contribution": 500,
+    "cost_bps": {
+      "SPY": 0.7,
+      "QQQ": 1,
+      "TQQQ": 1.5,
+      "BTAL": 6,
+      "KMLM": 6,
+      "DBMF": 3,
+      "IEF": 1,
+      "TLT": 1,
+      "SHY": 1,
+      "AGG": 1,
+      "EFA": 1,
+      "EEM": 1,
+      "IWM": 1,
+      "VTI": 1,
+      "BIL": 1,
+      "LQD": 1.5,
+      "VNQ": 1.5,
+      "BND": 1.5,
+      "VEA": 1.5,
+      "TIP": 2,
+      "VEU": 2,
+      "VWO": 2,
+      "DBC": 3,
+      "ACWX": 3,
+      "SCZ": 5,
+      "*": 6
+    },
+    "cash_yield": 0.03
+  },
+  "windows": {
+    "start": "2004-10-01",
+    "end": null,
+    "holdout": "2023-01-01",
+    "sensitivity": {
+      "every_months": 6,
+      "length_years": 5
+    }
+  },
+  "template": {
+    "type": "rotation",
+    "assets": [
+      "SPY",
+      "EFA",
+      "EEM",
+      "AGG"
+    ],
+    "k": 1,
+    "score": {
+      "grid": [
+        {
+          "kind": "weighted",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ],
+          "weights": [
+            12,
+            4,
+            2,
+            1
+          ]
+        },
+        {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        }
+      ]
+    },
+    "canary": {
+      "symbols": [
+        "SPY",
+        "EFA",
+        "EEM",
+        "AGG"
+      ],
+      "breadth": 1
+    },
+    "fallback": {
+      "kind": "best_of",
+      "symbols": [
+        "LQD",
+        "IEF",
+        "SHY"
+      ]
+    }
+  },
+  "baselines": [
+    {
+      "type": "fixed",
+      "weights": {
+        "SPY": 0.25,
+        "EFA": 0.25,
+        "EEM": 0.25,
+        "AGG": 0.25
+      }
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "SPY": 0.6,
+        "AGG": 0.4
+      }
+    },
+    {
+      "type": "fixed",
+      "label": "SPY benchmark",
+      "weights": {
+        "SPY": 1.0
+      }
+    }
+  ],
+  "objective": "calmar",
+  "constraint": {
+    "max_drawdown": -0.5
+  }
+}

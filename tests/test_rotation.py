@@ -216,7 +216,12 @@ def test_warm_up_and_transitions_row_by_row_through_the_engine():
 
 # --- ROTATION_SWEEP_SPEC T4 — the native lanes open warm (§4) ----------------
 
-NATIVE_LANES = ["sweep_rot_gem_native", "sweep_rot_gtaa_native", "sweep_rot_haa_native"]
+NATIVE_LANES = [
+    "sweep_rot_gem_native", "sweep_rot_gtaa_native", "sweep_rot_haa_native",
+    # ROTATION_STAGE2_SPEC §8 T2 — the same invariant, institutionalized: the
+    # §3 pre-flight table asserted against the simulation, per family.
+    "sweep_rot2_adm_native", "sweep_rot2_haab_native", "sweep_rot2_vaa_native",
+]
 
 
 def opening_rows(spec: dict, days: int = 45):
@@ -276,6 +281,58 @@ def test_every_native_grid_point_opens_warm(name):
             assert sum(weights.values()) == pytest.approx(1.0), (
                 f"{st.label} is all cash on {row['date']}"
             )
+
+
+# --- ROTATION_STAGE2_SPEC T5 — VAA-G4 carries no filter, provably (§4.3) -----
+
+
+def vaa() -> Rotation:
+    """VAA-G4's shape: the canary *is* the offensive universe, breadth 1."""
+    universe = ["SPY", "EFA", "EEM", "AGG"]
+    return Rotation(
+        assets=universe,
+        k=1,
+        score=M1,
+        canary=Canary(tuple(universe), 1, M1),
+        fallback=BestOf(("LQD", "IEF", "SHY"), M1),
+        label="vaa",
+    )
+
+
+def test_the_default_qualification_is_inert_under_a_universe_wide_canary():
+    # ROTATION_STAGE2_SPEC §4.3 asserted rather than trusted: the published
+    # rule needs no `filter` key because the engine's default per-asset test
+    # cannot change the allocation in either branch.
+    st = vaa()
+    scores = dict(LQD=0.04, IEF=0.02, SHY=0.01)
+
+    # Branch A — every canary score positive, so d = 0 and the top-1's own
+    # score is positive (it is one of the canaries): qualification auto-passes.
+    assert st.balance(
+        day(SPY=0.05, EFA=0.03, EEM=0.01, AGG=0.02, **scores)
+    ) == pytest.approx(
+        {"SPY": 1.0, "EFA": 0.0, "EEM": 0.0, "AGG": 0.0,
+         "LQD": 0.0, "IEF": 0.0, "SHY": 0.0}
+    )
+
+    # Branch B — the top-1's score is non-positive, so it is a non-positive
+    # canary too: n_bad >= 1, d = 1, and no offensive mass exists for the
+    # filter to act on. The whole portfolio routes to the best defensive.
+    assert st.balance(
+        day(SPY=-0.01, EFA=-0.02, EEM=-0.03, AGG=-0.04, **scores)
+    ) == pytest.approx(
+        {"SPY": 0.0, "EFA": 0.0, "EEM": 0.0, "AGG": 0.0,
+         "LQD": 1.0, "IEF": 0.0, "SHY": 0.0}
+    )
+
+    # The boundary Keller spells "non-positive": an exactly-zero top-1 is a bad
+    # canary, so d = 1 there too — not a qualified slot at zero weight.
+    assert st.balance(
+        day(SPY=0.0, EFA=-0.02, EEM=-0.03, AGG=-0.04, **scores)
+    ) == pytest.approx(
+        {"SPY": 0.0, "EFA": 0.0, "EEM": 0.0, "AGG": 0.0,
+         "LQD": 1.0, "IEF": 0.0, "SHY": 0.0}
+    )
 
 
 # --- T5 — determinism --------------------------------------------------------

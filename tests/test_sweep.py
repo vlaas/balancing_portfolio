@@ -856,3 +856,169 @@ def test_baselines_ride_every_window_of_a_rotation_sweep_and_never_rank():
         assert "rank_median" not in b["sensitivity"]
     # The competition is among the four grid points, however a baseline scores.
     assert {s["sensitivity"]["rank_worst"] for s in summary["strategies"]} <= {1, 2, 3, 4}
+
+
+# --- ROTATION_STAGE2_SPEC T1/T3/T6: the six lanes and the three bundles ------
+
+NOTES = Path(__file__).parents[1] / "notes"
+RESULTS = Path(__file__).parents[1] / "results"
+
+# §8 T1, counted on the frozen snapshot: full + fit + test + the rolling 5-year
+# sensitivity windows every 6 months. ADM's native lane carries two score arms,
+# not three — `avg[1,3,6,12]`'s first SCZ value is 2008-12-31, so on a 2008-07
+# window it would sit in the §5.1 cash short-circuit through Lehman
+# (ROTATION_STAGE2_SPEC §3) — and VAA-G4's 2004-10 start is the longest window
+# in the rotation program, the only one holding the 2008 episode top to bottom.
+ROT2_LANES = {
+    "sweep_rot2_adm_native": "2 grid + 3 baselines x 30 windows = 150 runs",
+    "sweep_rot2_adm_2012": "3 grid + 3 baselines x 23 windows = 138 runs",
+    "sweep_rot2_haab_native": "9 grid + 3 baselines x 30 windows = 360 runs",
+    "sweep_rot2_haab_2012": "9 grid + 3 baselines x 23 windows = 276 runs",
+    "sweep_rot2_vaa_native": "2 grid + 3 baselines x 37 windows = 185 runs",
+    "sweep_rot2_vaa_2012": "2 grid + 3 baselines x 23 windows = 115 runs",
+}
+
+# §4: the only adoptable point per family, quoted verbatim by the verdict doc.
+ROT2_PUBLISHED = {
+    "adm": "ROT SPY+SCZ top1 1-3-6U fb best(TIP+TLT@1M)",
+    "haab": "ROT SPY+IWM+VEA+VWO+VNQ+DBC+IEF+TLT top4 1-3-6-12U"
+            " can TIP/1 fb best(BIL+IEF)",
+    "vaa": "ROT SPY+EFA+EEM+AGG top1 13612W"
+           " can SPY+EFA+EEM+AGG/1 fb best(LQD+IEF+SHY)",
+}
+
+HAA_SIMPLE = "ROT SPY top1 1-3-6-12U can TIP/1 fb best(BIL+IEF)"
+
+# §5: the three as-published points, the HAA-Simple context row, the three K1
+# nulls, SPY last. Frozen as a label list (§12-3 precedent), not a count.
+ROT2_ROSTER = [
+    ROT2_PUBLISHED["adm"],
+    ROT2_PUBLISHED["haab"],
+    ROT2_PUBLISHED["vaa"],
+    HAA_SIMPLE,
+    "SPY60/TLT40",
+    "SPY12.5/IWM12.5/VEA12.5/VWO12.5/VNQ12.5/DBC12.5/IEF12.5/TLT12.5",
+    "SPY25/EFA25/EEM25/AGG25",
+    "SPY benchmark",
+]
+
+# §5's residual-2 closure: how much of the fb-cash arms' Stage-1 advantage over
+# fb BIL was the modeled 3% cash yield. Rides along, never tiered.
+CY15_ROSTER = [
+    "ROT SPY+EFA+IEF+DBC+VNQ top5 gap10M fb BIL",
+    "ROT SPY+EFA+IEF+DBC+VNQ top5 gap8M fb cash",
+    "ROT SPY+EFA+IEF+DBC+VNQ top5 gap10M fb cash",
+    "SPY20/EFA20/IEF20/DBC20/VNQ20",
+    "SPY benchmark",
+]
+
+
+@pytest.mark.parametrize("name", ROT2_LANES, ids=lambda n: n[len("sweep_rot2_"):])
+def test_the_stage2_lanes_dry_run_to_their_frozen_counts(
+    name, tmp_path, monkeypatch, capsys
+):
+    out = tmp_path / "out"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["sweep.py", str(SPECS / f"{name}.json"),
+         "--data", str(NET_DIR), "--out", str(out), "--dry-run"],
+    )
+
+    sweep_main()
+
+    assert ROT2_LANES[name] in capsys.readouterr().out
+    assert not out.exists()
+
+
+@pytest.mark.parametrize("name", ROT2_LANES, ids=lambda n: n[len("sweep_rot2_"):])
+def test_every_stage2_lane_carries_its_as_published_point(name):
+    labels = [e["label"] for e in expand(load_spec(SPECS / f"{name}.json")["template"])]
+
+    assert ROT2_PUBLISHED[name.split("_")[2]] in labels
+    assert len(set(labels)) == len(labels)
+
+
+@pytest.mark.parametrize("name", ["rot2_points", "rot2_points_c20"])
+def test_the_stage2_bracket_bundles_are_one_roster_at_two_cost_maps(name):
+    bundle = build_bundle(load_spec(SPECS / f"{name}.json"))
+
+    assert [st.label for st in bundle.strategies] == ROT2_ROSTER
+    assert bundle.config.start == dt.date(2012, 1, 3)  # §5: the common window
+    # The twins differ in exactly one thing: the §5 cost bracket.
+    assert (bundle.config.cost_bps == {"*": 20.0}) == (name == "rot2_points_c20")
+    assert bundle.config.cash_yield == 0.03
+
+
+def test_the_cy15_bundle_halves_the_cash_yield_and_nothing_else():
+    bundle = build_bundle(load_spec(SPECS / "rot_points_cy15.json"))
+    stage1 = build_bundle(load_spec(SPECS / "rot_points.json"))
+
+    assert [st.label for st in bundle.strategies] == CY15_ROSTER
+    assert bundle.config.start == stage1.config.start
+    assert bundle.config.cost_bps == stage1.config.cost_bps  # cbase, unchanged
+    assert bundle.config.cash_yield == 0.015  # §5: half of Stage 1's 3%
+
+
+# T3: the labels the verdict doc quotes cannot drift from the specs that
+# produce them — the two files are the same frozen strings or the test fails.
+def test_the_frozen_labels_render_into_the_verdict_skeleton():
+    doc = (NOTES / "rot2-verdict.md").read_text()
+
+    for label in [*ROT2_ROSTER, "EW SPY/SCZ/TIP/TLT", "SPY60/AGG40"]:
+        assert f"`{label}`" in doc, label
+
+
+# T4: R3a' reads `rank_median` out of every lane's committed summary, so the
+# tiering breaks silently if a runner change ever empties the block. This is
+# the guard that makes that loud.
+@pytest.mark.parametrize("name", ROT2_LANES, ids=lambda n: n[len("sweep_rot2_"):])
+def test_every_stage2_grid_point_carries_the_r3a_prime_inputs(name):
+    summary = json.loads((RESULTS / name / "summary.json").read_text())
+
+    assert len(summary["strategies"]) == int(ROT2_LANES[name].split()[0])
+    for s in summary["strategies"]:
+        assert s["sensitivity"]["rank_median"] is not None, s["label"]
+        assert s["sensitivity"]["rank_worst"] is not None, s["label"]
+    # A baseline is not a point: it never ranks, however it scores.
+    for b in summary["baselines"]:
+        assert "rank_median" not in b["sensitivity"]
+
+
+def test_a_k_grid_is_a_numeric_dimension_with_neighbours():
+    # ROTATION_STAGE2_SPEC §8 T6: `k` is the rotation program's first numeric
+    # dimension. Nothing was built for it — a dimension is numeric iff every
+    # grid value is an int/float — and this is the pin that says so.
+    spec = t5_spec({
+        "type": "rotation",
+        "assets": ["SPY", "IWM", "VEA", "VWO", "VNQ", "DBC", "IEF", "TLT"],
+        "k": {"grid": [3, 4, 5]},
+        "score": {"kind": "avg", "months": [1, 3, 6, 12]},
+        "canary": {"symbols": ["TIP"], "breadth": 1},
+        "fallback": {"kind": "best_of", "symbols": ["BIL", "IEF"]},
+    })
+    expanded = expand(spec["template"])
+    labels = [e["label"] for e in expanded]
+    assert [e["params"] for e in expanded] == [{"k": 3}, {"k": 4}, {"k": 5}]
+    assert labels == [
+        f"ROT SPY+IWM+VEA+VWO+VNQ+DBC+IEF+TLT top{k} 1-3-6-12U"
+        " can TIP/1 fb best(BIL+IEF)"
+        for k in (3, 4, 5)
+    ]
+    wins = [Window("full", "full", dt.date(2020, 1, 2), dt.date(2026, 1, 2))]
+    records = {"full": {l: stats_of(o) for l, o in zip(labels, [3, 1, 2])}}
+    records["full"]["bench"] = stats_of(0)
+
+    summary = build_summary(
+        spec, wins, expanded, ["bench"], records,
+        {l: True for l in labels}, notes=[], warnings=[],
+    )
+
+    s = summary["strategies"]
+    # The published k = 4 is interior and has both neighbours; k = 3 and k = 5
+    # bracket it and carry the `edge` flag.
+    assert s[1]["neighbourhood"] == {
+        "neighbour_min": 2, "neighbour_mean": 2.5, "edge": False,
+    }
+    assert s[1]["robust_score"] == 1
+    assert [e["neighbourhood"]["edge"] for e in s] == [True, False, True]
+    assert [e["neighbourhood"]["neighbour_min"] for e in s] == [1, 2, 1]
