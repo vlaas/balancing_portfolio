@@ -1,0 +1,791 @@
+{
+  "baselines": [
+    {
+      "full": {
+        "avg_asset_deviation": 0.00208526,
+        "avg_misallocation": 0.0078504,
+        "best_year": {
+          "return": 0.24245434,
+          "year": 2009
+        },
+        "cagr": 0.07304152,
+        "calmar": 0.19598307,
+        "fee_drag": 0.00072207,
+        "final_value": 284828.60560178,
+        "max_asset_deviation": 0.00828532,
+        "max_drawdown": -0.372693,
+        "max_drawdown_days": 588,
+        "max_misallocation": 0.03359513,
+        "net_profit": 166828.60560178,
+        "net_profit_pct": 1.41380174,
+        "objective": 0.19598307,
+        "sharpe": 0.58573488,
+        "sortino": 0.82362147,
+        "total_contributed": 118000.0,
+        "total_fees": 85.20481002,
+        "traded_value": 565400.03110744,
+        "turnover": 0.14958059,
+        "volatility": 0.13657085,
+        "worst_year": {
+          "return": -0.22277463,
+          "year": 2008
+        },
+        "xirr": 0.08334798
+      },
+      "holdout": {
+        "fit": 0.1450289,
+        "test": 1.42245145,
+        "test_minus_fit": 1.27742255
+      },
+      "label": "EW-12",
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.09041218,
+          "max": -0.12327647,
+          "median": -0.21436185,
+          "min": -0.372693
+        },
+        "objective": {
+          "iqr": 0.127542,
+          "max": 0.88723284,
+          "median": 0.33778992,
+          "min": 0.15868303
+        }
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00110787,
+        "avg_misallocation": 0.00108716,
+        "best_year": {
+          "return": 0.28440292,
+          "year": 2021
+        },
+        "cagr": 0.11582386,
+        "calmar": 0.58175195,
+        "fee_drag": 0.01006883,
+        "final_value": 467146.99224891,
+        "max_asset_deviation": 0.005781,
+        "max_drawdown": -0.19909492,
+        "max_drawdown_days": 690,
+        "max_misallocation": 0.00577868,
+        "net_profit": 349146.99224891,
+        "net_profit_pct": 2.95887282,
+        "objective": 0.58175195,
+        "sharpe": 0.97629661,
+        "sortino": 1.37381938,
+        "total_contributed": 118000.0,
+        "total_fees": 1188.12177337,
+        "traded_value": 13849011.7820638,
+        "turnover": 2.63541148,
+        "volatility": 0.1198949,
+        "worst_year": {
+          "return": -0.00690719,
+          "year": 2011
+        },
+        "xirr": 0.12651009
+      },
+      "holdout": {
+        "fit": 0.53656182,
+        "test": 1.38106421,
+        "test_minus_fit": 0.84450239
+      },
+      "label": "ROT SPY top1 1-3-6-12U can TIP/1 fb best(BIL+IEF)",
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.02879211,
+          "max": -0.0558318,
+          "median": -0.13341205,
+          "min": -0.19918766
+        },
+        "objective": {
+          "iqr": 0.49307251,
+          "max": 1.75477242,
+          "median": 1.09487682,
+          "min": 0.29496023
+        }
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00118613,
+        "avg_misallocation": 0.00118567,
+        "best_year": {
+          "return": 0.31890063,
+          "year": 2013
+        },
+        "cagr": 0.12213318,
+        "calmar": 0.25929511,
+        "fee_drag": 6.985e-05,
+        "final_value": 543905.09344089,
+        "max_asset_deviation": 0.00889171,
+        "max_drawdown": -0.47101999,
+        "max_drawdown_days": 858,
+        "max_misallocation": 0.00889012,
+        "net_profit": 425905.09344089,
+        "net_profit_pct": 3.6093652,
+        "objective": 0.25929511,
+        "sharpe": 0.68480703,
+        "sortino": 0.96815068,
+        "total_contributed": 118000.0,
+        "total_fees": 8.24233755,
+        "traded_value": 117747.67921777,
+        "turnover": 0.01981675,
+        "volatility": 0.19701936,
+        "worst_year": {
+          "return": -0.27440154,
+          "year": 2008
+        },
+        "xirr": 0.13949487
+      },
+      "holdout": {
+        "fit": 0.20888222,
+        "test": 1.18927495,
+        "test_minus_fit": 0.98039274
+      },
+      "label": "SPY benchmark",
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.14908829,
+          "max": -0.13113465,
+          "median": -0.24166899,
+          "min": -0.47101999
+        },
+        "objective": {
+          "iqr": 0.40144011,
+          "max": 1.14937107,
+          "median": 0.55476485,
+          "min": 0.17526281
+        }
+      }
+    }
+  ],
+  "constraint": {
+    "max_drawdown": -0.5
+  },
+  "costs": {
+    "cash_yield": 0.03,
+    "cost_bps": {
+      "*": 6,
+      "ACWX": 3,
+      "AGG": 1,
+      "BIL": 1,
+      "BND": 1.5,
+      "BTAL": 6,
+      "DBC": 3,
+      "DBMF": 3,
+      "EEM": 1,
+      "EFA": 1,
+      "EWJ": 2,
+      "GLD": 1,
+      "HYG": 1,
+      "IEF": 1,
+      "IWM": 1,
+      "KMLM": 6,
+      "LQD": 1.5,
+      "QQQ": 1,
+      "SCZ": 5,
+      "SHY": 1,
+      "SPY": 0.7,
+      "TIP": 2,
+      "TLT": 1,
+      "TQQQ": 1.5,
+      "VEA": 1.5,
+      "VEU": 2,
+      "VGK": 2,
+      "VNQ": 1.5,
+      "VTI": 1,
+      "VWO": 2
+    }
+  },
+  "data": {
+    "dir": "tests/data/2026-08-24-net15",
+    "end": "2026-08-24",
+    "start": "2008-08-01"
+  },
+  "objective": "calmar",
+  "snapped": [
+    "windows.holdout 2023-01-01 -> 2023-01-03"
+  ],
+  "strategies": [
+    {
+      "full": {
+        "avg_asset_deviation": 0.00131698,
+        "avg_misallocation": 0.00255576,
+        "best_year": {
+          "return": 0.16986037,
+          "year": 2020
+        },
+        "cagr": 0.06999767,
+        "calmar": 0.51125922,
+        "feasible": true,
+        "fee_drag": 0.02444775,
+        "final_value": 229991.81137353,
+        "max_asset_deviation": 0.00626947,
+        "max_drawdown": -0.1369123,
+        "max_drawdown_days": 1293,
+        "max_misallocation": 0.01200975,
+        "net_profit": 111991.81137353,
+        "net_profit_pct": 0.94908315,
+        "objective": 0.51125922,
+        "sharpe": 0.70788274,
+        "sortino": 0.99399072,
+        "total_contributed": 118000.0,
+        "total_fees": 2884.83442913,
+        "traded_value": 21264864.38402385,
+        "turnover": 5.56406626,
+        "volatility": 0.10334011,
+        "worst_year": {
+          "return": -0.02901742,
+          "year": 2015
+        },
+        "xirr": 0.06407773
+      },
+      "holdout": {
+        "fit": 0.61704839,
+        "test": 0.31909013,
+        "test_minus_fit": -0.29795826
+      },
+      "label": "ROT QQQ+SPY+IWM+VGK+EWJ+VWO+VNQ+DBC+GLD+TLT+HYG+LQD top5 gap13M all can SPY+VEA+VWO+BND/1@13612W fb best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.54190016,
+        "neighbour_min": 0.54190016
+      },
+      "params": {
+        "canary.score": "13612W",
+        "k": 5
+      },
+      "robust_score": 0.31909013,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.04271345,
+          "max": -0.08405563,
+          "median": -0.12409148,
+          "min": -0.13694599
+        },
+        "objective": {
+          "iqr": 0.23806307,
+          "max": 0.86322505,
+          "median": 0.66114006,
+          "min": 0.15226297
+        },
+        "rank_median": 3,
+        "rank_worst": 6
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00134284,
+        "avg_misallocation": 0.00265623,
+        "best_year": {
+          "return": 0.17424849,
+          "year": 2020
+        },
+        "cagr": 0.07794125,
+        "calmar": 0.47923984,
+        "feasible": true,
+        "fee_drag": 0.01904233,
+        "final_value": 281724.01427975,
+        "max_asset_deviation": 0.00626947,
+        "max_drawdown": -0.16263516,
+        "max_drawdown_days": 448,
+        "max_misallocation": 0.01176237,
+        "net_profit": 163724.01427975,
+        "net_profit_pct": 1.38749165,
+        "objective": 0.47923984,
+        "sharpe": 0.75217026,
+        "sortino": 1.05610775,
+        "total_contributed": 118000.0,
+        "total_fees": 2246.99502485,
+        "traded_value": 16137264.37254643,
+        "turnover": 4.12924239,
+        "volatility": 0.10773139,
+        "worst_year": {
+          "return": -0.01777878,
+          "year": 2015
+        },
+        "xirr": 0.0823711
+      },
+      "holdout": {
+        "fit": 0.46115061,
+        "test": 0.7928048,
+        "test_minus_fit": 0.33165419
+      },
+      "label": "ROT QQQ+SPY+IWM+VGK+EWJ+VWO+VNQ+DBC+GLD+TLT+HYG+LQD top5 gap13M all can SPY+VEA+VWO+BND/1@1-3-6-12U fb best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.56565914,
+        "neighbour_min": 0.56565914
+      },
+      "params": {
+        "canary.score": "1-3-6-12U",
+        "k": 5
+      },
+      "robust_score": 0.47923984,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.04766833,
+          "max": -0.07334921,
+          "median": -0.13633985,
+          "min": -0.16263516
+        },
+        "objective": {
+          "iqr": 0.25466161,
+          "max": 0.85952499,
+          "median": 0.68113292,
+          "min": 0.21402034
+        },
+        "rank_median": 3,
+        "rank_worst": 6
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00132138,
+        "avg_misallocation": 0.00282072,
+        "best_year": {
+          "return": 0.1633873,
+          "year": 2020
+        },
+        "cagr": 0.07682143,
+        "calmar": 0.54190016,
+        "feasible": true,
+        "fee_drag": 0.02402799,
+        "final_value": 249673.4513267,
+        "max_asset_deviation": 0.00626947,
+        "max_drawdown": -0.14176307,
+        "max_drawdown_days": 1281,
+        "max_misallocation": 0.01188529,
+        "net_profit": 131673.4513267,
+        "net_profit_pct": 1.11587671,
+        "objective": 0.54190016,
+        "sharpe": 0.80301156,
+        "sortino": 1.1345469,
+        "total_contributed": 118000.0,
+        "total_fees": 2835.3026578,
+        "traded_value": 20901684.93954301,
+        "turnover": 5.38735806,
+        "volatility": 0.09841343,
+        "worst_year": {
+          "return": -0.02893133,
+          "year": 2015
+        },
+        "xirr": 0.07153152
+      },
+      "holdout": {
+        "fit": 0.65953102,
+        "test": 0.51784911,
+        "test_minus_fit": -0.1416819
+      },
+      "label": "ROT QQQ+SPY+IWM+VGK+EWJ+VWO+VNQ+DBC+GLD+TLT+HYG+LQD top6 gap13M all can SPY+VEA+VWO+BND/1@13612W fb best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)",
+      "neighbourhood": {
+        "edge": false,
+        "neighbour_mean": 0.50975799,
+        "neighbour_min": 0.50825676
+      },
+      "params": {
+        "canary.score": "13612W",
+        "k": 6
+      },
+      "robust_score": 0.50825676,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.03854686,
+          "max": -0.08405563,
+          "median": -0.10666303,
+          "min": -0.14142191
+        },
+        "objective": {
+          "iqr": 0.29208374,
+          "max": 1.03400655,
+          "median": 0.65711443,
+          "min": 0.1371346
+        },
+        "rank_median": 4,
+        "rank_worst": 6
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00141625,
+        "avg_misallocation": 0.00289793,
+        "best_year": {
+          "return": 0.17590862,
+          "year": 2020
+        },
+        "cagr": 0.08483825,
+        "calmar": 0.56565914,
+        "feasible": true,
+        "fee_drag": 0.01804427,
+        "final_value": 308408.04967205,
+        "max_asset_deviation": 0.00626947,
+        "max_drawdown": -0.14998122,
+        "max_drawdown_days": 398,
+        "max_misallocation": 0.01176237,
+        "net_profit": 190408.04967205,
+        "net_profit_pct": 1.61362754,
+        "objective": 0.56565914,
+        "sharpe": 0.84134305,
+        "sortino": 1.18605528,
+        "total_contributed": 118000.0,
+        "total_fees": 2129.2240459,
+        "traded_value": 15371551.4629431,
+        "turnover": 3.87312302,
+        "volatility": 0.10336354,
+        "worst_year": {
+          "return": -0.0124417,
+          "year": 2015
+        },
+        "xirr": 0.0904061
+      },
+      "holdout": {
+        "fit": 0.51571869,
+        "test": 1.19500629,
+        "test_minus_fit": 0.67928761
+      },
+      "label": "ROT QQQ+SPY+IWM+VGK+EWJ+VWO+VNQ+DBC+GLD+TLT+HYG+LQD top6 gap13M all can SPY+VEA+VWO+BND/1@1-3-6-12U fb best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)",
+      "neighbourhood": {
+        "edge": false,
+        "neighbour_mean": 0.52162671,
+        "neighbour_min": 0.47923984
+      },
+      "params": {
+        "canary.score": "1-3-6-12U",
+        "k": 6
+      },
+      "robust_score": 0.47923984,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.05311763,
+          "max": -0.06805384,
+          "median": -0.13565248,
+          "min": -0.15040652
+        },
+        "objective": {
+          "iqr": 0.25895865,
+          "max": 0.94823234,
+          "median": 0.69622838,
+          "min": 0.25187032
+        },
+        "rank_median": 2,
+        "rank_worst": 5
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.0014357,
+        "avg_misallocation": 0.00320523,
+        "best_year": {
+          "return": 0.16300573,
+          "year": 2020
+        },
+        "cagr": 0.07373148,
+        "calmar": 0.50825676,
+        "feasible": true,
+        "fee_drag": 0.02350903,
+        "final_value": 242003.5705351,
+        "max_asset_deviation": 0.00626947,
+        "max_drawdown": -0.14506738,
+        "max_drawdown_days": 1306,
+        "max_misallocation": 0.01222519,
+        "net_profit": 124003.5705351,
+        "net_profit_pct": 1.05087772,
+        "objective": 0.50825676,
+        "sharpe": 0.7876406,
+        "sortino": 1.11363643,
+        "total_contributed": 118000.0,
+        "total_fees": 2774.06549141,
+        "traded_value": 20298931.76591786,
+        "turnover": 5.27656847,
+        "volatility": 0.09643115,
+        "worst_year": {
+          "return": -0.0289731,
+          "year": 2015
+        },
+        "xirr": 0.0687076
+      },
+      "holdout": {
+        "fit": 0.65006549,
+        "test": 0.47942151,
+        "test_minus_fit": -0.17064398
+      },
+      "label": "ROT QQQ+SPY+IWM+VGK+EWJ+VWO+VNQ+DBC+GLD+TLT+HYG+LQD top7 gap13M all can SPY+VEA+VWO+BND/1@13612W fb best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.54190016,
+        "neighbour_min": 0.54190016
+      },
+      "params": {
+        "canary.score": "13612W",
+        "k": 7
+      },
+      "robust_score": 0.47942151,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.03742446,
+          "max": -0.08405563,
+          "median": -0.10787707,
+          "min": -0.14469523
+        },
+        "objective": {
+          "iqr": 0.29823428,
+          "max": 0.94372873,
+          "median": 0.65550547,
+          "min": 0.13452906
+        },
+        "rank_median": 4,
+        "rank_worst": 6
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00143166,
+        "avg_misallocation": 0.00314597,
+        "best_year": {
+          "return": 0.15802616,
+          "year": 2020
+        },
+        "cagr": 0.08121366,
+        "calmar": 0.56401358,
+        "feasible": true,
+        "fee_drag": 0.01724545,
+        "final_value": 296637.05161496,
+        "max_asset_deviation": 0.00626947,
+        "max_drawdown": -0.14399238,
+        "max_drawdown_days": 185,
+        "max_misallocation": 0.01208816,
+        "net_profit": 178637.05161496,
+        "net_profit_pct": 1.51387332,
+        "objective": 0.56401358,
+        "sharpe": 0.82604719,
+        "sortino": 1.16338847,
+        "total_contributed": 118000.0,
+        "total_fees": 2034.96273347,
+        "traded_value": 14556202.5956826,
+        "turnover": 3.73356879,
+        "volatility": 0.10091325,
+        "worst_year": {
+          "return": -0.01624217,
+          "year": 2015
+        },
+        "xirr": 0.08695952
+      },
+      "holdout": {
+        "fit": 0.52135066,
+        "test": 1.30741548,
+        "test_minus_fit": 0.78606481
+      },
+      "label": "ROT QQQ+SPY+IWM+VGK+EWJ+VWO+VNQ+DBC+GLD+TLT+HYG+LQD top7 gap13M all can SPY+VEA+VWO+BND/1@1-3-6-12U fb best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.56565914,
+        "neighbour_min": 0.56565914
+      },
+      "params": {
+        "canary.score": "1-3-6-12U",
+        "k": 7
+      },
+      "robust_score": 0.56401358,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.06230782,
+          "max": -0.07203764,
+          "median": -0.14141417,
+          "min": -0.14326871
+        },
+        "objective": {
+          "iqr": 0.24457442,
+          "max": 1.03907238,
+          "median": 0.66223655,
+          "min": 0.21384128
+        },
+        "rank_median": 5,
+        "rank_worst": 6
+      }
+    }
+  ],
+  "warnings": [],
+  "windows": [
+    {
+      "end": "2026-08-24",
+      "kind": "full",
+      "name": "full",
+      "start": "2008-08-01"
+    },
+    {
+      "end": "2022-12-30",
+      "kind": "fit",
+      "name": "fit",
+      "start": "2008-08-01"
+    },
+    {
+      "end": "2026-08-24",
+      "kind": "test",
+      "name": "test",
+      "start": "2023-01-03"
+    },
+    {
+      "end": "2013-08-01",
+      "kind": "sens",
+      "name": "sens_2008-08-01",
+      "start": "2008-08-01"
+    },
+    {
+      "end": "2014-01-31",
+      "kind": "sens",
+      "name": "sens_2009-02-02",
+      "start": "2009-02-02"
+    },
+    {
+      "end": "2014-08-01",
+      "kind": "sens",
+      "name": "sens_2009-08-03",
+      "start": "2009-08-03"
+    },
+    {
+      "end": "2015-01-30",
+      "kind": "sens",
+      "name": "sens_2010-02-01",
+      "start": "2010-02-01"
+    },
+    {
+      "end": "2015-07-31",
+      "kind": "sens",
+      "name": "sens_2010-08-02",
+      "start": "2010-08-02"
+    },
+    {
+      "end": "2016-02-01",
+      "kind": "sens",
+      "name": "sens_2011-02-01",
+      "start": "2011-02-01"
+    },
+    {
+      "end": "2016-08-01",
+      "kind": "sens",
+      "name": "sens_2011-08-01",
+      "start": "2011-08-01"
+    },
+    {
+      "end": "2017-02-01",
+      "kind": "sens",
+      "name": "sens_2012-02-01",
+      "start": "2012-02-01"
+    },
+    {
+      "end": "2017-08-01",
+      "kind": "sens",
+      "name": "sens_2012-08-01",
+      "start": "2012-08-01"
+    },
+    {
+      "end": "2018-02-01",
+      "kind": "sens",
+      "name": "sens_2013-02-01",
+      "start": "2013-02-01"
+    },
+    {
+      "end": "2018-08-01",
+      "kind": "sens",
+      "name": "sens_2013-08-01",
+      "start": "2013-08-01"
+    },
+    {
+      "end": "2019-02-01",
+      "kind": "sens",
+      "name": "sens_2014-02-03",
+      "start": "2014-02-03"
+    },
+    {
+      "end": "2019-08-01",
+      "kind": "sens",
+      "name": "sens_2014-08-01",
+      "start": "2014-08-01"
+    },
+    {
+      "end": "2020-01-31",
+      "kind": "sens",
+      "name": "sens_2015-02-02",
+      "start": "2015-02-02"
+    },
+    {
+      "end": "2020-07-31",
+      "kind": "sens",
+      "name": "sens_2015-08-03",
+      "start": "2015-08-03"
+    },
+    {
+      "end": "2021-02-01",
+      "kind": "sens",
+      "name": "sens_2016-02-01",
+      "start": "2016-02-01"
+    },
+    {
+      "end": "2021-07-30",
+      "kind": "sens",
+      "name": "sens_2016-08-01",
+      "start": "2016-08-01"
+    },
+    {
+      "end": "2022-02-01",
+      "kind": "sens",
+      "name": "sens_2017-02-01",
+      "start": "2017-02-01"
+    },
+    {
+      "end": "2022-08-01",
+      "kind": "sens",
+      "name": "sens_2017-08-01",
+      "start": "2017-08-01"
+    },
+    {
+      "end": "2023-02-01",
+      "kind": "sens",
+      "name": "sens_2018-02-01",
+      "start": "2018-02-01"
+    },
+    {
+      "end": "2023-08-01",
+      "kind": "sens",
+      "name": "sens_2018-08-01",
+      "start": "2018-08-01"
+    },
+    {
+      "end": "2024-02-01",
+      "kind": "sens",
+      "name": "sens_2019-02-01",
+      "start": "2019-02-01"
+    },
+    {
+      "end": "2024-08-01",
+      "kind": "sens",
+      "name": "sens_2019-08-01",
+      "start": "2019-08-01"
+    },
+    {
+      "end": "2025-01-31",
+      "kind": "sens",
+      "name": "sens_2020-02-03",
+      "start": "2020-02-03"
+    },
+    {
+      "end": "2025-08-01",
+      "kind": "sens",
+      "name": "sens_2020-08-03",
+      "start": "2020-08-03"
+    },
+    {
+      "end": "2026-01-30",
+      "kind": "sens",
+      "name": "sens_2021-02-01",
+      "start": "2021-02-01"
+    },
+    {
+      "end": "2026-07-31",
+      "kind": "sens",
+      "name": "sens_2021-08-02",
+      "start": "2021-08-02"
+    }
+  ]
+}

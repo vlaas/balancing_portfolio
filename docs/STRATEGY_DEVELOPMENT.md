@@ -86,10 +86,13 @@ The three types (`spec.py` maps them to `strategies/fixed.py`,
   defaulting to the main score) sends `d = min(1, n_bad / breadth)` of the
   portfolio defensive, counting non-positive canary scores. Optional
   `fallback` receives the defensive pool: `null` (cash, the default), a
-  symbol, a sleeve object, or `{"kind": "best_of", "symbols": [...]}` — the
-  whole pool to the argmax of its score (defaulting to the main), ties by
-  list order, no sign filter (listing BIL among the candidates *is* the
-  floor). Ranking ties break by `assets` order. While any required score is
+  symbol, a sleeve object, or `{"kind": "best_of", "symbols": [...], "n": N?,
+  "floor": SYM?}` — the pool split `pool/n` over the top `n` by its score
+  (defaulting to the main), ties by list order; without a `floor` there is no
+  sign filter (listing BIL among the candidates *is* the floor), and with one
+  (a member of `symbols`, requiring an explicit `n >= 2`) a slice whose score
+  does not strictly clear the floor's goes to the floor instead — BAA's
+  ranked defensive rule. Ranking ties break by `assets` order. While any required score is
   still `None` everything sits in cash — and the run's `start` must postdate
   every universe symbol's inception plus score warm-up, because the loader
   requires traded symbols to be price-complete from `start` (indicator
@@ -98,7 +101,8 @@ The three types (`spec.py` maps them to `strategies/fixed.py`,
   trade the next session differ by one day's return per switch
   (ROTATION_SPEC §6.6). No `gate` and no vol-target composition in v1
   (§5.2). Labels: `ROT SPY+VEU top1 12M@SPY>BIL fb AGG`,
-  `ROT SPY+SCZ top1 1-3-6U fb best(TIP+TLT@1M)`.
+  `ROT SPY+SCZ top1 1-3-6U fb best(TIP+TLT@1M)`,
+  `ROT QQQ+VWO+VEA+BND top1 gap13M all can SPY+VEA+VWO+BND/1@13612W fb best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)`.
 
 A **`gate`** belongs to `fixed` and `vol_target` (not `rotation`,
 ROTATION_SPEC §5.2) and comes in two kinds — exactly one of

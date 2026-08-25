@@ -1022,3 +1022,152 @@ def test_a_k_grid_is_a_numeric_dimension_with_neighbours():
     assert s[1]["robust_score"] == 1
     assert [e["neighbourhood"]["edge"] for e in s] == [True, False, True]
     assert [e["neighbourhood"]["neighbour_min"] for e in s] == [1, 2, 1]
+
+
+# --- ROTATION_STAGE3_SPEC — the two BAA lanes, brackets and cost amendment ---
+#
+# §4's dual pre-flight puts both native lanes at 2008-08-01: the binding score
+# is the *canary's* `13612W` on VEA (first value 2008-07-31), a data-only
+# symbol, while the max traded inception is BIL 2007-05-30 for G12 and VEA
+# 2007-07-26 for G4. Both windows coincide with HAA-Balanced's, which makes the
+# three Keller-family results directly comparable on identical lanes.
+ROT3_LANES = {
+    "sweep_rot3_baa12_native": "6 grid + 3 baselines x 30 windows = 270 runs",
+    "sweep_rot3_baa12_2012": "6 grid + 3 baselines x 23 windows = 207 runs",
+    "sweep_rot3_baa4_native": "4 grid + 3 baselines x 30 windows = 210 runs",
+    "sweep_rot3_baa4_2012": "4 grid + 3 baselines x 23 windows = 161 runs",
+}
+
+# §5: the only adoptable point per family, quoted verbatim by the verdict doc.
+ROT3_PUBLISHED = {
+    "baa12": "ROT QQQ+SPY+IWM+VGK+EWJ+VWO+VNQ+DBC+GLD+TLT+HYG+LQD top6 gap13M"
+             " all can SPY+VEA+VWO+BND/1@13612W"
+             " fb best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)",
+    "baa4": "ROT QQQ+VWO+VEA+BND top1 gap13M"
+            " all can SPY+VEA+VWO+BND/1@13612W"
+            " fb best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)",
+}
+
+# §7: the two as-published points, both K1 nulls, the HAA-Simple context row,
+# SPY last. Frozen as a label list (§12-3 precedent), not a count. `EW-12`
+# carries an explicit label — twelve 1/12 weights render 159 characters.
+ROT3_ROSTER = [
+    ROT3_PUBLISHED["baa12"],
+    ROT3_PUBLISHED["baa4"],
+    "EW-12",
+    "QQQ25/VWO25/VEA25/BND25",
+    HAA_SIMPLE,
+    "SPY benchmark",
+]
+
+# §3: the four symbols BAA trades that no earlier spec did, tiered by liquidity
+# class like every other unmeasured entry. Everything else is unchanged.
+COST_AMENDMENT = {"GLD": 1.0, "HYG": 1.0, "VGK": 2.0, "EWJ": 2.0}
+
+
+@pytest.mark.parametrize("name", ROT3_LANES, ids=lambda n: n[len("sweep_rot3_"):])
+def test_the_stage3_lanes_dry_run_to_their_frozen_counts(
+    name, tmp_path, monkeypatch, capsys
+):
+    out = tmp_path / "out"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["sweep.py", str(SPECS / f"{name}.json"),
+         "--data", str(NET_DIR), "--out", str(out), "--dry-run"],
+    )
+
+    sweep_main()
+
+    assert ROT3_LANES[name] in capsys.readouterr().out
+    assert not out.exists()
+
+
+@pytest.mark.parametrize("name", ROT3_LANES, ids=lambda n: n[len("sweep_rot3_"):])
+def test_every_stage3_lane_carries_its_as_published_point(name):
+    labels = [e["label"] for e in expand(load_spec(SPECS / f"{name}.json")["template"])]
+
+    assert ROT3_PUBLISHED[name.split("_")[2]] in labels
+    assert len(set(labels)) == len(labels)
+
+
+@pytest.mark.parametrize("name", ROT3_LANES, ids=lambda n: n[len("sweep_rot3_"):])
+def test_the_canary_operator_axis_renders_as_a_score_fragment(name):
+    # Both families sweep the canary operator as a nested axis. Rendered as a
+    # JSON blob it would be unreadable in every decision-grade artefact, and
+    # rendered off the whole canary object it would spell one value two ways.
+    params = [e["params"] for e in expand(load_spec(SPECS / f"{name}.json")["template"])]
+
+    assert {p["canary.score"] for p in params} == {"13612W", "1-3-6-12U"}
+
+
+@pytest.mark.parametrize("name", ["rot3_points", "rot3_points_c20"])
+def test_the_stage3_bracket_bundles_are_one_roster_at_two_cost_maps(name):
+    bundle = build_bundle(load_spec(SPECS / f"{name}.json"))
+
+    assert [st.label for st in bundle.strategies] == ROT3_ROSTER
+    assert bundle.config.start == dt.date(2012, 1, 3)  # §7: the common window
+    # The twins differ in exactly one thing: the §7 cost bracket.
+    assert (bundle.config.cost_bps == {"*": 20.0}) == (name == "rot3_points_c20")
+    assert bundle.config.cash_yield == 0.03
+
+
+def test_the_stage3_cost_map_amends_four_entries_and_nothing_else():
+    # §3 is a modeling choice, not a measurement, and its whole claim is "these
+    # four, everything else unchanged" — asserted rather than eyeballed. GLD,
+    # HYG, VGK and EWJ were falling to the `"*"` 6 bp tier, a one-directional
+    # 5 bp overcharge on two of the most liquid ETFs in the program.
+    stage2 = build_bundle(load_spec(SPECS / "rot2_points.json")).config.cost_bps
+    stage3 = build_bundle(load_spec(SPECS / "rot3_points.json")).config.cost_bps
+
+    assert set(COST_AMENDMENT) & set(stage2) == set()
+    assert stage3 == stage2 | COST_AMENDMENT
+
+
+@pytest.mark.parametrize("name", ROT3_LANES, ids=lambda n: n[len("sweep_rot3_"):])
+def test_every_stage3_lane_carries_the_amended_cost_map(name):
+    spec = load_spec(SPECS / f"{name}.json")
+
+    assert spec["config"]["cost_bps"] == \
+        build_bundle(load_spec(SPECS / "rot3_points.json")).config.cost_bps
+    assert spec["config"]["cash_yield"] == 0.03
+
+
+# T3: the labels the verdict doc quotes cannot drift from the specs that
+# produce them — the two files are the same frozen strings or the test fails.
+def test_the_stage3_frozen_labels_render_into_the_verdict_skeleton():
+    doc = (NOTES / "rot3-verdict.md").read_text()
+
+    for label in ROT3_ROSTER:
+        assert f"`{label}`" in doc, label
+
+
+# T5: R3a' reads `rank_median` out of every lane's committed summary and R2d
+# reads holdout-test max drawdown out of its committed runs, so both break
+# silently if a runner change ever empties what the tiering and the diagnostic
+# read. This is the guard that makes that loud.
+@pytest.mark.parametrize("name", ROT3_LANES, ids=lambda n: n[len("sweep_rot3_"):])
+def test_every_stage3_grid_point_carries_the_r3a_prime_inputs(name):
+    summary = json.loads((RESULTS / name / "summary.json").read_text())
+
+    assert len(summary["strategies"]) == int(ROT3_LANES[name].split()[0])
+    for s in summary["strategies"]:
+        assert s["sensitivity"]["rank_median"] is not None, s["label"]
+        assert s["sensitivity"]["rank_worst"] is not None, s["label"]
+    # A baseline is not a point: it never ranks, however it scores.
+    for b in summary["baselines"]:
+        assert "rank_median" not in b["sensitivity"]
+
+
+@pytest.mark.parametrize("name", ROT3_LANES, ids=lambda n: n[len("sweep_rot3_"):])
+def test_the_r2d_diagnostic_reads_its_input_off_the_committed_runs(name):
+    # §6's R2d is holdout-test max DD, which `summary.json`'s holdout block
+    # does not carry — it holds objective values only. The rows are in
+    # `runs.json`, for the published point and for its K1 null alike.
+    runs = json.loads((RESULTS / name / "runs.json").read_text())
+    test = {r["label"]: r for r in runs if r["kind"] == "test"}
+
+    for label in (ROT3_PUBLISHED[name.split("_")[2]], ROT3_ROSTER[2], ROT3_ROSTER[3]):
+        if label not in test:
+            continue  # each lane carries only its own family's K1 null
+        assert test[label]["max_drawdown"] is not None, label
+        assert test[label]["max_drawdown"] <= 0

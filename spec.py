@@ -493,16 +493,20 @@ def canary_str(entry: dict, main_score: dict) -> str:
 
 
 def fallback_str(entry, main_score: dict) -> str:
-    """`cash`, `AGG`, `IEF60+TLT40`, `best(BIL+IEF)` / `best(TIP+TLT@1M)` —
-    sleeves sorted by symbol like `safe_str`, so one sleeve cannot spell two
-    labels."""
+    """`cash`, `AGG`, `IEF60+TLT40`, `best(BIL+IEF)` / `best(TIP+TLT@1M)`, and
+    the ranked form `best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)` — the floor is a
+    hurdle, rendered like a filter's. `n = 1` without a floor keeps the
+    original `best(A+B)` rendering byte-for-byte. Sleeves are sorted by symbol
+    like `safe_str`, so one sleeve cannot spell two labels."""
     if entry is None:
         return "cash"
     if isinstance(entry, str):
         return entry
     if entry.get("kind") == "best_of":
+        n = entry.get("n", 1)
         suffix = _score_suffix(entry["score"], main_score) if "score" in entry else ""
-        return "best(" + "+".join(entry["symbols"]) + suffix + ")"
+        floor = f">{entry['floor']}" if entry.get("floor") else ""
+        return f"best{n if n > 1 else ''}(" + "+".join(entry["symbols"]) + suffix + floor + ")"
     return "+".join(f"{s}{_pct(f)}" for s, f in sorted(entry.items()))
 
 
@@ -547,17 +551,33 @@ def _fallback(entry, path: str, main: tuple) -> tuple:
     if "kind" in entry:
         if entry["kind"] != "best_of":
             _fail(_join(path, "kind"), f"unknown kind {entry['kind']!r}")
-        _fields(entry, path, {"kind", "symbols"}, {"score"})
+        _fields(entry, path, {"kind", "symbols"}, {"score", "n", "floor"})
         _symbol_list(entry["symbols"], _join(path, "symbols"), 2,
                      " (one symbol is the string form)")
+        n = entry.get("n", 1)
+        if isinstance(n, bool) or not isinstance(n, int) \
+                or not 1 <= n <= len(entry["symbols"]):
+            _fail(_join(path, "n"),
+                  f"expected an integer in [1, {len(entry['symbols'])}], got {n!r}")
+        floor = entry.get("floor")
+        if floor is not None:
+            if floor not in entry["symbols"]:
+                _fail(_join(path, "floor"), f"{floor!r} is not one of symbols")
+            if n < 2:
+                # At n = 1 the argmax's score is >= the floor's by
+                # construction, so the key can only fire on an exact tie: an
+                # inert spelling that looks load-bearing (§2).
+                _fail(_join(path, "floor"),
+                      "is inert at n = 1; drop floor or set n >= 2")
         if "score" in entry:
             indicator, normalised_score = _score(entry["score"], _join(path, "score"))
         else:
             indicator, normalised_score = main
         return (
-            BestOf(tuple(entry["symbols"]), indicator),
-            {"kind": "best_of", "symbols": list(entry["symbols"]),
-             "score": normalised_score},
+            BestOf(tuple(entry["symbols"]), indicator, n, floor),
+            {"kind": "best_of", "symbols": list(entry["symbols"]), "n": n}
+            | ({"floor": floor} if floor is not None else {})
+            | {"score": normalised_score},
         )
     if len(entry) < 2:
         _fail(path, f"a {len(entry)}-symbol sleeve is the string form; use it")

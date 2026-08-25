@@ -177,7 +177,7 @@ def _param_value(strategy, path: tuple[str, ...], value):
     # canary/fallback read the normalised spec so inherited scores are filled.
     if path == ("assets",):
         return "+".join(value)
-    if path == ("score",):
+    if path in (("score",), ("canary", "score")):
         return score_str(value)
     if path == ("filter",):
         return filter_str(value)

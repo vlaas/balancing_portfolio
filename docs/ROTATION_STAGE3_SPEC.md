@@ -1,7 +1,8 @@
 # Specification: Stage-3 rotation sweeps — BAA-G4 and BAA-G12
 
 Repo: `vlaas/balancing_portfolio` · baseline commit: `cfbce5f` (Stage-2 verdict
-merge, 679 tests green) · status: draft for review · predecessors:
+merge, 679 tests green) · status: implemented (branch `rotation-sweeps-3`,
+errata §11) · predecessors:
 `docs/ROTATION_SWEEP_SPEC.md` (+§12), `docs/ROTATION_STAGE2_SPEC.md`,
 `notes/rot-verdict.md`, `notes/rot2-verdict.md`
 
@@ -254,3 +255,68 @@ sequence, the next increment after this stage's verdict is the **composition
 spec** — the multi-horizon score as an alternative or OR-combined gate on the
 incumbent TQQQ machine — which begins in a fresh conversation with this stage's
 verdict as its input.
+
+## 11. Errata — deviations found during execution
+
+Measured on a fresh run of the four lanes; each item is recorded in the commit
+that carried it. The sections above are left as proposed.
+
+1. **§4's pre-flight table reproduces exactly.** Independently recomputed on
+   `2026-08-24-net15` before the specs were written: `SMAGAP13M` first values on
+   HYG 2008-04-30 and BIL 2008-05-30, `MOMM1-3-6-12W12-4-2-1` and
+   `MOMM1-3-6-12U` on VEA both 2008-07-31, max traded inception BIL 2007-05-30
+   (G12) and VEA 2007-07-26 (G4). Both native starts are trading days, so no
+   lane snaps its start, and §8 T4 is load-bearing: moved back one month to
+   2008-07-01 the G12 lane opens with both of VEA's canary scores still null —
+   the data-only silent failure the dual check exists for, caught by the
+   warm-start assertion rather than by `load_prices`.
+
+2. **§2's "normalised spec fills `n` explicitly" has a reach the section does
+   not mention.** It fills `n` on *every* `best_of`, including the Stage-1/2
+   ones, so re-running an earlier lane would now emit `"n": 1` in its
+   `strategies.json` and in a bracket bundle's `spec` block. Labels and every
+   number are unmoved — `best(BIL+IEF)` renders byte-for-byte as before, which
+   §2 requires — and no committed artefact was touched. Recorded because
+   Stage-2's runs commit claimed byte-identical re-runs of all five artefacts,
+   and that claim no longer covers those two file kinds for Stage-1/2 lanes.
+
+3. **§5.1's `EW-12` needs an explicit label.** Twelve 1/12 weights auto-render
+   to a 159-character string (`QQQ8.33333/SPY8.33333/…`) that the roster, the
+   condition table and the bracket table all have to quote. The baseline carries
+   `"label": "EW-12"`, the name §5.1 and §6 already use; §5.2's `EW-4` keeps its
+   auto-label `QQQ25/VWO25/VEA25/BND25` exactly as written.
+
+4. **§2's `_param_value` clause names the wrong path for these grids.** It says
+   `_param_value(("fallback",))` renders the same fragment — true, and no change
+   was needed there, because neither family sweeps the fallback. What both
+   families *do* sweep is the canary operator, nested at `canary.score`, and
+   that path had no rendering: the params column would have carried a JSON blob
+   in every decision-grade artefact. One line was added to `sweep._param_value`.
+   The alternative — a categorical grid over the whole `canary` object — is
+   worse and was rejected: `_score_suffix` suppresses the `@score` marker when
+   it equals the main score, so on the G4 lane the single value `1-3-6-12U`
+   would render two different strings and the dimension would look three-valued.
+
+5. **§8 T5 asks for fields that do not exist where it implies.** "Holdout `test`
+   max-DD fields present for the R2d rows" cannot be asserted on `summary.json`:
+   its `holdout` block carries `fit`, `test` and `test_minus_fit` — objective
+   values — and no drawdown at all. R2d's actual source is each lane's
+   `runs.json`, on the rows with `kind == "test"`, which carry the full metric
+   set for the published point and its K1 null alike. T5 asserts it there, and
+   the six prior published points' R2d rows are read the same way from their
+   committed artefacts, so nothing earlier was re-run.
+
+6. **R3b's "the best grid point's" was read as the maximum full-window objective
+   over the lane's grid**, the reading that reproduces Stage-2's committed
+   numbers (ADM 2012: published 0.4182 against a grid maximum of 0.4659 = 0.898,
+   exactly as `notes/rot2-verdict.md` prints it). Recorded because the phrase
+   could also be read against the best `robust_score`, and on the BAA-G12 2012
+   lane the two rank differently.
+
+7. **§6's R2d diagnostic turned out to discriminate, not merely to record.**
+   It was defined as an input to a future bar redesign; measured, seven of the
+   eight published points delivered a *worse* holdout drawdown than their own
+   K1 null, GTAA-5 being the sole exception. It moved no tier, as pre-registered,
+   but it materially weakens the reading of Stage-2 residual 1 that R2's holdout
+   clause is only penalising timing on returns. The finding is carried in the
+   verdict (§2, residual 1), not acted on here.
