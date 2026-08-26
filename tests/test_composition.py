@@ -190,3 +190,18 @@ def test_c6_declaring_the_score_alone_changes_nothing():
         simulate(prices, gated, bundle.config), simulate(prices, plain, bundle.config)
     ):
         assert_frame_equal(got, want)
+# --- C7: the §7.6 bundles are covered by the spec auto-discovery test --------
+
+
+@pytest.mark.parametrize(
+    "name", ["comp_points", "comp_points_c20", "comp_points_tr"]
+)
+def test_c7_the_bracket_bundles_run_on_the_flat_snapshot(name):
+    # test_spec.py::every_strategy skips a spec whose symbols are absent from
+    # the flat root (REGIME_SPEC erratum 3); these three must not be skipped.
+    bundle = build_bundle(load_spec(SPECS / f"{name}.json"))
+    symbols = {s for st in bundle.strategies for s in (*st.weights, *st.data)}
+
+    assert symbols == {"TQQQ", "BTAL", "QQQ", "SPY"}
+    assert all((DATA / f"{s}.csv").exists() for s in symbols)
+    assert len(bundle.strategies) == 15  # the fourteen §7.2 arms plus SPY

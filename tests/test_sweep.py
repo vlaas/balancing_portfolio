@@ -1238,3 +1238,27 @@ def test_the_r2d_diagnostic_reads_its_input_off_the_committed_runs(name):
             continue  # each lane carries only its own family's K1 null
         assert test[label]["max_drawdown"] is not None, label
         assert test[label]["max_drawdown"] <= 0
+
+
+COMP_LANES = {  # COMPOSITION_SPEC §7.7, pinned before the lanes were run
+    "sweep_comp_2012": "14 grid + 3 baselines x 23 windows = 391 runs",
+    "sweep_comp_thr_2012": "21 grid + 5 baselines x 23 windows = 598 runs",
+    "sweep_comp_2021": "21 grid + 3 baselines x 9 windows = 216 runs",
+    "sweep_comp_2019": "14 grid + 3 baselines x 12 windows = 204 runs",
+}
+
+
+@pytest.mark.parametrize("name", COMP_LANES, ids=lambda n: n[len("sweep_comp_"):])
+def test_dry_run_counts_of_the_composition_lanes(name, tmp_path, monkeypatch, capsys):
+    net_dir = GOLDEN_DIR / "2026-08-24-net15"
+    out = tmp_path / "out"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["sweep.py", str(SPECS / f"{name}.json"),
+         "--data", str(net_dir), "--out", str(out), "--dry-run"],
+    )
+
+    sweep_main()
+
+    assert COMP_LANES[name] in capsys.readouterr().out
+    assert not out.exists()
