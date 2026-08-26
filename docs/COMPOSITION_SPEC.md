@@ -2,7 +2,10 @@
 
 Repo: `vlaas/balancing_portfolio` · baseline commit: `f58d8d4` ("Handoff: rotation
 program closed → composition spec next", 720 tests green on a fresh clone) · status:
-**proposed** · input: `docs/HANDOFF_COMPOSITION.md` · predecessors: `REGIME_SPEC.md`
+**implemented; nothing adopted** (branch `composition`, per-phase commits, errata
+§15) — all nine §11 predictions held, the SMA-200 gate stands and the score gate
+is retained as a tested, inert option; verdict: `notes/comp-verdict.md` ·
+input: `docs/HANDOFF_COMPOSITION.md` · predecessors: `REGIME_SPEC.md`
 (the gate-composition precedent, not adopted), `notes/rot3-verdict.md` (the rotation
 catalog, closed).
 
@@ -684,4 +687,39 @@ written for exactly this question and it has one verdict behind it.
 
 ## 15. Errata (found during implementation)
 
-None yet.
+1. **§5's "sharing … its contingency rendering" needed a lift.** `contingency`
+   was a closure inside `regime_report.report()` with the column names
+   hard-coded, so it could not be imported. It is now a module-level
+   `contingency(rows, primary, other)`; the rendered strings are unchanged and
+   R4's pins (`| full | 9 | 18 | 4 | 144 |`) are untouched. This is the only
+   edit `regime_report.py` took.
+2. **§6's "C1–C7 green" cannot all land in the engine commit.** C3's `--dry-run`
+   clause and C7 pin files the *pre-registration* commit creates, so they land
+   there. The engine commit carries C1–C6 (720 → 754); the pre-registration
+   commit carries the rest (754 → 806, of which 45 are the free contract cases
+   the three bundles add to `every_strategy`).
+3. **§7.6's `comp_points_tr.json` is byte-identical to `comp_points.json`.** The
+   data root is a CLI argument, not a spec key, so the "gross TR" column of the
+   bracket table is a different `--data`, not a different spec. It is still a
+   separate file, because §14 counts seven specs and C7 names three bundles;
+   the rotation program instead ran one spec against two roots and named the
+   outputs apart (`results/rot3_points_tr.json`).
+4. **§7.4 / §7.5's "Baselines as the blend lane"** means the *regime* lanes'
+   three (plain 50/50, gated 50/50, SPY), not `sweep_blend_2021.json`'s six.
+   §7.7's arithmetic requires three — `(21 + 3) × 9 = 216`, `(14 + 3) × 12 =
+   204` — and `sweep_regime_2021.json` / `sweep_regime_2019.json`, the lanes
+   actually copied, carry exactly those three. Read §7.7's `a + b × w` as
+   `(a + b) × w`.
+5. **§11's per-episode panel keys an episode by its drawdown's peak, not its
+   trough.** `G_u0`'s −39.0 % runs 2015-07-20 → 2016-11-14, so a trough-keyed
+   read puts it in 2016 and loses the 2015-08 cell the prediction names.
+6. **A seventh episode is present in every arm** and §11's six-column panel
+   omits it: 2020-09-02 → 2021-03-08, −25.1 %, identical to two decimals across
+   all fourteen arms. The verdict's panel carries it as its own column
+   (residual 5).
+7. **`WINNING_STRATEGIES.md` has never existed** (SAFE_SWITCH_SPEC erratum 8).
+   §10 step 8 said no, so §14's "changed only if step 8 says so" resolves to
+   "not created", as it did for REGIME_SPEC.
+8. **§11's parenthetical "`OR_um3`, identical" is untested.** §7.2's grid has no
+   such arm and §7.3's surface has no OR column, so nothing in the program
+   measures it (verdict residual 7).
