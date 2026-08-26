@@ -4,6 +4,7 @@ import datetime as dt
 
 import pytest
 
+from indicators import mom_multi
 from strategies.fixed import Fixed
 from strategies.gate import AnyGate, Gate
 
@@ -234,3 +235,73 @@ def test_composite_clip_applies_members_in_order():
 def test_composite_rejects_a_single_member():
     with pytest.raises(AssertionError):
         AnyGate((gate(),))
+
+
+# --- COMPOSITION_SPEC C1: the score kind -------------------------------------
+
+SCORE_COLUMN = "QQQ:MOMM1-3-6-12U"
+
+
+def score_day(value, close=100.0, contribution=0.0) -> MarketDay:
+    return MarketDay(
+        {"date": DAY, "QQQ": close, "QQQ:SMA200": 100.0, SCORE_COLUMN: value},
+        contribution=contribution,
+    )
+
+
+def score_gate(threshold=0.0, **kwargs) -> Gate:
+    return Gate(
+        "QQQ", ["TQQQ"], score=mom_multi((1, 3, 6, 12)), threshold=threshold, **kwargs
+    )
+
+
+def test_a_score_gate_closes_at_or_below_its_threshold():
+    # `<=`, not `<`: the rotation family's "non-positive is bad" convention,
+    # so threshold 0 closes exactly where HAA's absolute filter disqualifies.
+    at_zero = score_gate()
+    assert at_zero.closed(score_day(-0.01))
+    assert at_zero.closed(score_day(0.0))
+    assert not at_zero.closed(score_day(0.01))
+    assert not at_zero.closed(score_day(None))  # open during warm-up
+
+    negative = score_gate(threshold=-0.02)
+    assert negative.closed(score_day(-0.02))
+    assert not negative.closed(score_day(-0.019))
+
+
+def test_score_gate_surface():
+    st = score_gate()
+    assert st.symbols == ("QQQ",)
+    assert [i.name for i in st.indicators["QQQ"]] == ["MOMM1-3-6-12U"]
+    assert st.column == "MOMM1-3-6-12U"
+    assert st.fire is None  # every `if gate.fire is not None` branch untouched
+    assert st.threshold == 0.0
+
+
+def test_the_score_kind_extends_the_exactly_one_rule():
+    with pytest.raises(AssertionError):  # score alongside an sma kind
+        Gate("QQQ", ["TQQQ"], sma_days=200, score=mom_multi((1, 3, 6, 12)), threshold=0.0)
+    with pytest.raises(AssertionError):  # threshold without score
+        Gate("QQQ", ["TQQQ"], sma_days=200, threshold=0.0)
+    with pytest.raises(AssertionError):  # threshold not a multiple of 0.001
+        score_gate(threshold=0.0155)
+
+
+def test_score_gate_clip_and_buy_cap_match_the_other_kinds():
+    weights = {"TQQQ": 0.5, "BTAL": 0.5}
+    closed = score_day(-0.01, contribution=500.0)
+    assert score_gate(w_off=0.0).clip(weights, closed) == {"TQQQ": 0.0, "BTAL": 1.0}
+    assert score_gate(w_off=0.0).clip(weights, score_day(0.01)) is weights
+    assert score_gate().buy_cap("TQQQ", closed, weights) == 0.0
+    assert score_gate(contribution_exempt=True).buy_cap("TQQQ", closed, weights) == 250.0
+
+
+def test_an_sma_score_composite_is_the_or_form():
+    both = AnyGate((gate(), score_gate()))
+    # close 99 < SMA 100 closes the sma member; score +0.01 leaves the other open.
+    assert both.closed(score_day(0.01, close=99.0))
+    assert both.closed(score_day(-0.01, close=101.0))
+    assert not both.closed(score_day(0.01, close=101.0))
+    # Both members read QQQ, so the shared symbol carries both columns.
+    assert both.symbols == ("QQQ",)
+    assert [i.name for i in both.indicators["QQQ"]] == ["SMA200", "MOMM1-3-6-12U"]

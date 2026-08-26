@@ -390,9 +390,11 @@ from the parameters when absent and asserted unique at slug level. The
 normalised spec — defaults and labels filled in — is what `results.json`
 embeds.
 
-A `gate` comes in two kinds sharing one class — **sma** (`close < SMA`) and
-**regime** (the `ts_regime` risk-off state on `symbol / denominator`,
-REGIME_SPEC §4) — and either kind takes `w_off`, a target-weight clip applied
+A `gate` comes in four kinds sharing one class — **sma** (`close < SMA`, by
+days or by month-ends), **regime** (the `ts_regime` risk-off state on
+`symbol / denominator`, REGIME_SPEC §4) and **score** (a monthly momentum score
+at or below its `threshold`, COMPOSITION_SPEC §3) — and any kind takes `w_off`,
+a target-weight clip applied
 in `balance()` while closed (absent `w_off` is the buy-cap-only gate,
 engine-invariant). A list of ≥ 2 gate objects composes to `AnyGate`: closed
 iff any member, minimum buy cap, clips in member order. `simulate.py` and
@@ -411,6 +413,19 @@ a strategy that trades a new symbol just requires its CSV to exist. CLI:
 the bundle's or spec's end date), `--charts DIR`, `--no-charts`,
 `--quiet`, `--md [PATH]`, `--tx [PATH]`, `--json [PATH]`, `--curves [DIR]`.
 `--md` with `--no-charts` writes the report without the chart sections.
+
+## regime_report.py, score_report.py — a signal's own calendar
+
+Two read-only CLIs that load nothing through the engine: they read the closes
+with `prices._read_close`, build the signal through the same factories the gate
+uses — so a report cannot drift from the gate it describes — and print
+deterministic markdown. `regime_report.py` covers a ratio signal (`--ratio-sma`,
+`--fire`, `--hysteresis`); `score_report.py` covers a monthly momentum score
+(`--score`, `--threshold`). Both report month-ends closed, per-calendar-year
+counts and the four-way contingency with the incumbent SMA gate — the shared
+`regime_report.contingency` renders it. Reading a new gate signal's calendar is
+step 0 of every gate spec's read protocol (REGIME_SPEC §10, COMPOSITION_SPEC
+§10).
 
 ## sweep.py — parameter sweeps
 

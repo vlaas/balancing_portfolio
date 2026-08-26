@@ -105,8 +105,9 @@ The three types (`spec.py` maps them to `strategies/fixed.py`,
   `ROT QQQ+VWO+VEA+BND top1 gap13M all can SPY+VEA+VWO+BND/1@13612W fb best3(TIP+DBC+BIL+IEF+TLT+LQD+AGG>BIL)`.
 
 A **`gate`** belongs to `fixed` and `vol_target` (not `rotation`,
-ROTATION_SPEC §5.2) and comes in two kinds — exactly one of
-`sma_days` / `sma_months` / `fire` picks it (docs/REGIME_SPEC.md):
+ROTATION_SPEC §5.2) and comes in four kinds — exactly one of
+`sma_days` / `sma_months` / `fire` / `score` picks it (docs/REGIME_SPEC.md,
+docs/COMPOSITION_SPEC.md):
 
 - **sma**: closed on days `close(symbol) < SMA`, open while either value is
   `None`.
@@ -115,10 +116,17 @@ ROTATION_SPEC §5.2) and comes in two kinds — exactly one of
   fires at ≥ `fire` and releases below `fire − hysteresis` (default 0), both
   non-negative multiples of 0.01 with `hysteresis < fire`; `ratio_sma: 1` is
   the raw ratio. Open during warm-up. Renders as `VIX/VIX3M@10>=1.00<0.95`.
+- **score**: closed while a monthly momentum `score` on `symbol` — the same
+  score object the `rotation` type takes — is **at or below** `threshold`
+  (default `0.0`, a multiple of 0.001). `<=`, not `<`: the rotation family's
+  "non-positive is bad" convention. Open during warm-up. The score is read on
+  the symbol's own month-end calendar and carried forward, so a monthly
+  rebalance sees that day's own value. Renders as `QQQ:MOMM1-3-6-12U<=0`, the
+  threshold in percent with `m` for a negative (`<=m2` is −0.02).
 
 When closed, buys of its `assets` stop; with `"contribution_exempt": true`
 they continue up to that day's external cash × the asset's weight of the day.
-Optional **`w_off`** (either kind, `[0, 1]`, renders ` off{pct}`) additionally
+Optional **`w_off`** (any kind, `[0, 1]`, renders ` off{pct}`) additionally
 clips the assets' *target* weight to `w_off` while closed — the excess moves
 to the rest of the portfolio pro rata (to cash when there is no rest), so
 `w_off: 0` sells the asset down to zero on a rebalance day; a
@@ -375,6 +383,12 @@ While QQQ trades below its SMA200, monthly TQQQ purchases stop and that budget
 buys BTAL instead; TQQQ holdings are kept (and still sold down if a rally makes
 them overweight). In the 2017–2026 data this fires on 21 rebalance days and the
 misallocation chart shows exactly when.
+
+The same shape with a different trigger is a one-line spec change:
+`{"symbol": "QQQ", "assets": ["TQQQ"], "score": {"kind": "avg", "months": [1, 3, 6, 12]}}`
+gates on the sign of the multi-horizon monthly momentum score instead of the
+daily SMA, and a list of both gates is the OR — the composition
+`docs/COMPOSITION_SPEC.md` measures.
 
 ### A dynamic balance: risk-off allocation with a cash reserve
 

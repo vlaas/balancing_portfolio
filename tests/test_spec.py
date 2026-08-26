@@ -53,6 +53,10 @@ G_R1 = {
     "ratio_sma": 1, "fire": 1.0,
 }
 
+# The COMPOSITION_SPEC §7.1 score objects the composition cases mutate with.
+U = {"kind": "avg", "months": [1, 3, 6, 12]}
+G_U = {"symbol": "QQQ", "assets": ["TQQQ"], "score": dict(U)}
+
 # The SAFE_SWITCH_SPEC §2.1 objects the switch cases mutate with.
 W_SMA = {"symbol": "QQQ", "sma_days": 200}
 SWITCH = {
@@ -114,6 +118,13 @@ INVALID = {
     "one-element gate list": (lambda s: s["strategies"][2].update(gate=[dict(G_SMA)]), "strategies[2].gate"),
     "nested gate list": (lambda s: s["strategies"][2].update(gate=[[dict(G_SMA)], dict(G_R1)]), "strategies[2].gate[0]"),
     "unknown key inside a composite member": (lambda s: s["strategies"][2].update(gate=[dict(G_SMA), G_R1 | {"sma_day": 200}]), "strategies[2].gate[1].sma_day"),
+    # COMPOSITION_SPEC C2 — the score gate grammar.
+    "score alongside an sma kind": (lambda s: s["strategies"][2]["gate"].update(score=dict(U)), "strategies[2].gate"),
+    "threshold without score": (lambda s: s["strategies"][2]["gate"].update(threshold=0.0), "strategies[2].gate.threshold"),
+    "threshold off the 0.001 grid": (lambda s: s["strategies"][2].update(gate=G_U | {"threshold": 0.0155}), "strategies[2].gate.threshold"),
+    "threshold boolean": (lambda s: s["strategies"][2].update(gate=G_U | {"threshold": True}), "strategies[2].gate.threshold"),
+    "score months below one": (lambda s: s["strategies"][2].update(gate=G_U | {"score": {"months": 0}}), "strategies[2].gate.score.months"),
+    "score months not ascending": (lambda s: s["strategies"][2].update(gate=G_U | {"score": {"kind": "avg", "months": [3, 1]}}), "strategies[2].gate.score.months"),
 }
 
 
@@ -381,6 +392,87 @@ def test_composite_gate_round_trips_through_the_normalised_spec():
     st = bundle.strategies[2]
     assert set(st.data) == {"QQQ", "VIX", "VIX3M"}
     collect_indicators([st])  # the input rule holds without spec-author work
+
+
+# --- COMPOSITION_SPEC C2: the score gate grammar -----------------------------
+
+
+def test_score_gate_renderings():
+    # The five §4.2 renderings, exactly.
+    assert label_of(fixed_with_gate(dict(G_U))) == "TQQQ50/BTAL50 gate QQQ:MOMM1-3-6-12U<=0"
+    assert label_of(
+        fixed_with_gate(G_U | {"threshold": -0.02})
+    ) == "TQQQ50/BTAL50 gate QQQ:MOMM1-3-6-12U<=m2"
+    assert label_of(
+        fixed_with_gate(G_U | {"threshold": 0.02, "w_off": 0})
+    ) == "TQQQ50/BTAL50 gate QQQ:MOMM1-3-6-12U<=2 off0"
+    assert label_of(
+        fixed_with_gate(G_U | {"score": {"months": 12}})
+    ) == "TQQQ50/BTAL50 gate QQQ:MOM12M<=0"
+    assert label_of(
+        fixed_with_gate([dict(G_SMA), dict(G_U)])
+    ) == "TQQQ50/BTAL50 gate QQQ<SMA200|QQQ:MOMM1-3-6-12U<=0"
+
+    # `m` is load-bearing: the two signed thresholds must not share a slug.
+    assert slug(label_of(fixed_with_gate(G_U | {"threshold": -0.02}))) != slug(
+        label_of(fixed_with_gate(G_U | {"threshold": 0.02}))
+    )
+
+
+def test_score_gate_vt_label():
+    assert label_of(
+        {"type": "vol_target", "risk": "TQQQ", "safe": "BTAL", "vol_symbol": "QQQ",
+         "vol": {"kind": "ewma", "lam": 0.80}, "leverage": 3, "sigma_target": 0.30,
+         "w_max": 0.6,
+         "gate": [dict(G_SMA), G_U | {"threshold": -0.02}]}
+    ) == ("VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate "
+          "QQQ<SMA200|QQQ:MOMM1-3-6-12U<=m2")
+
+
+def test_score_gate_normalises_with_threshold_filled():
+    bundle = build_bundle(broken(lambda s: s["strategies"][2].update(gate=dict(G_U))))
+
+    # threshold is always present on a score gate; w_off only when given.
+    assert normalised_spec(bundle)["strategies"][2]["gate"] == {
+        "symbol": "QQQ", "assets": ["TQQQ"], "contribution_exempt": False,
+        "score": {"kind": "avg", "months": [1, 3, 6, 12]}, "threshold": 0.0,
+    }
+    # A plain `{"months": k}` stays as written (ROTATION_SPEC §6.1).
+    plain = build_bundle(
+        broken(lambda s: s["strategies"][2].update(gate=G_U | {"score": {"months": 12}}))
+    )
+    assert normalised_spec(plain)["strategies"][2]["gate"]["score"] == {"months": 12}
+
+
+@pytest.mark.parametrize(
+    "gate", [G_U | {"threshold": -0.02}, [dict(G_SMA), dict(G_U)]],
+    ids=["score", "composite"],
+)
+def test_score_gate_round_trips_through_the_normalised_spec(gate):
+    bundle = build_bundle(broken(lambda s: s["strategies"][2].update(gate=gate)))
+
+    first = normalised_spec(bundle)
+    again = normalised_spec(build_bundle(copy.deepcopy(first)))
+    assert again == first
+
+    st = bundle.strategies[2]
+    assert set(st.data) == {"QQQ"}  # the score reads the gate's own symbol
+    collect_indicators([st])
+
+
+def test_a_switch_condition_takes_the_score_kind():
+    # §4.1: `_condition` is shared, so this is expressible for free (not swept).
+    when = {"symbol": "QQQ", "score": dict(U)}
+    bundle = build_bundle(
+        broken(lambda s: s["strategies"][4].update(safe=SWITCH | {"when": when}))
+    )
+    st = bundle.strategies[4]
+
+    assert safe_str(st.safe) == "BTAL25+KMLM75~BTAL75+KMLM25@QQQ:MOMM1-3-6-12U<=0"
+    assert normalised_spec(bundle)["strategies"][4]["safe"]["when"] == {
+        "symbol": "QQQ", "score": {"kind": "avg", "months": [1, 3, 6, 12]},
+        "threshold": 0.0,
+    }
 
 
 def test_identical_entries_collide_loudly():

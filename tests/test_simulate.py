@@ -7,6 +7,7 @@ import pytest
 
 from polars.testing import assert_frame_equal
 
+from indicators import mom_multi
 from simulate import Config, fee_schedule, simulate
 from strategies.fixed import Fixed
 from strategies.gate import Gate
@@ -643,3 +644,91 @@ def test_closed_w_off_zero_gate_never_sells_on_a_contribution_only_day():
     # The whole deposit buys the open asset; A's holdings stay untouched.
     assert day2["asset"].to_list() == ["B"]
     assert day2["shares"].item() == 10
+
+
+# --- COMPOSITION_SPEC C4: engine effect of a score gate ----------------------
+
+SCORE = "A:MOMM1-3-6-12U"
+M_START = dt.date(2020, 1, 28)  # the monthly frame's first row
+
+
+def monthly_frame(a: list[float], b: list[float], rebalance: list[bool]) -> pl.DataFrame:
+    """A two-asset frame of month-end rows carrying A's own `1-3-6-12U` score.
+
+    One row per month, so every row but the last is a month-end by the
+    `_month_end_values` rule and the score warms up at the thirteenth
+    (12 prior month-ends plus today's).
+    """
+    dates = [dt.date(2020 + i // 12, i % 12 + 1, 28) for i in range(len(a))]
+    host = pl.DataFrame({"date": dates, "close": a})
+    score = mom_multi((1, 3, 6, 12)).fn(host)
+    return pl.DataFrame(
+        {"date": dates, "A": a, "B": b, SCORE: score, "is_rebalance_day": rebalance},
+        schema={
+            "date": pl.Date, "A": pl.Float64, "B": pl.Float64,
+            SCORE: pl.Float64, "is_rebalance_day": pl.Boolean,
+        },
+    )
+
+
+def _score_gate(**kwargs) -> Gate:
+    return Gate("A", ["A"], score=mom_multi((1, 3, 6, 12)), threshold=0.0, **kwargs)
+
+
+# A flat year then a 20% drop: the score is null through the warm-up, then
+# negative on the thirteenth and fourteenth month-ends.
+CRASH = [100.0] * 12 + [80.0, 80.0, 80.0]
+FLAT_B = [10.0] * 15
+
+
+def test_the_score_warms_up_null_then_turns_negative():
+    scores = monthly_frame(CRASH, FLAT_B, [False] * 15)[SCORE].to_list()
+
+    assert scores[:12] == [None] * 12
+    assert scores[12] == pytest.approx(-0.2)
+    assert scores[13] == pytest.approx(-0.15)
+
+
+def test_cap_only_score_gate_is_frame_equal_to_the_allow_buy_path():
+    rebalance = [i == 12 for i in range(15)]
+    prices = monthly_frame(CRASH, FLAT_B, rebalance)
+    # The legacy path reads its own 0/1 column on the same days.
+    prices = prices.with_columns(
+        pl.when(pl.col(SCORE) <= 0.0).then(0.0).otherwise(1.0).fill_null(1.0).alias("A:GATE")
+    )
+    config = Config(M_START, 10000.0, 100.0)
+
+    capped = Fixed({"A": 0.5, "B": 0.5}, gate=_score_gate(), label="x")
+    legacy = Gated(label="x", blocked=("A",))
+
+    for got, want in zip(simulate(prices, capped, config), simulate(prices, legacy, config)):
+        assert_frame_equal(got, want)
+
+
+def test_closed_score_gate_with_w_off_zero_sells_and_the_sleeve_absorbs_it():
+    rebalance = [i == 12 for i in range(15)]
+    prices = monthly_frame(CRASH, FLAT_B, rebalance)
+    st = Fixed({"A": 0.5, "B": 0.5}, gate=_score_gate(w_off=0.0), label="x")
+
+    _, trades, allocations = simulate(prices, st, Config(M_START, 10000.0, 100.0))
+
+    day = trades.filter(pl.col("date") == dt.date(2021, 1, 28))
+    assert day["action"].to_list() == ["DEPOSIT", "SELL", "BUY"]
+    assert day.filter(pl.col("action") == "SELL")["asset"].item() == "A"
+    assert day.filter(pl.col("action") == "BUY")["asset"].item() == "B"
+    # The clip moved every A dollar into the sleeve.
+    held = allocations.filter(pl.col("date") == dt.date(2021, 1, 28))
+    assert dict(zip(held["asset"], held["actual"])) == {"A": 0.0, "B": 1.0, "CASH": 0.0}
+
+
+def test_a_warm_up_score_gate_is_open_and_equals_the_ungated_twin():
+    # Every rebalance day falls inside the warm-up, where the score is null.
+    rebalance = [0 < i < 12 for i in range(15)]
+    prices = monthly_frame(CRASH, FLAT_B, rebalance)
+    config = Config(M_START, 10000.0, 100.0)
+
+    gated = Fixed({"A": 0.5, "B": 0.5}, gate=_score_gate(w_off=0.0), label="x")
+    plain = Fixed({"A": 0.5, "B": 0.5}, label="x")
+
+    for got, want in zip(simulate(prices, gated, config), simulate(prices, plain, config)):
+        assert_frame_equal(got, want)
