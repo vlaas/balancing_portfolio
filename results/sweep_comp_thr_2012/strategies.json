@@ -1,0 +1,856 @@
+[
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": -0.03
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=m3",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=m3",
+    "params": {
+      "gate.threshold": -0.03,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": -0.03,
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=m3 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=m3 off30",
+    "params": {
+      "gate.threshold": -0.03,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": -0.03,
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=m3 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=m3 off0",
+    "params": {
+      "gate.threshold": -0.03,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": -0.02
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=m2",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=m2",
+    "params": {
+      "gate.threshold": -0.02,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": -0.02,
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=m2 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=m2 off30",
+    "params": {
+      "gate.threshold": -0.02,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": -0.02,
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=m2 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=m2 off0",
+    "params": {
+      "gate.threshold": -0.02,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": -0.01
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=m1",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=m1",
+    "params": {
+      "gate.threshold": -0.01,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": -0.01,
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=m1 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=m1 off30",
+    "params": {
+      "gate.threshold": -0.01,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": -0.01,
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=m1 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=m1 off0",
+    "params": {
+      "gate.threshold": -0.01,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=0",
+    "params": {
+      "gate.threshold": 0,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": 0,
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=0 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=0 off30",
+    "params": {
+      "gate.threshold": 0,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": 0,
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=0 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=0 off0",
+    "params": {
+      "gate.threshold": 0,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": 0.01
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=1",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=1",
+    "params": {
+      "gate.threshold": 0.01,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": 0.01,
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=1 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=1 off30",
+    "params": {
+      "gate.threshold": 0.01,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": 0.01,
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=1 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=1 off0",
+    "params": {
+      "gate.threshold": 0.01,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": 0.02
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=2",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=2",
+    "params": {
+      "gate.threshold": 0.02,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": 0.02,
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=2 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=2 off30",
+    "params": {
+      "gate.threshold": 0.02,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": 0.02,
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=2 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=2 off0",
+    "params": {
+      "gate.threshold": 0.02,
+      "gate.w_off": 0
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": 0.03
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=3",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=3",
+    "params": {
+      "gate.threshold": 0.03,
+      "gate.w_off": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": 0.03,
+        "w_off": 0.3
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=3 off30",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=3 off30",
+    "params": {
+      "gate.threshold": 0.03,
+      "gate.w_off": 0.3
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.6,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "score": {
+          "kind": "avg",
+          "months": [
+            1,
+            3,
+            6,
+            12
+          ]
+        },
+        "symbol": "QQQ",
+        "threshold": 0.03,
+        "w_off": 0
+      },
+      "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=3 off0",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "sigma_target": 0.3,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.6,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=3 off0",
+    "params": {
+      "gate.threshold": 0.03,
+      "gate.w_off": 0
+    }
+  }
+]
