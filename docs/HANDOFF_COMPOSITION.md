@@ -15,6 +15,11 @@ TQQQ machine (VT + SMA-200 gate + BTAL-heavy sleeve), agreed as the next
 increment after Stage 3. Composition of rotation machinery with gates/VT was
 explicitly out of scope through all three rotation stages; this spec opens it.
 
+**Done:** [COMPOSITION_SPEC.md](COMPOSITION_SPEC.md) → verdict
+[comp-verdict.md](../notes/comp-verdict.md) — nothing adopted; the score gate is
+a substitute at best, the protection on this machine is the trend filter, and
+the 12-month sign beats `1-3-6-12U` here (§3.2's finding does not transplant).
+
 ## 2. Standing verdicts (authoritative files in repo `notes/` and `docs/`)
 
 - **Incumbents unchanged:** B75K25 (robust-score leader), B75D25 (robustness /

@@ -73,9 +73,14 @@ the monthly variant and the contribution exemption.
 | `assets` | list[str] | required | traded assets whose *buys* the gate caps; each must be in the strategy's weights |
 | `sma_days` | int | — | daily SMA length; indicator `sma(n)`, column `SMA{n}` |
 | `sma_months` | int | — | month-end SMA length; indicator `sma_monthly(m)`, column `SMA{m}M` |
+| `score` | score object | — | monthly momentum score on `symbol` (ROTATION_SPEC §6.1), e.g. `{"kind": "avg", "months": [1, 3, 6, 12]}` → column `MOMM1-3-6-12U` |
+| `threshold` | float | `0.0` | score kind only; closed while `score <= threshold`; a multiple of 0.001 |
 | `contribution_exempt` | bool | `false` | when closed, still allow buys up to that day's external cash × the asset's weight |
 
-Exactly one of `sma_days` / `sma_months`. Semantics, matching the existing strategy line for
+Exactly one of `sma_days` / `sma_months` / `fire` / `score` (the four-kind rule; the regime
+kind's `fire` / `denominator` / `ratio_sma` / `hysteresis` keys and the `w_off` clip shared
+by all four are specified in REGIME_SPEC §5.1, the score kind in COMPOSITION_SPEC §4.1).
+Semantics of the sma kinds, matching the existing strategy line for
 line: the gate is **closed** on a day iff `close(symbol) < SMA`; it is **open** if either
 value is `None`. `Gate.indicators` returns `{symbol: (indicator,)}` for the owning strategy
 to merge into its own; `Gate.buy_cap(asset, ctx, weights) -> float | None` returns `None`

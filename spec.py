@@ -85,11 +85,24 @@ def _pct(x: float) -> str:
 
 def _condition(entry: dict, path: str) -> None:
     """The condition kind shared by a gate and a switch's `when`: exactly one
-    of sma_days / sma_months / fire, with the regime keys validated against
-    fire (REGIME_SPEC §4, SAFE_SWITCH_SPEC §2.1)."""
-    kinds = ("sma_days" in entry) + ("sma_months" in entry) + ("fire" in entry)
+    of sma_days / sma_months / fire / score, with the regime keys validated
+    against fire and threshold against score (REGIME_SPEC §4,
+    SAFE_SWITCH_SPEC §2.1, COMPOSITION_SPEC §4.1)."""
+    kinds = (
+        ("sma_days" in entry) + ("sma_months" in entry)
+        + ("fire" in entry) + ("score" in entry)
+    )
     if kinds != 1:
-        _fail(path, "exactly one of sma_days / sma_months / fire")
+        _fail(path, "exactly one of sma_days / sma_months / fire / score")
+    if "score" in entry:
+        _score(entry["score"], _join(path, "score"))
+        threshold = entry.get("threshold", 0.0)
+        if isinstance(threshold, bool) or not isinstance(threshold, (int, float)) \
+                or abs(threshold * 1000 - round(threshold * 1000)) > 1e-9:
+            _fail(_join(path, "threshold"),
+                  f"expected a multiple of 0.001, got {threshold!r}")
+    elif "threshold" in entry:
+        _fail(_join(path, "threshold"), "requires score")
     if "fire" in entry:
         for key in ("denominator", "ratio_sma"):
             if key not in entry:
@@ -115,11 +128,18 @@ def _condition(entry: dict, path: str) -> None:
 
 def _condition_normalised(entry: dict) -> dict:
     """The condition keys of a normalised gate or `when` object: the regime
-    kind with hysteresis filled, or the single sma key."""
+    kind with hysteresis filled, the score kind with threshold filled, or the
+    single sma key."""
     if "fire" in entry:
         return {
             "denominator": entry["denominator"], "ratio_sma": entry["ratio_sma"],
             "fire": entry["fire"], "hysteresis": entry.get("hysteresis", 0.0),
+        }
+    if "score" in entry:
+        # `_condition` has already validated it, so the re-parse cannot fail.
+        return {
+            "score": _score(entry["score"], "score")[1],
+            "threshold": entry.get("threshold", 0.0),
         }
     key = "sma_days" if "sma_days" in entry else "sma_months"
     return {key: entry[key]}
@@ -130,7 +150,7 @@ def _gate_object(entry: dict, path: str, universe: set) -> tuple[Gate, dict]:
         entry, path,
         {"symbol", "assets"},
         {"sma_days", "sma_months", "denominator", "ratio_sma", "fire",
-         "hysteresis", "contribution_exempt", "w_off"},
+         "hysteresis", "score", "threshold", "contribution_exempt", "w_off"},
     )
     _condition(entry, path)
     if "w_off" in entry:
@@ -150,6 +170,10 @@ def _gate_object(entry: dict, path: str, universe: set) -> tuple[Gate, dict]:
         ratio_sma=entry.get("ratio_sma"),
         fire=entry.get("fire"),
         hysteresis=entry.get("hysteresis", 0.0),
+        score=_score(entry["score"], _join(path, "score"))[0]
+        if "score" in entry
+        else None,
+        threshold=entry.get("threshold", 0.0) if "score" in entry else None,
         contribution_exempt=entry.get("contribution_exempt", False),
         w_off=entry.get("w_off"),
     )
@@ -209,10 +233,10 @@ def _rebalance_suffix(cadence: Cadence | None) -> str:
 
 
 def gate_str(gate: Gate | AnyGate) -> str:
-    """`QQQ<SMA200` or `VIX/VIX3M@10>=1.00<0.95`, plus `+contrib` when
-    contributions are exempt and ` off{pct}` when `w_off` is set; a composite
-    joins its members with `|` — the rendering the auto-labels embed and
-    sweep params reuse (REGIME_SPEC §5.2)."""
+    """`QQQ<SMA200`, `VIX/VIX3M@10>=1.00<0.95` or `QQQ:MOMM1-3-6-12U<=m2`, plus
+    `+contrib` when contributions are exempt and ` off{pct}` when `w_off` is
+    set; a composite joins its members with `|` — the rendering the auto-labels
+    embed and sweep params reuse (REGIME_SPEC §5.2, COMPOSITION_SPEC §4.2)."""
     if isinstance(gate, AnyGate):
         return "|".join(gate_str(member) for member in gate.members)
     exempt = "+contrib" if gate.contribution_exempt else ""
@@ -223,6 +247,11 @@ def gate_str(gate: Gate | AnyGate) -> str:
             f"{gate.symbol}/{gate.denominator}@{gate.ratio_sma}"
             f">={gate.fire:.2f}{band}{exempt}{off}"
         )
+    if gate.score is not None:
+        # `m` for a negative threshold: `slug` strips every non-alphanumeric
+        # character, so `<=-0.02` and `<=0.02` would collide at build.
+        threshold = _pct(gate.threshold).replace("-", "m")
+        return f"{gate.symbol}:{gate.column}<={threshold}{exempt}{off}"
     return f"{gate.symbol}<{gate.column}{exempt}{off}"
 
 
@@ -278,7 +307,7 @@ def _safe(safe, path: str, risk: str) -> tuple:
         _fields(
             when, when_path, {"symbol"},
             {"sma_days", "sma_months", "denominator", "ratio_sma", "fire",
-             "hysteresis"},
+             "hysteresis", "score", "threshold"},
         )
         _condition(when, when_path)
         condition = Gate(
@@ -290,6 +319,10 @@ def _safe(safe, path: str, risk: str) -> tuple:
             ratio_sma=when.get("ratio_sma"),
             fire=when.get("fire"),
             hysteresis=when.get("hysteresis", 0.0),
+            score=_score(when["score"], _join(when_path, "score"))[0]
+            if "score" in when
+            else None,
+            threshold=when.get("threshold", 0.0) if "score" in when else None,
         )
         runtime = SafeSwitch(on=sides["on"][0], off=sides["off"][0], when=condition)
         normalised = {

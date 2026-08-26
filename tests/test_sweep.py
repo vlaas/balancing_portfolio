@@ -335,6 +335,73 @@ def test_a_nested_score_months_grid_is_a_numeric_dimension():
     assert [e["neighbourhood"]["neighbour_min"] for e in s] == [1, 2, 1]
 
 
+# --- COMPOSITION_SPEC C3: score gates in grids -------------------------------
+
+U = {"kind": "avg", "months": [1, 3, 6, 12]}
+G_U = {"symbol": "QQQ", "assets": ["TQQQ"], "score": dict(U)}
+
+
+def test_a_nested_threshold_grid_is_numeric_and_w_off_categorical():
+    t = flat_template()
+    t["gate"] = G_U | {
+        "threshold": {"grid": [-0.02, 0, 0.02]},
+        "w_off": {"grid": [None, 0]},
+    }
+    spec = t5_spec(t)
+    expanded = expand(spec["template"])
+    labels = [e["label"] for e in expanded]
+
+    assert len(expanded) == 6
+    assert set(expanded[0]["params"]) == {"gate.threshold", "gate.w_off"}
+    assert {e["params"]["gate.threshold"] for e in expanded} == {-0.02, 0, 0.02}
+    assert len(set(labels)) == 6
+
+    wins = [Window("full", "full", dt.date(2020, 1, 2), dt.date(2026, 1, 2))]
+    # Expansion order: threshold varies slowest, w_off fastest.
+    records = {"full": {l: stats_of(o) for l, o in zip(labels, [1, 2, 3, 4, 5, 6])}}
+    records["full"]["bench"] = stats_of(0)
+
+    summary = build_summary(
+        spec, wins, expanded, ["bench"], records,
+        {l: True for l in labels}, notes=[], warnings=[],
+    )
+
+    s = summary["strategies"]
+    # (threshold 0, w_off None) = 3: threshold neighbours at the same w_off.
+    assert s[2]["neighbourhood"] == {
+        "neighbour_min": 1, "neighbour_mean": 3.0, "edge": False,
+    }
+    # The ±0.02 ends are on the threshold boundary; w_off adds no neighbours.
+    assert [e["neighbourhood"]["edge"] for e in s] == [True, True, False, False, True, True]
+
+
+def test_a_nested_score_grid_renders_through_score_str():
+    t = flat_template()
+    t["gate"] = G_U | {"score": {"grid": [dict(U), {"months": 12}]}}
+
+    out = expand(t)
+
+    assert [e["params"]["gate.score"] for e in out] == ["1-3-6-12U", "12M"]
+    assert [e["label"] for e in out] == [
+        "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOMM1-3-6-12U<=0",
+        "VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ:MOM12M<=0",
+    ]
+
+
+def test_a_categorical_gate_grid_renders_score_members_and_composites():
+    t = flat_template()
+    t["gate"] = {"grid": [None, dict(G_SMA), dict(G_U), [dict(G_SMA), dict(G_U)]]}
+
+    out = expand(t)
+
+    assert [e["params"]["gate"] for e in out] == [
+        None, "QQQ<SMA200", "QQQ:MOMM1-3-6-12U<=0",
+        "QQQ<SMA200|QQQ:MOMM1-3-6-12U<=0",
+    ]
+    assert len({e["label"] for e in out}) == 4
+    assert [g["symbol"] for g in out[3]["entry"]["gate"]] == ["QQQ", "QQQ"]
+
+
 def test_an_ordinary_spec_names_the_right_entry_point():
     with pytest.raises(ValueError, match=re.escape("run it with `uv run main.py --spec")):
         validate(load_spec(SPECS / "research.json"))
@@ -1171,3 +1238,27 @@ def test_the_r2d_diagnostic_reads_its_input_off_the_committed_runs(name):
             continue  # each lane carries only its own family's K1 null
         assert test[label]["max_drawdown"] is not None, label
         assert test[label]["max_drawdown"] <= 0
+
+
+COMP_LANES = {  # COMPOSITION_SPEC §7.7, pinned before the lanes were run
+    "sweep_comp_2012": "14 grid + 3 baselines x 23 windows = 391 runs",
+    "sweep_comp_thr_2012": "21 grid + 5 baselines x 23 windows = 598 runs",
+    "sweep_comp_2021": "21 grid + 3 baselines x 9 windows = 216 runs",
+    "sweep_comp_2019": "14 grid + 3 baselines x 12 windows = 204 runs",
+}
+
+
+@pytest.mark.parametrize("name", COMP_LANES, ids=lambda n: n[len("sweep_comp_"):])
+def test_dry_run_counts_of_the_composition_lanes(name, tmp_path, monkeypatch, capsys):
+    net_dir = GOLDEN_DIR / "2026-08-24-net15"
+    out = tmp_path / "out"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["sweep.py", str(SPECS / f"{name}.json"),
+         "--data", str(net_dir), "--out", str(out), "--dry-run"],
+    )
+
+    sweep_main()
+
+    assert COMP_LANES[name] in capsys.readouterr().out
+    assert not out.exists()

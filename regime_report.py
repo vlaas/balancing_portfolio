@@ -74,6 +74,16 @@ def episode_spans(frame: pl.DataFrame) -> list[tuple[dt.date, dt.date, int]]:
     return spans
 
 
+def contingency(rows: pl.DataFrame, primary: str, other: str) -> str:
+    """`both | primary only | other only | neither` over `rows` — the four-way
+    month-end tally, shared with `score_report` (COMPOSITION_SPEC §5)."""
+    both = int((rows[primary] & rows[other]).sum())
+    primary_only = int((rows[primary] & ~rows[other]).sum())
+    other_only = int((~rows[primary] & rows[other]).sum())
+    neither = len(rows) - both - primary_only - other_only
+    return f"{both} | {primary_only} | {other_only} | {neither}"
+
+
 def report(
     data_dir: Path, symbol: str, denominator: str, n: int, fire: float,
     hysteresis: float, start: dt.date, end: dt.date | None,
@@ -103,13 +113,6 @@ def report(
         regime_off=pl.col("off") == 1.0,
         sma_off=pl.col("sma").is_not_null() & (pl.col("close") < pl.col("sma")),
     )
-
-    def contingency(rows: pl.DataFrame) -> str:
-        both = int((rows["regime_off"] & rows["sma_off"]).sum())
-        sma_only = int((~rows["regime_off"] & rows["sma_off"]).sum())
-        regime_only = int((rows["regime_off"] & ~rows["sma_off"]).sum())
-        neither = len(rows) - both - sma_only - regime_only
-        return f"{both} | {sma_only} | {regime_only} | {neither}"
 
     sma_name = f"{sma_symbol}<SMA{sma_days}"
     lines = [
@@ -150,8 +153,9 @@ def report(
         "",
         "| window | both | SMA only | regime only | neither |",
         "|---|---|---|---|---|",
-        f"| full | {contingency(ends)} |",
-        f"| 2022 | {contingency(ends.filter(pl.col('date').dt.year() == 2022))} |",
+        f"| full | {contingency(ends, 'sma_off', 'regime_off')} |",
+        f"| 2022 | "
+        f"{contingency(ends.filter(pl.col('date').dt.year() == 2022), 'sma_off', 'regime_off')} |",
     ]
     return "\n".join(lines) + "\n"
 

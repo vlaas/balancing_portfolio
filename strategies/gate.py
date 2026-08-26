@@ -1,9 +1,11 @@
 """A gate a strategy owns: caps buys of chosen assets while closed, and
-optionally clips their target weight. Two kinds, one class (REGIME_SPEC §4):
-sma closes while the symbol trades below its SMA; regime closes while the
-term-structure state machine on symbol/denominator reads risk-off."""
+optionally clips their target weight. Four kinds, one class (REGIME_SPEC §4,
+COMPOSITION_SPEC §3): sma closes while the symbol trades below its SMA; regime
+closes while the term-structure state machine on symbol/denominator reads
+risk-off; score closes while a monthly momentum score is at or below its
+threshold."""
 
-from indicators import sma, sma_monthly, ts_regime
+from indicators import Indicator, sma, sma_monthly, ts_regime
 from strategy import MarketDay
 
 
@@ -24,11 +26,16 @@ class Gate:
         ratio_sma: int | None = None,
         fire: float | None = None,
         hysteresis: float = 0.0,
+        score: Indicator | None = None,
+        threshold: float | None = None,
         contribution_exempt: bool = False,
         w_off: float | None = None,
     ):
-        kinds = (sma_days is not None) + (sma_months is not None) + (fire is not None)
-        assert kinds == 1, "exactly one of sma_days / sma_months / fire"
+        kinds = (
+            (sma_days is not None) + (sma_months is not None)
+            + (fire is not None) + (score is not None)
+        )
+        assert kinds == 1, "exactly one of sma_days / sma_months / fire / score"
         self._regime = fire is not None
         if self._regime:
             assert denominator is not None and ratio_sma is not None, (
@@ -41,8 +48,19 @@ class Gate:
             assert denominator is None and ratio_sma is None, (
                 "denominator and ratio_sma require fire"
             )
-            self.indicator = sma(sma_days) if sma_days is not None else sma_monthly(sma_months)
+            if score is not None:
+                assert threshold is not None, "threshold is required with score"
+                # A multiple of 0.001, so gate_str renders it losslessly.
+                assert not isinstance(threshold, bool) and abs(
+                    threshold * 1000 - round(threshold * 1000)
+                ) < 1e-9, f"threshold must be a multiple of 0.001, got {threshold}"
+                self.indicator = score
+            else:
+                self.indicator = (
+                    sma(sma_days) if sma_days is not None else sma_monthly(sma_months)
+                )
             self.symbols = (symbol,)
+        assert score is not None or threshold is None, "threshold requires score"
         assert w_off is None or 0 <= w_off <= 1, f"w_off must be in [0, 1], got {w_off}"
         self.symbol = symbol
         self.assets = tuple(assets)
@@ -53,6 +71,8 @@ class Gate:
         self.ratio_sma = ratio_sma
         self.fire = fire
         self.hysteresis = hysteresis
+        self.score = score
+        self.threshold = threshold
 
     @property
     def indicators(self) -> dict:
@@ -61,8 +81,12 @@ class Gate:
     def closed(self, ctx: MarketDay) -> bool:
         if self._regime:
             return ctx.indicator(self.symbol, self.column) == 1.0
-        close = ctx.close(self.symbol)
         value = ctx.indicator(self.symbol, self.column)
+        if self.score is not None:
+            # `<=`, the rotation family's "non-positive is bad" convention
+            # (COMPOSITION_SPEC §3.1).
+            return value is not None and value <= self.threshold
+        close = ctx.close(self.symbol)
         return close is not None and value is not None and close < value
 
     def buy_cap(self, asset: str, ctx: MarketDay, weights: dict[str, float]) -> float | None:
