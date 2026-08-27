@@ -25,6 +25,7 @@ from episode_report import (
     split,
     split_by_trough,
 )
+from sweep import main as sweep_main
 
 GOLDEN_DIR = Path(__file__).parent / "data"
 NET = GOLDEN_DIR / "2026-08-24-net15"
@@ -107,12 +108,20 @@ def test_a2_a_window_with_fewer_than_two_bars_yields_none(start, end):
 
 
 def marginals(rows, baseline):
-    """{row name: {episode id: (return pp, drawdown pp)}} against `baseline`."""
+    """{row name: {episode id: (return pp, drawdown pp)}} against `baseline`.
+
+    `None` where either side has fewer than two bars in the window — the 2021
+    lane starts 2020-12-18 and so has no E1, E2 or E3.
+    """
     cells = {name: c for name, _, c in rows}
     base = cells[baseline]
+
+    def delta(value, floor):
+        return None if value is None or floor is None else 100 * (value - floor)
+
     return {
         name: {
-            eid: (100 * (c[eid][0] - base[eid][0]), 100 * (c[eid][1] - base[eid][1]))
+            eid: (delta(c[eid][0], base[eid][0]), delta(c[eid][1], base[eid][1]))
             for eid, *_ in EPISODES
         }
         for name, c in cells.items()
@@ -163,6 +172,77 @@ def test_a3_the_rendered_report_cites_the_table_by_id_and_window():
         assert f"{peak} → {recovery} | {trough} |" in text
     # The marginal table's own §11 row, so the rendering is pinned beside the numbers.
     assert "| `BTAL` | -0.4 / +5.3 | +1.5 / +2.3 | +5.1 / +5.7 | -27.0 / -10.7 |" in text
+
+
+# --- A4 — the 2021 attribution pins (§6, §11) --------------------------------
+
+# §6 A4, (marginal return pp, marginal drawdown pp) against BIL on the 2021 lane;
+# `None` where the spec pins only one of the two. The winners' 2022 is mostly
+# KMLM's (+16.5 against BTAL's +8.3) while its drawdown is BTAL's (+8.5 against
+# +5.8), and the blend beats both components (+11.0).
+A4 = {
+    ("BTAL", "E4"): (-11.6, -7.4),
+    ("KMLM", "E4"): (+8.8, +3.9),
+    ("DBMF", "E4"): (+10.0, +2.9),
+    ("BTAL", "E5"): (+8.3, +8.5),
+    ("KMLM", "E5"): (+16.5, +5.8),
+    ("DBMF", "E5"): (+8.2, +5.2),
+    ("BTAL75+KMLM25", "E5"): (None, +11.0),
+    ("BTAL", "E6"): (-11.2, None),
+    ("KMLM", "E6"): (-10.7, None),
+    ("DBMF", "E6"): (-7.3, None),
+}
+
+
+@pytest.fixture(scope="module")
+def lane_2021():
+    return episode_rows(SPECS / "episode_points_2021.json", NET)
+
+
+def test_a4_the_2021_panel_is_the_components_at_25_50_and_100_plus_the_winners(lane_2021):
+    assert [name for name, *_ in lane_2021] == [
+        "BIL",
+        "BIL75+BTAL25", "BIL50+BTAL50",
+        "BIL75+KMLM25", "BIL50+KMLM50",
+        "BIL75+DBMF25", "BIL50+DBMF50",
+        "BTAL", "KMLM", "DBMF",
+        "BTAL75+KMLM25", "BTAL75+DBMF25", "BTAL50+KMLM50",
+        "SPY benchmark",
+    ]
+
+
+@pytest.mark.parametrize("key", A4, ids=[f"{s}-{e}" for s, e in A4])
+def test_a4_the_2021_marginals_against_bil_reproduce(lane_2021, key):
+    sleeve, episode = key
+    ret, drawdown = marginals(lane_2021, "BIL")[sleeve][episode]
+    want_ret, want_drawdown = A4[key]
+
+    if want_ret is not None:
+        assert ret == pytest.approx(want_ret, abs=0.2)
+    if want_drawdown is not None:
+        assert drawdown == pytest.approx(want_drawdown, abs=0.2)
+
+
+def test_a4_the_e5_drawdown_benefit_of_the_blend_beats_both_its_components(lane_2021):
+    # Complementarity at the episode level (§11 prediction 3): the sleeve buys
+    # more 2022 drawdown than either arm alone does.
+    cells = marginals(lane_2021, "BIL")
+    blend = cells["BTAL75+KMLM25"]["E5"][1]
+    assert blend > cells["BTAL"]["E5"][1]
+    assert blend > cells["KMLM"]["E5"][1]
+
+
+# The §5.2 lane's frozen size, measured by --dry-run before it is run (§9 step 0).
+def test_a4_the_three_year_lane_dry_runs_to_its_frozen_count(tmp_path, monkeypatch, capsys):
+    out = tmp_path / "out"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["sweep.py", str(SPECS / "sweep_episode_2012.json"),
+         "--data", str(NET), "--out", str(out), "--dry-run"],
+    )
+    sweep_main()
+    assert "5 grid + 1 baselines x 27 windows = 162 runs" in capsys.readouterr().out
+    assert not out.exists()
 
 
 # --- A5 — the partition pins on the committed 2012 sweep (§2.2, §6) ----------

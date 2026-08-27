@@ -60,8 +60,12 @@ def episode_slice(
     return index[-1] / index[0] - 1.0, drawdown.min()
 
 
-def _cell(value: float | None, scale: float = 100.0) -> str:
-    return "·" if value is None else f"{value * scale:+.1f}"
+def _cell(value: float | None) -> str:
+    return "·" if value is None else f"{100 * value:+.1f}"
+
+
+def _delta(value: float | None, floor: float | None) -> float | None:
+    return None if value is None or floor is None else value - floor
 
 
 def _table(rows: list[tuple[str, str, dict]], marginal: dict | None) -> list[str]:
@@ -80,8 +84,8 @@ def _table(rows: list[tuple[str, str, dict]], marginal: dict | None) -> list[str
             else:
                 base_ret, base_drawdown = marginal[eid]
                 out.append(
-                    f"{_cell(None if ret is None else ret - base_ret)}"
-                    f" / {_cell(None if drawdown is None else drawdown - base_drawdown)}"
+                    f"{_cell(_delta(ret, base_ret))}"
+                    f" / {_cell(_delta(drawdown, base_drawdown))}"
                 )
         lines.append(f"| `{label}` | " + " | ".join(out) + " |")
     return lines
