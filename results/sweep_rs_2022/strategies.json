@@ -1,0 +1,109 @@
+[
+  {
+    "entry": {
+      "label": "NTSX100",
+      "type": "fixed",
+      "weights": {
+        "NTSX": 1.0
+      }
+    },
+    "label": "NTSX100",
+    "params": {
+      "weights": "{\"NTSX\":1.0}"
+    }
+  },
+  {
+    "entry": {
+      "label": "NTSI100",
+      "type": "fixed",
+      "weights": {
+        "NTSI": 1.0
+      }
+    },
+    "label": "NTSI100",
+    "params": {
+      "weights": "{\"NTSI\":1.0}"
+    }
+  },
+  {
+    "entry": {
+      "label": "NTSE100",
+      "type": "fixed",
+      "weights": {
+        "NTSE": 1.0
+      }
+    },
+    "label": "NTSE100",
+    "params": {
+      "weights": "{\"NTSE\":1.0}"
+    }
+  },
+  {
+    "entry": {
+      "label": "RPAR100",
+      "type": "fixed",
+      "weights": {
+        "RPAR": 1.0
+      }
+    },
+    "label": "RPAR100",
+    "params": {
+      "weights": "{\"RPAR\":1.0}"
+    }
+  },
+  {
+    "entry": {
+      "label": "UPAR100",
+      "type": "fixed",
+      "weights": {
+        "UPAR": 1.0
+      }
+    },
+    "label": "UPAR100",
+    "params": {
+      "weights": "{\"UPAR\":1.0}"
+    }
+  },
+  {
+    "entry": {
+      "label": "GDE100",
+      "type": "fixed",
+      "weights": {
+        "GDE": 1.0
+      }
+    },
+    "label": "GDE100",
+    "params": {
+      "weights": "{\"GDE\":1.0}"
+    }
+  },
+  {
+    "entry": {
+      "label": "NTSX50/GDE50",
+      "type": "fixed",
+      "weights": {
+        "GDE": 0.5,
+        "NTSX": 0.5
+      }
+    },
+    "label": "NTSX50/GDE50",
+    "params": {
+      "weights": "{\"GDE\":0.5,\"NTSX\":0.5}"
+    }
+  },
+  {
+    "entry": {
+      "label": "NTSX34/NTSI33/NTSE33",
+      "type": "fixed",
+      "weights": {
+        "NTSE": 0.33,
+        "NTSI": 0.33,
+        "NTSX": 0.34
+      }
+    },
+    "label": "NTSX34/NTSI33/NTSE33",
+    "params": {
+      "weights": "{\"NTSE\":0.33,\"NTSI\":0.33,\"NTSX\":0.34}"
+    }
+  }
+]
