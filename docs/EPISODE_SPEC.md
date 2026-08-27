@@ -47,8 +47,9 @@ it proposes — cannot be written against "2022" when the data says the pivot is
 
 The spec also closes a housekeeping gap the last verdict opened: `docs/WINNING_STRATEGIES.md`
 was created by CASH_SLEEVE §10.6(b) and then renamed to
-`docs/WINNING_STRATEGIES_CASH_SLEEVE.md`, leaving ten references in living documents
-pointing at a path that no longer exists (§7.2).
+`docs/WINNING_STRATEGIES_CASH_SLEEVE.md`, leaving twelve references in `docs/` pointing
+at a path that no longer exists — two in the living handoff, ten in frozen specs
+(§7.2 treats the two kinds differently).
 
 ## 2. What is already true at `68cac21` (measured on this clone)
 
@@ -207,93 +208,150 @@ a bundle of 11–14 in-process, seconds), four partition reads. Under two minute
 
 ## 6. Tests — new `tests/test_episode.py`
 
-Cite as "EPISODE_SPEC E·".
+Cite as "EPISODE_SPEC A·" (episodes keep their E-ids; tests take A for attribution).
 
-**E1 — The table is frozen.** `EPISODES` has exactly seven entries with the §3 ids,
+**A1 — The table is frozen.** `EPISODES` has exactly seven entries with the §3 ids,
 windows and troughs; every trough lies inside its window; windows are in date order.
 
-**E2 — Slicing is exact.** On a synthetic curve with known values, episode return and
+**A2 — Slicing is exact.** On a synthetic curve with known values, episode return and
 in-window max drawdown equal hand values; a window starting before the curve's first
 bar reads from the first bar; a window with fewer than two bars yields `None`.
 
-**E3 — The 2012 attribution pins** (bundle mode on `specs/cash_points_2012.json`,
+**A3 — The 2012 attribution pins** (bundle mode on `specs/cash_points_2012.json`,
 σ0.20 / w0.8, baseline `BIL`, net15). Pure BTAL's marginal (return pp / drawdown pp):
 E1 −0.4 / +5.3, E2 +1.5 / +2.3, E3 +5.1 / +5.7, **E4 −27.0 / −10.7**, E5 +8.2 / +9.1,
 E6 −11.1 / +5.1, E7 −9.3 / −0.8 — each to ±0.2 pp. `BIL50+BTAL50`'s: E4 −14.0 / −2.9,
 E5 +4.4 / +5.6.
 
-**E4 — The 2021 attribution pins** (bundle mode on `specs/episode_points_2021.json`,
+**A4 — The 2021 attribution pins** (bundle mode on `specs/episode_points_2021.json`,
 baseline `BIL`). E5 marginal return: KMLM +16.5, DBMF +8.2, BTAL +8.3; E5 marginal
 drawdown: BTAL +8.5, KMLM +5.8, DBMF +5.2, `BTAL75+KMLM25` **+11.0**; E4 marginal:
 BTAL −11.6 / −7.4, KMLM +8.8 / +3.9, DBMF +10.0 / +2.9; E6 marginal return: BTAL
 −11.2, KMLM −10.7, DBMF −7.3 — each ±0.2 pp.
 
-**E5 — The partition pins** (partition mode on the committed
+**A5 — The partition pins** (partition mode on the committed
 `results/sweep_cash_2012/runs.json`, `BTAL` vs `BIL50+BTAL50`): by E4's trough, 10
 windows containing it → 10 Calmar wins and 10 shallower for the 50/50, 10 without →
 2 and 0; by E5's trough, 7 → 7 and 6, 13 → 5 and 4; by E3's, 10 → 9 and 8, 10 → 3 and
 2.
 
-**E6 — The winners' deepest hole is E4.** From `results/cash_points_2021.json`, each
+**A6 — The winners' deepest hole is E4.** From `results/cash_points_2021.json`, each
 winner's deepest `drawdowns` entry has `peak` 2021-01-26 and `trough` 2021-03-08 and
 its depth equals the winner's full-window max drawdown from `sweep_cash_2021` to
 0.01 pp (−19.06 / −19.07 / −20.90 → the panel's −19.1 / −19.1 / −16.1: note B50K50's
 deepest is E6 at −20.9, so the assertion is "E4 is the deepest or E6 is and E4 is
 second" — pinned per winner as measured).
 
+**A7 — Living documents do not name the old winners-file path.** The scope is an
+explicit allowlist, not a glob: `docs/HANDOFF_COMPOSITION.md`, `docs/ARCHITECTURE.md`,
+`docs/STRATEGY_DEVELOPMENT.md`, `docs/DECLARATIVE_SPEC.md`, `CLAUDE.md`, `README.md`.
+For each, the literal string `WINNING_STRATEGIES.md` does not occur anywhere in the
+file — the new name `WINNING_STRATEGIES_CASH_SLEEVE.md` does not contain that literal,
+so no "unless followed by" clause and no section-skipping is needed. Two existence
+checks ride along: `docs/WINNING_STRATEGIES_CASH_SLEEVE.md` exists, and
+`docs/WINNING_STRATEGIES.md` exists, is at most three lines, and names the new path.
+No spec file is in scope, this one included: specs are frozen and annotated (§7.2),
+and this spec must carry the old name in §7.2's own tables. The test's docstring
+says that a new living document is added to the list when it is created, and that a
+spec is never added.
+
 ## 7. Docs
 
 ### 7.1 The winners file
 
-`docs/WINNING_STRATEGIES_CASH_SLEEVE.md`, under "Standing flags", the CASH_SLEEVE
-§10.4 sentence is **replaced** — not appended to — by the episode-attributed
-statement, if §10's conditions hold (they are expected to, §11):
+`docs/WINNING_STRATEGIES_CASH_SLEEVE.md` has two sections this spec touches, and they
+are different kinds of thing. "Sleeve composition — what has been asked and answered"
+is a **ledger**: each bullet is a question and the verdict that answered it, and the
+blockquote under the fourth bullet (lines 70–73) is the cash verdict's own answer,
+quoted. It stays verbatim — "No, at these coordinates" is still true and still that
+verdict's finding. "Standing flags" is where facts that travel with the winners live.
+So, if §10's conditions hold (they are expected to, §11):
 
-> The winners' max drawdown is not a TQQQ bear: it is the 2021-01 → 2021-03 anti-beta
-> unwind (E4), where the BTAL-75 sleeves cost 4.5 pp of drawdown against cash. BTAL earns its
-> keep in the TQQQ bears (E1, E2, E3, E5: +2 to +9 pp shallower) and pays for it when
-> high beta leads (E4, E6, E7: −9 to −27 pp of episode return); over 2012–2026 at
-> σ0.20 the payments exceed the earnings, which is why pure BTAL is dominated there.
-> The winners' 2022 is mostly KMLM's (+16.5 pp against BTAL's +8.3), and the blend's
-> drawdown benefit in 2022 (+11.0 pp) exceeds either component's. A future sleeve
-> candidate is pre-registered against the episode table (EPISODE_SPEC §3), naming the
-> episodes it must win and stating that it must not deepen E4 (`notes/episode-verdict.md`).
+**In the ledger** — the fourth bullet's `Open:` line (lines 75–77), which asks the
+question this spec answers, is **closed**, not deleted:
 
-and one new flag: **"Sleeve candidates are pre-registered against the episode table."**
+> Closed by EPISODE_SPEC: the hinge is not 2022. Splitting the 2012 lane's windows by
+> the 2021-03 anti-beta trough (E4) partitions BTAL against the half-swap 10/10 and
+> 2/10; splitting by 2022's trough gives 7/7 and 5/13 (`notes/episode-verdict.md`).
+
+and the quoted answer gains one trailing line, outside the quote: *"The '2022 is one
+year in six' framing in that answer is superseded by the next entry."* A **fifth
+bullet** is added: *Which episodes does each sleeve component earn, and which does it
+pay for?* — answered in two sentences with the E1–E7 marginals for BTAL and the
+KMLM-vs-BTAL 2022 split, and a pointer to `results/episode_2012.md`,
+`results/episode_2021.md` and the verdict.
+
+**Under Standing flags** — two new flags:
+
+> **The winners' deepest hole is BTAL-made, not a TQQQ bear.** It is the 2021-01 →
+> 2021-03 anti-beta unwind (E4), where the BTAL-75 sleeves cost 4.5 pp of drawdown
+> against cash. BTAL earns its keep in the TQQQ bears (E1, E2, E3, E5: +2 to +9 pp
+> shallower) and pays for it when high beta leads (E4, E6, E7: −9 to −27 pp of
+> episode return); over 2012–2026 at σ0.20 the payments exceed the earnings, which is
+> why pure BTAL is dominated there. The winners' 2022 return is mostly KMLM's (+16.5
+> pp against BTAL's +8.3); BTAL's 2022 contribution is drawdown (+8.5 pp), and the
+> blend's (+11.0 pp) exceeds either component's (EPISODE_SPEC, `notes/episode-verdict.md`).
+
+> **Sleeve candidates are pre-registered against the episode table.** A candidate
+> names, before it runs, the episodes of EPISODE_SPEC §3 it must win against the
+> incumbent and states that it must not deepen E4 by more than 1 pp (§10.3).
+
+The second flag is added whatever §10 finds (§10.3). Nothing else in the file moves.
 
 ### 7.2 Housekeeping — the winners file's name
 
 `docs/WINNING_STRATEGIES.md` was created at `fa32da2` and renamed to
-`docs/WINNING_STRATEGIES_CASH_SLEEVE.md` at `68cac21`. References in **living**
-documents are updated to the new path in this spec's docs commit:
+`docs/WINNING_STRATEGIES_CASH_SLEEVE.md` at `68cac21`. Twelve references in `docs/`
+still name the old path. They divide by the repo's own rule — a spec is frozen from
+its pre-registration commit and is annotated afterwards only through its errata —
+not by whether a line is prose or a checklist:
 
-| file | line(s) | text |
+**Renamed in place (2) — the living document:**
+
+| file | line | text |
 |---|---|---|
 | `docs/HANDOFF_COMPOSITION.md` | 28, 138 | `docs/WINNING_STRATEGIES.md` → `docs/WINNING_STRATEGIES_CASH_SLEEVE.md` |
-| `docs/REBALANCE_SPEC.md` | 246, 278 | `WINNING_STRATEGIES.md` → `WINNING_STRATEGIES_CASH_SLEEVE.md` |
-| `docs/REGIME_SPEC.md` | 557, 665 | same |
-| `docs/COMPOSITION_SPEC.md` | 93, 493, 685 | same |
-| `docs/SYNTHETIC_HISTORY_SPEC.md` | 456 | same (and the parenthetical "the winners file, when it exists" is dropped — it exists) |
-| `docs/CASH_SLEEVE_SPEC.md` | 231 | same |
-| `docs/SAFE_SWITCH_SPEC.md` | 317 | same |
 
-Three things are **not** edited: the `notes/*-verdict.md` files (frozen records of what
-was true when written — `cash-verdict.md:282` correctly says the file was created
-under its old name); the errata entries in `COMPOSITION_SPEC.md:720`,
-`CASH_SLEEVE_SPEC.md:513` and `SAFE_SWITCH_SPEC.md:384` (they record history, and
-"has never existed" was true at the time); and `specs/winners.json`, which is a
-bundle, not prose. A one-line stub is added at the old path —
-`docs/WINNING_STRATEGIES.md`: *"Moved to `WINNING_STRATEGIES_CASH_SLEEVE.md` at
-`68cac21`."* — so that any link in an external note still resolves. A test (E7 in
-`tests/test_episode.py`) greps `docs/*.md` outside `## 15. Errata` sections and the
-stub for `WINNING_STRATEGIES.md` not followed by `_CASH_SLEEVE`, and fails on any hit,
-so the next rename is caught at commit time rather than in the next verdict's errata.
+**Left as written, annotated by a one-line erratum in each spec (10):**
+
+| file | line(s) | what the line is | erratum text (appended to that spec's §15 / errata section) |
+|---|---|---|---|
+| `docs/REBALANCE_SPEC.md` | 246, 278 | §7.5 verdict text; an unticked acceptance item | *"The winners file named in §7.5 and the checklist now lives at `docs/WINNING_STRATEGIES_CASH_SLEEVE.md` (created by CASH_SLEEVE §10.6(b), renamed at `68cac21`). Its 'Monthly rebalancing stands' flag is the sentence the checklist asked for; the box is left as it was."* |
+| `docs/REGIME_SPEC.md` | 557, 665 | the frozen decision rule; a `[x]` record | *"The winners file named in §10 step 6 now lives at `docs/WINNING_STRATEGIES_CASH_SLEEVE.md`; the checklist's parenthetical was true when ticked."* |
+| `docs/COMPOSITION_SPEC.md` | 93, 493, 685 | a citation of numbers; the frozen decision rule; a checklist line | *"Line 93 cites 0.856 / 0.859 / 0.890 from the project-level winners document as it stood on the 2026-08-20 snapshot; `docs/WINNING_STRATEGIES_CASH_SLEEVE.md` carries the 2026-08-24 values (0.8470 / 0.8574 / 0.8849) and is the file §10 step 8 and the checklist now refer to."* |
+| `docs/SYNTHETIC_HISTORY_SPEC.md` | 456 | the frozen decision rule | *"'The winners file, when it exists' — it exists: `docs/WINNING_STRATEGIES_CASH_SLEEVE.md`."* |
+| `docs/CASH_SLEEVE_SPEC.md` | 231 | the docs section (its erratum 7 already records the creation) | *"The file §10.6(b) created was renamed to `docs/WINNING_STRATEGIES_CASH_SLEEVE.md` at `68cac21`."* |
+| `docs/SAFE_SWITCH_SPEC.md` | 317 | the frozen decision rule | *"The winners file named in §6.8 now lives at `docs/WINNING_STRATEGIES_CASH_SLEEVE.md`."* |
+
+Why not rename the ten in place: four of them are pre-registered decision rules and
+two are checklist records, and a `git diff` of a closed spec against its
+pre-registration commit should show nothing that was not an erratum; one
+(COMPOSITION 93) cites numbers the new file does not contain, so renaming it would
+point a citation at a document that contradicts it. The stub makes every old link
+resolve, which is the only thing an in-place rename would have added.
+
+**Not edited at all:** the `notes/*-verdict.md` files (frozen records —
+`cash-verdict.md:282` correctly says the file was created under its old name); the
+existing errata entries at `COMPOSITION_SPEC.md:720`, `CASH_SLEEVE_SPEC.md:513` and
+`SAFE_SWITCH_SPEC.md:384` ("has never existed" was true when written); and
+`specs/winners.json`, a bundle, not prose.
+
+**The stub:** `docs/WINNING_STRATEGIES.md` becomes one line — *"Moved to
+`WINNING_STRATEGIES_CASH_SLEEVE.md` at `68cac21`."* — so any link in an external note
+still resolves.
+
+**The guard (A7, §6):** an allowlist of living documents, checked for the literal
+`WINNING_STRATEGIES.md`. Closed specs — this one included — are outside its scope by
+design: their stale names are annotated, not fixed, and a spec that had to be
+excluded by section would be a spec the guard should never have read. The next
+rename is caught where it would matter.
 
 ### 7.3 Elsewhere
 
 - `docs/HANDOFF_COMPOSITION.md` §7: the leave-one-episode-out entry for the BTAL-heavy
   variant gains the episode table's id for the deletion (*"with **E4** deleted, not
-  2022"*) and a pointer here.
+  2022"*) and a pointer here. The pointer says *"the old winners-file path is a stub
+  (EPISODE_SPEC §7.2)"* without spelling that path — the HANDOFF is in A7's scope.
 - `docs/ARCHITECTURE.md`: `episode_report.py` beside the other two report tools.
 - `CLAUDE.md` §6, one line: *a sleeve candidate names, before it is run, the episodes of
   `episode_report.EPISODES` it must win and the one it must not deepen.*
@@ -301,7 +359,7 @@ so the next rename is caught at commit time rather than in the next verdict's er
 ## 8. Run protocol
 
 ```
-uv run pytest                                                                     # E1–E7
+uv run pytest                                                                     # A1–A7
 uv run sweep.py specs/sweep_episode_2012.json --data tests/data/2026-08-24-net15 --out results/sweep_episode_2012
 uv run main.py --spec specs/episode_points_2021.json --data tests/data/2026-08-24-net15 --json results/episode_points_2021.json --no-charts --quiet
 uv run episode_report.py bundle specs/cash_points_2012.json    --data tests/data/2026-08-24-net15 --baseline BIL --sigma 0.20 --w-max 0.8 > results/episode_2012.md
@@ -312,15 +370,15 @@ uv run episode_report.py partition results/sweep_episode_2012/runs.json --pair �
 uv run episode_report.py partition results/sweep_cash_2021/runs.json    --pair … >> results/episode_partitions.md
 ```
 
-Commit order: (1) tool + tests + docs, **including §7.2's reference fix and stub**;
+Commit order: (1) tool + tests + docs, **including §7.2's two renames, ten errata and the stub**;
 (2) the **pre-registration commit** — the two specs, §3's table (already in the tool,
 restated in the spec), §10's conditions and §11's predictions, before any run; (3)
-artefacts; (4) the verdict. E3–E5 are pins on committed data and run in commit (1);
+artefacts; (4) the verdict. A3–A5 are pins on committed data and run in commit (1);
 they are not predictions and are not scored as such.
 
 ## 9. Read protocol
 
-0. The E3–E5 pins hold on the fresh clone; the sweep's `--dry-run` prints 27 windows.
+0. The A3–A5 pins hold on the fresh clone; the sweep's `--dry-run` prints 27 windows.
 1. **The 2012 attribution** (`episode_2012.md`): the five sleeves' episode return and
    drawdown for E1–E7, and the marginal table against `BIL`. Sum BTAL's marginal
    return over the bears (E1, E2, E3, E5) and over the unwinds (E4, E6, E7); same
@@ -332,7 +390,7 @@ they are not predictions and are not scored as such.
 3. **The partitions** (`episode_partitions.md`): for each §5.3 pair, the episode whose
    trough partitions the windows most cleanly (largest gap between the with- and
    without- win rates), at 5 y and 3 y.
-4. **The winners' deepest hole**: E6's pin, restated in the verdict with the E4
+4. **The winners' deepest hole**: A6's pin, restated in the verdict with the E4
    marginal drawdown of BTAL on the 2021 lane beside it.
 5. **The decision, §10.**
 
@@ -341,14 +399,15 @@ they are not predictions and are not scored as such.
 10.1 **No parameter, coordinate or sleeve moves.** This spec adopts nothing and can
 adopt nothing.
 
-10.2 **The winners-file sentence is replaced (§7.1)** if all three hold on the committed
-reports: (a) on the 2012 lane, BTAL's marginal drawdown against `BIL` is shallower in at
+10.2 **The ledger's `Open:` line is closed and the first flag is added (§7.1)** if all
+three hold on the committed reports: (a) on the 2012 lane, BTAL's marginal drawdown against `BIL` is shallower in at
 least three of E1 / E2 / E3 / E5 and deeper by more than 5 pp in E4; (b) on the 2021
 lane, KMLM's E5 marginal return exceeds BTAL's; (c) on the 2021 lane, the partition of
 each winner vs its T is cleaner by E4's trough than by E5's, or the winners' deepest
-episode is E4 (E6's pin). If (a) holds and (b) or (c) fails, the sentence is replaced
-by a narrower one stating only what held. If (a) fails, the CASH_SLEEVE sentence
-stands and this spec's verdict records why.
+episode is E4 (A6's pin). If (a) holds and (b) or (c) fails, the `Open:` line is closed with the
+narrower statement of what held and the flag is written to match. If (a) fails, the
+`Open:` line stays open with a pointer to this verdict recording why, and no flag is
+added.
 
 10.3 **The candidate rule is adopted regardless** (it is a rule about how specs are
 written, not a finding): every future sleeve candidate names, in its pre-registration
@@ -356,7 +415,7 @@ commit, the episode ids it must win against the incumbent (on marginal drawdown 
 marginal return, stated), and E4 as the episode it must not deepen by more than 1 pp.
 A candidate that clears a lane's aggregate bar but deepens E4 is not promoted.
 
-10.4 **Flags.** (i) *"The winners' deepest hole is BTAL-made (E4)"* if E6's pin holds;
+10.4 **Flags.** (i) *"The winners' deepest hole is BTAL-made (E4)"* if A6's pin holds;
 (ii) *"KMLM earns 2022, BTAL earns 2022's drawdown"* if (b) holds and BTAL's E5
 marginal drawdown exceeds KMLM's; (iii) the HANDOFF §7 leave-one-episode-out entry is
 retargeted from 2022 to E4 if (c) holds.
@@ -367,7 +426,7 @@ the three reports, the partitions file, and the two panels.
 ## 11. Pilot measurements — what to expect, and what would falsify it
 
 Every number below is from a prototype of §4's tool on the committed panel bundles
-(rerun in-process on net15) and from `results/sweep_cash_2012/runs.json`. The E3–E5
+(rerun in-process on net15) and from `results/sweep_cash_2012/runs.json`. The A3–A5
 pins in §6 restate the first two tables; the predictions concern the new material
 (the 3-year windows, the 2021 partitions, the component panel's full read).
 
@@ -433,7 +492,7 @@ Predictions, each a falsifiable line for the verdict:
 5. **On the winners' lane the partition is reported, not decided.** Its six
    three-year windows contain E4's trough in exactly one (start 2020-12-18) and E5's in
    five (all but the 2023-06 start), so neither split can be "cleaner" than the other
-   in any meaningful count; §10.2(c) is expected to rest on its second clause (E6's
+   in any meaningful count; §10.2(c) is expected to rest on its second clause (A6's
    pin). The direction to record: the one E4 window favours T on Calmar and the winner
    on the floor. Falsified only if that one window goes the other way on both.
 6. **The T-transforms halve both sides**: T(`B75K25`) gives back 3.0 pp of E5 marginal
@@ -482,12 +541,12 @@ the new winners-file name (§7.2).
 ## 14. Acceptance checklist
 
 - [ ] `episode_report.py` with `bundle` and `partition` modes, `EPISODES` frozen per §3; deterministic
-- [ ] Tests E1–E7 green from a fresh clone; suite count > 923
-- [ ] §7.2: ten references updated, stub at `docs/WINNING_STRATEGIES.md`, E7 grep test; `notes/` and errata untouched
+- [ ] Tests A1–A7 green from a fresh clone; suite count > 923
+- [ ] §7.2: two HANDOFF references renamed, ten errata appended, stub at `docs/WINNING_STRATEGIES.md`, A7 guard over living docs; `notes/`, existing errata and closed-spec text untouched
 - [ ] Docs per §7.3
 - [ ] **Pre-registration commit**: `specs/sweep_episode_2012.json`, `specs/episode_points_2021.json`, §10, §11 — before any run
 - [ ] Artefacts: `results/sweep_episode_2012/`, `results/episode_points_2021.json`, `results/episode_2012.md`, `results/episode_2021.md`, `results/episode_2021_T.md`, `results/episode_partitions.md`, committed together
-- [ ] `notes/episode-verdict.md` per §9–§10; winners file per §7.1 / §10.2; HANDOFF §7 per §10.4(iii)
+- [ ] `notes/episode-verdict.md` per §9–§10; winners file per §7.1 (ledger `Open:` closed, fifth entry, two flags — the cash verdict's quoted answer untouched); HANDOFF §7 per §10.4(iii)
 - [ ] No engine file touched; `SCHEMA_VERSION` 4
 
 ## 15. Errata (found during implementation)
