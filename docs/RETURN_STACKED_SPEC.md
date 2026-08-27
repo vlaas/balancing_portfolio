@@ -644,7 +644,22 @@ Any `_tr` / `_c20` bracket on the direction lanes.
 
 ## 15. Errata (found during implementation)
 
-None yet. (Two items found during the pilot belong to other documents and are
+1. **§10.3's illustrative `Open:` line names a static the rule excludes.** The wording
+   *"RSSB / RSSB50+RSST50 not decidable before 2027-12"* was written before the panel was
+   run. §10.3's own clause names a static only if it beats the winners on Calmar **and**
+   floor; on `results/rs_points_2023.json` `RSSB50/RSST50` scores 0.9417 against the best
+   winner's 1.0968 and does not qualify, while `NTSX100` (1.1689, floor −16.89) does. The
+   line as written in the verdict is *"RSSB / NTSX not decidable before 2027-12"*. The
+   date and the rule are unchanged.
+
+2. **§2.5's "Deleveraging with BIL … changes no sign" is contradicted by its own table.**
+   Every cell does scale toward zero, but E3's episode return crosses zero: `NTSX100`
+   −0.2 against `NTSX75/BIL25` +0.1, `NTSX62.5/BIL37.5` +0.2, `NTSX50/BIL50` +0.3
+   (`results/episode_rs_2019.md` reproduces the pilot exactly). It is the only sign change
+   in the panel, and it is the arithmetic of a COVID round trip that the levered arm
+   finishes barely under water and the deleveraged arms barely above it.
+
+(Two items found during the pilot belong to other documents and are
 recorded here for the handoff, not as errata of this spec: `HANDOFF_EPISODE.md` §8
 attributes the no-gate twin 0.71623794 to `syn_bridge_2012`, which holds only the
 `BIL`-sleeve twins — the number is in `results/sweep_comp_2012/summary.json`; and

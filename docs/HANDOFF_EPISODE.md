@@ -28,6 +28,7 @@ a gate spec (§4) without new data; both lines are closed on their own terms.
 | synthetic history | SYNTHETIC_HISTORY_SPEC → `syn-verdict.md` | winners' coordinate feasible in 2000–02 and 2008; σ0.30/w0.6 **infeasible in the GFC on cash**; caveat downgraded to "BTAL sleeve untested before 2011-09" |
 | cash sleeve | CASH_SLEEVE_SPEC → `cash-verdict.md` | half-swap not adopted; **pure BTAL dominated at σ0.20 on all three real lanes** |
 | episode attribution | EPISODE_SPEC → `episode-verdict.md` | **the hinge is E4 (2020-09 → 2021-09), not 2022**; the winners' 2022 return is KMLM's, their deepest hole is BTAL's |
+| return-stacked statics | RETURN_STACKED_SPEC → `rs-verdict.md` | no static is a substitute; **the simplicity premium is 9.6 pp/yr at a matched floor**; RSSB / NTSX open on the bear-free 2023 window until 2027-12 |
 
 The winners are unchanged since the blend verdict: `vol_target` on TQQQ against
 QQQ's EWMA vol, λ0.80, σ0.20, w_max 0.8, leverage 3, monthly, SMA-200 gate on QQQ,
@@ -156,7 +157,22 @@ These are the things a fresh context would otherwise relearn the hard way.
 
 ## 7. Open threads — the candidates for the next spec, with their shapes
 
-### 7.1 Return-stacked statics (recommended)
+### 7.1 Return-stacked statics — **done** (RETURN_STACKED_SPEC, `notes/rs-verdict.md`)
+
+Answered, and closed: no static is a substitute. On the 2019 lane all four grid points
+fail the score clause by 0.63–0.67 and the per-window clause with ≤ 2 wins of 9, on
+net15 and on both brackets; the honest expectation held — the static's floor is 2022
+(−31.4 %) against the machine's anti-beta unwind (−20.1 %). The spec's product is the
+**simplicity premium**: deleveraged with BIL to the machine's own window floor, a static
+NTSX blend earns **9.58 pp/yr less** (9.25 % against 18.83 %, NTSX fraction 0.625). Two
+threads survive it, both in the winners file's new "Alternatives to the machine" ledger:
+`RSSB` / `NTSX` beat all three winners on the bear-free 2023-12-05 window on Calmar *and*
+floor and are **not decidable before 2027-12**; and gold (`GDE100`, `NTSX50/GDE50`) clears
+the score clause on the 2022 cohort at floors 14 pp deeper, recorded as era-dependence.
+If a static is ever proposed as a *sleeve* member, §6's candidate rule applies; as the
+machine's **risk asset** it is a spec of its own, and this result does not motivate one.
+
+The original shape, for the record:
 
 NTSX (2018-08-02), GDE (2022-03-17), RSST (2023-09-06), RSSB (2023-12-05), and their
 kin (NTSI/NTSE 2021-05-20, RPAR 2019-12-13, UPAR 2022-01-04, RSBT 2023-02-08) are all
