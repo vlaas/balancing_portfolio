@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "config": {
+    "initial_capital": 10000,
+    "monthly_contribution": 500,
+    "cost_bps": {
+      "TQQQ": 1.5,
+      "BTAL": 6,
+      "DBMF": 2.5,
+      "KMLM": 6,
+      "QQQ": 1,
+      "SPY": 0.7,
+      "BIL": 0.5,
+      "*": 6
+    },
+    "cash_yield": 0.03
+  },
+  "windows": {
+    "start": "2019-05-08",
+    "end": null,
+    "holdout": "2024-01-01",
+    "sensitivity": {
+      "every_months": 6,
+      "length_years": 3
+    }
+  },
+  "template": {
+    "type": "fixed",
+    "weights": {
+      "grid": [
+        {
+          "NTSX": 1.0
+        },
+        {
+          "NTSX": 0.75,
+          "BIL": 0.25
+        },
+        {
+          "NTSX": 0.625,
+          "BIL": 0.375
+        },
+        {
+          "NTSX": 0.5,
+          "BIL": 0.5
+        }
+      ]
+    }
+  },
+  "baselines": [
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": {
+        "BTAL": 0.75,
+        "DBMF": 0.25
+      },
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.2,
+      "w_max": 0.8,
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_days": 200
+      }
+    },
+    {
+      "type": "vol_target",
+      "risk": "TQQQ",
+      "safe": {
+        "BIL": 0.5,
+        "BTAL": 0.5
+      },
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.2,
+      "w_max": 0.8,
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_days": 200
+      }
+    },
+    {
+      "type": "fixed",
+      "weights": {
+        "TQQQ": 0.5,
+        "BTAL": 0.5
+      },
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_days": 200
+      }
+    },
+    {
+      "type": "fixed",
+      "label": "SPY benchmark",
+      "weights": {
+        "SPY": 1.0
+      }
+    }
+  ],
+  "objective": "calmar",
+  "constraint": {
+    "max_drawdown": -0.5
+  }
+}

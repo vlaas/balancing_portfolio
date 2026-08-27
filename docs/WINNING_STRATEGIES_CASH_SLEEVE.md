@@ -66,6 +66,12 @@ runner's own warning; the 2012 lane carries the weight.
 - **Sleeve candidates are pre-registered against the episode table.** A candidate
   names, before it runs, the episodes of EPISODE_SPEC §3 it must win against the
   incumbent and states that it must not deepen E4 by more than 1 pp (§10.3).
+- **The simplicity premium is 9.6 pp/yr.** A static NTSX / BIL blend deleveraged
+  to the machine's window floor on the 2019 lane earns 9.58 pp/yr less than
+  B75D25 — 9.25 % against 18.83 % CAGR at floors −20.39 % against −20.11 %, at
+  NTSX fraction 0.625. Quote it at a matched floor: at the static's own floor the
+  gap reads 5.7 pp and the static is 11.3 pp riskier (RETURN_STACKED_SPEC,
+  `notes/rs-verdict.md`).
 
 ## Sleeve composition — what has been asked and answered
 
@@ -104,3 +110,34 @@ runner's own warning; the 2012 lane carries the weight.
   while its drawdown is BTAL's (+8.5 against +5.8), and the blend buys more of that
   drawdown than either arm alone (+11.0) — `results/episode_2012.md`,
   `results/episode_2021.md`, `notes/episode-verdict.md`.
+
+## Alternatives to the machine — what has been asked and answered
+
+- *Is a static return-stacked ETF a substitute for the machine — one ticker, no
+  gate, no volatility targeting?* **No, on the lanes that contain a TQQQ bear.**
+  On the 2019 lane NTSX's window floor is 2022 (−31.4 %) against the machine's
+  anti-beta unwind (−20.1 %), and at a matched floor the static earns 9.58 pp/yr
+  less. All four grid points of the deleveraging surface fail clause (i) of the
+  bar by 0.63–0.67 of `robust_score` and clause (iv) with at most 2 wins of 9
+  sensitivity windows; only the holdout clause passes, because 2024–26 is a bull
+  market with a tariff dip. The result holds on the gross and flat-20 brackets:
+
+  > The static wins every anti-beta episode (E4 +11.2, E6 +1.5, E7 +7.2 pp of
+  > drawdown) and loses both bears (E3 −9.4, E5 −16.7); on a window without a
+  > bear (2023-12 →) RSSB and NTSX beat all three winners on Calmar with
+  > shallower floors, which is the machine's insurance premium seen in a year it
+  > was not needed (RETURN_STACKED_SPEC, `notes/rs-verdict.md`).
+
+  On the two lanes with a bear in them a static is beaten by plain SPY on the
+  sweep's own statistic — 0.2846 against 0.4205 on the 2019 lane, 0.4093 against
+  0.6059 on the 2021 lane. On the 2022 cohort `GDE100` and `NTSX50/GDE50` clear
+  the score clause against all three winners at floors 14.4 and 11.4 pp deeper;
+  that is gold's 2022–26 run on a lane starting at its own launch date, recorded
+  as era-dependence and not promoted.
+
+  Open: whether `RSSB` or `NTSX` held statically beats the machine on a window
+  that *contains* a bear. On 2023-12-05 → they beat all three winners on Calmar
+  with shallower floors, but that is 2.7 years holding one episode of one kind.
+  **Not decidable before 2027-12** — RSSB's first bar plus four years, the
+  earliest date the window carries a two-year holdout and three three-year
+  sensitivity windows.

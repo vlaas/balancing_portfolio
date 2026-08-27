@@ -1,0 +1,70 @@
+[
+  {
+    "entry": {
+      "label": "NTSX100",
+      "type": "fixed",
+      "weights": {
+        "NTSX": 1.0
+      }
+    },
+    "label": "NTSX100",
+    "params": {
+      "weights": "{\"NTSX\":1.0}"
+    }
+  },
+  {
+    "entry": {
+      "label": "RPAR100",
+      "type": "fixed",
+      "weights": {
+        "RPAR": 1.0
+      }
+    },
+    "label": "RPAR100",
+    "params": {
+      "weights": "{\"RPAR\":1.0}"
+    }
+  },
+  {
+    "entry": {
+      "label": "NTSX50/RPAR50",
+      "type": "fixed",
+      "weights": {
+        "NTSX": 0.5,
+        "RPAR": 0.5
+      }
+    },
+    "label": "NTSX50/RPAR50",
+    "params": {
+      "weights": "{\"NTSX\":0.5,\"RPAR\":0.5}"
+    }
+  },
+  {
+    "entry": {
+      "label": "NTSX75/BIL25",
+      "type": "fixed",
+      "weights": {
+        "BIL": 0.25,
+        "NTSX": 0.75
+      }
+    },
+    "label": "NTSX75/BIL25",
+    "params": {
+      "weights": "{\"BIL\":0.25,\"NTSX\":0.75}"
+    }
+  },
+  {
+    "entry": {
+      "label": "NTSX50/BIL50",
+      "type": "fixed",
+      "weights": {
+        "BIL": 0.5,
+        "NTSX": 0.5
+      }
+    },
+    "label": "NTSX50/BIL50",
+    "params": {
+      "weights": "{\"BIL\":0.5,\"NTSX\":0.5}"
+    }
+  }
+]
