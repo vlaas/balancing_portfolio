@@ -378,8 +378,10 @@ inside the sensitivity set for the first time.
 
 ### 7.4 `specs/syn_points.json` — the panel (2000-01-03 → end)
 
-The four named coordinates × gate (8 strategies) plus the four baselines, on the
-primary root, `--json` for `drawdowns` and `yearly_returns`: the per-episode panel
+The two named coordinates of §7.1 — the winners' (0.80 / 0.20 / 0.8) and the 2012-lane
+regime coordinate (0.80 / 0.30 / 0.6) — each with and without the gate (4 strategies),
+plus the four baselines: 8 strategies in all, on the primary root, `--json` for
+`drawdowns` and `yearly_returns`: the per-episode panel
 (dot-com 2000-03 → 2002-10, GFC 2007-10 → 2009-03, 2011, COVID, 2022, 2025) and the
 calendar-year table 2000 / 2001 / 2002 / 2008 / 2009. Run three more times without
 committing data: on `-syn` (gross bracket), and on two temp roots built with `--drag
@@ -390,7 +392,7 @@ verdict.
 ### 7.5 `specs/syn_bridge_2012.json` — the sleeve bridge (2012-01-03 → end)
 
 The same eight strategies on the synthetic root from 2012 (only real bars are read),
-plus their BTAL-sleeve twins at the two `G_sma` coordinates. The BTAL twins reproduce
+plus BTAL-sleeve twins of the two gated VT arms: 10 strategies. The BTAL twins reproduce
 the committed 2012-lane numbers (S9); the BIL arms measure the substitution cost.
 Pilot: gated σ0.30/w0.6 with BIL 0.7386 / 25.93 % / −35.11 % against BTAL's 0.8612 /
 23.82 % / −27.65 %; gated σ0.20/w0.8 with BIL 0.7991 / 21.66 % / −27.10 %. The BIL
@@ -400,8 +402,8 @@ long-low-beta / short-high-beta sleeve in 2000–02 is the case where it would h
 
 ### 7.6 Size
 
-`--dry-run`: 20 × 21 = 420 twelve-year runs, 20 × 46 = 920 twenty-seven-year runs, five
-bundles of 12 — a few minutes. Dual pre-flight (handoff §6): every symbol read (TQQQ,
+`--dry-run`: 20 × 21 = 420 twelve-year runs, 20 × 46 = 920 twenty-seven-year runs, four
+runs of the 8-strategy panel bundle and one 10-strategy bridge — a few minutes. Dual pre-flight (handoff §6): every symbol read (TQQQ,
 BIL, QQQ, SPY) is present from 1999-03-10 on both synthetic roots; the widest indicator
 is SMA-200 on QQQ, warm 1999-12-21; the loader's completeness assert covers the rest.
 
