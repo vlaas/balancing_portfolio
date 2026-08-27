@@ -314,9 +314,17 @@ not by whether a line is prose or a checklist:
 
 **Left as written, annotated by a one-line erratum in each spec (10):**
 
-| file | line(s) | what the line is | erratum text (appended to that spec's §15 / errata section) |
+Every spec's errata section is its last numbered section (the numbering continues
+from the section before it; titles vary), and the entry goes at its end.
+`REBALANCE_SPEC.md` has none — its implementation produced no deviations — so it
+gains one as **`## 11. Errata`** after §10, an append with no existing line changed;
+the earliest errata section in the repo (SAFE_SWAP §10) was itself added in a later
+commit than its spec, so this is how the convention started. Its first entry opens
+with *"This section was added after the fact, at this spec's docs commit."*
+
+| file | line(s) | what the line is | erratum text (appended to that spec's errata section) |
 |---|---|---|---|
-| `docs/REBALANCE_SPEC.md` | 246, 278 | §7.5 verdict text; an unticked acceptance item | *"The winners file named in §7.5 and the checklist now lives at `docs/WINNING_STRATEGIES_CASH_SLEEVE.md` (created by CASH_SLEEVE §10.6(b), renamed at `68cac21`). Its 'Monthly rebalancing stands' flag is the sentence the checklist asked for; the box is left as it was."* |
+| `docs/REBALANCE_SPEC.md` | 246, 278 | §7.5 verdict text; an unticked acceptance item | (new `## 11. Errata`, entry 1) *"This section was added after the fact, at EPISODE_SPEC's docs commit. The winners file named in §7.5 and the checklist now lives at `docs/WINNING_STRATEGIES_CASH_SLEEVE.md` (created by CASH_SLEEVE §10.6(b), renamed at `68cac21`). Its 'Monthly rebalancing stands' flag is the sentence the checklist asked for; the box is left as it was."* |
 | `docs/REGIME_SPEC.md` | 557, 665 | the frozen decision rule; a `[x]` record | *"The winners file named in §10 step 6 now lives at `docs/WINNING_STRATEGIES_CASH_SLEEVE.md`; the checklist's parenthetical was true when ticked."* |
 | `docs/COMPOSITION_SPEC.md` | 93, 493, 685 | a citation of numbers; the frozen decision rule; a checklist line | *"Line 93 cites 0.856 / 0.859 / 0.890 from the project-level winners document as it stood on the 2026-08-20 snapshot; `docs/WINNING_STRATEGIES_CASH_SLEEVE.md` carries the 2026-08-24 values (0.8470 / 0.8574 / 0.8849) and is the file §10 step 8 and the checklist now refer to."* |
 | `docs/SYNTHETIC_HISTORY_SPEC.md` | 456 | the frozen decision rule | *"'The winners file, when it exists' — it exists: `docs/WINNING_STRATEGIES_CASH_SLEEVE.md`."* |
@@ -542,7 +550,7 @@ the new winners-file name (§7.2).
 
 - [ ] `episode_report.py` with `bundle` and `partition` modes, `EPISODES` frozen per §3; deterministic
 - [ ] Tests A1–A7 green from a fresh clone; suite count > 923
-- [ ] §7.2: two HANDOFF references renamed, ten errata appended, stub at `docs/WINNING_STRATEGIES.md`, A7 guard over living docs; `notes/`, existing errata and closed-spec text untouched
+- [ ] §7.2: two HANDOFF references renamed, six errata entries appended (one opening `REBALANCE_SPEC.md` §11), stub at `docs/WINNING_STRATEGIES.md`, A7 guard over living docs; `notes/`, existing errata and closed-spec text untouched
 - [ ] Docs per §7.3
 - [ ] **Pre-registration commit**: `specs/sweep_episode_2012.json`, `specs/episode_points_2021.json`, §10, §11 — before any run
 - [ ] Artefacts: `results/sweep_episode_2012/`, `results/episode_points_2021.json`, `results/episode_2012.md`, `results/episode_2021.md`, `results/episode_2021_T.md`, `results/episode_partitions.md`, committed together
