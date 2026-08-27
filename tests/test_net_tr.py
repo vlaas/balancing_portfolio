@@ -314,6 +314,66 @@ def test_withholding_out_of_range_is_refused(tmp_path, rate):
     assert not (tmp_path / "net").exists()
 
 
+# --- CASH_SLEEVE_SPEC §10.5 — the per-symbol rate override -------------------
+#
+# One symbol may carry its own w when the flat convention demonstrably misprices
+# it. The override must touch that symbol and nothing else, name itself in the
+# snapshot, and refuse anything it cannot honour — a snapshot whose rate is not
+# legible from its own README is worse than no snapshot.
+
+
+def test_the_override_moves_only_the_symbol_it_names(tmp_path):
+    src = write_pair(tmp_path / "src", JUMPY_RATIOS)
+    write_pair(src, JUMPY_RATIOS, symbol="OTH")
+    flat, over = tmp_path / "flat", tmp_path / "over"
+    net_main([str(src), "--out", str(flat)])
+    net_main([str(src), "--rate-override", "SYN=0", "--out", str(over)])
+
+    assert filecmp.cmp(over / "OTH.csv", flat / "OTH.csv", shallow=False)
+    assert not filecmp.cmp(over / "SYN.csv", flat / "SYN.csv", shallow=False)
+    # w = 0 is the parent, bitwise (the k_net/k factor is exactly 1.0).
+    assert filecmp.cmp(over / "SYN.csv", src / "SYN.csv", shallow=False)
+
+
+def test_the_override_names_itself_in_the_snapshot(tmp_path):
+    src = write_pair(tmp_path / "src", JUMPY_RATIOS)
+    net_main([str(src), "--rate-override", "SYN=0"])
+
+    readme = (tmp_path / "src-net15-syn0" / "README.md").read_text()
+    assert "# Net total-return snapshot — src-net15-syn0" in readme
+    assert "Per-symbol rate override (CASH_SLEEVE_SPEC §10.5): SYN at w = 0." in readme
+    # y gross == y net is the override doing its job; the magnitude is the
+    # fixture's five-day span annualised, not a claim about anything.
+    assert "| SYN | 2 | 962.07%/yr | 962.07%/yr | w = 0 |" in readme
+
+
+@pytest.mark.parametrize(
+    "override", ["ABSENT=0", "SYN=1.0", "SYN=-0.1", "SYN", "=0", "SYN=x"]
+)
+def test_an_override_that_cannot_be_honoured_is_refused(tmp_path, override):
+    src = write_pair(tmp_path / "src", JUMPY_RATIOS)
+    out = tmp_path / "net"
+    with pytest.raises((SystemExit, ValueError)):
+        net_main([str(src), "--rate-override", override, "--out", str(out)])
+    assert not out.exists()
+
+
+def test_the_committed_bil0_root_differs_from_the_flat_root_in_bil_alone():
+    bil0 = GOLDEN_DIR / "2026-08-24-net15-bil0"
+    flat = GOLDEN_DIR / "2026-08-24-net15"
+    gross = GOLDEN_DIR / "2026-08-24"
+    moved = [p.name for p in sorted(bil0.glob("*.csv"))
+             if not filecmp.cmp(p, flat / p.name, shallow=False)]
+    assert moved == ["BIL.csv"]
+    assert sorted(p.name for p in bil0.glob("*.csv")) == \
+        sorted(p.name for p in flat.glob("*.csv"))
+    # At w = 0 BIL's net series is its gross series to the last bit.
+    columns = dict(columns=["time", "close"], schema_overrides={"close": pl.Float64})
+    assert pl.read_csv(bil0 / "BIL.csv", **columns)["close"].equals(
+        pl.read_csv(gross / "BIL.csv", **columns)["close"]
+    )
+
+
 # --- REGIME_SPEC R9 — the index-file pass-through and the ETF byte pins ------
 
 # SHA-256 of the six net ETF files, measured at 184f02b: the pass-through

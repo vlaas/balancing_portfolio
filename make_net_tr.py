@@ -8,8 +8,14 @@ plus a byte-copied `price/` and a README. Deterministic by construction — no
 clock, no environment — so the committed snapshot is byte-reproducible from
 the committed parent and this script (N5).
 
+`--rate-override SYM=RATE` gives one symbol its own w (CASH_SLEEVE_SPEC §10.5,
+the BIL tie-breaker): the flat convention is a modelling choice, not a fact, and
+a symbol whose income is US Treasury interest is withheld at a different rate
+from one paying ordinary dividends. The overrides are named in the README and in
+the per-symbol table, so a snapshot always says which rate produced it.
+
 Run: uv run make_net_tr.py tests/data/2026-08-20 [--withholding 0.15]
-     [--out DIR] [--force]
+     [--rate-override BIL=0] [--out DIR] [--force]
 """
 
 import argparse
@@ -93,13 +99,17 @@ def implied_yield(times: list[str], r_first: float) -> float:
     return -math.log(r_first) / (span.days / 365.25)
 
 
-def build(src: Path, w: float) -> dict[str, dict]:
+def build(src: Path, w: float, overrides: dict[str, float] | None = None) -> dict[str, dict]:
     """Read, classify and net every symbol under src. All computation and
     validation happen here, before anything is written — a hard error can
     never leave a partial dataset behind (NET_TR_SPEC §3)."""
+    overrides = overrides or {}
     symbols = sorted(path.stem for path in src.glob("*.csv"))
     if not symbols:
         raise ValueError(f"{src}: no <SYM>.csv files found")
+    unknown = sorted(set(overrides) - set(symbols))
+    if unknown:
+        raise ValueError(f"{src}: --rate-override names absent symbols {unknown}")
     results = {}
     for symbol in symbols:
         if not (src / "price" / f"{symbol}.csv").exists():
@@ -107,36 +117,50 @@ def build(src: Path, w: float) -> dict[str, dict]:
             # parent file is byte-copied into the net snapshot.
             results[symbol] = {"index": True}
             continue
+        rate = overrides.get(symbol, w)
         times, a, p = read_pair(src, symbol)
         jumps = classify(symbol, times, a, p)
-        net = net_closes(a, p, jumps, w)
+        net = net_closes(a, p, jumps, rate)
         results[symbol] = {
             "times": times,
             "close": net,
             "jumps": len(jumps),
+            "rate": rate,
             "y_gross": implied_yield(times, a[0] / p[0]),
             "y_net": implied_yield(times, net[0] / p[0]),
         }
     return results
 
 
-def _table(results: dict[str, dict]) -> list[str]:
+def _table(results: dict[str, dict], overrides: dict[str, float] | None = None) -> list[str]:
+    overrides = overrides or {}
     rows = [
         f"| {s} | index | — | — |"
         if r.get("index")
         else f"| {s} | {r['jumps']} | {100 * r['y_gross']:.2f}%/yr"
         f" | {100 * r['y_net']:.2f}%/yr |"
+        + (f" w = {r['rate']:g} |" if s in overrides else "")
         for s, r in results.items()
     ]
     return ["| symbol | jumps | y gross | y net |", "|---|---|---|---|"] + rows
 
 
-def render_readme(parent: str, w: float, results: dict[str, dict]) -> str:
+def suffix(overrides: dict[str, float]) -> str:
+    """The name fragment a per-symbol rate adds: `{"BIL": 0}` -> `-bil0`.
+    Empty without overrides, so an ordinary snapshot's name never moves."""
+    return "".join(
+        f"-{s.lower()}{round(rate * 100)}" for s, rate in sorted(overrides.items())
+    )
+
+
+def render_readme(parent: str, w: float, results: dict[str, dict],
+                  overrides: dict[str, float] | None = None) -> str:
     """The snapshot README. References the parent by directory basename and
     names the snapshot from parent + rate, never from CLI paths, and carries
     no timestamps — N5 regenerates into a temp directory and byte-compares."""
+    overrides = overrides or {}
     lines = [
-        f"# Net total-return snapshot — {parent}-net{round(w * 100)}",
+        f"# Net total-return snapshot — {parent}-net{round(w * 100)}{suffix(overrides)}",
         "",
         f"Derived from the frozen `{parent}` snapshot by `make_net_tr.py`"
         f" (NET_TR_SPEC §2–§3) at withholding w = {w:g}: each distribution jump",
@@ -148,8 +172,19 @@ def render_readme(parent: str, w: float, results: dict[str, dict]) -> str:
         f"classification (NET_TR_SPEC §2.1): FLAT_MAX = {FLAT_MAX!r},",
         f"JUMP_MIN = {JUMP_MIN!r}, TAU = {TAU!r}.",
         "",
-    ] + _table(results)
-    return "\n".join(lines) + "\n"
+    ]
+    if overrides:
+        rates = ", ".join(f"{s} at w = {r:g}" for s, r in sorted(overrides.items()))
+        lines += [
+            f"Per-symbol rate override (CASH_SLEEVE_SPEC §10.5): {rates}. The flat",
+            "convention is a modelling choice, not a fact; BIL's income is US",
+            "Treasury interest, the clearest §871(k) interest-related-dividend case",
+            "there is, so its true NRA withholding is plausibly ~0%. This snapshot",
+            "exists to break a tie inside the bias band, not to replace the flat",
+            "root — a decision run still uses the flat one unless it says otherwise.",
+            "",
+        ]
+    return "\n".join(lines + _table(results, overrides)) + "\n"
 
 
 def write_dataset(dst: Path, src: Path, results: dict[str, dict], readme: str) -> None:
@@ -175,6 +210,10 @@ def main(argv: list[str] | None = None) -> None:
         help="withholding rate in [0, 1) (default: 0.15)",
     )
     parser.add_argument(
+        "--rate-override", action="append", default=[], metavar="SYM=RATE",
+        help="withholding rate for one symbol, repeatable (e.g. BIL=0)",
+    )
+    parser.add_argument(
         "--out", type=Path, default=None,
         help="output dataset root (default: <SRC>-net<rate*100>)",
     )
@@ -187,14 +226,28 @@ def main(argv: list[str] | None = None) -> None:
     w = args.withholding
     if not 0.0 <= w < 1.0:
         parser.error(f"--withholding must be in [0, 1): {w}")
-    dst = args.out or args.src.with_name(f"{args.src.name}-net{round(w * 100)}")
+    overrides = {}
+    for item in args.rate_override:
+        symbol, _, rate = item.partition("=")
+        if not symbol or not rate:
+            parser.error(f"--rate-override wants SYM=RATE: {item!r}")
+        try:
+            overrides[symbol] = float(rate)
+        except ValueError:
+            parser.error(f"--rate-override rate is not a number: {item!r}")
+        if not 0.0 <= overrides[symbol] < 1.0:
+            parser.error(f"--rate-override must be in [0, 1): {item!r}")
+    dst = args.out or args.src.with_name(
+        f"{args.src.name}-net{round(w * 100)}{suffix(overrides)}"
+    )
     if dst.exists() and not args.force:
         parser.error(f"{dst} exists; pass --force to overwrite")
 
-    results = build(args.src, w)
-    write_dataset(dst, args.src, results, render_readme(args.src.name, w, results))
+    results = build(args.src, w, overrides)
+    write_dataset(dst, args.src, results,
+                  render_readme(args.src.name, w, results, overrides))
 
-    print("\n".join(_table(results)))
+    print("\n".join(_table(results, overrides)))
     print(f"Saved {dst}")
 
 

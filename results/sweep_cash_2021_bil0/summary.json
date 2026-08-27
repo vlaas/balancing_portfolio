@@ -1,0 +1,1780 @@
+{
+  "baselines": [
+    {
+      "full": {
+        "avg_asset_deviation": 0.05205205,
+        "avg_misallocation": 0.0522351,
+        "best_year": {
+          "return": 0.46780948,
+          "year": 2023
+        },
+        "cagr": 0.16124469,
+        "calmar": 0.5202757,
+        "fee_drag": 0.00168347,
+        "final_value": 80323.47228407,
+        "max_asset_deviation": 0.39663758,
+        "max_drawdown": -0.30992162,
+        "max_drawdown_days": 683,
+        "max_misallocation": 0.39663067,
+        "net_profit": 36323.47228407,
+        "net_profit_pct": 0.82553346,
+        "objective": 0.5202757,
+        "sharpe": 0.78773703,
+        "sortino": 1.12632921,
+        "total_contributed": 44000.0,
+        "total_fees": 74.07256612,
+        "traded_value": 190481.85113137,
+        "turnover": 0.42142793,
+        "volatility": 0.22221672,
+        "worst_year": {
+          "return": -0.25830154,
+          "year": 2022
+        },
+        "xirr": 0.17314329
+      },
+      "holdout": {
+        "fit": 0.60661015,
+        "test": 0.39508664,
+        "test_minus_fit": -0.21152352
+      },
+      "label": "TQQQ50/BTAL50 gate QQQ<SMA200",
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.05320175,
+          "max": -0.24866646,
+          "median": -0.27184326,
+          "min": -0.30992162
+        },
+        "objective": {
+          "iqr": 0.25829303,
+          "max": 1.07153416,
+          "median": 0.82309485,
+          "min": 0.44870436
+        }
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00776372,
+        "avg_misallocation": 0.0077626,
+        "best_year": {
+          "return": 0.28166993,
+          "year": 2021
+        },
+        "cagr": 0.14815618,
+        "calmar": 0.60588003,
+        "fee_drag": 6.905e-05,
+        "final_value": 76979.08018368,
+        "max_asset_deviation": 0.02941953,
+        "max_drawdown": -0.24453056,
+        "max_drawdown_days": 709,
+        "max_misallocation": 0.02938556,
+        "net_profit": 32979.08018368,
+        "net_profit_pct": 0.74952455,
+        "objective": 0.60588003,
+        "sharpe": 0.92053059,
+        "sortino": 1.33958435,
+        "total_contributed": 44000.0,
+        "total_fees": 3.03821596,
+        "traded_value": 43403.08520685,
+        "turnover": 0.10441417,
+        "volatility": 0.16582684,
+        "worst_year": {
+          "return": -0.18247338,
+          "year": 2022
+        },
+        "xirr": 0.16076005
+      },
+      "holdout": {
+        "fit": 0.54819872,
+        "test": 0.9982643,
+        "test_minus_fit": 0.45006559
+      },
+      "label": "SPY benchmark",
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.05691573,
+          "max": -0.1854171,
+          "median": -0.21364041,
+          "min": -0.24453056
+        },
+        "objective": {
+          "iqr": 0.65020877,
+          "max": 1.1933931,
+          "median": 0.71180198,
+          "min": 0.40201204
+        }
+      }
+    }
+  ],
+  "constraint": {
+    "max_drawdown": -0.5
+  },
+  "costs": {
+    "cash_yield": 0.03,
+    "cost_bps": {
+      "*": 6,
+      "BIL": 0.5,
+      "BTAL": 6,
+      "DBMF": 2.5,
+      "KMLM": 6,
+      "QQQ": 1,
+      "SPY": 0.7,
+      "TQQQ": 1.5
+    }
+  },
+  "data": {
+    "dir": "tests/data/2026-08-24-net15-bil0",
+    "end": "2026-08-24",
+    "start": "2020-12-18"
+  },
+  "objective": "calmar",
+  "snapped": [
+    "windows.holdout 2025-01-01 -> 2025-01-02"
+  ],
+  "strategies": [
+    {
+      "full": {
+        "avg_asset_deviation": 0.02193891,
+        "avg_misallocation": 0.02225794,
+        "best_year": {
+          "return": 0.3512713,
+          "year": 2023
+        },
+        "cagr": 0.16259332,
+        "calmar": 0.85294307,
+        "feasible": true,
+        "fee_drag": 0.0065544,
+        "final_value": 78210.87834089,
+        "max_asset_deviation": 0.23272372,
+        "max_drawdown": -0.19062623,
+        "max_drawdown_days": 169,
+        "max_misallocation": 0.23271777,
+        "net_profit": 34210.87834089,
+        "net_profit_pct": 0.77751996,
+        "objective": 0.85294307,
+        "sharpe": 0.85557255,
+        "sortino": 1.19289746,
+        "total_contributed": 44000.0,
+        "total_fees": 288.39364768,
+        "traded_value": 763850.58088798,
+        "turnover": 1.70129275,
+        "volatility": 0.20071571,
+        "worst_year": {
+          "return": -0.06171072,
+          "year": 2022
+        },
+        "xirr": 0.16537877
+      },
+      "holdout": {
+        "fit": 0.91256986,
+        "test": 0.84701986,
+        "test_minus_fit": -0.06555
+      },
+      "label": "VT TQQQ/BTAL75+KMLM25 t20 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.852528,
+        "neighbour_min": 0.852528
+      },
+      "params": {
+        "safe": "BTAL75+KMLM25",
+        "sigma_target": 0.2
+      },
+      "robust_score": 0.84701986,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.00986349,
+          "max": -0.13769222,
+          "median": -0.17613768,
+          "min": -0.19062623
+        },
+        "objective": {
+          "iqr": 0.25819247,
+          "max": 1.77456777,
+          "median": 0.98440832,
+          "min": 0.77176965
+        },
+        "rank_median": 11.5,
+        "rank_worst": 20
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02677784,
+        "avg_misallocation": 0.0271226,
+        "best_year": {
+          "return": 0.43556307,
+          "year": 2023
+        },
+        "cagr": 0.19680819,
+        "calmar": 0.852528,
+        "feasible": true,
+        "fee_drag": 0.00733176,
+        "final_value": 89007.09368237,
+        "max_asset_deviation": 0.28898598,
+        "max_drawdown": -0.23085246,
+        "max_drawdown_days": 435,
+        "max_misallocation": 0.28897993,
+        "net_profit": 45007.09368237,
+        "net_profit_pct": 1.02288849,
+        "objective": 0.852528,
+        "sharpe": 0.86686957,
+        "sortino": 1.20768651,
+        "total_contributed": 44000.0,
+        "total_fees": 322.5973474,
+        "traded_value": 856813.08123472,
+        "turnover": 1.78494152,
+        "volatility": 0.24251736,
+        "worst_year": {
+          "return": -0.12777427,
+          "year": 2022
+        },
+        "xirr": 0.20317336
+      },
+      "holdout": {
+        "fit": 0.98955429,
+        "test": 0.94134417,
+        "test_minus_fit": -0.04821012
+      },
+      "label": "VT TQQQ/BTAL75+KMLM25 t25 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.85294307,
+        "neighbour_min": 0.85294307
+      },
+      "params": {
+        "safe": "BTAL75+KMLM25",
+        "sigma_target": 0.25
+      },
+      "robust_score": 0.852528,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.02761289,
+          "max": -0.20164162,
+          "median": -0.21729299,
+          "min": -0.23045524
+        },
+        "objective": {
+          "iqr": 0.24908479,
+          "max": 1.37458639,
+          "median": 0.97434279,
+          "min": 0.74998857
+        },
+        "rank_median": 13.5,
+        "rank_worst": 21
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02196205,
+        "avg_misallocation": 0.02236651,
+        "best_year": {
+          "return": 0.3407149,
+          "year": 2023
+        },
+        "cagr": 0.16349089,
+        "calmar": 0.85739876,
+        "feasible": true,
+        "fee_drag": 0.00577823,
+        "final_value": 78961.21449114,
+        "max_asset_deviation": 0.23272072,
+        "max_drawdown": -0.19068245,
+        "max_drawdown_days": 167,
+        "max_misallocation": 0.2327169,
+        "net_profit": 34961.21449114,
+        "net_profit_pct": 0.79457306,
+        "objective": 0.85739876,
+        "sharpe": 0.85124373,
+        "sortino": 1.18778473,
+        "total_contributed": 44000.0,
+        "total_fees": 254.24209466,
+        "traded_value": 766971.71583606,
+        "turnover": 1.70559042,
+        "volatility": 0.20325706,
+        "worst_year": {
+          "return": -0.07342515,
+          "year": 2022
+        },
+        "xirr": 0.16815881
+      },
+      "holdout": {
+        "fit": 0.90069288,
+        "test": 0.88253297,
+        "test_minus_fit": -0.01815991
+      },
+      "label": "VT TQQQ/BTAL75+DBMF25 t20 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.83894292,
+        "neighbour_min": 0.83894292
+      },
+      "params": {
+        "safe": "BTAL75+DBMF25",
+        "sigma_target": 0.2
+      },
+      "robust_score": 0.83894292,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.01107202,
+          "max": -0.14128244,
+          "median": -0.18248646,
+          "min": -0.19068245
+        },
+        "objective": {
+          "iqr": 0.31467979,
+          "max": 1.72928636,
+          "median": 0.98136079,
+          "min": 0.79970872
+        },
+        "rank_median": 11.0,
+        "rank_worst": 15
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02676884,
+        "avg_misallocation": 0.02715719,
+        "best_year": {
+          "return": 0.42579185,
+          "year": 2023
+        },
+        "cagr": 0.19687592,
+        "calmar": 0.83894292,
+        "feasible": true,
+        "fee_drag": 0.00646296,
+        "final_value": 89429.82783536,
+        "max_asset_deviation": 0.28895001,
+        "max_drawdown": -0.23467142,
+        "max_drawdown_days": 432,
+        "max_misallocation": 0.2889459,
+        "net_profit": 45429.82783536,
+        "net_profit_pct": 1.03249609,
+        "objective": 0.83894292,
+        "sharpe": 0.86027063,
+        "sortino": 1.20000965,
+        "total_contributed": 44000.0,
+        "total_fees": 284.37021824,
+        "traded_value": 859101.39734557,
+        "turnover": 1.7877853,
+        "volatility": 0.24521437,
+        "worst_year": {
+          "return": -0.13791244,
+          "year": 2022
+        },
+        "xirr": 0.20456452
+      },
+      "holdout": {
+        "fit": 0.92439588,
+        "test": 0.9476726,
+        "test_minus_fit": 0.02327672
+      },
+      "label": "VT TQQQ/BTAL75+DBMF25 t25 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.85739876,
+        "neighbour_min": 0.85739876
+      },
+      "params": {
+        "safe": "BTAL75+DBMF25",
+        "sigma_target": 0.25
+      },
+      "robust_score": 0.83894292,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.01813989,
+          "max": -0.20717928,
+          "median": -0.22513368,
+          "min": -0.23418635
+        },
+        "objective": {
+          "iqr": 0.3172083,
+          "max": 1.27721346,
+          "median": 0.94621739,
+          "min": 0.77773524
+        },
+        "rank_median": 14.5,
+        "rank_worst": 17
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02231692,
+        "avg_misallocation": 0.0227243,
+        "best_year": {
+          "return": 0.37454047,
+          "year": 2023
+        },
+        "cagr": 0.18491311,
+        "calmar": 0.88489974,
+        "feasible": true,
+        "fee_drag": 0.00678815,
+        "final_value": 83801.85748202,
+        "max_asset_deviation": 0.23307415,
+        "max_drawdown": -0.20896504,
+        "max_drawdown_days": 448,
+        "max_misallocation": 0.23306855,
+        "net_profit": 39801.85748202,
+        "net_profit_pct": 0.90458767,
+        "objective": 0.88489974,
+        "sharpe": 0.91985571,
+        "sortino": 1.28053428,
+        "total_contributed": 44000.0,
+        "total_fees": 298.67865997,
+        "traded_value": 790340.3906082,
+        "turnover": 1.70301649,
+        "volatility": 0.209443,
+        "worst_year": {
+          "return": -0.04669946,
+          "year": 2022
+        },
+        "xirr": 0.18552007
+      },
+      "holdout": {
+        "fit": 1.14933002,
+        "test": 1.16742198,
+        "test_minus_fit": 0.01809196
+      },
+      "label": "VT TQQQ/BTAL50+KMLM50 t20 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.84290409,
+        "neighbour_min": 0.84290409
+      },
+      "params": {
+        "safe": "BTAL50+KMLM50",
+        "sigma_target": 0.2
+      },
+      "robust_score": 0.84290409,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.04625863,
+          "max": -0.15054153,
+          "median": -0.18641155,
+          "min": -0.20877195
+        },
+        "objective": {
+          "iqr": 0.25270047,
+          "max": 1.6666026,
+          "median": 1.04956646,
+          "min": 0.58881679
+        },
+        "rank_median": 13.0,
+        "rank_worst": 24
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.0271425,
+        "avg_misallocation": 0.02756115,
+        "best_year": {
+          "return": 0.46073132,
+          "year": 2023
+        },
+        "cagr": 0.21753773,
+        "calmar": 0.84290409,
+        "feasible": true,
+        "fee_drag": 0.00759132,
+        "final_value": 94675.35094843,
+        "max_asset_deviation": 0.28921699,
+        "max_drawdown": -0.25808124,
+        "max_drawdown_days": 435,
+        "max_misallocation": 0.28921128,
+        "net_profit": 50675.35094843,
+        "net_profit_pct": 1.15171252,
+        "objective": 0.84290409,
+        "sharpe": 0.91305707,
+        "sortino": 1.27154826,
+        "total_contributed": 44000.0,
+        "total_fees": 334.01798097,
+        "traded_value": 886623.78708125,
+        "turnover": 1.78844132,
+        "volatility": 0.25165823,
+        "worst_year": {
+          "return": -0.11498342,
+          "year": 2022
+        },
+        "xirr": 0.22133719
+      },
+      "holdout": {
+        "fit": 1.04925594,
+        "test": 1.14813527,
+        "test_minus_fit": 0.09887933
+      },
+      "label": "VT TQQQ/BTAL50+KMLM50 t25 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.88489974,
+        "neighbour_min": 0.88489974
+      },
+      "params": {
+        "safe": "BTAL50+KMLM50",
+        "sigma_target": 0.25
+      },
+      "robust_score": 0.84290409,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.05443144,
+          "max": -0.20097871,
+          "median": -0.23242118,
+          "min": -0.25786929
+        },
+        "objective": {
+          "iqr": 0.19210762,
+          "max": 1.42262945,
+          "median": 1.01952696,
+          "min": 0.62366468
+        },
+        "rank_median": 14.5,
+        "rank_worst": 23
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02235568,
+        "avg_misallocation": 0.02318377,
+        "best_year": {
+          "return": 0.40977378,
+          "year": 2023
+        },
+        "cagr": 0.18049817,
+        "calmar": 0.91242524,
+        "feasible": true,
+        "fee_drag": 0.00486519,
+        "final_value": 84363.40999004,
+        "max_asset_deviation": 0.23130299,
+        "max_drawdown": -0.19782241,
+        "max_drawdown_days": 398,
+        "max_misallocation": 0.23129966,
+        "net_profit": 40363.40999004,
+        "net_profit_pct": 0.91735023,
+        "objective": 0.91242524,
+        "sharpe": 0.9079888,
+        "sortino": 1.26641606,
+        "total_contributed": 44000.0,
+        "total_fees": 214.06829593,
+        "traded_value": 785725.40879453,
+        "turnover": 1.71525116,
+        "volatility": 0.20762634,
+        "worst_year": {
+          "return": -0.11061168,
+          "year": 2022
+        },
+        "xirr": 0.18747301
+      },
+      "holdout": {
+        "fit": 1.04796896,
+        "test": 1.199922,
+        "test_minus_fit": 0.15195304
+      },
+      "label": "VT TQQQ/BIL37.5+BTAL37.5+KMLM25 t20 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.85098676,
+        "neighbour_min": 0.85098676
+      },
+      "params": {
+        "safe": "BIL37.5+BTAL37.5+KMLM25",
+        "sigma_target": 0.2
+      },
+      "robust_score": 0.85098676,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.02853256,
+          "max": -0.16726536,
+          "median": -0.18332099,
+          "min": -0.19762317
+        },
+        "objective": {
+          "iqr": 0.26362478,
+          "max": 1.37689695,
+          "median": 1.0796001,
+          "min": 0.7951066
+        },
+        "rank_median": 8.5,
+        "rank_worst": 14
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02719801,
+        "avg_misallocation": 0.02811248,
+        "best_year": {
+          "return": 0.49598808,
+          "year": 2023
+        },
+        "cagr": 0.21232225,
+        "calmar": 0.85098676,
+        "feasible": true,
+        "fee_drag": 0.00543719,
+        "final_value": 94841.91666853,
+        "max_asset_deviation": 0.28724438,
+        "max_drawdown": -0.24950124,
+        "max_drawdown_days": 398,
+        "max_misallocation": 0.2872416,
+        "net_profit": 50841.91666853,
+        "net_profit_pct": 1.15549811,
+        "objective": 0.85098676,
+        "sharpe": 0.89442111,
+        "sortino": 1.24829555,
+        "total_contributed": 44000.0,
+        "total_fees": 239.23648577,
+        "traded_value": 879876.94154643,
+        "turnover": 1.79735123,
+        "volatility": 0.25223514,
+        "worst_year": {
+          "return": -0.17087441,
+          "year": 2022
+        },
+        "xirr": 0.22185555
+      },
+      "holdout": {
+        "fit": 0.87247678,
+        "test": 1.15761679,
+        "test_minus_fit": 0.28514
+      },
+      "label": "VT TQQQ/BIL37.5+BTAL37.5+KMLM25 t25 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.91242524,
+        "neighbour_min": 0.91242524
+      },
+      "params": {
+        "safe": "BIL37.5+BTAL37.5+KMLM25",
+        "sigma_target": 0.25
+      },
+      "robust_score": 0.85098676,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.01333242,
+          "max": -0.21039029,
+          "median": -0.24260421,
+          "min": -0.24934023
+        },
+        "objective": {
+          "iqr": 0.28229255,
+          "max": 1.22624287,
+          "median": 0.95686541,
+          "min": 0.77881187
+        },
+        "rank_median": 14.5,
+        "rank_worst": 16
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02223436,
+        "avg_misallocation": 0.02303913,
+        "best_year": {
+          "return": 0.39865214,
+          "year": 2023
+        },
+        "cagr": 0.18126099,
+        "calmar": 0.88751667,
+        "feasible": true,
+        "fee_drag": 0.00407604,
+        "final_value": 85094.45942511,
+        "max_asset_deviation": 0.23131994,
+        "max_drawdown": -0.2042339,
+        "max_drawdown_days": 398,
+        "max_misallocation": 0.23131851,
+        "net_profit": 41094.45942511,
+        "net_profit_pct": 0.93396499,
+        "objective": 0.88751667,
+        "sharpe": 0.89907274,
+        "sortino": 1.25597461,
+        "total_contributed": 44000.0,
+        "total_fees": 179.34580689,
+        "traded_value": 789206.25808082,
+        "turnover": 1.71970816,
+        "volatility": 0.21126129,
+        "worst_year": {
+          "return": -0.12186381,
+          "year": 2022
+        },
+        "xirr": 0.18999732
+      },
+      "holdout": {
+        "fit": 0.9582412,
+        "test": 1.22940621,
+        "test_minus_fit": 0.27116501
+      },
+      "label": "VT TQQQ/BIL37.5+BTAL37.5+DBMF25 t20 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.83793019,
+        "neighbour_min": 0.83793019
+      },
+      "params": {
+        "safe": "BIL37.5+BTAL37.5+DBMF25",
+        "sigma_target": 0.2
+      },
+      "robust_score": 0.83793019,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.02182671,
+          "max": -0.17847494,
+          "median": -0.19325428,
+          "min": -0.20376806
+        },
+        "objective": {
+          "iqr": 0.35802821,
+          "max": 1.28308669,
+          "median": 1.03476179,
+          "min": 0.82099639
+        },
+        "rank_median": 8.5,
+        "rank_worst": 10
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02707024,
+        "avg_misallocation": 0.02784834,
+        "best_year": {
+          "return": 0.4859391,
+          "year": 2023
+        },
+        "cagr": 0.21232472,
+        "calmar": 0.83793019,
+        "feasible": true,
+        "fee_drag": 0.00455262,
+        "final_value": 95265.60030266,
+        "max_asset_deviation": 0.28684668,
+        "max_drawdown": -0.25339189,
+        "max_drawdown_days": 398,
+        "max_misallocation": 0.28684523,
+        "net_profit": 51265.60030266,
+        "net_profit_pct": 1.16512728,
+        "objective": 0.83793019,
+        "sharpe": 0.88570068,
+        "sortino": 1.23801447,
+        "total_contributed": 44000.0,
+        "total_fees": 200.31529274,
+        "traded_value": 881806.27438711,
+        "turnover": 1.79938526,
+        "volatility": 0.25572939,
+        "worst_year": {
+          "return": -0.18108784,
+          "year": 2022
+        },
+        "xirr": 0.22317031
+      },
+      "holdout": {
+        "fit": 0.82135624,
+        "test": 1.15448965,
+        "test_minus_fit": 0.3331334
+      },
+      "label": "VT TQQQ/BIL37.5+BTAL37.5+DBMF25 t25 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.88751667,
+        "neighbour_min": 0.88751667
+      },
+      "params": {
+        "safe": "BIL37.5+BTAL37.5+DBMF25",
+        "sigma_target": 0.25
+      },
+      "robust_score": 0.83793019,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.00495112,
+          "max": -0.22290143,
+          "median": -0.2509816,
+          "min": -0.25313649
+        },
+        "objective": {
+          "iqr": 0.29140699,
+          "max": 1.24185761,
+          "median": 0.93863746,
+          "min": 0.77382123
+        },
+        "rank_median": 15.5,
+        "rank_worst": 18
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02280985,
+        "avg_misallocation": 0.0235809,
+        "best_year": {
+          "return": 0.41352535,
+          "year": 2023
+        },
+        "cagr": 0.19654358,
+        "calmar": 0.88274706,
+        "feasible": true,
+        "fee_drag": 0.00562356,
+        "final_value": 87986.81406707,
+        "max_asset_deviation": 0.23212548,
+        "max_drawdown": -0.22264993,
+        "max_drawdown_days": 435,
+        "max_misallocation": 0.23212039,
+        "net_profit": 43986.81406707,
+        "net_profit_pct": 0.99970032,
+        "objective": 0.88274706,
+        "sharpe": 0.94184256,
+        "sortino": 1.311952,
+        "total_contributed": 44000.0,
+        "total_fees": 247.43671128,
+        "traded_value": 804377.50247817,
+        "turnover": 1.71127312,
+        "volatility": 0.21661731,
+        "worst_year": {
+          "return": -0.08038077,
+          "year": 2022
+        },
+        "xirr": 0.19979028
+      },
+      "holdout": {
+        "fit": 1.10691097,
+        "test": 1.2618455,
+        "test_minus_fit": 0.15493453
+      },
+      "label": "VT TQQQ/BIL25+BTAL25+KMLM50 t20 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.84121347,
+        "neighbour_min": 0.84121347
+      },
+      "params": {
+        "safe": "BIL25+BTAL25+KMLM50",
+        "sigma_target": 0.2
+      },
+      "robust_score": 0.84121347,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.05302268,
+          "max": -0.16762413,
+          "median": -0.19743948,
+          "min": -0.22239573
+        },
+        "objective": {
+          "iqr": 0.2223678,
+          "max": 1.44406241,
+          "median": 1.04932126,
+          "min": 0.61246578
+        },
+        "rank_median": 11.5,
+        "rank_worst": 23
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02751251,
+        "avg_misallocation": 0.02838584,
+        "best_year": {
+          "return": 0.50086995,
+          "year": 2023
+        },
+        "cagr": 0.22753416,
+        "calmar": 0.84121347,
+        "feasible": true,
+        "fee_drag": 0.00628636,
+        "final_value": 98605.01598882,
+        "max_asset_deviation": 0.28803616,
+        "max_drawdown": -0.27048326,
+        "max_drawdown_days": 432,
+        "max_misallocation": 0.28803099,
+        "net_profit": 54605.01598882,
+        "net_profit_pct": 1.24102309,
+        "objective": 0.84121347,
+        "sharpe": 0.92434666,
+        "sortino": 1.28908585,
+        "total_contributed": 44000.0,
+        "total_fees": 276.59974462,
+        "traded_value": 901073.02054796,
+        "turnover": 1.79563302,
+        "volatility": 0.25972594,
+        "worst_year": {
+          "return": -0.14492055,
+          "year": 2022
+        },
+        "xirr": 0.23334795
+      },
+      "holdout": {
+        "fit": 1.0008297,
+        "test": 1.16773866,
+        "test_minus_fit": 0.16690896
+      },
+      "label": "VT TQQQ/BIL25+BTAL25+KMLM50 t25 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.88274706,
+        "neighbour_min": 0.88274706
+      },
+      "params": {
+        "safe": "BIL25+BTAL25+KMLM50",
+        "sigma_target": 0.25
+      },
+      "robust_score": 0.84121347,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.05085883,
+          "max": -0.21508093,
+          "median": -0.24491067,
+          "min": -0.27015116
+        },
+        "objective": {
+          "iqr": 0.19688178,
+          "max": 1.27363567,
+          "median": 1.00902463,
+          "min": 0.64571229
+        },
+        "rank_median": 15.0,
+        "rank_worst": 21
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02208051,
+        "avg_misallocation": 0.02266716,
+        "best_year": {
+          "return": 0.46866337,
+          "year": 2023
+        },
+        "cagr": 0.19661544,
+        "calmar": 0.89324955,
+        "feasible": true,
+        "fee_drag": 0.00310095,
+        "final_value": 90421.89649643,
+        "max_asset_deviation": 0.22970713,
+        "max_drawdown": -0.22011256,
+        "max_drawdown_days": 235,
+        "max_misallocation": 0.22970495,
+        "net_profit": 46421.89649643,
+        "net_profit_pct": 1.0550431,
+        "objective": 0.89324955,
+        "sharpe": 0.91491437,
+        "sortino": 1.27693795,
+        "total_contributed": 44000.0,
+        "total_fees": 136.44198809,
+        "traded_value": 803096.80948282,
+        "turnover": 1.72310838,
+        "volatility": 0.22511952,
+        "worst_year": {
+          "return": -0.1597531,
+          "year": 2022
+        },
+        "xirr": 0.20780545
+      },
+      "holdout": {
+        "fit": 0.85011605,
+        "test": 1.29541072,
+        "test_minus_fit": 0.44529467
+      },
+      "label": "VT TQQQ/BIL75+KMLM25 t20 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.83142243,
+        "neighbour_min": 0.83142243
+      },
+      "params": {
+        "safe": "BIL75+KMLM25",
+        "sigma_target": 0.2
+      },
+      "robust_score": 0.83142243,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.0094606,
+          "max": -0.18198689,
+          "median": -0.21544747,
+          "min": -0.22000632
+        },
+        "objective": {
+          "iqr": 0.29834243,
+          "max": 1.27885045,
+          "median": 0.95143683,
+          "min": 0.80101712
+        },
+        "rank_median": 12.0,
+        "rank_worst": 18
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02675373,
+        "avg_misallocation": 0.02736347,
+        "best_year": {
+          "return": 0.55646799,
+          "year": 2023
+        },
+        "cagr": 0.22599587,
+        "calmar": 0.83142243,
+        "feasible": true,
+        "fee_drag": 0.00345912,
+        "final_value": 100426.65036812,
+        "max_asset_deviation": 0.28489173,
+        "max_drawdown": -0.27181835,
+        "max_drawdown_days": 600,
+        "max_misallocation": 0.28488943,
+        "net_profit": 56426.65036812,
+        "net_profit_pct": 1.28242387,
+        "objective": 0.83142243,
+        "sharpe": 0.89657517,
+        "sortino": 1.25251574,
+        "total_contributed": 44000.0,
+        "total_fees": 152.20124176,
+        "traded_value": 897652.30007996,
+        "turnover": 1.80417864,
+        "volatility": 0.26915268,
+        "worst_year": {
+          "return": -0.21528539,
+          "year": 2022
+        },
+        "xirr": 0.2387665
+      },
+      "holdout": {
+        "fit": 0.76954493,
+        "test": 1.18535967,
+        "test_minus_fit": 0.41581474
+      },
+      "label": "VT TQQQ/BIL75+KMLM25 t25 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.89324955,
+        "neighbour_min": 0.89324955
+      },
+      "params": {
+        "safe": "BIL75+KMLM25",
+        "sigma_target": 0.25
+      },
+      "robust_score": 0.83142243,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.00155376,
+          "max": -0.2382642,
+          "median": -0.26831825,
+          "min": -0.27181835
+        },
+        "objective": {
+          "iqr": 0.31351677,
+          "max": 1.24338114,
+          "median": 0.87268651,
+          "min": 0.71665283
+        },
+        "rank_median": 16.5,
+        "rank_worst": 21
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02189355,
+        "avg_misallocation": 0.02246904,
+        "best_year": {
+          "return": 0.45665061,
+          "year": 2023
+        },
+        "cagr": 0.19723129,
+        "calmar": 0.87538778,
+        "feasible": true,
+        "fee_drag": 0.00228906,
+        "final_value": 91157.44200899,
+        "max_asset_deviation": 0.22935895,
+        "max_drawdown": -0.22530733,
+        "max_drawdown_days": 394,
+        "max_misallocation": 0.22935757,
+        "net_profit": 47157.44200899,
+        "net_profit_pct": 1.07176005,
+        "objective": 0.87538778,
+        "sharpe": 0.90352405,
+        "sortino": 1.26220495,
+        "total_contributed": 44000.0,
+        "total_fees": 100.71860479,
+        "traded_value": 805963.03094675,
+        "turnover": 1.72624361,
+        "volatility": 0.22968659,
+        "worst_year": {
+          "return": -0.17099887,
+          "year": 2022
+        },
+        "xirr": 0.21018712
+      },
+      "holdout": {
+        "fit": 0.78865162,
+        "test": 1.28697547,
+        "test_minus_fit": 0.49832386
+      },
+      "label": "VT TQQQ/BIL75+DBMF25 t20 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.79857872,
+        "neighbour_min": 0.79857872
+      },
+      "params": {
+        "safe": "BIL75+DBMF25",
+        "sigma_target": 0.2
+      },
+      "robust_score": 0.79857872,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.00185419,
+          "max": -0.19527579,
+          "median": -0.22479006,
+          "min": -0.22503392
+        },
+        "objective": {
+          "iqr": 0.35155202,
+          "max": 1.29055975,
+          "median": 0.90043234,
+          "min": 0.76228816
+        },
+        "rank_median": 12.0,
+        "rank_worst": 20
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02655541,
+        "avg_misallocation": 0.02713279,
+        "best_year": {
+          "return": 0.5457668,
+          "year": 2023
+        },
+        "cagr": 0.22596967,
+        "calmar": 0.79857872,
+        "feasible": true,
+        "fee_drag": 0.00255807,
+        "final_value": 100870.1160138,
+        "max_asset_deviation": 0.28487082,
+        "max_drawdown": -0.28296481,
+        "max_drawdown_days": 601,
+        "max_misallocation": 0.28486965,
+        "net_profit": 56870.1160138,
+        "net_profit_pct": 1.29250264,
+        "objective": 0.79857872,
+        "sharpe": 0.88721474,
+        "sortino": 1.24069949,
+        "total_contributed": 44000.0,
+        "total_fees": 112.55487002,
+        "traded_value": 900016.8003671,
+        "turnover": 1.80640568,
+        "volatility": 0.2732166,
+        "worst_year": {
+          "return": -0.22398691,
+          "year": 2022
+        },
+        "xirr": 0.24007191
+      },
+      "holdout": {
+        "fit": 0.73304131,
+        "test": 1.17628568,
+        "test_minus_fit": 0.44324438
+      },
+      "label": "VT TQQQ/BIL75+DBMF25 t25 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.87538778,
+        "neighbour_min": 0.87538778
+      },
+      "params": {
+        "safe": "BIL75+DBMF25",
+        "sigma_target": 0.25
+      },
+      "robust_score": 0.79857872,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.00750024,
+          "max": -0.25068096,
+          "median": -0.27188934,
+          "min": -0.28296481
+        },
+        "objective": {
+          "iqr": 0.35168788,
+          "max": 1.25839826,
+          "median": 0.86203509,
+          "min": 0.67227617
+        },
+        "rank_median": 16.0,
+        "rank_worst": 22
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02244981,
+        "avg_misallocation": 0.02297644,
+        "best_year": {
+          "return": 0.45292497,
+          "year": 2023
+        },
+        "cagr": 0.2069374,
+        "calmar": 0.87520646,
+        "feasible": true,
+        "fee_drag": 0.00442446,
+        "final_value": 92028.60202723,
+        "max_asset_deviation": 0.23067966,
+        "max_drawdown": -0.2364441,
+        "max_drawdown_days": 398,
+        "max_misallocation": 0.23067624,
+        "net_profit": 48028.60202723,
+        "net_profit_pct": 1.09155914,
+        "objective": 0.87520646,
+        "sharpe": 0.94345575,
+        "sortino": 1.31573589,
+        "total_contributed": 44000.0,
+        "total_fees": 194.67622537,
+        "traded_value": 815051.4631607,
+        "turnover": 1.71635937,
+        "volatility": 0.22821508,
+        "worst_year": {
+          "return": -0.11609334,
+          "year": 2022
+        },
+        "xirr": 0.21298494
+      },
+      "holdout": {
+        "fit": 1.03892968,
+        "test": 1.28379807,
+        "test_minus_fit": 0.24486839
+      },
+      "label": "VT TQQQ/BIL50+KMLM50 t20 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.83606871,
+        "neighbour_min": 0.83606871
+      },
+      "params": {
+        "safe": "BIL50+KMLM50",
+        "sigma_target": 0.2
+      },
+      "robust_score": 0.83606871,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.05155308,
+          "max": -0.18151329,
+          "median": -0.21057389,
+          "min": -0.23637969
+        },
+        "objective": {
+          "iqr": 0.18598155,
+          "max": 1.25923628,
+          "median": 1.08080047,
+          "min": 0.62811318
+        },
+        "rank_median": 12.5,
+        "rank_worst": 21
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02712114,
+        "avg_misallocation": 0.02774177,
+        "best_year": {
+          "return": 0.54167012,
+          "year": 2023
+        },
+        "cagr": 0.23654715,
+        "calmar": 0.83606871,
+        "feasible": true,
+        "fee_drag": 0.00494644,
+        "final_value": 102380.52591183,
+        "max_asset_deviation": 0.28635468,
+        "max_drawdown": -0.28292789,
+        "max_drawdown_days": 398,
+        "max_misallocation": 0.28635085,
+        "net_profit": 58380.52591183,
+        "net_profit_pct": 1.32683013,
+        "objective": 0.83606871,
+        "sharpe": 0.92453268,
+        "sortino": 1.29115492,
+        "total_contributed": 44000.0,
+        "total_fees": 217.64352972,
+        "traded_value": 912580.7819705,
+        "turnover": 1.79979913,
+        "volatility": 0.27083429,
+        "worst_year": {
+          "return": -0.17581047,
+          "year": 2022
+        },
+        "xirr": 0.24447872
+      },
+      "holdout": {
+        "fit": 0.90875557,
+        "test": 1.1835227,
+        "test_minus_fit": 0.27476712
+      },
+      "label": "VT TQQQ/BIL50+KMLM50 t25 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.87520646,
+        "neighbour_min": 0.87520646
+      },
+      "params": {
+        "safe": "BIL50+KMLM50",
+        "sigma_target": 0.25
+      },
+      "robust_score": 0.83606871,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.03997482,
+          "max": -0.22245043,
+          "median": -0.26319548,
+          "min": -0.28238563
+        },
+        "objective": {
+          "iqr": 0.25563168,
+          "max": 1.12570928,
+          "median": 0.98206946,
+          "min": 0.66427644
+        },
+        "rank_median": 16.5,
+        "rank_worst": 19
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.0217141,
+        "avg_misallocation": 0.02184281,
+        "best_year": {
+          "return": 0.3271211,
+          "year": 2023
+        },
+        "cagr": 0.13934984,
+        "calmar": 0.63467967,
+        "feasible": true,
+        "fee_drag": 0.00630758,
+        "final_value": 72773.96840703,
+        "max_asset_deviation": 0.23263898,
+        "max_drawdown": -0.21955932,
+        "max_drawdown_days": 209,
+        "max_misallocation": 0.23263291,
+        "net_profit": 28773.96840703,
+        "net_profit_pct": 0.65395383,
+        "objective": 0.63467967,
+        "sharpe": 0.76022861,
+        "sortino": 1.06005597,
+        "total_contributed": 44000.0,
+        "total_fees": 277.53332191,
+        "traded_value": 735766.61113008,
+        "turnover": 1.69714645,
+        "volatility": 0.19860145,
+        "worst_year": {
+          "return": -0.07745348,
+          "year": 2022
+        },
+        "xirr": 0.1444504
+      },
+      "holdout": {
+        "fit": 0.71603273,
+        "test": 0.56098219,
+        "test_minus_fit": -0.15505054
+      },
+      "label": "VT TQQQ/BTAL t20 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.78083056,
+        "neighbour_min": 0.78083056
+      },
+      "params": {
+        "safe": "BTAL",
+        "sigma_target": 0.2
+      },
+      "robust_score": 0.56098219,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.00931793,
+          "max": -0.15943144,
+          "median": -0.1633108,
+          "min": -0.21955932
+        },
+        "objective": {
+          "iqr": 0.33805279,
+          "max": 1.48581001,
+          "median": 0.91805267,
+          "min": 0.6714401
+        },
+        "rank_median": 6.0,
+        "rank_worst": 24
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02635955,
+        "avg_misallocation": 0.02650787,
+        "best_year": {
+          "return": 0.41034343,
+          "year": 2023
+        },
+        "cagr": 0.17523357,
+        "calmar": 0.78083056,
+        "feasible": true,
+        "fee_drag": 0.00706101,
+        "final_value": 83437.7871954,
+        "max_asset_deviation": 0.28865936,
+        "max_drawdown": -0.22441946,
+        "max_drawdown_days": 167,
+        "max_misallocation": 0.28865319,
+        "net_profit": 39437.7871954,
+        "net_profit_pct": 0.89631335,
+        "objective": 0.78083056,
+        "sharpe": 0.80205887,
+        "sortino": 1.11641884,
+        "total_contributed": 44000.0,
+        "total_fees": 310.68428334,
+        "traded_value": 826081.23471547,
+        "turnover": 1.78019979,
+        "volatility": 0.23790432,
+        "worst_year": {
+          "return": -0.14273284,
+          "year": 2022
+        },
+        "xirr": 0.18424739
+      },
+      "holdout": {
+        "fit": 0.82667421,
+        "test": 0.73904707,
+        "test_minus_fit": -0.08762714
+      },
+      "label": "VT TQQQ/BTAL t25 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.63467967,
+        "neighbour_min": 0.63467967
+      },
+      "params": {
+        "safe": "BTAL",
+        "sigma_target": 0.25
+      },
+      "robust_score": 0.63467967,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.00904711,
+          "max": -0.20209486,
+          "median": -0.20542935,
+          "min": -0.22441946
+        },
+        "objective": {
+          "iqr": 0.35037468,
+          "max": 1.34613062,
+          "median": 0.95980273,
+          "min": 0.75991959
+        },
+        "rank_median": 14.5,
+        "rank_worst": 18
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02167759,
+        "avg_misallocation": 0.02205712,
+        "best_year": {
+          "return": 0.48368353,
+          "year": 2023
+        },
+        "cagr": 0.18537264,
+        "calmar": 0.76293459,
+        "feasible": true,
+        "fee_drag": 0.00178537,
+        "final_value": 88651.52728036,
+        "max_asset_deviation": 0.22826604,
+        "max_drawdown": -0.24297317,
+        "max_drawdown_days": 605,
+        "max_misallocation": 0.22826552,
+        "net_profit": 44651.52728036,
+        "net_profit_pct": 1.01480744,
+        "objective": 0.76293459,
+        "sharpe": 0.87204783,
+        "sortino": 1.21790823,
+        "total_contributed": 44000.0,
+        "total_fees": 78.55626425,
+        "traded_value": 788956.03709917,
+        "turnover": 1.72712223,
+        "volatility": 0.22535339,
+        "worst_year": {
+          "return": -0.20432504,
+          "year": 2022
+        },
+        "xirr": 0.20199847
+      },
+      "holdout": {
+        "fit": 0.68266296,
+        "test": 1.32172638,
+        "test_minus_fit": 0.63906342
+      },
+      "label": "VT TQQQ/BIL t20 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.71602342,
+        "neighbour_min": 0.71602342
+      },
+      "params": {
+        "safe": "BIL",
+        "sigma_target": 0.2
+      },
+      "robust_score": 0.71602342,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.02284938,
+          "max": -0.211327,
+          "median": -0.21337745,
+          "min": -0.24297317
+        },
+        "objective": {
+          "iqr": 0.48311618,
+          "max": 1.40452234,
+          "median": 0.89978704,
+          "min": 0.65216504
+        },
+        "rank_median": 12.5,
+        "rank_worst": 23
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02614159,
+        "avg_misallocation": 0.02650393,
+        "best_year": {
+          "return": 0.57133666,
+          "year": 2023
+        },
+        "cagr": 0.21478963,
+        "calmar": 0.71602342,
+        "feasible": true,
+        "fee_drag": 0.00199926,
+        "final_value": 98366.01915494,
+        "max_asset_deviation": 0.28332701,
+        "max_drawdown": -0.2999757,
+        "max_drawdown_days": 606,
+        "max_misallocation": 0.28332639,
+        "net_profit": 54366.01915494,
+        "net_profit_pct": 1.23559134,
+        "objective": 0.71602342,
+        "sharpe": 0.8605158,
+        "sortino": 1.20284477,
+        "total_contributed": 44000.0,
+        "total_fees": 87.96724549,
+        "traded_value": 881907.28208854,
+        "turnover": 1.80763185,
+        "volatility": 0.26993825,
+        "worst_year": {
+          "return": -0.2545513,
+          "year": 2022
+        },
+        "xirr": 0.2326302
+      },
+      "holdout": {
+        "fit": 0.65196041,
+        "test": 1.19897108,
+        "test_minus_fit": 0.54701067
+      },
+      "label": "VT TQQQ/BIL t25 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.76293459,
+        "neighbour_min": 0.76293459
+      },
+      "params": {
+        "safe": "BIL",
+        "sigma_target": 0.25
+      },
+      "robust_score": 0.71602342,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.02909708,
+          "max": -0.2609057,
+          "median": -0.26520546,
+          "min": -0.2999757
+        },
+        "objective": {
+          "iqr": 0.4591027,
+          "max": 1.33408124,
+          "median": 0.86184702,
+          "min": 0.59248899
+        },
+        "rank_median": 14.5,
+        "rank_worst": 24
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02204929,
+        "avg_misallocation": 0.02254002,
+        "best_year": {
+          "return": 0.40575042,
+          "year": 2023
+        },
+        "cagr": 0.16399087,
+        "calmar": 0.87014713,
+        "feasible": true,
+        "fee_drag": 0.00411469,
+        "final_value": 80795.61497756,
+        "max_asset_deviation": 0.23042545,
+        "max_drawdown": -0.18846339,
+        "max_drawdown_days": 572,
+        "max_misallocation": 0.23042406,
+        "net_profit": 36795.61497756,
+        "net_profit_pct": 0.83626398,
+        "objective": 0.87014713,
+        "sharpe": 0.85667648,
+        "sortino": 1.1953908,
+        "total_contributed": 44000.0,
+        "total_fees": 181.04642907,
+        "traded_value": 767476.85744703,
+        "turnover": 1.72017311,
+        "volatility": 0.20222901,
+        "worst_year": {
+          "return": -0.1413102,
+          "year": 2022
+        },
+        "xirr": 0.17485237
+      },
+      "holdout": {
+        "fit": 0.86556924,
+        "test": 0.98894832,
+        "test_minus_fit": 0.12337908
+      },
+      "label": "VT TQQQ/BIL50+BTAL50 t20 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.76836206,
+        "neighbour_min": 0.76836206
+      },
+      "params": {
+        "safe": "BIL50+BTAL50",
+        "sigma_target": 0.2
+      },
+      "robust_score": 0.76836206,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.01126051,
+          "max": -0.17110145,
+          "median": -0.17233952,
+          "min": -0.18846339
+        },
+        "objective": {
+          "iqr": 0.32445842,
+          "max": 1.50213096,
+          "median": 1.10941862,
+          "min": 0.82420612
+        },
+        "rank_median": 7.0,
+        "rank_worst": 15
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.02657018,
+        "avg_misallocation": 0.0271194,
+        "best_year": {
+          "return": 0.49096812,
+          "year": 2023
+        },
+        "cagr": 0.19642892,
+        "calmar": 0.76836206,
+        "feasible": true,
+        "fee_drag": 0.00460094,
+        "final_value": 91034.71779912,
+        "max_asset_deviation": 0.28600046,
+        "max_drawdown": -0.25564631,
+        "max_drawdown_days": 601,
+        "max_misallocation": 0.28599905,
+        "net_profit": 47034.71779912,
+        "net_profit_pct": 1.06897086,
+        "objective": 0.76836206,
+        "sharpe": 0.85342176,
+        "sortino": 1.19114306,
+        "total_contributed": 44000.0,
+        "total_fees": 202.4413315,
+        "traded_value": 857527.61342996,
+        "turnover": 1.79786114,
+        "volatility": 0.24736228,
+        "worst_year": {
+          "return": -0.19872206,
+          "year": 2022
+        },
+        "xirr": 0.20979098
+      },
+      "holdout": {
+        "fit": 0.75105318,
+        "test": 1.02466384,
+        "test_minus_fit": 0.27361066
+      },
+      "label": "VT TQQQ/BIL50+BTAL50 t25 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.87014713,
+        "neighbour_min": 0.87014713
+      },
+      "params": {
+        "safe": "BIL50+BTAL50",
+        "sigma_target": 0.25
+      },
+      "robust_score": 0.76836206,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.01992602,
+          "max": -0.22677729,
+          "median": -0.2293142,
+          "min": -0.25564631
+        },
+        "objective": {
+          "iqr": 0.33571262,
+          "max": 1.37040901,
+          "median": 0.97201261,
+          "min": 0.69681964
+        },
+        "rank_median": 13.0,
+        "rank_worst": 21
+      }
+    }
+  ],
+  "warnings": [
+    "test window 2025-01-02..2026-08-24 is shorter than 2 years; its metrics are noise"
+  ],
+  "windows": [
+    {
+      "end": "2026-08-24",
+      "kind": "full",
+      "name": "full",
+      "start": "2020-12-18"
+    },
+    {
+      "end": "2024-12-31",
+      "kind": "fit",
+      "name": "fit",
+      "start": "2020-12-18"
+    },
+    {
+      "end": "2026-08-24",
+      "kind": "test",
+      "name": "test",
+      "start": "2025-01-02"
+    },
+    {
+      "end": "2023-12-18",
+      "kind": "sens",
+      "name": "sens_2020-12-18",
+      "start": "2020-12-18"
+    },
+    {
+      "end": "2024-06-18",
+      "kind": "sens",
+      "name": "sens_2021-06-18",
+      "start": "2021-06-18"
+    },
+    {
+      "end": "2024-12-18",
+      "kind": "sens",
+      "name": "sens_2021-12-20",
+      "start": "2021-12-20"
+    },
+    {
+      "end": "2025-06-18",
+      "kind": "sens",
+      "name": "sens_2022-06-21",
+      "start": "2022-06-21"
+    },
+    {
+      "end": "2025-12-18",
+      "kind": "sens",
+      "name": "sens_2022-12-19",
+      "start": "2022-12-19"
+    },
+    {
+      "end": "2026-06-18",
+      "kind": "sens",
+      "name": "sens_2023-06-20",
+      "start": "2023-06-20"
+    }
+  ]
+}
