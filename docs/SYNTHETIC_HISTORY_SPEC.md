@@ -648,7 +648,19 @@ holdout design). Fixing the XNDX export. A time-varying `cash_yield` (the BIL sl
    cannot run before the roots exist); the roots commit arms them, and the suite is
    876 with nothing skipped.
 
-5. **Polygon cannot supply S10's published amounts.** Its dividend reference data
+5. **§14's "five specs" is four.** §7.2–§7.5 name four spec files
+   (`sweep_syn_2000`, `sweep_syn_full`, `syn_points`, `syn_bridge_2012`); the five is
+   the count of *bundle artefacts*, because `syn_points.json` is run on four roots.
+   §9's run protocol already lists four spec files, and the checklist's next line
+   ("five bundle JSONs") is correct.
+
+6. **§7.3's full lane is 47 windows, not ~46.** `--dry-run` prints 20 × 47 = 940 runs
+   against §7.6's 920: `full` + `fit` + `test` + 44 five-year sensitivity windows
+   starting every 6 months from 2000-01-03 and ending by 2026-08-24. §7.2 is exactly
+   as predicted, 20 × 21 = 420. No reading changes; the sensitivity set is one window
+   larger than the estimate.
+
+7. **Polygon cannot supply S10's published amounts.** Its dividend reference data
    starts 2011-03-18 for QQQ — after the trust's first distribution (2003-12-24), so
    `dividends/QQQ.parquet` could not check a single pre-inception ex-date.
    `fetch_dividends.py` now requests from 1999 explicitly and prints each symbol's
