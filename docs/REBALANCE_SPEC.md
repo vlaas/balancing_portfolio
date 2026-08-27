@@ -283,3 +283,12 @@ Daily cadence (noise, §1). Band/threshold rebalancing (a trigger, not a calenda
 is the next spec and can reuse the contribution-only branch unchanged). A re-entry rule
 for fast cadences (asymmetric gate speed, or buying back to the pre-gate weight) —
 motivated by §7.3's mechanism, but it is a gate change, not a cadence one.
+
+## 11. Errata
+
+1. **This section was added after the fact, at EPISODE_SPEC's docs commit** —
+   this spec's implementation produced no deviations, so it had none. The winners
+   file named in §7.5 and the checklist now lives at
+   `docs/WINNING_STRATEGIES_CASH_SLEEVE.md` (created by CASH_SLEEVE §10.6(b),
+   renamed at `68cac21`). Its "Monthly rebalancing stands" flag is the sentence
+   the checklist asked for; the box is left as it was. (EPISODE_SPEC §7.2.)

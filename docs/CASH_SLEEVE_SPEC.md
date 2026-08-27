@@ -520,3 +520,6 @@ the VT sizing.
    `tests/data/2026-08-24-net15-bil0` was built and committed. The rate reaches
    only `build`'s per-symbol loop; a snapshot without overrides is byte-identical
    to before, which N5 checks. The reread changed no clause.
+9. **The file §10.6(b) created was renamed to
+   `docs/WINNING_STRATEGIES_CASH_SLEEVE.md` at `68cac21`.** §7's line and
+   erratum 7 above name it under the path it was created with. (EPISODE_SPEC §7.2.)

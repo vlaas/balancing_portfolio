@@ -387,6 +387,9 @@ corrected readings.
 9. **§3 T6 "embedded verbatim"** is read as "as a structured object": the
    normalised switch form (`hysteresis` filled on a regime `when`, the
    regime-gate precedent), not the raw input bytes.
+10. **The winners file named in §6.8 now lives at
+    `docs/WINNING_STRATEGIES_CASH_SLEEVE.md`.** Erratum 8 above was true when
+    written. (EPISODE_SPEC §7.2.)
 
 Validation notes recorded at implementation: every "(measured)" claim in §1
 reproduced exactly; `sweep._param_value` needed no change as §2.3 stated; the

@@ -25,7 +25,7 @@ the 12-month sign beats `1-3-6-12U` here (§3.2's finding does not transplant).
 - **Incumbents unchanged:** B75K25 (robust-score leader), B75D25 (robustness /
   rank_worst pick), B50K50 (return variant) — all VT + SMA-200-gate + sleeve;
   cost-sensitivity verdict: plateau survives cbase and flat-20. Recorded with
-  their numbers and standing flags in `docs/WINNING_STRATEGIES.md`
+  their numbers and standing flags in `docs/WINNING_STRATEGIES_CASH_SLEEVE.md`
   (created by the cash-sleeve verdict; the three sleeves survived it unchanged).
 - **Rotation catalog closed** (`rot-verdict.md`, `rot2-verdict.md`,
   `rot3-verdict.md`): eight published points, three stages —
@@ -135,7 +135,7 @@ there — but any new lane or symbol re-triggers the rule.
   `robust_score` **is not comparable across lanes of different grid shape** —
   two §4.2 anchors could not reproduce because this lane grids σ and
   `sweep_comp_2021` did not, so state anchors on the full-window objective.
-  `docs/WINNING_STRATEGIES.md` now exists and carries the incumbents and the
+  `docs/WINNING_STRATEGIES_CASH_SLEEVE.md` now exists and carries the incumbents and the
   flags; BIL is in the golden battery on the 2026-08-24 root; `cash_yield` is
   demoted to uninvested residue; `make_net_tr.py` takes `--rate-override`.
   The open question no lane answers: whether 2022-shaped grinds recur at
@@ -148,8 +148,13 @@ there — but any new lane or symbol re-triggers the rule.
   DOCUMENT-ONLYs and was never swept on its own terms.
 - Stage-1 residual 6: relative-only momentum printed −50.30% (worse than SPY's
   −47.16%) on the crisis window — unexplored follow-up note.
-- BTAL-heavy-on regime variant: sharp falsifier remains leave-one-episode-out
-  with 2022 deleted.
+- BTAL-heavy-on regime variant: sharp falsifier remains leave-one-episode-out —
+  with **E4** deleted, not 2022. EPISODE_SPEC retargeted it: E4 is the 2020-09-02
+  → 2021-09-03 anti-beta unwind, the winners' own deepest hole, and it partitions
+  the 2012 lane's windows 10/10 against 2/10 where 2022 gives 7/7 and 5/13
+  (`docs/EPISODE_SPEC.md` §3, `notes/episode-verdict.md`). A candidate for this
+  variant is pre-registered against the episode table and must not deepen E4 by
+  more than 1 pp (§10.3). The old winners-file path is a stub (EPISODE_SPEC §7.2).
 
 ## 8. Verification expectations for the next conversation
 
