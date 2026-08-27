@@ -21,12 +21,14 @@ from episode_report import episode_slice
 from main import run_bundle
 from prices import load_prices
 from results_json import slug
-from spec import build_bundle, normalised_spec
+from spec import build_bundle, load_spec, normalised_spec
 from sweep import Window, build_summary, expand
+from sweep import main as sweep_main
 
 GOLDEN_DIR = Path(__file__).parent / "data"
 GROSS = GOLDEN_DIR / "2026-08-24"
 NET = GOLDEN_DIR / "2026-08-24-net15"
+SPECS = Path(__file__).parents[1] / "specs"
 RESULTS = Path(__file__).parents[1] / "results"
 
 # §4's cost map: the blend map plus BIL at one tick. The nine statics have no
@@ -266,7 +268,21 @@ def test_d2_score3_is_not_the_robust_score_once_the_grid_has_a_numeric_dimension
     assert round(score3(half), 4) == 0.9406
 
 
-# --- D3 — the anchors §4 rests on, through run_bundle ------------------------
+# --- D3 — the anchors §4 rests on, and the frozen lane sizes -----------------
+
+RS_LANES = {  # §4.7, pinned in the pre-registration commit before any run
+    "sweep_rs_2019": "4 grid + 4 baselines x 12 windows = 96 runs",
+    "sweep_rs_2021": "5 grid + 4 baselines x 9 windows = 81 runs",
+    "sweep_rs_2022": "8 grid + 4 baselines x 6 windows = 72 runs",
+}
+RS_PANELS = {  # §4.6, §4.4 — the statics, in the order the tables read them
+    "rs_points_2019": ["NTSX100", "NTSX75/BIL25", "NTSX62.5/BIL37.5", "NTSX50/BIL50"],
+    "rs_points_2021": ["NTSX100", "RPAR100", "NTSX50/RPAR50",
+                       "NTSX75/BIL25", "NTSX50/BIL50"],
+    "rs_points_2023": ["RSST100", "RSSB100", "RSBT100", "GDE100", "NTSX100",
+                       "UPAR100", "RPAR100", "RSSB50/RSST50",
+                       "RSSB34/RSST33/RSBT33"],
+}
 
 
 def test_d3_the_decision_lanes_baselines_reproduce_on_the_full_window(lane_2019):
@@ -290,6 +306,33 @@ def test_d3_the_winners_lanes_baselines_reproduce_on_the_full_window(lane_2021):
     calmars = [round(lane_2021[w].stats["calmar"], 4) for w in (B75K25, B75D25, B50K50)]
 
     assert calmars == [0.8529, 0.8574, 0.8849]
+
+
+@pytest.mark.parametrize("name", RS_LANES, ids=lambda n: n[len("sweep_rs_"):])
+def test_d3_the_rs_lanes_dry_run_to_their_frozen_counts(
+    name, tmp_path, monkeypatch, capsys
+):
+    out = tmp_path / "out"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["sweep.py", str(SPECS / f"{name}.json"),
+         "--data", str(NET), "--out", str(out), "--dry-run"],
+    )
+
+    sweep_main()
+
+    assert RS_LANES[name] in capsys.readouterr().out
+    assert not out.exists()
+
+
+@pytest.mark.parametrize("name,roster", RS_PANELS.items(), ids=list(RS_PANELS))
+def test_d3_the_panels_hold_the_roster_they_are_read_for(name, roster):
+    # test_spec.py::every_strategy skips a spec whose symbols are absent from
+    # the flat tests/data snapshot, and none of the nine statics is in it.
+    strategies = build_bundle(load_spec(SPECS / f"{name}.json")).strategies
+
+    assert [st.label for st in strategies][:len(roster)] == roster
+    assert strategies[-1].label == SPY
 
 
 # --- D4 — the pilot's own numbers (§2.4, §2.5) -------------------------------
