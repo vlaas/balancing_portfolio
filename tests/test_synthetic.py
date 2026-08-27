@@ -415,7 +415,7 @@ def test_the_2012_composition_anchor_survives_the_synthetic_root_bit_for_bit():
     stats = run(spec, SYN_NET)
     gated = stats["VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ<SMA200"]
     assert round(gated["calmar"], 8) == 0.86123626
-    assert round(gated["cagr"], 7) == 0.2381710
+    assert round(gated["cagr"], 8) == 0.23817105  # §9 quotes it to 7 dp
     assert round(gated["max_drawdown"], 8) == -0.27654555
     ungated = stats["VT TQQQ/BTAL t30 w0-60 QQQ:VOL_EWMA80"]
     assert round(ungated["calmar"], 8) == 0.71623794

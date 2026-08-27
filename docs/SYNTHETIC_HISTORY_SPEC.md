@@ -618,4 +618,44 @@ holdout design). Fixing the XNDX export. A time-varying `cash_yield` (the BIL sl
 
 ## 15. Errata (found during implementation)
 
-None yet.
+1. **§3's default output name contradicts §4's.** "Root layout (`PARENT` basename +
+   `-syn`)" makes the net root `2026-08-24-net15-syn`, but §4, §7 and §9 all name it
+   `tests/data/2026-08-24-syn-net15`. Resolved in favour of the explicit name, which
+   appears six times against the rule's once: `make_synthetic.default_out` inserts
+   `-syn` before the withholding suffix, so a root reads snapshot, then extension,
+   then convention. Both spellings contain `-net`, so `tests/test_indicators.py`'s
+   `-net` exclusion is unaffected either way.
+
+2. **"Max cumulative deviation" needed a definition.** §2.3's table reports it but
+   does not say in which space. Three readings differ materially on the full TQQQ
+   overlap: the level ratio gives 9.56 %, the exact log residual against the fitted
+   series 9.13 %, and the *linearised* log residual — `max |Σ (resid_t + c·d_t/365)|`,
+   the cumulative deviation of the same series whose mean-residual defines `c` — gives
+   9.138 %. Only the third reproduces the table across all five windows (9.14 / 1.48 /
+   5.19 / 1.45 / 0.91 measured as 9.138 / 1.480 / 5.189 / 1.454 / 0.913), and it is
+   also the one for which §2.3's "`cum_end` 0" claim is exactly true. It is what
+   `make_synthetic._fit` computes and what S1's `≤ 0.095` bound is stated against; the
+   level reading would breach that bound. Reported per root: the `-syn-net15` root
+   fits 9.57 % on its own series, which is not pinned anywhere and is not a defect —
+   §2.3's table and S1's bound are gross-root numbers.
+
+3. **S9's CAGR is quoted to one digit too few.** "CAGR 0.2381710" rounds from
+   0.23817105, which at 7 decimals is 0.2381711. The test pins the committed
+   artefact's 8-decimal value, 0.23817105; Calmar and max drawdown are unaffected.
+
+4. **§14's "suite count > 806" lands in two steps.** The generator commit takes it to
+   857 with the 19 root-dependent pins skipped (§9's own instruction: S4's byte check
+   cannot run before the roots exist); the roots commit arms them, and the suite is
+   876 with nothing skipped.
+
+5. **Polygon cannot supply S10's published amounts.** Its dividend reference data
+   starts 2011-03-18 for QQQ — after the trust's first distribution (2003-12-24), so
+   `dividends/QQQ.parquet` could not check a single pre-inception ex-date.
+   `fetch_dividends.py` now requests from 1999 explicitly and prints each symbol's
+   earliest ex-date, making the boundary a measured fact; `extend_dividends.py` merges
+   the earlier record from `dividends/pre_polygon/` into the parquet with a `source`
+   column. All 24 implied 2003–2010 distributions match the published amounts to five
+   decimals, every fiscal-year sum reconciles to the trust's audited Financial
+   Highlights, and 2004-12-17's $0.37858 is quoted verbatim in the N-30B-2 for the
+   year ended 2004-09-30 — a $3.00 Microsoft special dividend passing through, which
+   is why §2.2's 2004 yield is 0.95 % against neighbours near 0.3 %.

@@ -61,6 +61,15 @@ JUMP_MIN = 1e-5
 PUBLISHED = {"2003-12-24": 0.01358, "2004-12-17": 0.37858, "2005-12-16": 0.10110}
 
 
+def default_out(parent: str) -> str:
+    """`2026-08-24` -> `2026-08-24-syn`, `2026-08-24-net15` -> `2026-08-24-syn-net15`.
+
+    The withholding suffix stays last, so a root's name reads snapshot, then
+    extension, then convention (§4; §15 erratum 1)."""
+    stem, marker, rate = parent.partition("-net")
+    return f"{stem}-syn{marker}{rate}"
+
+
 def read_close(path: Path) -> tuple[list[str], list[float]]:
     """One CSV as (time, close). `time` is read as a string and passed through
     untouched so a byte-copied or spliced file carries identical date values."""
@@ -361,7 +370,7 @@ def render_readme(parent: str, gross: str, w: float, results: dict) -> str:
     implied = results["implied"]
     pre = [d for d in implied if d[0] <= "2010-12-31"]
     lines = [
-        f"# Synthetic pre-inception snapshot — {parent}-syn",
+        f"# Synthetic pre-inception snapshot — {default_out(parent)}",
         "",
         f"Derived from the frozen `{parent}` snapshot by `make_synthetic.py`",
         f"(SYNTHETIC_HISTORY_SPEC §2–§4), with the index leg (`{INDEX}`), the accrual",
@@ -458,7 +467,7 @@ def main(argv: list[str] | None = None) -> None:
     )
     parser.add_argument(
         "--out", type=Path, default=None,
-        help="output dataset root (default: <PARENT>-syn)",
+        help="output dataset root (default: the parent with -syn inserted)",
     )
     parser.add_argument(
         "--drag", type=float, default=None,
@@ -483,7 +492,7 @@ def main(argv: list[str] | None = None) -> None:
             f"--withholding {w:g} does not match parent {args.parent.name}"
             f" (expected {expected:g})"
         )
-    dst = args.out or args.parent.with_name(f"{args.parent.name}-syn")
+    dst = args.out or args.parent.with_name(default_out(args.parent.name))
     if dst.exists() and not args.force:
         parser.error(f"{dst} exists; pass --force to overwrite")
 
