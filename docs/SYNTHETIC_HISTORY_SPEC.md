@@ -144,17 +144,33 @@ in every year 2006–2011); the 5× larger pre-2010 residual is early-ETF price/
 not the XNDX defect. The model holds in the GFC — max cumulative deviation 4 % across
 the crisis — but the constant is higher: the borrowed leg was priced over LIBOR, not
 T-bills, and the TED spread blew out. **Bracket for the synthetic 3×**, expense-ratio
-free: `c_lo = 1.24` (TQQQ's ZIRP fit), `c_mid = 1.90` (the full fit, the primary),
-`c_hi = 1.90 + 2 × (2.41 − 1.32) = 4.08` (TQQQ's fit plus twice QLD's crisis-era spread
-widening, one unit borrowed → two).
+free and stated as offsets around whatever constant the root being built fits (§3):
+`c_lo = c − 0.66` (the full fit less TQQQ's ZIRP fit, 1.90 − 1.24), `c_mid = c` (the
+primary), `c_hi = c + 2 × (2.41 − 1.32) = c + 2.18` (twice QLD's crisis-era spread
+widening, one unit borrowed → two). On the gross root that is 1.24 / 1.90 / 4.08 %/yr;
+on the net15 root 1.29 / 1.94 / 4.13 (§2.5).
 
-### 2.5 The T-bill accrual, fitted on BIL
+### 2.5 The T-bill accrual, fitted on BIL — and how withholding enters each model
 
-`r_t = y_{t−1} · d_t / 360 − c_b · d_t / 365`, BIL vs DTB3 on the gross root: full
-2007-05-30 → 2026-08-20 (4,837 days) **`c_b = 0.109 %/yr`** (BIL's expense ratio, to
-the basis point), daily residual 3.0 bp, max cumulative deviation 1.13 %; halves 0.031 /
-0.191 %/yr; ZIRP 0.105 %/yr with max deviation 0.26 %. Good enough for a sleeve whose
-job is to be flat.
+`r_t = (1 − w) · y_{t−1} · d_t / 360 − c_b · d_t / 365`, with `w` the parent root's
+withholding (0 on the gross root, 0.15 on net15). BIL vs DTB3, full overlap 2007-05-30 →
+2026-08-20 (4,837 days): gross root **`c_b = 0.109 %/yr`** (BIL's expense ratio, to the
+basis point), daily residual 3.0 bp, max cumulative deviation 1.13 %; halves 0.031 /
+0.191 %/yr; ZIRP 0.105 %/yr with max deviation 0.26 %. Net15 root with `w = 0.15`:
+**`c_b = 0.093 %/yr`**, max deviation 1.10 % — the same expense ratio again, so the
+proportional term is the right shape. Forcing the gross model (`w = 0`) onto the net15
+series instead gives `c_b = 0.317 %/yr` with a worse fit (2.27 %): a T-bill fund
+distributes its whole accrual, so withholding on it scales with the rate and cannot be
+a constant. At 2000's 5.8 % rates that is 0.87 %/yr on the sleeve.
+
+The 3× is the opposite case. Refitting §2.3 against the **net15** TQQQ (index leg still
+gross QQQ — a swap pays the gross total return) gives `c = 1.943 %/yr` against the gross
+root's 1.897: a delta of **4.61 bp/yr**, which is 15 % × TQQQ's implied 0.307 %/yr
+distribution yield (4.60 bp) to the hundredth of a basis point. A leveraged fund's own
+distributions are tiny and roughly constant, so the constant absorbs their withholding
+exactly. Hence §3's rule: **each root fits its own constants against its own real
+segment**, the bill model carries `w` explicitly, and the two roots' synthetic segments
+differ — by 4.6 bp/yr on TQQQ and by 15 % of the T-bill rate on BIL.
 
 ### 2.6 The XNDX export defect
 
@@ -166,13 +182,16 @@ a reference. It is recorded, not repaired: XNDX is not an input to anything.
 
 ### 2.7 What the machine does through the bears (pilot, §11)
 
-The prototype generator built three scratch roots (`c` = 1.24 / 1.90 / 4.08 with
-`c_b = 0.109`) on the net15 parent and ran the incumbent machine with a BIL sleeve from
-2000-01-03. Headline at `c_mid`, 2000-01-03 → 2011-12-30: gated σ0.20/w0.8 CAGR
-**+4.0 %**, max DD **−35.9 %** (GFC), dot-com episode −26.2 %; gated σ0.30/w0.6 CAGR
-+3.8 %, max DD **−50.3 %** — across the −50 % constraint; both ungated twins −60.3 % /
-−77.0 %; TQQQ buy-and-hold −100.0 % (−99.95 % in the dot-com alone); SPY +0.3 %, −55.4 %;
-QQQ −4.0 %, −82.9 %. The `c` bracket moves every gated number by ≤ 0.6 pp from `c_mid`.
+The prototype generator built three scratch roots in the net15 convention (`c` = 1.29 /
+1.94 / 4.13, `c_b = 0.093`, `w = 0.15` on the bill) on the net15 parent and ran the
+incumbent machine with a BIL sleeve from 2000-01-03. Headline at `c_mid`, 2000-01-03 →
+2011-12-30: gated σ0.20/w0.8 CAGR **+3.8 %**, max DD **−35.9 %** (GFC), dot-com episode
+−27.3 %; gated σ0.30/w0.6 CAGR +3.6 %, max DD **−50.4 %** — across the −50 % constraint;
+both ungated twins −60.7 % / −77.3 %; TQQQ buy-and-hold −100.0 % (−99.95 % in the
+dot-com alone); SPY +0.3 %, −55.4 %; QQQ −4.0 %, −82.9 %. The `c` bracket moves every
+gated number by ≤ 0.6 pp from `c_mid`. (An earlier pilot pass built the net15 roots
+with the gross-fitted constants and a gross bill; the withholding correction moved the
+gated arms by 0.1–0.4 pp and nothing else.)
 
 ## 3. The generator — `make_synthetic.py`
 
@@ -180,25 +199,30 @@ A sibling of `make_net_tr.py`, deterministic by construction (no clock, no envir
 no network), ~150 lines:
 
 ```
-uv run make_synthetic.py PARENT --gross GROSS [--out DIR] [--drag C] [--bill-drag CB] [--force]
-uv run make_synthetic.py tests/data/2026-08-24-net15 --gross tests/data/2026-08-24
-uv run make_synthetic.py tests/data/2026-08-24       --gross tests/data/2026-08-24
+uv run make_synthetic.py PARENT --gross GROSS --withholding W [--out DIR] [--drag C] [--bill-drag CB] [--force]
+uv run make_synthetic.py tests/data/2026-08-24-net15 --gross tests/data/2026-08-24 --withholding 0.15
+uv run make_synthetic.py tests/data/2026-08-24       --gross tests/data/2026-08-24 --withholding 0
 ```
 
 - **Inputs**: `PARENT/TQQQ.csv`, `PARENT/BIL.csv` (the real segments, in the parent's
   withholding convention), `GROSS/QQQ.csv` (the index leg — a swap pays the gross
-  total return, so the synthetic segment is the same in both roots), `GROSS/SPY.csv`
+  total return, in both roots), `GROSS/SPY.csv`
   (the calendar the bill accrues on: it reaches 1993 and is the loader's widest traded
   calendar), `GROSS/macro/DTB3.csv` (the floating rate; read by the generator as a
   build input, **never by the loader** — the `macro/` quarantine of ROTATION_SPEC §3.3
   is about signal reads with an availability lag, and a rate lagged one row that
   prices yesterday's borrowing is not a signal).
-- **Fit**: `c` and `c_b` by the §2.3 / §2.5 estimators on the full overlap (the parent's
-  real TQQQ vs gross QQQ; the parent's real BIL vs DTB3), printed and written to the
-  README. `--drag` / `--bill-drag` override the fit (the bracket roots of §9 are built
-  this way and are not committed).
+- **Fit, per root**: `c` and `c_b` by the §2.3 / §2.5 estimators on the full overlap,
+  **against the parent's own real segments** (the parent's TQQQ vs gross QQQ; the
+  parent's BIL vs `(1 − w)` × DTB3), printed and written to the README. `--withholding`
+  is required and must match the parent (guard: a parent whose basename contains
+  `-net15` requires 0.15, any other requires 0); it enters the bill recursion as
+  `(1 − w)` and the 3× recursion not at all (§2.5 — the constant carries it). So the two
+  roots' synthetic segments differ, each in its own convention. `--drag` /
+  `--bill-drag` override the fit (the bracket roots of §9 are built this way and are
+  not committed).
 - **Synthesis**: the §2.3 recursion from 1.0 at QQQ's first bar (1999-03-10) for the 3×;
-  the §2.5 recursion from 1.0 at SPY's first bar for the bill. DTB3 is joined onto the
+  the §2.5 recursion with the root's `w` from 1.0 at SPY's first bar for the bill. DTB3 is joined onto the
   target calendar by date, forward-filled, then lagged one row; the first row's return
   is 0.
 - **Splice**: the synthetic series is kept strictly before the real segment's first
@@ -229,8 +253,10 @@ No engine file changes. `prices.py`, `simulate.py`, `indicators.py`, `stats.py`,
 
 Built once by §3 from the committed 2026-08-24 pair, committed, append-only. Sizes:
 TQQQ.csv 6,907 rows (2,749 synthetic + 4,158 real), BIL.csv 8,449 rows (3,609 synthetic
-+ 4,840 real); everything else identical to the parent. Byte-reproducible from the
-committed parent and the committed generator (test S4).
++ 4,840 real); everything else identical to the parent. The two roots' synthetic
+segments are not identical (§2.5): TQQQ's differ by the 4.6 bp/yr constant, BIL's by
+the `(1 − w)` accrual. Byte-reproducible from the committed parent and the committed
+generator (test S4).
 
 **The no-contamination invariant**: any run whose window starts on or after 2010-02-11
 and whose sleeve is not BIL reads only real bars and must reproduce the parent root's
@@ -250,18 +276,22 @@ export is at fault is an operator task outside this spec.
 Cite as "SYNTHETIC_HISTORY_SPEC S·". Real-data pins run on the committed 2026-08-24
 roots; model pins are computed by the generator's functions, not read from the README.
 
-**S1 — The financing fit reproduces.** `fit_drag("TQQQ", "QQQ", L=3)` on the gross root,
-overlap ending 2026-08-20: `c` = 0.0190 ± 0.0002, realised beta 2.977 ± 0.003, daily
-residual std 17.7 ± 0.3 bp, max cumulative deviation ≤ 0.095; on the halves `c` = 0.0133
-/ 0.0251 (± 0.0002). The constant-only variant on the same halves 0.0193 / 0.0798 — the
-test that says why the floating leg exists.
+**S1 — The financing fit reproduces.** `fit_drag("TQQQ", "QQQ", L=3)` with the gross
+root's TQQQ, overlap ending 2026-08-20: `c` = 0.01897 ± 0.0001, realised beta 2.977 ±
+0.003, daily residual std 17.7 ± 0.3 bp, max cumulative deviation ≤ 0.095; on the halves
+`c` = 0.0133 / 0.0251 (± 0.0002). With the net15 root's TQQQ: `c` = 0.01943 ± 0.0001, and
+the difference equals 0.15 × TQQQ's implied distribution yield within 0.1 bp/yr. The
+constant-only variant on the gross halves 0.0193 / 0.0798 — the test that says why the
+floating leg exists.
 
 **S2 — The era fit.** QLD, `L = 2`: 2006-06-21 → 2010-02-10 `c` = 0.0241 ± 0.0002;
 2010-02-11 → 2026-08-20 `c` = 0.0132 ± 0.0002. QLD same-day correlation with QQQ ≥ 0.98
 in every year 2006–2011 (the alignment guard that S5's XNDX fails).
 
-**S3 — The bill fit.** BIL vs DTB3, full overlap: `c_b` = 0.00109 ± 0.00003, max
-cumulative deviation ≤ 0.012.
+**S3 — The bill fit.** BIL vs DTB3, full overlap: gross root, `w = 0`: `c_b` = 0.00109 ±
+0.00003, max cumulative deviation ≤ 0.012; net15 root, `w = 0.15`: `c_b` = 0.00093 ±
+0.00003, max deviation ≤ 0.012; net15 root with `w = 0` forced: `c_b` > 0.0030 and max
+deviation > 0.02 — the shape test that keeps the proportional term.
 
 **S4 — Reproducibility and layout.** `make_synthetic.py` into a temp dir from the
 committed parents reproduces the committed `-syn` and `-syn-net15` roots file-for-file
@@ -285,9 +315,10 @@ within 0.5 pp of the real fund's; cumulative ratio over the overlap within [0.98
 (measured −94.62 %); QQQ's on the same windows −82.98 % / −53.4 % (the real index, a
 sanity anchor).
 
-**S8 — Bracket inertness.** Generator into a temp dir with `--drag 0.0124` and `--drag
-0.0408`; the gated σ0.20/w0.8 BIL-sleeve machine on 2000-01-03 → 2011-12-30 prints CAGR
-within 0.7 pp and max drawdown within 0.5 pp of the committed root's on both.
+**S8 — Bracket inertness.** Generator into a temp dir from the net15 parent with
+`--drag 0.0129` and `--drag 0.0413`; the gated σ0.20/w0.8 BIL-sleeve machine on
+2000-01-03 → 2011-12-30 prints CAGR within 0.7 pp and max drawdown within 0.5 pp of the
+committed root's on both.
 
 **S9 — No contamination.** On `-syn-net15`, `VT TQQQ/BTAL t30 w0-60 λ0.80 gate
 QQQ<SMA200` from 2012-01-03, blend costs, `cash_yield` 0.03 → full Calmar **0.86123626**,
@@ -352,7 +383,7 @@ primary root, `--json` for `drawdowns` and `yearly_returns`: the per-episode pan
 (dot-com 2000-03 → 2002-10, GFC 2007-10 → 2009-03, 2011, COVID, 2022, 2025) and the
 calendar-year table 2000 / 2001 / 2002 / 2008 / 2009. Run three more times without
 committing data: on `-syn` (gross bracket), and on two temp roots built with `--drag
-0.0124` / `--drag 0.0408` (the `c` bracket) — outputs committed as
+0.0129` / `--drag 0.0413` (the `c` bracket, §2.4 offsets around the net15 fit) — outputs committed as
 `results/syn_points_tr.json`, `_clo.json`, `_chi.json` with the build command in the
 verdict.
 
@@ -389,16 +420,16 @@ is SMA-200 on QQQ, warm 1999-12-21; the loader's completeness assert covers the 
 
 ```
 uv run pytest                                                            # S1–S10 green from a fresh clone
-uv run make_synthetic.py tests/data/2026-08-24-net15 --gross tests/data/2026-08-24
-uv run make_synthetic.py tests/data/2026-08-24       --gross tests/data/2026-08-24
+uv run make_synthetic.py tests/data/2026-08-24-net15 --gross tests/data/2026-08-24 --withholding 0.15
+uv run make_synthetic.py tests/data/2026-08-24       --gross tests/data/2026-08-24 --withholding 0
 uv run pytest tests/test_synthetic.py                                    # S4 now byte-checks the committed roots
 uv run sweep.py specs/sweep_syn_2000.json --data tests/data/2026-08-24-syn-net15 --out results/sweep_syn_2000
 uv run sweep.py specs/sweep_syn_full.json --data tests/data/2026-08-24-syn-net15 --out results/sweep_syn_full
 uv run main.py --spec specs/syn_points.json      --data tests/data/2026-08-24-syn-net15 --json results/syn_points.json      --no-charts --quiet
 uv run main.py --spec specs/syn_points.json      --data tests/data/2026-08-24-syn       --json results/syn_points_tr.json   --no-charts --quiet
-uv run make_synthetic.py tests/data/2026-08-24-net15 --gross tests/data/2026-08-24 --drag 0.0124 --out /tmp/syn-clo && \
+uv run make_synthetic.py tests/data/2026-08-24-net15 --gross tests/data/2026-08-24 --withholding 0.15 --drag 0.0129 --out /tmp/syn-clo && \
 uv run main.py --spec specs/syn_points.json --data /tmp/syn-clo --json results/syn_points_clo.json --no-charts --quiet
-uv run make_synthetic.py tests/data/2026-08-24-net15 --gross tests/data/2026-08-24 --drag 0.0408 --out /tmp/syn-chi && \
+uv run make_synthetic.py tests/data/2026-08-24-net15 --gross tests/data/2026-08-24 --withholding 0.15 --drag 0.0413 --out /tmp/syn-chi && \
 uv run main.py --spec specs/syn_points.json --data /tmp/syn-chi --json results/syn_points_chi.json --no-charts --quiet
 uv run main.py --spec specs/syn_bridge_2012.json --data tests/data/2026-08-24-syn-net15 --json results/syn_bridge_2012.json --no-charts --quiet
 ```
@@ -456,62 +487,64 @@ of the standing caveat.
 
 ## 11. Pilot measurements — what to expect, and what would falsify it
 
-A prototype generator (the §3 semantics, scratch code) built roots at `c` = 1.24 / 1.90
-/ 4.08 %/yr, `c_b` = 0.109 %/yr, on the net15 parent, and ran eight strategies through
-`main.run_bundle` on full windows only — no robustness windows, no ranks. Expectations,
-not findings.
+A prototype generator (the §3 semantics, scratch code) built net15-convention roots at
+`c` = 1.29 / 1.94 / 4.13 %/yr (the §2.4 offsets around the net15 fit), `c_b` = 0.093 %/yr,
+`w = 0.15` on the bill, and ran eight strategies through `main.run_bundle` on full
+windows only — no robustness windows, no ranks. Expectations, not findings.
 
 **2000-01-03 → 2011-12-30, `c_mid`** (Calmar · CAGR · max DD · turnover; episodes:
 dot-com · GFC · 2011; calendar years 2000 · 2001 · 2002 · 2008 · 2009):
 
 | strategy | Calmar · CAGR · max DD · TO | dot-com · GFC · 2011 | 2000 · 2001 · 2002 · 2008 · 2009 |
 |---|---|---|---|
-| VT BIL σ0.30 w0.6 **gate** | 0.075 · +3.8 % · **−50.3 %** · 0.77 | −40.3 · −50.3 · −25.3 | −31.3 · +0.0 · +1.3 · −42.0 · +54.6 |
-| VT BIL σ0.30 w0.6 no gate | −0.023 · −1.7 % · −77.0 % · 0.90 | −77.0 · · · · | −32.6 · −29.9 · −34.8 · −45.4 · +66.7 |
-| VT BIL σ0.20 w0.8 **gate** | **0.111** · **+4.0 %** · **−35.9 %** · 1.36 | −26.2 · −35.9 · −18.1 | −20.1 · +1.2 · +1.4 · −29.1 · +35.7 |
-| VT BIL σ0.20 w0.8 no gate | 0.014 · +0.8 % · −60.3 % · 1.48 | −60.3 · · · −18.1 | −21.3 · −19.2 · −23.5 · −31.9 · +43.1 |
-| TQQQ buy-and-hold | −0.397 · −39.7 % · −100.0 % · 0.11 | −100.0 · · · · | −92.3 · −88.8 · −86.1 · −88.4 · +197.9 |
-| TQQQ50/BIL50 gate | 0.021 · +1.4 % · −64.4 % · 0.30 | −64.4 · · · −22.9 | −48.6 · −3.5 · +1.1 · −46.5 · +57.6 |
+| VT BIL σ0.30 w0.6 **gate** | 0.071 · +3.6 % · **−50.4 %** · 0.77 | −41.2 · −50.4 · −25.3 | −31.9 · −0.5 · +1.1 · −42.0 · +54.6 |
+| VT BIL σ0.30 w0.6 no gate | −0.025 · −1.9 % · −77.3 % · 0.90 | −77.3 · · · · | −33.2 · −30.2 · −34.9 · −45.4 · +66.6 |
+| VT BIL σ0.20 w0.8 **gate** | **0.105** · **+3.8 %** · **−35.9 %** · 1.36 | −27.3 · −35.9 · −18.1 | −20.8 · +0.7 · +1.1 · −29.1 · +35.7 |
+| VT BIL σ0.20 w0.8 no gate | 0.010 · +0.6 % · −60.7 % · 1.48 | −60.7 · · · −18.1 | −21.7 · −19.6 · −23.6 · −31.9 · +43.1 |
+| TQQQ buy-and-hold | −0.396 · −39.6 % · −100.0 % · 0.11 | −100.0 · · · · | −92.3 · −88.8 · −86.1 · −88.4 · +197.7 |
+| TQQQ50/BIL50 gate | 0.020 · +1.3 % · −64.4 % · 0.30 | −64.4 · · · −22.9 | −48.1 · −3.9 · +0.8 · −46.5 · +57.6 |
 | QQQ | −0.048 · −4.0 % · −82.9 % · 0.08 | −82.9 · · · · | −38.3 · −33.3 · −37.3 · −41.8 · +54.5 |
 | SPY | 0.006 · +0.3 % · −55.4 % · 0.07 | −47.7 · −55.4 · · | −8.9 · −11.9 · −21.7 · −37.0 · +25.9 |
 
 (`·` = below that arm's fifth-deepest drawdown; TQQQ buy-and-hold never recovers, so
 its GFC is inside its dot-com.)
 
-**2000-01-03 → 2026-08-24, `c_mid`**: gated σ0.30/w0.6 Calmar 0.304 · 15.3 % · −50.3 %;
-gated σ0.20/w0.8 **0.370 · 13.3 % · −35.9 %**; ungated twins 0.171 / 0.202; gated 50/50
-0.212 · 13.7 % · −64.4 %; QQQ 0.102 · 8.4 % · −82.9 %; SPY 0.145 · 8.0 % · −55.4 %.
+**2000-01-03 → 2026-08-24, `c_mid`**: gated σ0.30/w0.6 Calmar 0.302 · 15.2 % · −50.4 %;
+gated σ0.20/w0.8 **0.367 · 13.2 % · −35.9 %**; ungated twins 0.169 / 0.199; gated 50/50
+0.212 · 13.6 % · −64.4 %; QQQ 0.102 · 8.4 % · −82.9 %; SPY 0.145 · 8.0 % · −55.4 %.
 
-**Brackets** (gated σ0.20/w0.8, 2000–2011, Calmar · CAGR · max DD): `c_lo` 0.117 · 4.2 %
-· −35.7 %; `c_mid` 0.111 · 4.0 % · −35.9 %; `c_hi` 0.094 · 3.4 % · −36.2 %. Gated
-σ0.30/w0.6: −50.2 / −50.3 / −50.8 %. Nothing else moves by more than 0.6 pp.
+**Brackets** (gated σ0.20/w0.8, 2000–2011, Calmar · CAGR · max DD): `c_lo` 0.111 · 4.0 %
+· −35.7 %; `c_mid` 0.105 · 3.8 % · −35.9 %; `c_hi` 0.088 · 3.2 % · −36.2 %. Gated
+σ0.30/w0.6: −50.2 / −50.4 / −50.8 %. Nothing else moves by more than 0.6 pp from `c_mid`.
 
 **Bridge, 2012-01-03 → 2026-08-24 (real bars only)**: gated σ0.30/w0.6 BIL 0.7386 ·
 25.93 % · −35.11 % · 0.89 vs BTAL 0.8612 · 23.82 % · −27.65 % · 0.88; gated σ0.20/w0.8
 BIL 0.7991 · 21.66 % · −27.10 % · 1.80; TQQQ buy-and-hold 0.5293 · 43.23 % · −81.67 %.
+Identical to four decimals between the gross-fitted and the net15-fitted pilot roots —
+the no-contamination invariant, seen once before S9 pins it.
 
 Predictions, each a falsifiable line for the verdict:
 
 1. **The σ0.30/w_max 0.6 coordinate is infeasible on both lanes**: GFC max drawdown
-   −50.3 % at `c_mid`, −50.2 % at `c_lo`, −50.8 % at `c_hi` — on the boundary at every
-   drag, across it at all three. The 2012-lane regime coordinate would have breached
-   the program's own constraint in 2008 on a cash sleeve. Falsified if its full-window
-   max drawdown on §7.2 is above −50 %.
+   −50.4 % at `c_mid`, −50.2 % at `c_lo`, −50.8 % at `c_hi` — across the constraint at
+   every drag. The 2012-lane regime coordinate would have breached the program's own
+   constraint in 2008 on a cash sleeve. Falsified if its full-window max drawdown on
+   §7.2 is above −50 %.
 2. **The winners' coordinate σ0.20/w_max 0.8 is feasible on both lanes and clears
-   §10.7(a)**: max drawdown −35.9 % vs SPY −55.4 %, CAGR +4.0 % vs +0.3 %, Calmar 0.111
-   vs 0.006 on 2000–2011; gate vs null 0.111 vs 0.014. Falsified if any clause fails
+   §10.7(a)**: max drawdown −35.9 % vs SPY −55.4 %, CAGR +3.8 % vs +0.3 %, Calmar 0.105
+   vs 0.006 on 2000–2011; gate vs null 0.105 vs 0.010. Falsified if any clause fails
    under `robust_score`.
-3. **The gate is worth more in a bear than it was on the 2012 lane**: +0.097 Calmar and
-   +24 drawdown points at σ0.20/w0.8, +0.098 and +27 points at σ0.30/w0.6 — against
+3. **The gate is worth more in a bear than it was on the 2012 lane**: +0.095 Calmar and
+   +25 drawdown points at σ0.20/w0.8, +0.096 and +27 points at σ0.30/w0.6 — against
    +0.145 and +6.9 on 2012–2026. Falsified if any gated point loses to its null on
    `robust_score` on either lane.
-4. **The machine loses the first leg and wins the grind.** 2000: −20.1 % / −31.3 %
+4. **The machine loses the first leg and wins the grind.** 2000: −20.8 % / −31.9 %
    against SPY −8.9 %; 2008: −29.1 % / −42.0 % against −37.0 % (the σ0.30 coordinate
-   loses *more* than SPY in 2008); 2001–02: +1.2 / +1.4 % and +0.0 / +1.3 % against
+   loses *more* than SPY in 2008); 2001–02: +0.7 / +1.1 % and −0.5 / +1.1 % against
    −11.9 / −21.7 %. The COVID-vs-2022 pattern, twice more. Falsified by a first-leg
    calendar-year win over SPY at either coordinate.
 5. **Buy-and-hold 3× is annihilated, and the gated static is not a substitute**: TQQQ
-   −99.95 % in the dot-com; gated 50/50 −64.4 % and +1.4 %/yr. VT is not a detail at
+   −99.95 % in the dot-com; gated 50/50 −64.4 % and +1.3 %/yr. VT is not a detail at
    3×. Falsified if gated 50/50 is feasible on §7.2.
 6. **The plateau survives but tilts**: on §7.3 the eight gated points stay within 0.10
    of each other on `robust_score`, λ0.80 still beats λ0.94 at every (σ, w_max), and the
@@ -572,7 +605,7 @@ holdout design). Fixing the XNDX export. A time-varying `cash_yield` (the BIL sl
 
 ## 14. Acceptance checklist
 
-- [ ] `make_synthetic.py`: §3 semantics, fitted constants printed and written, guards, `--drag` / `--bill-drag` / `--out` / `--force`; deterministic
+- [ ] `make_synthetic.py`: §3 semantics, per-root fit, `--withholding` with the parent guard, fitted constants printed and written, `--drag` / `--bill-drag` / `--out` / `--force`; deterministic
 - [ ] Roots `tests/data/2026-08-24-syn` and `-syn-net15` committed; README with fitted constants, splice facts, validation numbers, S10 spot check
 - [ ] Tests S1–S10 green from a fresh clone; `every_strategy` skips `syn_`; suite count > 806; the SMA-parity fixture count still 20 (the spliced files carry no SMA header, so the `rglob` does not collect them — S4 asserts it)
 - [ ] Docs per §8, including the XNDX note
