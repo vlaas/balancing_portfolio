@@ -123,6 +123,11 @@ README and tightens the constants to one order above the measurement, in the sam
 commit. A ceiling that cannot be met is a finding to bring back, not a constant to
 raise.
 
+The implied-distribution series of invariant 4 is also what reconstructs QQQ's
+pre-inception dividend record for the synthetic roots — the structural check that the
+dot-com stretch is dividend-free by construction (`docs/SYNTHETIC_HISTORY_SPEC.md`
+§2.2, S10).
+
 ## 5. Signal series — which series each indicator reads, and why
 
 **Uniform rule: every indicator is computed on the `close` of the file the loader

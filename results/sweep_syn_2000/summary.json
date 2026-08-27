@@ -1,0 +1,1458 @@
+{
+  "baselines": [
+    {
+      "full": {
+        "avg_asset_deviation": 0.00055809,
+        "avg_misallocation": 0.00055372,
+        "best_year": {
+          "return": 1.97725493,
+          "year": 2009
+        },
+        "cagr": -0.39636996,
+        "calmar": -0.39645713,
+        "fee_drag": 0.00014998,
+        "final_value": 72423.45712836,
+        "max_asset_deviation": 0.01393427,
+        "max_drawdown": -0.99978012,
+        "max_drawdown_days": null,
+        "max_misallocation": 0.01386031,
+        "net_profit": -9076.54287164,
+        "net_profit_pct": -0.11136862,
+        "objective": -0.39645713,
+        "sharpe": -0.02723475,
+        "sortino": -0.03890444,
+        "total_contributed": 81500.0,
+        "total_fees": 12.22333065,
+        "traded_value": 81488.87097173,
+        "turnover": 0.11100904,
+        "volatility": 0.97879912,
+        "worst_year": {
+          "return": -0.92293165,
+          "year": 2000
+        },
+        "xirr": -0.0177005
+      },
+      "holdout": {
+        "fit": -0.48669075,
+        "test": -0.16877668,
+        "test_minus_fit": 0.31791407
+      },
+      "label": "TQQQ buy-and-hold",
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.42528962,
+          "max": -0.45138811,
+          "median": -0.92836587,
+          "min": -0.99951444
+        },
+        "objective": {
+          "iqr": 0.58403754,
+          "max": 0.84972019,
+          "median": -0.20928599,
+          "min": -0.88848594
+        }
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.12483189,
+        "avg_misallocation": 0.12497712,
+        "best_year": {
+          "return": 0.65012879,
+          "year": 2003
+        },
+        "cagr": 0.01283419,
+        "calmar": 0.01992758,
+        "fee_drag": 0.00046488,
+        "final_value": 122376.73948208,
+        "max_asset_deviation": 0.49957216,
+        "max_drawdown": -0.64404167,
+        "max_drawdown_days": 3969,
+        "max_misallocation": 0.49957157,
+        "net_profit": 40876.73948208,
+        "net_profit_pct": 0.50155509,
+        "objective": 0.01992758,
+        "sharpe": 0.19186042,
+        "sortino": 0.26555512,
+        "total_contributed": 81500.0,
+        "total_fees": 37.88808581,
+        "traded_value": 396084.54904617,
+        "turnover": 0.29673153,
+        "volatility": 0.29654587,
+        "worst_year": {
+          "return": -0.48145055,
+          "year": 2000
+        },
+        "xirr": 0.05858457
+      },
+      "holdout": {
+        "fit": 0.02305868,
+        "test": 0.04476439,
+        "test_minus_fit": 0.02170571
+      },
+      "label": "TQQQ50/BIL50 gate QQQ<SMA200",
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.27741844,
+          "max": -0.11405092,
+          "median": -0.2906214,
+          "min": -0.62414629
+        },
+        "objective": {
+          "iqr": 0.71372518,
+          "max": 1.72350941,
+          "median": 0.10061904,
+          "min": -0.32835008
+        }
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.0007798,
+        "avg_misallocation": 0.00077847,
+        "best_year": {
+          "return": 0.54539978,
+          "year": 2009
+        },
+        "cagr": -0.0400551,
+        "calmar": -0.0482943,
+        "fee_drag": 9.999e-05,
+        "final_value": 107638.39291782,
+        "max_asset_deviation": 0.00769271,
+        "max_drawdown": -0.82939612,
+        "max_drawdown_days": null,
+        "max_misallocation": 0.00764309,
+        "net_profit": 26138.39291782,
+        "net_profit_pct": 0.32071648,
+        "objective": -0.0482943,
+        "sharpe": 0.03751628,
+        "sortino": 0.05377215,
+        "total_contributed": 81500.0,
+        "total_fees": 8.14924873,
+        "traded_value": 81492.48732676,
+        "turnover": 0.07595429,
+        "volatility": 0.32677393,
+        "worst_year": {
+          "return": -0.41750481,
+          "year": 2008
+        },
+        "xirr": 0.04042481
+      },
+      "holdout": {
+        "fit": -0.0868404,
+        "test": 0.0637309,
+        "test_minus_fit": 0.15057131
+      },
+      "label": "QQQ",
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.34490726,
+          "max": -0.15843724,
+          "median": -0.50598177,
+          "min": -0.82939612
+        },
+        "objective": {
+          "iqr": 0.57972517,
+          "max": 1.11069662,
+          "median": 0.05631372,
+          "min": -0.42495569
+        }
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00136848,
+        "avg_misallocation": 0.0013677,
+        "best_year": {
+          "return": 0.27835875,
+          "year": 2003
+        },
+        "cagr": 0.00306235,
+        "calmar": 0.00553231,
+        "fee_drag": 6.997e-05,
+        "final_value": 96152.62479824,
+        "max_asset_deviation": 0.00828626,
+        "max_drawdown": -0.55353848,
+        "max_drawdown_days": null,
+        "max_misallocation": 0.00828507,
+        "net_profit": 14652.62479824,
+        "net_profit_pct": 0.17978681,
+        "objective": 0.00553231,
+        "sharpe": 0.12407263,
+        "sortino": 0.17570451,
+        "total_contributed": 81500.0,
+        "total_fees": 5.70259253,
+        "traded_value": 81465.60761152,
+        "turnover": 0.07067246,
+        "volatility": 0.22078484,
+        "worst_year": {
+          "return": -0.36995912,
+          "year": 2008
+        },
+        "xirr": 0.02421908
+      },
+      "holdout": {
+        "fit": 0.03053635,
+        "test": -0.0333998,
+        "test_minus_fit": -0.06393615
+      },
+      "label": "SPY benchmark",
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.35219553,
+          "max": -0.07583312,
+          "median": -0.39068425,
+          "min": -0.55296651
+        },
+        "objective": {
+          "iqr": 0.87249095,
+          "max": 1.66391725,
+          "median": 0.01372027,
+          "min": -0.28025598
+        }
+      }
+    }
+  ],
+  "constraint": {
+    "max_drawdown": -0.5
+  },
+  "costs": {
+    "cash_yield": 0.03,
+    "cost_bps": {
+      "*": 6,
+      "BIL": 0.5,
+      "BTAL": 6,
+      "DBMF": 2.5,
+      "KMLM": 6,
+      "QQQ": 1,
+      "SPY": 0.7,
+      "TQQQ": 1.5
+    }
+  },
+  "data": {
+    "dir": "tests/data/2026-08-24-syn-net15",
+    "end": "2011-12-30",
+    "start": "2000-01-03"
+  },
+  "objective": "calmar",
+  "snapped": [],
+  "strategies": [
+    {
+      "full": {
+        "avg_asset_deviation": 0.00118977,
+        "avg_misallocation": 0.00128345,
+        "best_year": {
+          "return": 0.43055234,
+          "year": 2009
+        },
+        "cagr": 0.0084248,
+        "calmar": 0.01386913,
+        "feasible": false,
+        "fee_drag": 0.00172548,
+        "final_value": 125399.31693736,
+        "max_asset_deviation": 0.00734422,
+        "max_drawdown": -0.60744961,
+        "max_drawdown_days": 3875,
+        "max_misallocation": 0.01035393,
+        "net_profit": 43899.31693736,
+        "net_profit_pct": 0.53864193,
+        "objective": 0.01386913,
+        "sharpe": 0.14873678,
+        "sortino": 0.20593039,
+        "total_contributed": 81500.0,
+        "total_fees": 140.62675394,
+        "traded_value": 1407102.8111029,
+        "turnover": 1.16627287,
+        "volatility": 0.22107731,
+        "worst_year": {
+          "return": -0.31920661,
+          "year": 2008
+        },
+        "xirr": 0.06200825
+      },
+      "holdout": {
+        "fit": -0.02707135,
+        "test": 0.17771289,
+        "test_minus_fit": 0.20478424
+      },
+      "label": "VT TQQQ/BIL t20 w0-60 QQQ:VOL_EWMA80",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.00214593,
+        "neighbour_min": -0.02503118
+      },
+      "params": {
+        "gate": null,
+        "sigma_target": 0.2,
+        "vol.lam": 0.8,
+        "w_max": 0.6
+      },
+      "robust_score": -0.02503118,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.19171984,
+          "max": -0.22864253,
+          "median": -0.3643083,
+          "min": -0.60744961
+        },
+        "objective": {
+          "iqr": 0.36674015,
+          "max": 0.54784986,
+          "median": 0.10141463,
+          "min": -0.33606173
+        },
+        "rank_median": null,
+        "rank_worst": null
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.04658999,
+        "avg_misallocation": 0.04668347,
+        "best_year": {
+          "return": 0.35722705,
+          "year": 2009
+        },
+        "cagr": 0.03989556,
+        "calmar": 0.11125377,
+        "feasible": true,
+        "fee_drag": 0.00172794,
+        "final_value": 127952.48841814,
+        "max_asset_deviation": 0.33885378,
+        "max_drawdown": -0.35859959,
+        "max_drawdown_days": 897,
+        "max_misallocation": 0.33885353,
+        "net_profit": 46452.48841814,
+        "net_profit_pct": 0.56996918,
+        "objective": 0.11125377,
+        "sharpe": 0.30205979,
+        "sortino": 0.41618051,
+        "total_contributed": 81500.0,
+        "total_fees": 140.82718355,
+        "traded_value": 1424745.28850837,
+        "turnover": 1.06193731,
+        "volatility": 0.18886565,
+        "worst_year": {
+          "return": -0.29133359,
+          "year": 2008
+        },
+        "xirr": 0.06483006
+      },
+      "holdout": {
+        "fit": 0.13223552,
+        "test": 0.16698063,
+        "test_minus_fit": 0.03474511
+      },
+      "label": "VT TQQQ/BIL t20 w0-60 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.08781704,
+        "neighbour_min": 0.07097871
+      },
+      "params": {
+        "gate": "QQQ<SMA200",
+        "sigma_target": 0.2,
+        "vol.lam": 0.8,
+        "w_max": 0.6
+      },
+      "robust_score": 0.07097871,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.06676273,
+          "max": -0.09801517,
+          "median": -0.23495383,
+          "min": -0.36117756
+        },
+        "objective": {
+          "iqr": 0.33181118,
+          "max": 1.28655514,
+          "median": 0.19141072,
+          "min": -0.2597648
+        },
+        "rank_median": 2.5,
+        "rank_worst": 3
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00123552,
+        "avg_misallocation": 0.00132751,
+        "best_year": {
+          "return": 0.43055678,
+          "year": 2009
+        },
+        "cagr": 0.0062755,
+        "calmar": 0.0103309,
+        "feasible": false,
+        "fee_drag": 0.00214122,
+        "final_value": 125163.46338286,
+        "max_asset_deviation": 0.00734422,
+        "max_drawdown": -0.60744961,
+        "max_drawdown_days": 3877,
+        "max_misallocation": 0.01035393,
+        "net_profit": 43663.46338286,
+        "net_profit_pct": 0.53574802,
+        "objective": 0.0103309,
+        "sharpe": 0.14119454,
+        "sortino": 0.19510095,
+        "total_contributed": 81500.0,
+        "total_fees": 174.50954576,
+        "traded_value": 1745990.93135711,
+        "turnover": 1.47561743,
+        "volatility": 0.2266278,
+        "worst_year": {
+          "return": -0.31920831,
+          "year": 2008
+        },
+        "xirr": 0.06174439
+      },
+      "holdout": {
+        "fit": -0.03700023,
+        "test": 0.19477739,
+        "test_minus_fit": 0.23177762
+      },
+      "label": "VT TQQQ/BIL t20 w0-80 QQQ:VOL_EWMA80",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.00572399,
+        "neighbour_min": -0.01811905
+      },
+      "params": {
+        "gate": null,
+        "sigma_target": 0.2,
+        "vol.lam": 0.8,
+        "w_max": 0.8
+      },
+      "robust_score": -0.01811905,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.17615189,
+          "max": -0.23786862,
+          "median": -0.3643083,
+          "min": -0.60744961
+        },
+        "objective": {
+          "iqr": 0.35064137,
+          "max": 0.57759181,
+          "median": 0.06237445,
+          "min": -0.33606173
+        },
+        "rank_median": null,
+        "rank_worst": null
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.04690848,
+        "avg_misallocation": 0.0470004,
+        "best_year": {
+          "return": 0.35719988,
+          "year": 2009
+        },
+        "cagr": 0.0375085,
+        "calmar": 0.10460356,
+        "feasible": true,
+        "fee_drag": 0.00216368,
+        "final_value": 127225.21052806,
+        "max_asset_deviation": 0.41196375,
+        "max_drawdown": -0.3585777,
+        "max_drawdown_days": 896,
+        "max_misallocation": 0.41196349,
+        "net_profit": 45725.21052806,
+        "net_profit_pct": 0.56104553,
+        "objective": 0.10460356,
+        "sharpe": 0.28679835,
+        "sortino": 0.39414887,
+        "total_contributed": 81500.0,
+        "total_fees": 176.33958127,
+        "traded_value": 1778999.1084338,
+        "turnover": 1.35540237,
+        "volatility": 0.19510401,
+        "worst_year": {
+          "return": -0.29129489,
+          "year": 2008
+        },
+        "xirr": 0.06403262
+      },
+      "holdout": {
+        "fit": 0.10802362,
+        "test": 0.18771366,
+        "test_minus_fit": 0.07969004
+      },
+      "label": "VT TQQQ/BIL t20 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.09206522,
+        "neighbour_min": 0.07664352
+      },
+      "params": {
+        "gate": "QQQ<SMA200",
+        "sigma_target": 0.2,
+        "vol.lam": 0.8,
+        "w_max": 0.8
+      },
+      "robust_score": 0.07664352,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.06445408,
+          "max": -0.09801517,
+          "median": -0.25659809,
+          "min": -0.36117756
+        },
+        "objective": {
+          "iqr": 0.30616808,
+          "max": 1.25171555,
+          "median": 0.14801536,
+          "min": -0.2597648
+        },
+        "rank_median": 3.0,
+        "rank_worst": 4
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00131057,
+        "avg_misallocation": 0.00150401,
+        "best_year": {
+          "return": 0.66626427,
+          "year": 2009
+        },
+        "cagr": -0.01936102,
+        "calmar": -0.02503118,
+        "feasible": false,
+        "fee_drag": 0.00125055,
+        "final_value": 123628.00524231,
+        "max_asset_deviation": 0.01101633,
+        "max_drawdown": -0.77347623,
+        "max_drawdown_days": null,
+        "max_misallocation": 0.01166646,
+        "net_profit": 42128.00524231,
+        "net_profit_pct": 0.51690804,
+        "objective": -0.02503118,
+        "sharpe": 0.08761368,
+        "sortino": 0.12116726,
+        "total_contributed": 81500.0,
+        "total_fees": 101.91980515,
+        "traded_value": 1021778.64704139,
+        "turnover": 0.89697626,
+        "volatility": 0.30342465,
+        "worst_year": {
+          "return": -0.45391339,
+          "year": 2008
+        },
+        "xirr": 0.06001309
+      },
+      "holdout": {
+        "fit": -0.0690821,
+        "test": 0.11984725,
+        "test_minus_fit": 0.18892935
+      },
+      "label": "VT TQQQ/BIL t30 w0-60 QQQ:VOL_EWMA80",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": -0.00093043,
+        "neighbour_min": -0.01811905
+      },
+      "params": {
+        "gate": null,
+        "sigma_target": 0.3,
+        "vol.lam": 0.8,
+        "w_max": 0.6
+      },
+      "robust_score": -0.02503118,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.28763823,
+          "max": -0.28097101,
+          "median": -0.50490752,
+          "min": -0.77347623
+        },
+        "objective": {
+          "iqr": 0.40260611,
+          "max": 0.57790041,
+          "median": 0.0946092,
+          "min": -0.40341145
+        },
+        "rank_median": null,
+        "rank_worst": null
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.06564005,
+        "avg_misallocation": 0.06573298,
+        "best_year": {
+          "return": 0.5459691,
+          "year": 2009
+        },
+        "cagr": 0.035739,
+        "calmar": 0.07097871,
+        "feasible": false,
+        "fee_drag": 0.00126523,
+        "final_value": 131472.29291751,
+        "max_asset_deviation": 0.44573348,
+        "max_drawdown": -0.50351718,
+        "max_drawdown_days": 1098,
+        "max_misallocation": 0.44573292,
+        "net_profit": 49972.29291751,
+        "net_profit_pct": 0.61315697,
+        "objective": 0.07097871,
+        "sharpe": 0.26593544,
+        "sortino": 0.36654609,
+        "total_contributed": 81500.0,
+        "total_fees": 103.11604269,
+        "traded_value": 1049635.10547926,
+        "turnover": 0.7692939,
+        "volatility": 0.25256075,
+        "worst_year": {
+          "return": -0.42012174,
+          "year": 2008
+        },
+        "xirr": 0.06862026
+      },
+      "holdout": {
+        "fit": 0.08713414,
+        "test": 0.10148084,
+        "test_minus_fit": 0.0143467
+      },
+      "label": "VT TQQQ/BIL t30 w0-60 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.08748589,
+        "neighbour_min": 0.07456038
+      },
+      "params": {
+        "gate": "QQQ<SMA200",
+        "sigma_target": 0.3,
+        "vol.lam": 0.8,
+        "w_max": 0.6
+      },
+      "robust_score": 0.07097871,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.13969,
+          "max": -0.12468411,
+          "median": -0.29336601,
+          "min": -0.50173835
+        },
+        "objective": {
+          "iqr": 0.42775563,
+          "max": 1.32249082,
+          "median": 0.1435018,
+          "min": -0.3003714
+        },
+        "rank_median": null,
+        "rank_worst": null
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00136551,
+        "avg_misallocation": 0.00155472,
+        "best_year": {
+          "return": 0.68747417,
+          "year": 2009
+        },
+        "cagr": -0.01401466,
+        "calmar": -0.01811905,
+        "feasible": false,
+        "fee_drag": 0.00220208,
+        "final_value": 133246.47459671,
+        "max_asset_deviation": 0.01101633,
+        "max_drawdown": -0.77347623,
+        "max_drawdown_days": null,
+        "max_misallocation": 0.01166646,
+        "net_profit": 51746.47459671,
+        "net_profit_pct": 0.63492607,
+        "objective": -0.01811905,
+        "sharpe": 0.12055237,
+        "sortino": 0.16685392,
+        "total_contributed": 81500.0,
+        "total_fees": 179.46970704,
+        "traded_value": 1794234.51720128,
+        "turnover": 1.5422635,
+        "volatility": 0.32661174,
+        "worst_year": {
+          "return": -0.45794734,
+          "year": 2008
+        },
+        "xirr": 0.07048874
+      },
+      "holdout": {
+        "fit": -0.06761349,
+        "test": 0.14780284,
+        "test_minus_fit": 0.21541634
+      },
+      "label": "VT TQQQ/BIL t30 w0-80 QQQ:VOL_EWMA80",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": -0.00870403,
+        "neighbour_min": -0.02503118
+      },
+      "params": {
+        "gate": null,
+        "sigma_target": 0.3,
+        "vol.lam": 0.8,
+        "w_max": 0.8
+      },
+      "robust_score": -0.02503118,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.24924498,
+          "max": -0.32350352,
+          "median": -0.50667615,
+          "min": -0.77347623
+        },
+        "objective": {
+          "iqr": 0.37848517,
+          "max": 0.54909585,
+          "median": 0.03890143,
+          "min": -0.40341145
+        },
+        "rank_median": null,
+        "rank_worst": null
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.06795373,
+        "avg_misallocation": 0.0680423,
+        "best_year": {
+          "return": 0.56562893,
+          "year": 2009
+        },
+        "cagr": 0.03887189,
+        "calmar": 0.07664352,
+        "feasible": false,
+        "fee_drag": 0.00234955,
+        "final_value": 139400.35426219,
+        "max_asset_deviation": 0.44573348,
+        "max_drawdown": -0.50717775,
+        "max_drawdown_days": 1080,
+        "max_misallocation": 0.44573292,
+        "net_profit": 57900.35426219,
+        "net_profit_pct": 0.71043379,
+        "objective": 0.07664352,
+        "sharpe": 0.27692413,
+        "sortino": 0.38179159,
+        "total_contributed": 81500.0,
+        "total_fees": 191.48862361,
+        "traded_value": 1930037.96448745,
+        "turnover": 1.4181717,
+        "volatility": 0.27855869,
+        "worst_year": {
+          "return": -0.42438512,
+          "year": 2008
+        },
+        "xirr": 0.07676488
+      },
+      "holdout": {
+        "fit": 0.07817018,
+        "test": 0.14034812,
+        "test_minus_fit": 0.06217794
+      },
+      "label": "VT TQQQ/BIL t30 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.07663476,
+        "neighbour_min": 0.05432201
+      },
+      "params": {
+        "gate": "QQQ<SMA200",
+        "sigma_target": 0.3,
+        "vol.lam": 0.8,
+        "w_max": 0.8
+      },
+      "robust_score": 0.05432201,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.10171374,
+          "max": -0.14338418,
+          "median": -0.33486591,
+          "min": -0.5055747
+        },
+        "objective": {
+          "iqr": 0.32412065,
+          "max": 1.37151079,
+          "median": 0.15164217,
+          "min": -0.3003714
+        },
+        "rank_median": null,
+        "rank_worst": null
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00125034,
+        "avg_misallocation": 0.00140225,
+        "best_year": {
+          "return": 0.40402093,
+          "year": 2009
+        },
+        "cagr": 0.01125973,
+        "calmar": 0.02113807,
+        "feasible": false,
+        "fee_drag": 0.00100923,
+        "final_value": 117056.41053906,
+        "max_asset_deviation": 0.01114673,
+        "max_drawdown": -0.53267571,
+        "max_drawdown_days": 3867,
+        "max_misallocation": 0.01415654,
+        "net_profit": 35556.41053906,
+        "net_profit_pct": 0.43627498,
+        "objective": 0.02113807,
+        "sharpe": 0.15766769,
+        "sortino": 0.2183519,
+        "total_contributed": 81500.0,
+        "total_fees": 82.25209686,
+        "traded_value": 821606.1422327,
+        "turnover": 0.68600512,
+        "volatility": 0.2063338,
+        "worst_year": {
+          "return": -0.30738366,
+          "year": 2008
+        },
+        "xirr": 0.05232452
+      },
+      "holdout": {
+        "fit": -0.01137981,
+        "test": 0.14021105,
+        "test_minus_fit": 0.15159086
+      },
+      "label": "VT TQQQ/BIL t20 w0-60 QQQ:VOL_EWMA94",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.01224989,
+        "neighbour_min": 0.00145864
+      },
+      "params": {
+        "gate": null,
+        "sigma_target": 0.2,
+        "vol.lam": 0.94,
+        "w_max": 0.6
+      },
+      "robust_score": 0.00145864,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.16505847,
+          "max": -0.20780916,
+          "median": -0.32679484,
+          "min": -0.53267571
+        },
+        "objective": {
+          "iqr": 0.32384927,
+          "max": 0.53425534,
+          "median": 0.10905906,
+          "min": -0.31381014
+        },
+        "rank_median": null,
+        "rank_worst": null
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.03935605,
+        "avg_misallocation": 0.03943911,
+        "best_year": {
+          "return": 0.32736274,
+          "year": 2009
+        },
+        "cagr": 0.0315961,
+        "calmar": 0.08786886,
+        "feasible": true,
+        "fee_drag": 0.00096533,
+        "final_value": 113883.8297103,
+        "max_asset_deviation": 0.21033758,
+        "max_drawdown": -0.35958251,
+        "max_drawdown_days": 1100,
+        "max_misallocation": 0.21033709,
+        "net_profit": 32383.8297103,
+        "net_profit_pct": 0.3973476,
+        "objective": 0.08786886,
+        "sharpe": 0.26353295,
+        "sortino": 0.36132563,
+        "total_contributed": 81500.0,
+        "total_fees": 78.67467042,
+        "traded_value": 802313.29581573,
+        "turnover": 0.61794606,
+        "volatility": 0.17940594,
+        "worst_year": {
+          "return": -0.29482223,
+          "year": 2008
+        },
+        "xirr": 0.04843921
+      },
+      "holdout": {
+        "fit": 0.15407707,
+        "test": 0.07502698,
+        "test_minus_fit": -0.07905009
+      },
+      "label": "VT TQQQ/BIL t20 w0-60 QQQ:VOL_EWMA94 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.09137083,
+        "neighbour_min": 0.07456038
+      },
+      "params": {
+        "gate": "QQQ<SMA200",
+        "sigma_target": 0.2,
+        "vol.lam": 0.94,
+        "w_max": 0.6
+      },
+      "robust_score": 0.07456038,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.08334484,
+          "max": -0.07285594,
+          "median": -0.23576437,
+          "min": -0.35884274
+        },
+        "objective": {
+          "iqr": 0.30273891,
+          "max": 1.44468693,
+          "median": 0.12171363,
+          "min": -0.24218252
+        },
+        "rank_median": 1.0,
+        "rank_worst": 4
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00121838,
+        "avg_misallocation": 0.00136992,
+        "best_year": {
+          "return": 0.40400794,
+          "year": 2009
+        },
+        "cagr": 0.01141092,
+        "calmar": 0.02142189,
+        "feasible": false,
+        "fee_drag": 0.00103715,
+        "final_value": 117311.80963815,
+        "max_asset_deviation": 0.01114673,
+        "max_drawdown": -0.53267571,
+        "max_drawdown_days": 3867,
+        "max_misallocation": 0.01415654,
+        "net_profit": 35811.80963815,
+        "net_profit_pct": 0.43940871,
+        "objective": 0.02142189,
+        "sharpe": 0.15847533,
+        "sortino": 0.21946745,
+        "total_contributed": 81500.0,
+        "total_fees": 84.52784512,
+        "traded_value": 843729.63945113,
+        "turnover": 0.70454452,
+        "volatility": 0.20667795,
+        "worst_year": {
+          "return": -0.30738566,
+          "year": 2008
+        },
+        "xirr": 0.05263218
+      },
+      "holdout": {
+        "fit": -0.01166926,
+        "test": 0.14248087,
+        "test_minus_fit": 0.15415013
+      },
+      "label": "VT TQQQ/BIL t20 w0-80 QQQ:VOL_EWMA94",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.00668572,
+        "neighbour_min": -0.01141181
+      },
+      "params": {
+        "gate": null,
+        "sigma_target": 0.2,
+        "vol.lam": 0.94,
+        "w_max": 0.8
+      },
+      "robust_score": -0.01141181,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.16497756,
+          "max": -0.20780916,
+          "median": -0.32679484,
+          "min": -0.53267571
+        },
+        "objective": {
+          "iqr": 0.32195634,
+          "max": 0.5319735,
+          "median": 0.1082314,
+          "min": -0.31381014
+        },
+        "rank_median": null,
+        "rank_worst": null
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.03930907,
+        "avg_misallocation": 0.03939221,
+        "best_year": {
+          "return": 0.32736432,
+          "year": 2009
+        },
+        "cagr": 0.03175062,
+        "calmar": 0.08829835,
+        "feasible": true,
+        "fee_drag": 0.00099391,
+        "final_value": 114129.12395,
+        "max_asset_deviation": 0.21033758,
+        "max_drawdown": -0.3595834,
+        "max_drawdown_days": 1100,
+        "max_misallocation": 0.21033709,
+        "net_profit": 32629.12395,
+        "net_profit_pct": 0.40035735,
+        "objective": 0.08829835,
+        "sharpe": 0.26418481,
+        "sortino": 0.3622287,
+        "total_contributed": 81500.0,
+        "total_fees": 81.00328822,
+        "traded_value": 824874.51848866,
+        "turnover": 0.63541793,
+        "volatility": 0.17980159,
+        "worst_year": {
+          "return": -0.29482432,
+          "year": 2008
+        },
+        "xirr": 0.04874388
+      },
+      "holdout": {
+        "fit": 0.15335803,
+        "test": 0.07763291,
+        "test_minus_fit": -0.07572512
+      },
+      "label": "VT TQQQ/BIL t20 w0-80 QQQ:VOL_EWMA94 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.08226481,
+        "neighbour_min": 0.05432201
+      },
+      "params": {
+        "gate": "QQQ<SMA200",
+        "sigma_target": 0.2,
+        "vol.lam": 0.94,
+        "w_max": 0.8
+      },
+      "robust_score": 0.05432201,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.08336667,
+          "max": -0.07285594,
+          "median": -0.23580634,
+          "min": -0.35884545
+        },
+        "objective": {
+          "iqr": 0.30354721,
+          "max": 1.44468693,
+          "median": 0.1227971,
+          "min": -0.24218252
+        },
+        "rank_median": 2.5,
+        "rank_worst": 4
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.00129918,
+        "avg_misallocation": 0.00141713,
+        "best_year": {
+          "return": 0.65649597,
+          "year": 2009
+        },
+        "cagr": 0.00102599,
+        "calmar": 0.00145864,
+        "feasible": false,
+        "fee_drag": 0.00083769,
+        "final_value": 129349.84984858,
+        "max_asset_deviation": 0.01101151,
+        "max_drawdown": -0.7033884,
+        "max_drawdown_days": 3946,
+        "max_misallocation": 0.01202697,
+        "net_profit": 47849.84984858,
+        "net_profit_pct": 0.58711472,
+        "objective": 0.00145864,
+        "sharpe": 0.14979801,
+        "sortino": 0.20832599,
+        "total_contributed": 81500.0,
+        "total_fees": 68.27213249,
+        "traded_value": 680984.79095867,
+        "turnover": 0.56276221,
+        "volatility": 0.2919363,
+        "worst_year": {
+          "return": -0.44083763,
+          "year": 2008
+        },
+        "xirr": 0.06634832
+      },
+      "holdout": {
+        "fit": -0.03551646,
+        "test": 0.12028321,
+        "test_minus_fit": 0.15579967
+      },
+      "label": "VT TQQQ/BIL t30 w0-60 QQQ:VOL_EWMA94",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": -0.00510164,
+        "neighbour_min": -0.02503118
+      },
+      "params": {
+        "gate": null,
+        "sigma_target": 0.3,
+        "vol.lam": 0.94,
+        "w_max": 0.6
+      },
+      "robust_score": -0.02503118,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.26524161,
+          "max": -0.28169511,
+          "median": -0.45892715,
+          "min": -0.7033884
+        },
+        "objective": {
+          "iqr": 0.3586188,
+          "max": 0.61632417,
+          "median": 0.10946347,
+          "min": -0.37297469
+        },
+        "rank_median": null,
+        "rank_worst": null
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.05653757,
+        "avg_misallocation": 0.05660995,
+        "best_year": {
+          "return": 0.52892939,
+          "year": 2009
+        },
+        "cagr": 0.03748713,
+        "calmar": 0.07456038,
+        "feasible": false,
+        "fee_drag": 0.00078203,
+        "final_value": 128356.01744308,
+        "max_asset_deviation": 0.31548832,
+        "max_drawdown": -0.50277554,
+        "max_drawdown_days": 1143,
+        "max_misallocation": 0.31548779,
+        "net_profit": 46856.01744308,
+        "net_profit_pct": 0.57492046,
+        "objective": 0.07456038,
+        "sharpe": 0.27281307,
+        "sortino": 0.37622466,
+        "total_contributed": 81500.0,
+        "total_fees": 63.73576265,
+        "traded_value": 654165.08787903,
+        "turnover": 0.47285969,
+        "volatility": 0.24994246,
+        "worst_year": {
+          "return": -0.42092804,
+          "year": 2008
+        },
+        "xirr": 0.06527037
+      },
+      "holdout": {
+        "fit": 0.12090118,
+        "test": 0.05439524,
+        "test_minus_fit": -0.06650594
+      },
+      "label": "VT TQQQ/BIL t30 w0-60 QQQ:VOL_EWMA94 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.07105653,
+        "neighbour_min": 0.05432201
+      },
+      "params": {
+        "gate": "QQQ<SMA200",
+        "sigma_target": 0.3,
+        "vol.lam": 0.94,
+        "w_max": 0.6
+      },
+      "robust_score": 0.05432201,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.1298004,
+          "max": -0.10730767,
+          "median": -0.29279078,
+          "min": -0.50146937
+        },
+        "objective": {
+          "iqr": 0.4107195,
+          "max": 1.39965394,
+          "median": 0.13878007,
+          "min": -0.29316448
+        },
+        "rank_median": null,
+        "rank_worst": null
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.0012546,
+        "avg_misallocation": 0.00137026,
+        "best_year": {
+          "return": 0.6446249,
+          "year": 2009
+        },
+        "cagr": -0.00802693,
+        "calmar": -0.01141181,
+        "feasible": false,
+        "fee_drag": 0.00135079,
+        "final_value": 121167.90259922,
+        "max_asset_deviation": 0.01101151,
+        "max_drawdown": -0.7033884,
+        "max_drawdown_days": null,
+        "max_misallocation": 0.01202697,
+        "net_profit": 39667.90259922,
+        "net_profit_pct": 0.48672273,
+        "objective": -0.01141181,
+        "sharpe": 0.12831385,
+        "sortino": 0.17773874,
+        "total_contributed": 81500.0,
+        "total_fees": 110.08943662,
+        "traded_value": 1095051.35254386,
+        "turnover": 0.95384936,
+        "volatility": 0.30815065,
+        "worst_year": {
+          "return": -0.44083079,
+          "year": 2008
+        },
+        "xirr": 0.05718906
+      },
+      "holdout": {
+        "fit": -0.04982819,
+        "test": 0.10644714,
+        "test_minus_fit": 0.15627533
+      },
+      "label": "VT TQQQ/BIL t30 w0-80 QQQ:VOL_EWMA94",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.00158716,
+        "neighbour_min": -0.01811905
+      },
+      "params": {
+        "gate": null,
+        "sigma_target": 0.3,
+        "vol.lam": 0.94,
+        "w_max": 0.8
+      },
+      "robust_score": -0.01811905,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.21626801,
+          "max": -0.29489772,
+          "median": -0.45892715,
+          "min": -0.7033884
+        },
+        "objective": {
+          "iqr": 0.27912657,
+          "max": 0.50429808,
+          "median": 0.06088466,
+          "min": -0.37297469
+        },
+        "rank_median": null,
+        "rank_worst": null
+      }
+    },
+    {
+      "full": {
+        "avg_asset_deviation": 0.05673386,
+        "avg_misallocation": 0.05680382,
+        "best_year": {
+          "return": 0.51782145,
+          "year": 2009
+        },
+        "cagr": 0.02730925,
+        "calmar": 0.05432201,
+        "feasible": false,
+        "fee_drag": 0.00137282,
+        "final_value": 119032.08359801,
+        "max_asset_deviation": 0.31548832,
+        "max_drawdown": -0.50272902,
+        "max_drawdown_days": 1160,
+        "max_misallocation": 0.31548779,
+        "net_profit": 37532.08359801,
+        "net_profit_pct": 0.46051636,
+        "objective": 0.05432201,
+        "sharpe": 0.23528607,
+        "sortino": 0.32313879,
+        "total_contributed": 81500.0,
+        "total_fees": 111.88451469,
+        "traded_value": 1130478.1443174,
+        "turnover": 0.86685562,
+        "volatility": 0.26874081,
+        "worst_year": {
+          "return": -0.42092024,
+          "year": 2008
+        },
+        "xirr": 0.05468531
+      },
+      "holdout": {
+        "fit": 0.08921986,
+        "test": 0.03881346,
+        "test_minus_fit": -0.0504064
+      },
+      "label": "VT TQQQ/BIL t30 w0-80 QQQ:VOL_EWMA94 gate QQQ<SMA200",
+      "neighbourhood": {
+        "edge": true,
+        "neighbour_mean": 0.07983409,
+        "neighbour_min": 0.07456038
+      },
+      "params": {
+        "gate": "QQQ<SMA200",
+        "sigma_target": 0.3,
+        "vol.lam": 0.94,
+        "w_max": 0.8
+      },
+      "robust_score": 0.03881346,
+      "sensitivity": {
+        "max_drawdown": {
+          "iqr": 0.11471302,
+          "max": -0.10730767,
+          "median": -0.34319401,
+          "min": -0.50147867
+        },
+        "objective": {
+          "iqr": 0.33605625,
+          "max": 1.39965394,
+          "median": 0.08447328,
+          "min": -0.29316448
+        },
+        "rank_median": null,
+        "rank_worst": null
+      }
+    }
+  ],
+  "warnings": [],
+  "windows": [
+    {
+      "end": "2011-12-30",
+      "kind": "full",
+      "name": "full",
+      "start": "2000-01-03"
+    },
+    {
+      "end": "2007-12-31",
+      "kind": "fit",
+      "name": "fit",
+      "start": "2000-01-03"
+    },
+    {
+      "end": "2011-12-30",
+      "kind": "test",
+      "name": "test",
+      "start": "2008-01-02"
+    },
+    {
+      "end": "2003-01-03",
+      "kind": "sens",
+      "name": "sens_2000-01-03",
+      "start": "2000-01-03"
+    },
+    {
+      "end": "2003-07-03",
+      "kind": "sens",
+      "name": "sens_2000-07-03",
+      "start": "2000-07-03"
+    },
+    {
+      "end": "2004-01-02",
+      "kind": "sens",
+      "name": "sens_2001-01-03",
+      "start": "2001-01-03"
+    },
+    {
+      "end": "2004-07-02",
+      "kind": "sens",
+      "name": "sens_2001-07-03",
+      "start": "2001-07-03"
+    },
+    {
+      "end": "2005-01-03",
+      "kind": "sens",
+      "name": "sens_2002-01-03",
+      "start": "2002-01-03"
+    },
+    {
+      "end": "2005-07-01",
+      "kind": "sens",
+      "name": "sens_2002-07-03",
+      "start": "2002-07-03"
+    },
+    {
+      "end": "2006-01-03",
+      "kind": "sens",
+      "name": "sens_2003-01-03",
+      "start": "2003-01-03"
+    },
+    {
+      "end": "2006-07-03",
+      "kind": "sens",
+      "name": "sens_2003-07-03",
+      "start": "2003-07-03"
+    },
+    {
+      "end": "2007-01-03",
+      "kind": "sens",
+      "name": "sens_2004-01-05",
+      "start": "2004-01-05"
+    },
+    {
+      "end": "2007-07-03",
+      "kind": "sens",
+      "name": "sens_2004-07-06",
+      "start": "2004-07-06"
+    },
+    {
+      "end": "2008-01-03",
+      "kind": "sens",
+      "name": "sens_2005-01-03",
+      "start": "2005-01-03"
+    },
+    {
+      "end": "2008-07-03",
+      "kind": "sens",
+      "name": "sens_2005-07-05",
+      "start": "2005-07-05"
+    },
+    {
+      "end": "2009-01-02",
+      "kind": "sens",
+      "name": "sens_2006-01-03",
+      "start": "2006-01-03"
+    },
+    {
+      "end": "2009-07-02",
+      "kind": "sens",
+      "name": "sens_2006-07-03",
+      "start": "2006-07-03"
+    },
+    {
+      "end": "2009-12-31",
+      "kind": "sens",
+      "name": "sens_2007-01-03",
+      "start": "2007-01-03"
+    },
+    {
+      "end": "2010-07-02",
+      "kind": "sens",
+      "name": "sens_2007-07-03",
+      "start": "2007-07-03"
+    },
+    {
+      "end": "2011-01-03",
+      "kind": "sens",
+      "name": "sens_2008-01-03",
+      "start": "2008-01-03"
+    },
+    {
+      "end": "2011-07-01",
+      "kind": "sens",
+      "name": "sens_2008-07-03",
+      "start": "2008-07-03"
+    }
+  ]
+}

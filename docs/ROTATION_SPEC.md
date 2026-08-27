@@ -446,7 +446,9 @@ plus score warm-up, rounded to a month-end:
 Every strategy except VAA-G4 and GTAA-5 misses the 2008 top and all miss
 2000–02 — the one-era caveat from the holdout-regime lesson applies with full
 force, and published 1970s-onward numbers for these strategies rest on proxy
-data this repo does not yet carry. A pre-2007 T-bill hurdle via DTB3 belongs to
+data this repo does not yet carry. `SYNTHETIC_HISTORY_SPEC` does **not** lift
+this: it extends TQQQ and BIL only, and rotation-universe proxies are outside
+its scope (§13), so the caveat stands for every strategy in this table. A pre-2007 T-bill hurdle via DTB3 belongs to
 `MACRO_DATA_SPEC`; mutual-fund/index proxies belong to a synthetic-history spec.
 Neither blocks Stage 1: the 2007/2008-onward windows contain 2008-tail, 2011,
 2015-16, 2018, 2020, 2022 and 2025 — enough regimes for the fit/holdout/

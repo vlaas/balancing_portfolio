@@ -69,7 +69,14 @@ Decisions and their reasons:
   derived by `make_net_tr.py` (committed generator, `docs/NET_TR_SPEC.md`):
   each distribution jump reinvests `(1−w)·D` instead of `D`, flat rows are
   untouched, and the net snapshot (`tests/data/2026-08-20-net15/`) is the
-  decision series; its invariants live in `tests/test_net_tr.py`.
+  decision series; its invariants live in `tests/test_net_tr.py`. A
+  **synthetic-extended** twin (`-syn`, `-syn-net15`) is derived by
+  `make_synthetic.py` (committed generator, `docs/SYNTHETIC_HISTORY_SPEC.md`):
+  TQQQ and BIL are modelled backward past their inceptions from QQQ's real
+  total return and the 3-month bill, then spliced onto the real segments, so a
+  run starting after inception is bit-identical to the parent's. It is a
+  falsifier, never a fitting lane; its invariants live in
+  `tests/test_synthetic.py`.
 - **The trading calendar is the union of the *traded* symbols' dates only.**
   `symbols` are full-joined; `extra` symbols (data a strategy reads but never
   trades, e.g. QQQ) are left-joined afterwards so they can never add dates.
@@ -439,8 +446,9 @@ ordinary `Bundle` per evaluation window (full, holdout fit/test, sensitivity)
 through `spec.build_bundle`, and reuses `run_bundle` — there is no second
 simulation path. The output is a long runs table plus a summary that ranks by
 `robust_score`, a minimum over full objective, neighbourhood minimum,
-sensitivity median and holdout test. With three dataset conventions sharing
-identical date ranges, the artefacts also record their dataset directory —
+sensitivity median and holdout test. With several dataset conventions — gross,
+net-of-withholding and synthetic-extended — sharing identical recent date
+ranges, the artefacts also record their dataset directory —
 `data.dir` in `summary.json`, a `- Data dir:` header line in `summary.md`, a
 constant `data_dir` column in `runs.csv` — alongside the cost columns.
 Grammar, window rules and the summary's

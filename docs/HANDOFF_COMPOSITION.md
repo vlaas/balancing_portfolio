@@ -108,10 +108,18 @@ there — but any new lane or symbol re-triggers the rule.
 
 ## 7. Open threads deliberately not chosen now
 
-- **Synthetic pre-inception history** — the standing data need; resolution path
-  for the R2/bear-holdout tension and the program-wide one-era caveat
-  (2000–02 untested everywhere). SPX is price-only; SPXTR not yet exported;
-  XNDX starts 2006-11-08; QQQ-TR from 1999-03-10.
+- **Synthetic pre-inception history** — **done**: `docs/SYNTHETIC_HISTORY_SPEC.md`
+  → `notes/syn-verdict.md`. Nothing adopted; the winners' coordinate
+  (λ0.80 / σ0.20 / w_max 0.8 / SMA-200 gate) is feasible in both bears and
+  ranks first of sixteen on both lanes, so **the program-wide caveat is
+  downgraded from "tested on one era" to "the BTAL sleeve is untested before
+  2011-09"**. Two flags to carry: the 2012-lane regime coordinate
+  (σ0.30 / w_max 0.6) is **infeasible in the GFC on a cash sleeve** (−50.35 %,
+  and past −50 % at every drag bracket), as is every ungated point; and R2 is
+  answered for this machine — in the 2008–2011 holdout the gated winners'
+  coordinate drew down −30.06 % against SPY's −51.94 %. Roots
+  `tests/data/2026-08-24-syn{,-net15}`; a synthetic root is a falsifier, never
+  a fitting lane.
 - `MACRO_DATA_SPEC` (FRED availability-lag ingestion) — gates GTT/LAA; FRED
   files quarantined in `data/macro/`, loader must not read them.
 - NTSX/RSSB/RSST/GDE statics — plain `fixed` bundle, runnable anytime, no

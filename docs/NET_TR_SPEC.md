@@ -145,6 +145,11 @@ uv run make_net_tr.py SRC_DIR [--withholding 0.15] [--out DST_DIR] [--force]
   **net-TR = decision series** (quote it, with dataset name and cost assumption);
   gross-TR = comparability to gross artefacts and the TR goldens; price = legacy
   regression only.
+- A **synthetic-extended** root (`-syn`, `-syn-net15`) is a fourth role, derived from
+  a net or gross root by `make_synthetic.py` (`docs/SYNTHETIC_HISTORY_SPEC.md`): it
+  models TQQQ and BIL backward past their inceptions and fits its constants against
+  its parent's own real segment, so each root's synthetic bars stay in its own
+  withholding convention. It is a falsifier, never a decision or fitting series.
 
 ## 5. Signal series
 

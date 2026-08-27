@@ -571,6 +571,11 @@ def every_strategy():
     for path in sorted(SPECS.glob("*.json")):
         if path.stem.startswith("sweep_"):
             continue  # sweep specs have their own grammar; sweep.py reads them
+        if path.stem.startswith("syn_"):
+            # SYNTHETIC_HISTORY_SPEC §6: they start in 2000 and the flat
+            # snapshot's TQQQ does not; the S-tests run them on the synthetic
+            # roots instead.
+            continue
         bundle = build_bundle(load_spec(path))
         symbols = {s for st in bundle.strategies for s in (*st.weights, *st.data)}
         if any(not (GOLDEN_DIR / f"{s}.csv").exists() for s in symbols):
