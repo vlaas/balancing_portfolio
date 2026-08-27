@@ -1,7 +1,10 @@
 # Specification: episode attribution — which episodes each sleeve component earns, and which it pays for
 
 Repo: `vlaas/balancing_portfolio` · baseline commit: `68cac21` (cash sleeve merged and
-the winners file renamed; 923 tests green on a fresh clone) · status: **proposed** ·
+the winners file renamed; 923 tests green on a fresh clone) · status: **implemented**
+(branch `episode-attribution`, per-phase commits; 979 tests green) — all three §10.2
+conditions hold, the ledger's `Open:` line is closed and both flags are written;
+verdict `notes/episode-verdict.md` ·
 inputs: `notes/cash-verdict.md` residual 2 ("the disagreement between the lanes is a
 disagreement about how often 2022 happens, and no lane answers it"), the
 post-verification read of that verdict (the 2012 lane's sensitivity windows split by
@@ -548,14 +551,14 @@ the new winners-file name (§7.2).
 
 ## 14. Acceptance checklist
 
-- [ ] `episode_report.py` with `bundle` and `partition` modes, `EPISODES` frozen per §3; deterministic
-- [ ] Tests A1–A7 green from a fresh clone; suite count > 923
-- [ ] §7.2: two HANDOFF references renamed, six errata entries appended (one opening `REBALANCE_SPEC.md` §11), stub at `docs/WINNING_STRATEGIES.md`, A7 guard over living docs; `notes/`, existing errata and closed-spec text untouched
-- [ ] Docs per §7.3
-- [ ] **Pre-registration commit**: `specs/sweep_episode_2012.json`, `specs/episode_points_2021.json`, §10, §11 — before any run
-- [ ] Artefacts: `results/sweep_episode_2012/`, `results/episode_points_2021.json`, `results/episode_2012.md`, `results/episode_2021.md`, `results/episode_2021_T.md`, `results/episode_partitions.md`, committed together
-- [ ] `notes/episode-verdict.md` per §9–§10; winners file per §7.1 (ledger `Open:` closed, fifth entry, two flags — the cash verdict's quoted answer untouched); HANDOFF §7 per §10.4(iii)
-- [ ] No engine file touched; `SCHEMA_VERSION` 4
+- [x] `episode_report.py` with `bundle` and `partition` modes, `EPISODES` frozen per §3; deterministic
+- [x] Tests A1–A7 green from a fresh clone; suite count > 923
+- [x] §7.2: two HANDOFF references renamed, six errata entries appended (one opening `REBALANCE_SPEC.md` §11), stub at `docs/WINNING_STRATEGIES.md`, A7 guard over living docs; `notes/`, existing errata and closed-spec text untouched
+- [x] Docs per §7.3
+- [x] **Pre-registration commit**: `specs/sweep_episode_2012.json`, `specs/episode_points_2021.json`, §10, §11 — before any run
+- [x] Artefacts: `results/sweep_episode_2012/`, `results/episode_points_2021.json`, `results/episode_2012.md`, `results/episode_2021.md`, `results/episode_2021_T.md`, `results/episode_partitions.md`, committed together
+- [x] `notes/episode-verdict.md` per §9–§10; winners file per §7.1 (ledger `Open:` closed, fifth entry, two flags — the cash verdict's quoted answer untouched); HANDOFF §7 per §10.4(iii)
+- [x] No engine file touched; `SCHEMA_VERSION` 4
 
 ## 15. Errata (found during implementation)
 

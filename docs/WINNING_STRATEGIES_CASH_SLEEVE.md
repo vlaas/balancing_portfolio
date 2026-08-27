@@ -54,6 +54,18 @@ runner's own warning; the 2012 lane carries the weight.
 - **The SMA-200 gate stands.** Neither the VIX/VIX3M regime gate
   (`notes/regime-verdict.md`) nor the momentum-score composition
   (`notes/comp-verdict.md`) beat it.
+- **The winners' deepest hole is BTAL-made, not a TQQQ bear.** It is the 2021-01 →
+  2021-03 anti-beta unwind (E4), where the BTAL-75 sleeves cost 4.5 pp of drawdown
+  against cash. BTAL earns its keep in the TQQQ bears (E1, E2, E3, E5: +2 to +9 pp
+  shallower) and pays for it when high beta leads (E4, E6, E7: −9 to −27 pp of
+  episode return); over 2012–2026 at σ0.20 the payments exceed the earnings, which
+  is why pure BTAL is dominated there. The winners' 2022 return is mostly KMLM's
+  (+16.5 pp against BTAL's +8.3); BTAL's 2022 contribution is drawdown (+8.5 pp),
+  and the blend's (+11.0 pp) exceeds either component's (EPISODE_SPEC,
+  `notes/episode-verdict.md`).
+- **Sleeve candidates are pre-registered against the episode table.** A candidate
+  names, before it runs, the episodes of EPISODE_SPEC §3 it must win against the
+  incumbent and states that it must not deepen E4 by more than 1 pp (§10.3).
 
 ## Sleeve composition — what has been asked and answered
 
@@ -72,6 +84,23 @@ runner's own warning; the 2012 lane carries the weight.
   > is one year in six, and the half-swap buys Calmar there with return at a
   > 0.8–1.5 pp drawdown cost (CASH_SLEEVE_SPEC, `notes/cash-verdict.md`).
 
+  The "2022 is one year in six" framing in that answer is superseded by the next
+  entry.
+
   Open: whether 2022-shaped grinds recur at one-in-six or one-in-fourteen. No
   lane answers it; a leave-one-episode-out lane with 2022 deleted is the
   falsifier (`docs/HANDOFF_COMPOSITION.md` §7).
+
+  Closed by EPISODE_SPEC: the hinge is not 2022. Splitting the 2012 lane's windows
+  by the 2021-03 anti-beta trough (E4) partitions BTAL against the half-swap 10/10
+  and 2/10; splitting by 2022's trough gives 7/7 and 5/13
+  (`notes/episode-verdict.md`).
+- *Which episodes does each sleeve component earn, and which does it pay for?*
+  BTAL earns the TQQQ bears and pays for them when high beta leads: against a cash
+  sleeve on the 2012 lane it is +5.3 / +2.3 / +5.7 / +9.1 pp shallower in E1, E2,
+  E3 and E5 and −27.0 pp of return / −10.7 pp of drawdown in E4 alone, so its four
+  bears earn +14.4 pp of return against −47.4 pp paid in E4, E6 and E7. On the
+  winners' lane the 2022 grind's return is KMLM's (+16.5 pp against BTAL's +8.3)
+  while its drawdown is BTAL's (+8.5 against +5.8), and the blend buys more of that
+  drawdown than either arm alone (+11.0) — `results/episode_2012.md`,
+  `results/episode_2021.md`, `notes/episode-verdict.md`.
