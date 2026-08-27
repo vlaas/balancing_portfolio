@@ -65,6 +65,7 @@ at 0.3 bp the asymmetry is far below the spread noise it would sit on.
 | DBMF | 3 | 2.5 / 2.8 |
 | BTAL | 6 | 6 / 6.4 |
 | KMLM | 6 | 6 / 6.3 (spread range 3–38 bp — most execution-dependent name) |
+| BIL | 0.5 | a T-bill ETF at one tick — spread 1 ¢ on $92 (CASH_SLEEVE_SPEC §7) |
 
 Stress: flat 20 portfolio-wide (BTAL/KMLM spreads widen to 17–38 bp in thin markets);
 ~10 would be representative for a TQQQ-only sleeve. `cash_yield`: base `0.03` — matches

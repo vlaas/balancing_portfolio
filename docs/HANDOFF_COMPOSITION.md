@@ -120,6 +120,14 @@ there — but any new lane or symbol re-triggers the rule.
   coordinate drew down −30.06 % against SPY's −51.94 %. Roots
   `tests/data/2026-08-24-syn{,-net15}`; a synthetic root is a falsifier, never
   a fitting lane.
+- **The cash sleeve — how much of it should be BTAL** — `docs/CASH_SLEEVE_SPEC.md`
+  → `notes/cash-verdict.md`. Fired by the bridge above: at the winners'
+  coordinate BIL beat BTAL on Calmar on real 2012–2026 bars, so SAFE_SWAP §9's
+  BIL follow-up came due. One pre-registered candidate — replace half a sleeve's
+  BTAL with BIL — read on three lanes against the safe-blend bar, with the
+  window floor as the clause that separates a complement from a trade. BIL is
+  now in the golden battery on the 2026-08-24 root and `cash_yield` is demoted
+  to uninvested residue.
 - `MACRO_DATA_SPEC` (FRED availability-lag ingestion) — gates GTT/LAA; FRED
   files quarantined in `data/macro/`, loader must not read them.
 - NTSX/RSSB/RSST/GDE statics — plain `fixed` bundle, runnable anytime, no

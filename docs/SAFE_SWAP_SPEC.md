@@ -298,7 +298,13 @@ holdout test without its length warning.
   clearest §871(k) interest-related-dividend case in the universe — its true NRA
   withholding is plausibly ~0%, so under the flat-15% net convention BIL sits near
   its gross bound and is the **first candidate for a per-symbol rate**
-  (`{"BIL": 0}`) if it enters a close verdict.
+  (`{"BIL": 0}`) if it enters a close verdict. **Fired**: the synthetic-history
+  bridge found the cash arm contending at the winners' coordinate, and
+  `docs/CASH_SLEEVE_SPEC.md` → `notes/cash-verdict.md` discharges this — all four
+  preconditions met, precondition (2) by a per-root symbol list rather than the
+  glob this bullet proposed (an unpaired index series has no `price/` twin by
+  design), and the withholding note operationalised as that spec's §10.5
+  one-sided read.
 - **A FRED/`fredapi` rate series is rejected** as the cash fix: it would make
   `Config.cash_yield` time-varying (engine change, schema bump, a second data
   convention outside the CSV pipeline) and introduce a runtime API dependency into

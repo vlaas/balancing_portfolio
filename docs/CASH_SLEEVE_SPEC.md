@@ -468,4 +468,27 @@ the VT sizing.
 
 ## 15. Errata (found during implementation)
 
-None yet.
+1. **§6 B1 "Polygon's reference data reaches BIL's 2015+ monthly distributions;
+   the pre-2015 boundary is printed"** — it reaches 2007-07-02, BIL's *first*
+   distribution, one month after its 2007-05-30 inception. There is no boundary
+   to print and nothing for `extend_dividends.py` to carry, unlike QQQ's. 126
+   records; the pin is in `test_polygon_covers_bil_from_its_first_distribution`.
+   (The parquet and the fetcher's BIL entry landed on `main` at `82cadfe` /
+   `bf743e6`, before this branch.)
+2. **§2.1's `max DD` column is measured on the gross root**, not the net15 one
+   its "(net15 unless stated)" header implies: BTAL prints −52.70 % / −47.83 %
+   on `tests/data/2026-08-24` against −53.63 % / −48.03 % on the net twin, and
+   KMLM's −27.47 % and DBMF's −20.39 % are likewise gross. BIL's cells are
+   identical on both roots to four decimals. B5 pins the column against the
+   gross root and both CAGR columns against their stated ones.
+3. **§6 B1 "symbol discovery switched to a glob"** (SAFE_SWAP §9 precondition 2)
+   is implemented as a per-root `ROOT_SYMBOLS` map instead. A glob over the
+   root's `*.csv` would sweep in the index series (`VIX`, `VIX3M`, `SPX`,
+   `XNDX`) that have no `price/` twin by design, so T1–T3 would fail on files
+   they are not about. The 2026-08-20 root keeps its six, the 2026-08-24 root
+   and live `data/` run seven; T6's cross-snapshot calendar pin stays on the six.
+4. **§8's commit order puts B4 before the specs it reads.** B4 has two legs —
+   the `run_bundle` anchors, which need no spec file, and the `--dry-run` counts,
+   which need all five sweep specs. The anchors ship in commit (1) with the rest
+   of the battery; the counts ship in the pre-registration commit (2) beside the
+   specs, so every commit is green and the freeze is still one commit.
