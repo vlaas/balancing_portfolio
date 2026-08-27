@@ -5,6 +5,12 @@ The records are the source for the T3 implied-distribution spot checks in
 tests/test_total_return.py (TOTAL_RETURN_SPEC §7); they are reference data,
 never loader input.
 
+The request asks explicitly for history from SINCE (1999, before every symbol
+here existed) and prints each ticker's earliest record, so the provider's
+coverage boundary is a measured fact rather than an assumption. Polygon's
+dividend reference data begins 2011-03-18 for QQQ, which is after QQQ's first
+distribution (2003-12-24) — `extend_dividends.py` carries the earlier record.
+
 Run: POLYGON_API_KEY=... uv run --with requests fetch_dividends.py
 """
 
@@ -17,11 +23,15 @@ import requests
 BASE_URL = "https://api.polygon.io/v3/reference/dividends"
 SYMBOLS = ["TQQQ", "BTAL", "QQQ", "SPY", "DBMF", "KMLM"]
 OUT_DIR = Path("dividends")
+SINCE = "1999-01-01"
 
 
 def fetch_ticker_dividends(ticker: str, api_key: str) -> list[dict]:
     """Fetch all dividend records for a ticker, handling pagination."""
-    params = {"ticker": ticker, "limit": 1000, "apiKey": api_key}
+    params = {
+        "ticker": ticker, "ex_dividend_date.gte": SINCE,
+        "limit": 1000, "apiKey": api_key,
+    }
     records = []
     url = BASE_URL
     while url:
@@ -39,10 +49,14 @@ def main():
     api_key = os.environ["POLYGON_API_KEY"]
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for ticker in SYMBOLS:
-        print(f"Fetching dividends for {ticker}...")
+        print(f"Fetching dividends for {ticker} since {SINCE}...")
         records = fetch_ticker_dividends(ticker, api_key)
-        print(f"  -> {len(records)} records")
+        earliest = min((r["ex_dividend_date"] for r in records), default="none")
+        print(f"  -> {len(records)} records, earliest ex-date {earliest}")
         df = pl.DataFrame(records, infer_schema_length=len(records) or 1)
+        # Column order follows whichever record first carried each key, so it
+        # would move with the response order; sort it for a stable schema.
+        df = df.select(sorted(df.columns))
         out_path = OUT_DIR / f"{ticker}.parquet"
         df.write_parquet(out_path)
         print(f"     Saved to {out_path}")
