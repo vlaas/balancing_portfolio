@@ -2,10 +2,13 @@
 
 A dataset directory holds `<SYM>.csv` (dividend-adjusted export, the traded
 series) and `price/<SYM>.csv` (unadjusted export from the same session,
-reference only). T1–T3 are parametrised over two roots — the frozen TR
-snapshot and live `data/` — for the six original symbols; T4 runs the pair
-invariants and the committed implied-yield bands over every live pair, so a
-bad refresh fails the suite the day it lands.
+reference only). T1–T3 are parametrised over three roots — both frozen TR
+snapshots and live `data/` — with a per-root symbol list: the 2026-08-20
+snapshot predates the paired BIL export and keeps the six original symbols,
+while the 2026-08-24 snapshot and live `data/` run seven (CASH_SLEEVE_SPEC B1,
+discharging SAFE_SWAP_SPEC §9 precondition (2) on the goldens). T4 runs the
+pair invariants and the committed implied-yield bands over every live pair, so
+a bad refresh fails the suite the day it lands.
 """
 
 import dataclasses
@@ -23,9 +26,22 @@ from prices import load_prices
 
 GOLDEN_DIR = Path(__file__).parent / "data"
 TR_DIR = Path(__file__).parent / "data" / "2026-08-20"
+NEW_TR_DIR = GOLDEN_DIR / "2026-08-24"
 LIVE_DIR = Path(__file__).parents[1] / "data"
-ROOTS = [TR_DIR, LIVE_DIR]
+ROOTS = [TR_DIR, NEW_TR_DIR, LIVE_DIR]
 SYMBOLS = ["TQQQ", "BTAL", "QQQ", "SPY", "DBMF", "KMLM"]
+
+# The battery's symbol list is per-root, not global: BIL was exported in the
+# 2026-08-24 session, so the older snapshot has no pair to check and T6's
+# cross-snapshot calendar pin stays on SYMBOLS. Adding a symbol here is how it
+# enters T1-T3 — the alternative, a glob over the root, would also sweep in the
+# index series (VIX, SPX) that have no `price/` twin by design.
+ROOT_SYMBOLS = {
+    TR_DIR: SYMBOLS,
+    NEW_TR_DIR: SYMBOLS + ["BIL"],
+    LIVE_DIR: SYMBOLS + ["BIL"],
+}
+ROOT_SYMBOL_PAIRS = [(root, symbol) for root, syms in ROOT_SYMBOLS.items() for symbol in syms]
 
 # Flat-segment noise ceiling for ln R. Spec ceiling 1e-3; the 2026-08-20
 # exports carry full-precision closes and the measured worst monotonicity
@@ -63,6 +79,9 @@ def ratio_series(root: Path, symbol: str) -> tuple[pl.DataFrame, pl.Series]:
 
 
 root_param = pytest.mark.parametrize("root", ROOTS, ids=lambda p: p.name)
+root_symbol_param = pytest.mark.parametrize(
+    "root,symbol", ROOT_SYMBOL_PAIRS, ids=lambda v: v if isinstance(v, str) else v.name
+)
 
 
 # T1 — Pairing: both exports exist, same session, snapshot self-describing.
@@ -70,7 +89,7 @@ root_param = pytest.mark.parametrize("root", ROOTS, ids=lambda p: p.name)
 
 @root_param
 def test_paired_files_come_from_one_export_session(root: Path) -> None:
-    for symbol in SYMBOLS:
+    for symbol in ROOT_SYMBOLS[root]:
         assert (root / f"{symbol}.csv").exists()
         assert (root / "price" / f"{symbol}.csv").exists()
         ratio_series(root, symbol)  # asserts identical time columns
@@ -89,8 +108,7 @@ def test_paired_files_come_from_one_export_session(root: Path) -> None:
 # down) are unmissable here.
 
 
-@root_param
-@pytest.mark.parametrize("symbol", SYMBOLS)
+@root_symbol_param
 def test_adjustment_ratio_invariants(root: Path, symbol: str) -> None:
     price, ratio = ratio_series(root, symbol)
     r = ratio.log()
@@ -126,11 +144,15 @@ DISTRIBUTIONS = {
     "SPY": [(dt.date(2024, 12, 20), 1.965548), (dt.date(2025, 12, 19), 1.993368)],
     "DBMF": [(dt.date(2021, 12, 30), 2.6772), (dt.date(2022, 12, 28), 2.2474)],
     "KMLM": [(dt.date(2021, 12, 29), 1.838123), (dt.date(2022, 12, 28), 4.0377)],
+    # BIL distributes monthly; Polygon's reference data covers it from
+    # 2007-07-02, its first distribution (CASH_SLEEVE_SPEC erratum 1 — the spec
+    # expected a 2015 boundary). The later of the two is the most recent record,
+    # $0.2730 on 2026-08-03, the amount the snapshot README's 1.39%/yr rests on.
+    "BIL": [(dt.date(2024, 12, 19), 0.382797), (dt.date(2026, 8, 3), 0.272951)],
 }
 
 
-@root_param
-@pytest.mark.parametrize("symbol", SYMBOLS)
+@root_symbol_param
 def test_implied_distributions_match_published_amounts(root: Path, symbol: str) -> None:
     price, ratio = ratio_series(root, symbol)
     index = {date: i for i, date in enumerate(price["time"])}
@@ -256,9 +278,8 @@ def test_snapshot_calendars_agree_through_the_old_end(symbol: str) -> None:
 
 
 # The same pin extended to the 2026-08-24 snapshot (ROTATION_SPEC §8 T9),
-# against the previous snapshot's dates for the six original symbols.
-
-NEW_TR_DIR = GOLDEN_DIR / "2026-08-24"
+# against the previous snapshot's dates for the six original symbols. BIL is
+# deliberately not here: the older snapshot has no BIL file to compare against.
 
 
 @pytest.mark.parametrize("symbol", SYMBOLS)

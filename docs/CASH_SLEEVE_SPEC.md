@@ -229,7 +229,8 @@ and 2021 windows to 0.02 pp; the eight worst TQQQ months and BTAL's sign in each
 ## 7. Docs
 
 - `docs/WINNING_STRATEGIES.md` (or its successor): changed only if §10.6 adopts;
-  otherwise gains the §10.6(b) sentence.
+  otherwise gains the §10.6(b) sentence. **Created** by this spec's verdict, the
+  file having been named by four specs and never written (erratum 7).
 - `docs/SAFE_SWAP_SPEC.md` §9: the BIL follow-up gains a pointer to this spec and its
   verdict; `docs/HANDOFF_COMPOSITION.md` §7 likewise.
 - `docs/COST_MODEL_SPEC.md`: `BIL 0.5` bp per side added to the cost table with the
@@ -459,13 +460,63 @@ the VT sizing.
 
 ## 14. Acceptance checklist
 
-- [ ] `dividends/BIL.parquet`; BIL in the golden battery with the 2026-08-24 root (B1); B2–B5 green from a fresh clone; suite count > 876
-- [ ] Docs per §7 (BIL cost line, SAFE_SWAP §9 pointer, CLAUDE.md line)
-- [ ] **Pre-registration commit**: seven specs (§4.1–§4.3, their two `_c20` twins, §4.5's two bundles), §3, §10, §11 — before any run
-- [ ] Artefacts: seven sweep directories, two bundle JSONs, committed together; §4 anchors confirmed in the verdict
-- [ ] `notes/cash-verdict.md` per §9–§10; winners file per 10.6; `BTAL` flagged at σ0.20 per 10.6
-- [ ] No engine file touched; `SCHEMA_VERSION` 4
+- [x] `dividends/BIL.parquet`; BIL in the golden battery with the 2026-08-24 root (B1); B2–B5 green from a fresh clone; suite count 876 → 923
+- [x] Docs per §7 (BIL cost line, SAFE_SWAP §9 pointer, CLAUDE.md line)
+- [x] **Pre-registration commit** `25a40a7`: seven specs (§4.1–§4.3, their two `_c20` twins, §4.5's two bundles), §3, §10, §11 — before any run
+- [x] Artefacts: seven sweep directories, two bundle JSONs, committed together; §4 anchors confirmed in the verdict (two robust anchors unmeetable — erratum 5)
+- [x] §10.5's band fired: `--rate-override`, `tests/data/2026-08-24-net15-bil0`, `results/sweep_cash_2021_bil0` (erratum 8)
+- [x] `notes/cash-verdict.md` per §9–§10; winners file created per 10.6 (erratum 7); `BTAL` flagged at σ0.20 per 10.6
+- [x] No engine file touched; `SCHEMA_VERSION` 4
 
 ## 15. Errata (found during implementation)
 
-None yet.
+1. **§6 B1 "Polygon's reference data reaches BIL's 2015+ monthly distributions;
+   the pre-2015 boundary is printed"** — it reaches 2007-07-02, BIL's *first*
+   distribution, one month after its 2007-05-30 inception. There is no boundary
+   to print and nothing for `extend_dividends.py` to carry, unlike QQQ's. 126
+   records; the pin is in `test_polygon_covers_bil_from_its_first_distribution`.
+   (The parquet and the fetcher's BIL entry landed on `main` at `82cadfe` /
+   `bf743e6`, before this branch.)
+2. **§2.1's `max DD` column is measured on the gross root**, not the net15 one
+   its "(net15 unless stated)" header implies: BTAL prints −52.70 % / −47.83 %
+   on `tests/data/2026-08-24` against −53.63 % / −48.03 % on the net twin, and
+   KMLM's −27.47 % and DBMF's −20.39 % are likewise gross. BIL's cells are
+   identical on both roots to four decimals. B5 pins the column against the
+   gross root and both CAGR columns against their stated ones.
+3. **§6 B1 "symbol discovery switched to a glob"** (SAFE_SWAP §9 precondition 2)
+   is implemented as a per-root `ROOT_SYMBOLS` map instead. A glob over the
+   root's `*.csv` would sweep in the index series (`VIX`, `VIX3M`, `SPX`,
+   `XNDX`) that have no `price/` twin by design, so T1–T3 would fail on files
+   they are not about. The 2026-08-20 root keeps its six, the 2026-08-24 root
+   and live `data/` run seven; T6's cross-snapshot calendar pin stays on the six.
+4. **§8's commit order puts B4 before the specs it reads.** B4 has two legs —
+   the `run_bundle` anchors, which need no spec file, and the `--dry-run` counts,
+   which need all five sweep specs. The anchors ship in commit (1) with the rest
+   of the battery; the counts ship in the pre-registration commit (2) beside the
+   specs, so every commit is green and the freeze is still one commit.
+5. **§4.2's robust anchor is unmeetable as written.** It asks the three winners
+   at σ0.20 to reproduce `sweep_comp_2021`'s `robust_score` (0.8470 / 0.8574 /
+   0.8849), but that lane held `sigma_target` fixed and so had
+   `neighbour_min: null`, while §4.2 grids σ and gives every point a neighbour.
+   For `BTAL75+DBMF25` and `BTAL50+KMLM50` the neighbour binds and they print
+   0.8389 and 0.8429. The **full-window** Calmars reproduce exactly on all three,
+   and that is the comparability statement the anchor should have made; every
+   comparison inside a lane is unaffected, since all twelve sleeves are scored
+   the same way at the same coordinate. Recorded as residual 3 of the verdict.
+6. **§9 step 4 reads a calendar year no artefact supplies.** It asks for the
+   2019 lane's 2020 calendar year, but §4.5 provisions panels for the 2012 and
+   2021 lanes only and `runs.csv` carries `best_year`/`worst_year` rather than a
+   full calendar. The COVID *episode* is covered by `cash_points_2012.json`'s
+   `drawdowns`; a third panel would have been an addition to a pre-registered set
+   after the runs and was not made. The decision does not turn on it — §10.3(c)
+   fails on `robust_score` and on the window floor.
+7. **§7's "`docs/WINNING_STRATEGIES.md` (or its successor)"** — the file has
+   never existed (SAFE_SWITCH erratum 8, COMPOSITION erratum 7) and
+   `specs/winners.json` is a strict bundle spec that cannot hold prose. §10.6(b)
+   therefore *creates* it, carrying the three winners with their committed
+   numbers, the §10.4 sentence and the σ0.20 flag.
+8. **§10.5's tie-breaker fired** (§11 prediction 7 said it would not), so
+   `make_net_tr.py` gained `--rate-override SYM=RATE` and
+   `tests/data/2026-08-24-net15-bil0` was built and committed. The rate reaches
+   only `build`'s per-symbol loop; a snapshot without overrides is byte-identical
+   to before, which N5 checks. The reread changed no clause.
