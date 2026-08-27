@@ -24,7 +24,9 @@ the 12-month sign beats `1-3-6-12U` here (§3.2's finding does not transplant).
 
 - **Incumbents unchanged:** B75K25 (robust-score leader), B75D25 (robustness /
   rank_worst pick), B50K50 (return variant) — all VT + SMA-200-gate + sleeve;
-  cost-sensitivity verdict: plateau survives cbase and flat-20.
+  cost-sensitivity verdict: plateau survives cbase and flat-20. Recorded with
+  their numbers and standing flags in `docs/WINNING_STRATEGIES.md`
+  (created by the cash-sleeve verdict; the three sleeves survived it unchanged).
 - **Rotation catalog closed** (`rot-verdict.md`, `rot2-verdict.md`,
   `rot3-verdict.md`): eight published points, three stages —
   **HAA-Simple REFERENCE**, GEM / GTAA-5 / ADM / HAA-Balanced / VAA-G4 /
@@ -120,14 +122,24 @@ there — but any new lane or symbol re-triggers the rule.
   coordinate drew down −30.06 % against SPY's −51.94 %. Roots
   `tests/data/2026-08-24-syn{,-net15}`; a synthetic root is a falsifier, never
   a fitting lane.
-- **The cash sleeve — how much of it should be BTAL** — `docs/CASH_SLEEVE_SPEC.md`
-  → `notes/cash-verdict.md`. Fired by the bridge above: at the winners'
-  coordinate BIL beat BTAL on Calmar on real 2012–2026 bars, so SAFE_SWAP §9's
-  BIL follow-up came due. One pre-registered candidate — replace half a sleeve's
-  BTAL with BIL — read on three lanes against the safe-blend bar, with the
-  window floor as the clause that separates a complement from a trade. BIL is
-  now in the golden battery on the 2026-08-24 root and `cash_yield` is demoted
-  to uninvested residue.
+- **The cash sleeve — how much of it should be BTAL** — **done**:
+  `docs/CASH_SLEEVE_SPEC.md` → `notes/cash-verdict.md`. Fired by the bridge
+  above. **Nothing adopted**: the half-swap cleared no clause against any of the
+  three winners on any lane, bracket, or at BIL's own withholding rate — it buys
+  rank and holdout with 0.8–1.5 pp of window floor, giving back 3.4–4.9 pp of
+  2022 to collect 2.9–4.4 pp of 2025. Three flags to carry: at σ0.20 **pure
+  `BTAL` is dominated by `BIL50+BTAL50` on all three real lanes** (Δrobust
+  +0.126 / +0.246 / +0.200, floor shallower every time), so it is the wrong
+  σ0.20 baseline; the **fraction surface is single-peaked and its peak walks with
+  σ**, 25 % BTAL at σ0.20 / w0.8 up to 100 % at both σ0.30 points; and
+  `robust_score` **is not comparable across lanes of different grid shape** —
+  two §4.2 anchors could not reproduce because this lane grids σ and
+  `sweep_comp_2021` did not, so state anchors on the full-window objective.
+  `docs/WINNING_STRATEGIES.md` now exists and carries the incumbents and the
+  flags; BIL is in the golden battery on the 2026-08-24 root; `cash_yield` is
+  demoted to uninvested residue; `make_net_tr.py` takes `--rate-override`.
+  The open question no lane answers: whether 2022-shaped grinds recur at
+  one-in-six or one-in-fourteen.
 - `MACRO_DATA_SPEC` (FRED availability-lag ingestion) — gates GTT/LAA; FRED
   files quarantined in `data/macro/`, loader must not read them.
 - NTSX/RSSB/RSST/GDE statics — plain `fixed` bundle, runnable anytime, no

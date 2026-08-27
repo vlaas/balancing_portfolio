@@ -304,7 +304,11 @@ holdout test without its length warning.
   preconditions met, precondition (2) by a per-root symbol list rather than the
   glob this bullet proposed (an unpaired index series has no `price/` twin by
   design), and the withholding note operationalised as that spec's §10.5
-  one-sided read.
+  one-sided read — which fired, so `make_net_tr.py` now takes
+  `--rate-override BIL=0` and `tests/data/2026-08-24-net15-bil0` exists. §6.7's
+  inconclusive verdict is resolved: **cash does not replace BTAL in the winners'
+  sleeves**, but at σ0.20 pure BTAL is dominated by a half-BTAL / half-BIL sleeve
+  on all three real lanes.
 - **A FRED/`fredapi` rate series is rejected** as the cash fix: it would make
   `Config.cash_yield` time-varying (engine change, schema bump, a second data
   convention outside the CSV pipeline) and introduce a runtime API dependency into
