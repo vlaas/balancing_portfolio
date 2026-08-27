@@ -559,4 +559,20 @@ the new winners-file name (§7.2).
 
 ## 15. Errata (found during implementation)
 
-None yet.
+1. **§12's "The partitions on the 2021 lane have nine windows"** — the lane has
+   **six** sensitivity windows; nine is `sweep_cash_2021`'s total window count,
+   `full` + `fit` + `test` + 6. §11 prediction 5's "six three-year windows" is
+   the correct figure and the one §10.2(c) reads. The directional caveat stands
+   and is stronger than §12 states.
+2. **§8's commit order puts A4 before the spec it reads.** A4 pins `bundle` mode
+   on `specs/episode_points_2021.json`, which §8's commit (2) creates, so
+   "A3–A5 … run in commit (1)" cannot hold for it. Resolved as CASH_SLEEVE
+   erratum 4 resolved the same conflict for B4: the legs that need no new spec
+   file (A1, A2, A3, A5, A6, A7) ship in commit (1), A4 ships in the
+   pre-registration commit beside the spec it reads. Every commit is green and
+   the freeze is still one commit.
+3. **§6 A6's "the panel's −19.1 / −19.1 / −16.1" is not the deepest-drawdown
+   column** it sits beside — it is each winner's **E4** depth (−19.06 / −19.07 /
+   −16.12), which for B50K50 is its second-deepest, not its deepest. The
+   sentence is correct as written; the test pins both columns separately so the
+   distinction cannot be lost.

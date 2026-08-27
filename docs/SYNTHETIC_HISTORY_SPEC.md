@@ -671,3 +671,6 @@ holdout design). Fixing the XNDX export. A time-varying `cash_yield` (the BIL sl
    Highlights, and 2004-12-17's $0.37858 is quoted verbatim in the N-30B-2 for the
    year ended 2004-09-30 — a $3.00 Microsoft special dividend passing through, which
    is why §2.2's 2004 yield is 0.95 % against neighbours near 0.3 %.
+
+8. **§10 K1's "the winners file, when it exists"** — it exists:
+   `docs/WINNING_STRATEGIES_CASH_SLEEVE.md`. (EPISODE_SPEC §7.2.)

@@ -723,3 +723,7 @@ written for exactly this question and it has one verdict behind it.
 8. **§11's parenthetical "`OR_um3`, identical" is untested.** §7.2's grid has no
    such arm and §7.3's surface has no OR column, so nothing in the program
    measures it (verdict residual 7).
+9. **Line 93 cites 0.856 / 0.859 / 0.890 from the project-level winners document
+   as it stood on the 2026-08-20 snapshot**; `docs/WINNING_STRATEGIES_CASH_SLEEVE.md`
+   carries the 2026-08-24 values (0.8470 / 0.8574 / 0.8849) and is the file §10
+   step 8 and the checklist now refer to. (EPISODE_SPEC §7.2.)

@@ -716,3 +716,6 @@ cadence at all.
    (top 5 per strategy): an episode shallower than an arm's fifth-deepest
    drawdown does not appear for that arm. The verdict's panel marks those
    cells `·`; every episode the read protocol needed was visible.
+9. **The winners file named in §10 step 6 now lives at
+   `docs/WINNING_STRATEGIES_CASH_SLEEVE.md`; the checklist's parenthetical was
+   true when ticked.** (EPISODE_SPEC §7.2.)

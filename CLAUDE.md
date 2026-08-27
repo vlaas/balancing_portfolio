@@ -100,6 +100,10 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
   (`docs/SYNTHETIC_HISTORY_SPEC.md` §10).
 - When a proposal needs a new strategy type or parameter: change
   `spec.py`/`strategies/` with tests first, write the spec second.
+- A sleeve candidate names, before it is run, the episodes of
+  `episode_report.EPISODES` it must win against the incumbent and the one it
+  must not deepen — E4, the anti-beta unwind — by more than 1 pp
+  (`docs/EPISODE_SPEC.md` §3, §10.3).
 - A new gate signal starts with its calendar report — `uv run regime_report.py`
   for a ratio, `uv run score_report.py` for a monthly score — read on its own
   calendar (days off, month-ends off, contingency with the incumbent gate)

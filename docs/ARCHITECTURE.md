@@ -434,6 +434,25 @@ counts and the four-way contingency with the incumbent SMA gate — the shared
 step 0 of every gate spec's read protocol (REGIME_SPEC §10, COMPOSITION_SPEC
 §10).
 
+## episode_report.py — a strategy's own drawdown episodes
+
+The third read-only markdown CLI, and the one exception to "loads nothing
+through the engine": `results/*.json` carries `drawdowns` and `yearly_returns`
+but no daily curve, and a run restarted at an episode's peak sits in cash until
+its first month-end rebalance, so episode returns can come from neither the
+committed JSON nor a re-windowed run. `bundle SPEC --data ROOT` therefore builds
+the spec's bundle through `build_bundle` / `main.run_bundle` unchanged and
+slices each `StrategyResult.twr`'s `index` column by the frozen seven-window
+table in `episode_report.EPISODES` (EPISODE_SPEC §3) — episode return
+`last / first − 1`, drawdown from the window's own running peak; `--baseline`
+adds the marginal against one sleeve, `--sigma` / `--w-max` filter a
+multi-coordinate bundle to one coordinate. `partition RUNS_JSON --pair A B`
+reads a sweep's `runs.json` instead and splits its `sens` windows by whether
+they contain an episode's trough. Both cite the table by id and window, so a
+refresh of the committed `drawdowns` is a visible spec change, not a silent
+drift. Pre-registering a sleeve candidate against the table is step 0 of every
+sleeve spec (EPISODE_SPEC §10.3).
+
 ## sweep.py — parameter sweeps
 
 Its own entry point on purpose: `main.py` renders one bundle, `sweep.py`
