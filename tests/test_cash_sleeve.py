@@ -17,12 +17,14 @@ import pytest
 
 from main import run_bundle
 from results_json import slug
-from spec import build_bundle, normalised_spec, safe_str
+from spec import build_bundle, load_spec, normalised_spec, safe_str
 from sweep import expand
+from sweep import main as sweep_main
 
 GOLDEN_DIR = Path(__file__).parent / "data"
 GROSS = GOLDEN_DIR / "2026-08-24"
 NET = GOLDEN_DIR / "2026-08-24-net15"
+SPECS = Path(__file__).parents[1] / "specs"
 DIVIDENDS = Path(__file__).parents[1] / "dividends"
 
 # §4's cost map: the incumbent lanes' blend map plus BIL at one tick (a T-bill
@@ -186,6 +188,42 @@ def test_a_sweep_safe_grid_over_three_way_sleeves_expands_to_two_points():
 # arm is sweep_comp_2012's committed gated row; the σ0.20 / w0.8 pair is the
 # synthetic bridge's, and is the number that fired this spec — BIL buys 3.45 pp
 # of CAGR for 1.08 pp of drawdown at the winners' coordinate.
+
+
+CASH_LANES = {  # §4.6, pinned in the pre-registration commit before any run
+    "sweep_cash_2012": "30 grid + 3 baselines x 23 windows = 759 runs",
+    "sweep_cash_2012_c20": "30 grid + 3 baselines x 23 windows = 759 runs",
+    "sweep_cash_2021": "24 grid + 2 baselines x 9 windows = 234 runs",
+    "sweep_cash_2021_c20": "24 grid + 2 baselines x 9 windows = 234 runs",
+    "sweep_cash_2019": "12 grid + 2 baselines x 12 windows = 168 runs",
+}
+
+
+@pytest.mark.parametrize("name", CASH_LANES, ids=lambda n: n[len("sweep_cash_"):])
+def test_the_cash_lanes_dry_run_to_their_frozen_counts(name, tmp_path, monkeypatch, capsys):
+    out = tmp_path / "out"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["sweep.py", str(SPECS / f"{name}.json"),
+         "--data", str(NET), "--out", str(out), "--dry-run"],
+    )
+    sweep_main()
+    assert CASH_LANES[name] in capsys.readouterr().out
+    assert not out.exists()
+
+
+# §4.5: five sleeves at two coordinates plus SPY, and the twelve 2021 sleeves
+# at the winners' coordinate plus SPY. The BIL counts are the point — the panel
+# exists to supply the calendar years and per-episode drawdowns runs.csv cannot.
+@pytest.mark.parametrize(
+    "name,count,with_bil", [("cash_points_2012", 11, 8), ("cash_points_2021", 13, 8)]
+)
+def test_the_panels_hold_the_sleeves_they_are_read_for(name, count, with_bil):
+    strategies = build_bundle(load_spec(SPECS / f"{name}.json")).strategies
+    assert len(strategies) == count
+    assert strategies[-1].label == "SPY benchmark"
+    assert sum("BIL" in st.label for st in strategies) == with_bil
+    assert all("gate QQQ<SMA200" in st.label for st in strategies[:-1])
 
 
 def test_the_2012_regime_anchor_reproduces_through_the_cash_cost_map():
