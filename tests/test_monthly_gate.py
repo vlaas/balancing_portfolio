@@ -20,12 +20,14 @@ from main import run_bundle
 from prices import _read_close
 from score_report import main as score_main
 from score_report import report, signals
-from spec import build_bundle
+from spec import build_bundle, load_spec
+from sweep import main as sweep_main
 
 DATA = Path(__file__).parent / "data"
 NET = DATA / "2026-08-24-net15"  # the decision dataset (§4.1, §4.2)
 SYN = DATA / "2026-08-24-syn-net15"  # the bear era (§4.3)
 RESULTS = Path(__file__).parents[1] / "results"
+SPECS = Path(__file__).parents[1] / "specs"
 
 U = {"kind": "avg", "months": [1, 3, 6, 12]}  # COMPOSITION_SPEC's score, for M2
 
@@ -304,6 +306,42 @@ def test_m3_the_synthetic_anchor_reproduces(lane_syn):
     gated = lane_syn["VT TQQQ/BIL t20 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200"]
     assert round(gated.stats["calmar"], 8) == 0.10460356
 
+
+# The frozen lane sizes of §4.1-§4.3, pinned before any lane was run.
+MG_LANES = {
+    "sweep_mg_2021": ("9 grid + 1 baselines x 9 windows = 90 runs", NET),
+    "sweep_mg_2019": ("3 grid + 1 baselines x 12 windows = 48 runs", NET),
+    "sweep_mg_syn": ("3 grid + 1 baselines x 21 windows = 84 runs", SYN),
+}
+
+
+@pytest.mark.parametrize("name", MG_LANES, ids=lambda n: n[len("sweep_mg_"):])
+def test_m3_the_mg_lanes_dry_run_to_their_frozen_counts(
+    name, tmp_path, monkeypatch, capsys
+):
+    line, root = MG_LANES[name]
+    out = tmp_path / "out"
+    monkeypatch.setattr(
+        "sys.argv",
+        ["sweep.py", str(SPECS / f"{name}.json"),
+         "--data", str(root), "--out", str(out), "--dry-run"],
+    )
+
+    sweep_main()
+
+    assert line in capsys.readouterr().out
+    assert not out.exists()
+
+
+def test_m3_the_2019_panel_bundles_the_three_arms_and_its_baseline():
+    # §4.5's bundle: the §4.2 grid, benchmark last.
+    bundle = build_bundle(load_spec(SPECS / "mg_points_2019.json"))
+    safe = SAFE_STR["B75D25"]
+
+    assert [st.label for st in bundle.strategies] == [
+        label(safe), label(safe, " gate QQQ<SMA200"), label(safe, " gate QQQ<SMA10M"), SPY
+    ]
+    assert str(bundle.config.start) == LANE_2019
 
 # --- M4 — the pilot pins (§2.4) ---------------------------------------------
 
