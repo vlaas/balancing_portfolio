@@ -517,4 +517,8 @@ other way around.
 
 ## 15. Errata (found during implementation)
 
-None yet.
+1. **§7's "Nothing else" is one line short.** `docs/ARCHITECTURE.md`'s
+   "regime_report.py, score_report.py" section describes the tool as covering
+   "a monthly momentum score (`--score`, `--threshold`)", which §5's extension
+   makes incomplete. That living document gains one clause naming
+   `--sma-months`; no other document outside §7's list is touched.
