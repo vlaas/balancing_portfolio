@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "config": {
+    "initial_capital": 10000,
+    "monthly_contribution": 500,
+    "cost_bps": {
+      "TQQQ": 1.5,
+      "BTAL": 6,
+      "DBMF": 2.5,
+      "KMLM": 6,
+      "QQQ": 1,
+      "SPY": 0.7,
+      "BIL": 0.5,
+      "*": 6
+    },
+    "cash_yield": 0.03
+  },
+  "windows": {
+    "start": "2020-12-18",
+    "end": null,
+    "holdout": "2025-01-01",
+    "sensitivity": {
+      "every_months": 6,
+      "length_years": 3
+    }
+  },
+  "template": {
+    "type": "vol_target",
+    "risk": "TQQQ",
+    "safe": {
+      "grid": [
+        {
+          "BTAL": 0.75,
+          "KMLM": 0.25
+        },
+        {
+          "BTAL": 0.75,
+          "DBMF": 0.25
+        },
+        {
+          "BTAL": 0.5,
+          "KMLM": 0.5
+        }
+      ]
+    },
+    "vol_symbol": "QQQ",
+    "vol": {
+      "kind": "ewma",
+      "lam": 0.8
+    },
+    "leverage": 3,
+    "sigma_target": 0.2,
+    "w_max": 0.8,
+    "gate": {
+      "grid": [
+        null,
+        {
+          "symbol": "QQQ",
+          "assets": [
+            "TQQQ"
+          ],
+          "sma_days": 200
+        },
+        {
+          "symbol": "QQQ",
+          "assets": [
+            "TQQQ"
+          ],
+          "sma_months": 10
+        }
+      ]
+    }
+  },
+  "baselines": [
+    {
+      "type": "fixed",
+      "label": "SPY benchmark",
+      "weights": {
+        "SPY": 1.0
+      }
+    }
+  ],
+  "objective": "calmar",
+  "constraint": {
+    "max_drawdown": -0.5
+  }
+}

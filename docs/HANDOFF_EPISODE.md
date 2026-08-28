@@ -188,7 +188,26 @@ static loses on floor (it has no gate). Cheap, orthogonal to the incumbents, clo
 the longest-standing item on the handoff list. If a static blend is proposed as a
 *sleeve* member, it is a sleeve candidate and §6's candidate rule applies.
 
-### 7.2 The monthly-read gate (`sma_months: 10`) on the 2021 and 2019 lanes
+### 7.2 The monthly-read gate — **done** (MONTHLY_GATE_SPEC, `notes/mg-verdict.md`)
+
+Answered, and adopted in documentation: **the daily series is not load-bearing.**
+`sma_months: 10` cleared the band on all four winner rows with Δ `robust_score`
+0.00000000 and Δ window floor 0.0004 pp at worst. On the 2021 lane the two signals agree
+on all 68 month-ends and all seven window starts, so each sleeve's twin is bit-identical
+across all 44 numeric columns of `runs.json` in all nine windows; on the 2019 lane they
+disagree once (2019-05-31), worth 0.0090 of full Calmar and 0.18 pp of CAGR and nothing
+of `robust_score`, holdout test or floor. The synthetic bear attaches no caveat — the
+monthly read is microscopically *better* there at an identical floor. The live rule is
+now ten month-end closes, and the migration no longer needs daily-SMA parity on its
+live-execution critical path (it remains a backtest-reproduction requirement). Comp
+residual 1 is closed; the winners file carries the twin table and the divergence
+calendar. Two findings outlive the verdict: **a disagreeing month-end is necessary but
+not sufficient for a portfolio difference** — the gate blocks buys, so a disagreement on
+a month-end where the machine is selling is inert (the synthetic holdout is bit-identical
+for exactly this reason) — and `score_report.py` now reads a monthly-SMA calendar
+(`--sma-months`).
+
+The original shape, for the record:
 
 One arm per lane (comp residual 1). If it reproduces `G_sma` within 0.02 of
 `robust_score` and 1 pp of floor at the winners' coordinate, the live rule becomes a

@@ -1,0 +1,84 @@
+[
+  {
+    "entry": {
+      "fallback": 0.8,
+      "label": "VT TQQQ/BIL t20 w0-80 QQQ:VOL_EWMA80",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BIL",
+      "sigma_target": 0.2,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.8,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BIL t20 w0-80 QQQ:VOL_EWMA80",
+    "params": {
+      "gate": null
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.8,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "sma_days": 200,
+        "symbol": "QQQ"
+      },
+      "label": "VT TQQQ/BIL t20 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BIL",
+      "sigma_target": 0.2,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.8,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BIL t20 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA200",
+    "params": {
+      "gate": "QQQ<SMA200"
+    }
+  },
+  {
+    "entry": {
+      "fallback": 0.8,
+      "gate": {
+        "assets": [
+          "TQQQ"
+        ],
+        "contribution_exempt": false,
+        "sma_months": 10,
+        "symbol": "QQQ"
+      },
+      "label": "VT TQQQ/BIL t20 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA10M",
+      "leverage": 3,
+      "risk": "TQQQ",
+      "safe": "BIL",
+      "sigma_target": 0.2,
+      "type": "vol_target",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "vol_symbol": "QQQ",
+      "w_max": 0.8,
+      "w_min": 0.0
+    },
+    "label": "VT TQQQ/BIL t20 w0-80 QQQ:VOL_EWMA80 gate QQQ<SMA10M",
+    "params": {
+      "gate": "QQQ<SMA10M"
+    }
+  }
+]

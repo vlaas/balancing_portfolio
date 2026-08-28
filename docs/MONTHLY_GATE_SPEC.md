@@ -517,4 +517,16 @@ other way around.
 
 ## 15. Errata (found during implementation)
 
-None yet.
+1. **§7's "Nothing else" is one line short.** `docs/ARCHITECTURE.md`'s
+   "regime_report.py, score_report.py" section describes the tool as covering
+   "a monthly momentum score (`--score`, `--threshold`)", which §5's extension
+   makes incomplete. That living document gains one clause naming
+   `--sma-months`; no other document outside §7's list is touched.
+2. **§2.2's "Consequences" paragraph omits the `fit` window on both real lanes.**
+   It says that on the 2019 lane "only the full window and the first sensitivity
+   window (2019-05-08 start) can differ", and §11's prediction 2 inherits the
+   enumeration. The `fit` window (2019-05-08 → the day before the holdout) starts
+   on the same day and therefore also spans 2019-05-31, so it differs too — as it
+   did (1.02343031 → 1.00945672). `fit` is not a scored window and `robust_score`
+   is unaffected; the omission is in the enumeration, not the mechanism. The
+   synthetic lane's list names its `fit` correctly.

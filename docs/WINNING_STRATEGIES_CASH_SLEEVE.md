@@ -54,6 +54,34 @@ runner's own warning; the 2012 lane carries the weight.
 - **The SMA-200 gate stands.** Neither the VIX/VIX3M regime gate
   (`notes/regime-verdict.md`) nor the momentum-score composition
   (`notes/comp-verdict.md`) beat it.
+- **The gate may be executed as a month-end read.** QQQ's month-end close against
+  the mean of its last ten month-end closes (`sma_months: 10`). At the winners'
+  coordinates this reproduces the daily rule to **0.00000000 of `robust_score` on
+  all four winner rows and 0.0004 pp of window floor at worst**; the two rules
+  disagreed on **2016-06-30 and 2019-05-31** in 2012-01 → 2026-07-31, every
+  disagreement a sub-percent crossing where the monthly rule closed and the daily
+  did not. On the 2021 lane the twins are the same portfolio in all nine windows;
+  the 2019 lane's one divergence is a gated June 2019
+  (MONTHLY_GATE_SPEC, `notes/mg-verdict.md`).
+
+  The monthly-read twins, on the net15 basis:
+
+  | row | lane | `robust_score` | full Calmar | CAGR | window floor | holdout test |
+  |---|---|---|---|---|---|---|
+  | B75K25 | 2021 | 0.84701986 | 0.85294307 | 16.26 % | −19.0626 % | 0.84701986 |
+  | B75D25 | 2021 | 0.85739876 | 0.85739876 | 16.35 % | −19.0682 % | 0.88253297 |
+  | B50K50 | 2021 | 0.88489974 | 0.88489974 | 18.49 % | −20.8772 % | 1.16742198 |
+  | B75D25 | 2019 | 0.91868785 | 0.92721074 | 18.65 % | −20.1135 % | 0.91868785 |
+
+  The 2021 rows are the incumbents' own numbers because they are the same
+  portfolio; the 2019 row is the only place a monthly executor's history would
+  have differed from the committed backtest. **No winner is redefined** — every
+  committed anchor stays `sma_days: 200`, and the daily read remains a
+  backtest-reproduction requirement. The live reads must use the same
+  net-TR-adjusted basis as the dataset; ten month-end values of the maintained
+  net-TR series suffice, which is the point. Source
+  `results/sweep_mg_2021/summary.json`, `results/sweep_mg_2019/summary.json`;
+  the divergence calendar is `results/gate_calendar_2012.md`.
 - **The winners' deepest hole is BTAL-made, not a TQQQ bear.** It is the 2021-01 →
   2021-03 anti-beta unwind (E4), where the BTAL-75 sleeves cost 4.5 pp of drawdown
   against cash. BTAL earns its keep in the TQQQ bears (E1, E2, E3, E5: +2 to +9 pp
@@ -110,6 +138,33 @@ runner's own warning; the 2012 lane carries the weight.
   while its drawdown is BTAL's (+8.5 against +5.8), and the blend buys more of that
   drawdown than either arm alone (+11.0) — `results/episode_2012.md`,
   `results/episode_2021.md`, `notes/episode-verdict.md`.
+
+## Executing the gate — what has been asked and answered
+
+- *Is the SMA-200's daily series load-bearing, or can the gate be run as a single
+  month-end read?* **It can be run as a month-end read.** MONTHLY_GATE_SPEC put
+  `sma_months: 10` at the winners' coordinates on both lanes the winners live on
+  and scored it against the handoff's frozen band (±0.02 `robust_score`, 1 pp of
+  window floor):
+
+  > The monthly-rebalanced machine consults its gate only on window starts and
+  > month-ends, so two signals that agree on that calendar produce the same
+  > portfolio. On the 2021 lane they agree on all 68 month-ends and all seven
+  > window starts, and each sleeve's twin is bit-identical across all 44 numeric
+  > columns of `runs.json` in all nine windows; on the 2019 lane they disagree
+  > once, at 2019-05-31, worth 0.0090 of full Calmar and 0.18 pp of CAGR and
+  > nothing at all of `robust_score`, holdout test or window floor
+  > (MONTHLY_GATE_SPEC, `notes/mg-verdict.md`).
+
+  This closes residual 1 of `notes/comp-verdict.md` — *"a substitute, not an
+  improvement"* on the 2012 lane — in the affirmative on the winners' own lanes.
+  Adoption is documentation only: no winner is redefined and no lane was re-run
+  with the monthly gate.
+
+  Open: whether the two rules keep agreeing as the dataset rolls. They are
+  genuinely different functions and all four of their month-end disagreements in
+  26 years were sub-percent crossings; `uv run score_report.py --sma-months 10`
+  re-reads the calendar in one run, against the divergence table above.
 
 ## Alternatives to the machine — what has been asked and answered
 

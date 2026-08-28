@@ -428,11 +428,12 @@ with `prices._read_close`, build the signal through the same factories the gate
 uses — so a report cannot drift from the gate it describes — and print
 deterministic markdown. `regime_report.py` covers a ratio signal (`--ratio-sma`,
 `--fire`, `--hysteresis`); `score_report.py` covers a monthly momentum score
-(`--score`, `--threshold`). Both report month-ends closed, per-calendar-year
-counts and the four-way contingency with the incumbent SMA gate — the shared
-`regime_report.contingency` renders it. Reading a new gate signal's calendar is
-step 0 of every gate spec's read protocol (REGIME_SPEC §10, COMPOSITION_SPEC
-§10).
+(`--score`, `--threshold`) or the monthly-read gate `close < SMA{m}M`
+(`--sma-months`), exactly one of the two. Both report month-ends closed,
+per-calendar-year counts and the four-way contingency with the incumbent SMA
+gate — the shared `regime_report.contingency` renders it. Reading a new gate
+signal's calendar is step 0 of every gate spec's read protocol (REGIME_SPEC §10,
+COMPOSITION_SPEC §10, MONTHLY_GATE_SPEC §5).
 
 ## episode_report.py — a strategy's own drawdown episodes
 
