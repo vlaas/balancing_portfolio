@@ -118,9 +118,12 @@ These are the things a fresh context would otherwise relearn the hard way.
 2. **Living documents are an allowlist**: `docs/HANDOFF_*.md`, `docs/ARCHITECTURE.md`,
    `docs/STRATEGY_DEVELOPMENT.md`, `docs/DECLARATIVE_SPEC.md`, `CLAUDE.md`, `README.md`,
    and `docs/WINNING_STRATEGIES_CASH_SLEEVE.md`. A guard test over living docs greps
-   an allowlist, never `docs/*.md`; specs are never in scope. **This file goes into
-   A7's allowlist in the commit that adds it** (`tests/test_episode.py`), which is why
-   it does not spell the stub's path.
+   an allowlist, never `docs/*.md`; specs are never in scope. **This file and the
+   winners file are in A7's allowlist** (`tests/test_episode.py`) — an instruction
+   this handoff gave at `e5edd30` for itself and did not carry out; MONTHLY_GATE_SPEC
+   §7 re-mandated it and its tool commit missed it too; it landed late, with
+   MONTHLY_GATE_SPEC §15 erratum 3 as the record — which is why
+   neither file spells the stub's path.
 3. **The winners file has two kinds of section.** "Sleeve composition — what has
    been asked and answered" is a ledger (question, verdict's own answer quoted,
    an `Open:` line that later specs *close* rather than delete); "Standing flags"

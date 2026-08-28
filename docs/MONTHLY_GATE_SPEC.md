@@ -530,3 +530,14 @@ other way around.
    did (1.02343031 → 1.00945672). `fit` is not a scored window and `robust_score`
    is unaffected; the omission is in the enumeration, not the mechanism. The
    synthetic lane's list names its `fit` correctly.
+3. **§7's first item was not executed, and the verdict misstates its scope.** The tool
+   commit (`71a418c`) cites §7 in its own message but changed neither
+   `tests/test_episode.py`'s `LIVING` tuple nor HANDOFF_EPISODE §6.2; the verdict's
+   residual 4 then describes the A7 housekeeping as "outside this spec's §7 scope and
+   deliberately not fixed here", which the frozen §7 contradicts — the item is §7's
+   first bullet, mandated "in the tool commit". Found in the post-verdict verification
+   pass (the suite count is the tell: 1076 = 1023 + 49 M-tests + 4 T7 pickups, with no
+   +2 from A7's parametrization). Executed late in the commit that carries this
+   erratum: `LIVING` gains the two documents, §6.2 is corrected in place, the suite
+   goes 1076 → 1078. The verdict is not edited; this erratum and §6.2's corrected
+   sentence are the record.
