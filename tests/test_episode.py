@@ -324,9 +324,11 @@ def test_a6_the_winners_deepest_hole_is_e4_or_e4_is_second(sleeve):
 # annotated by its own errata, not fixed (§7.2).
 LIVING = (
     "docs/HANDOFF_COMPOSITION.md",
+    "docs/HANDOFF_EPISODE.md",
     "docs/ARCHITECTURE.md",
     "docs/STRATEGY_DEVELOPMENT.md",
     "docs/DECLARATIVE_SPEC.md",
+    "docs/WINNING_STRATEGIES_CASH_SLEEVE.md",
     "CLAUDE.md",
     "README.md",
 )
