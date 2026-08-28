@@ -1,6 +1,8 @@
 # Handoff: after the episode verdict — state, conventions, and what is worth doing next
 
 Written at `4eecc76` (episode attribution merged; 979 tests green on a fresh clone).
+Refreshed at `49f007f` (return-stacked merged; 1023 tests green): §7.1 is **done**
+(`notes/rs-verdict.md`), and §8–§9 now point at §7.2.
 Supersedes `HANDOFF_COMPOSITION.md` as the entry point; that file's §1–§6 are still
 correct and are not repeated here except where something changed. Read this, then
 CLAUDE.md §6, then the verdict you are about to build on. Everything decision-grade
@@ -223,13 +225,14 @@ momentum −50.30 % on the crisis window). Catalog closed; noted for completenes
 
 ## 8. Verification expectations for the next conversation
 
-Fresh clone at ≥ `4eecc76`; `uv sync`; suite **979** green. Before writing anything,
+Fresh clone at ≥ `49f007f`; `uv sync`; suite **1023** green. Before writing anything,
 reproduce at least these from the committed artefacts (not from this file):
 
 - 2012 lane, `VT TQQQ/BTAL t30 w0-60 λ0.80 gate QQQ<SMA200`, `2026-08-24-net15`,
   2012-01-03 →, blend costs: full Calmar **0.86123626**, CAGR 0.23817105, max DD
   −0.27654555 (`results/sweep_cash_2012`, also `syn_bridge_2012`); no-gate twin
-  0.71623794; SPY 0.43404677.
+  0.71623794 (`results/sweep_comp_2012` — not `syn_bridge_2012`, which holds only
+  the `BIL`-sleeve twins; RETURN_STACKED_SPEC §15); SPY 0.43404677.
 - Winners on `results/sweep_comp_2021/summary.json`: robust 0.8470 / 0.8574 / 0.8849,
   full 0.8529 / 0.8574 / 0.8849, `rank_worst` 9 / 11 / 14.
 - Cash lane, σ0.20 / w0.8, 2012: `BTAL` full 0.69991357, `BIL` 0.79914190,
@@ -240,11 +243,22 @@ reproduce at least these from the committed artefacts (not from this file):
   tests/data/2026-08-24-net15 --baseline BIL --sigma 0.20 --w-max 0.8` reproduces
   `results/episode_2012.md` byte-for-byte; BTAL's E4 marginal −27.0 / −10.7; KMLM's
   E5 marginal return +16.5 vs BTAL's +8.3.
+- Return-stacked: on `results/sweep_rs_2019/summary.json` B75D25's baseline block
+  gives score₃ = min(full 0.93621129, sens median 0.91995598, test 0.91868785) =
+  **0.91868785**, and the four statics' `robust_score` are 0.2482 / 0.2621 / 0.2718 /
+  0.2846 with window floors −31.42 / −24.19 / −20.39 / −16.46 (`runs.json`); on the
+  `_c20` bracket the machine's and `NTSX62.5/BIL37.5`'s floors cross by 0.012 pp
+  (−20.4320 against −20.4201). The simplicity premium: 18.83 − 9.25 = **9.58 pp/yr**
+  at NTSX fraction 0.625.
 
-Then read `notes/episode-verdict.md` and the winners file's flags, and start the
-spec from the surface it touches — for 7.1 that is `specs/winners.json`'s bundle
-grammar and the inception dates above; for 7.2 it is `strategies/gate.py`'s
-`sma_months` kind and `results/sweep_comp_2012` where `G_sma10m` already ran.
+Then read `notes/rs-verdict.md` (and `notes/comp-verdict.md` §4, residual 1) and the
+winners file's flags, and start the spec from the surface it touches — for 7.2 that
+is `strategies/gate.py`'s `sma_months` kind, `indicators.sma_monthly` (mean of the
+last `m` month-end closes, carried forward; the value on a rebalance day includes
+that day's close), and `results/sweep_comp_2012`, where `G_sma10m` already ran at the
+2012 winner's coordinate: robust 0.8572 against `G_sma`'s 0.8612, holdout test
+identical (1.112), `rank_worst` 7 against 4, sensitivity median 0.8875 against
+0.9009.
 
 ## 9. Startup prompt for the next conversation
 
@@ -252,15 +266,18 @@ Paste this as the first message:
 
 > Continue the `vlaas/balancing_portfolio` program. Start by reading
 > `docs/HANDOFF_EPISODE.md` (the entry point), then `CLAUDE.md` §6, then
-> `notes/episode-verdict.md`. Follow the Option A protocol: fresh clone at or after
-> `4eecc76`, `uv sync`, suite 979 green, reproduce the §8 anchors from committed
+> `notes/rs-verdict.md`. Follow the Option A protocol: fresh clone at or after
+> `49f007f`, `uv sync`, suite 1023 green, reproduce the §8 anchors from committed
 > artefacts before writing anything, cite only numbers from your own sandbox runs or
-> committed files. The task is HANDOFF_EPISODE §7.1 — a spec for the return-stacked
-> statics (NTSX / GDE / RSST / RSSB and kin) as a static alternative to the machine:
-> measure inceptions and lane coverage, pilot on full windows, pre-register the bar
-> and predictions per §6's conventions, no engine work. If you judge §7.2 (the
-> monthly-read gate) the better first increment, say why before writing. Deliver the
-> spec as `docs/<NAME>_SPEC.md` in the house structure (goal · measured facts ·
-> design · tests with a fresh letter · lanes · docs · run protocol · read protocol ·
-> frozen decision rule · pilot with falsifiable predictions · limitations · not in
-> scope · checklist · errata).
+> committed files. The task is HANDOFF_EPISODE §7.2 — the monthly-read gate
+> (`sma_months: 10`) as a drop-in for the daily SMA-200 read at the winners'
+> coordinates, on the 2021 and 2019 lanes. If `docs/MONTHLY_GATE_SPEC.md` exists,
+> implement it per its own commit order and do not rewrite it; if it does not, write
+> it: measure the two signals' month-end calendars, pilot on full windows,
+> pre-register the ±0.02 `robust_score` / 1 pp floor band per §6's conventions, core
+> engine untouched (read-only report tooling per the spec is fine). If you judge
+> another §7 item the better first increment, say why before writing. Deliver specs
+> as `docs/<NAME>_SPEC.md` in the house structure (goal · measured facts · design ·
+> tests with a fresh letter · lanes · docs · run protocol · read protocol · frozen
+> decision rule · pilot with falsifiable predictions · limitations · not in scope ·
+> checklist · errata).
