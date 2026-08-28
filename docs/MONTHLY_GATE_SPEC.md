@@ -312,15 +312,26 @@ month-ends. On the synthetic root, 2005-07-05's flags computed through `sma(200)
 
 ## 7. Docs
 
+- `tests/test_episode.py` A7 `LIVING` — **housekeeping, in the tool commit**:
+  `docs/HANDOFF_EPISODE.md` and `docs/WINNING_STRATEGIES_CASH_SLEEVE.md` join the
+  allowlist. The first completes HANDOFF_EPISODE §6.2's own bolded instruction ("this
+  file goes into A7's allowlist in the commit that adds it"), which commit `e5edd30`
+  did not carry out; the second is named as living by the same section's prose but
+  absent from the tuple. Both files are clean of the guarded literal on this clone, so
+  the suite stays green and A7's parametrized count rises by two. In the same commit,
+  §6.2's sentence is corrected in place (a living doc stays accurate) to record the
+  late fulfilment and the commit that made it. No other test changes; the guard's
+  semantics are untouched — the two most-edited living documents simply come under it.
 - `docs/WINNING_STRATEGIES_CASH_SLEEVE.md`: on a pass, the "SMA-200 gate stands"
   bullet gains the monthly-read sentence, the four-row twin table, and the divergence
   calendar (§10.2); on a fail, the ledger gains the load-bearing entry (§10.4). Either
   way one entry in "what has been asked and answered".
 - `docs/HANDOFF_EPISODE.md` §7.2: a pointer to this spec and its verdict (living doc).
-- Nothing else. `CLAUDE.md`, `COST_MODEL_SPEC.md`, the migration notes: untouched — the
-  migration consequence (a pass removes daily-SMA parity from the live-execution
-  critical path; T1's parity fixture remains a backtest-reproduction requirement) is
-  stated in the verdict and the winners file, where the migration spec will read it.
+- Nothing else beyond the A7 housekeeping above. `CLAUDE.md`, `COST_MODEL_SPEC.md`,
+  the migration notes: untouched — the migration consequence (a pass removes daily-SMA
+  parity from the live-execution critical path; T1's parity fixture remains a
+  backtest-reproduction requirement) is stated in the verdict and the winners file,
+  where the migration spec will read it.
 
 ## 8. Run protocol
 
@@ -335,7 +346,8 @@ uv run episode_report.py bundle specs/mg_points_2019.json --data tests/data/2026
 ```
 
 Commit order (handoff §6.7): (1) the tool extension + `tests/test_monthly_gate.py` M1,
-M2, M4, M5 and M3's `run_bundle` legs; (2) the **pre-registration commit** — the three
+M2, M4, M5 and M3's `run_bundle` legs, plus the A7 `LIVING` housekeeping and the
+handoff §6.2 correction (§7); (2) the **pre-registration commit** — the three
 sweep specs, `specs/mg_points_2019.json`, M3's `--dry-run` legs, §3, §10, §11, nothing
 run; (3) artefacts; (4) the verdict, `notes/mg-verdict.md`. Verification after (4):
 fresh clone, suite, `git diff --stat <prereg> <verdict> -- specs/` empty, every
@@ -497,7 +509,7 @@ other way around.
 
 ## 14. Acceptance checklist
 
-- [ ] Tool extension per §5; score mode byte-unchanged; `tests/test_monthly_gate.py` M1–M5 green from a fresh clone; suite count 1023 → N stated in the verdict
+- [ ] Tool extension per §5; score mode byte-unchanged; `tests/test_monthly_gate.py` M1–M5 green from a fresh clone; A7's `LIVING` gains the two docs and HANDOFF_EPISODE §6.2 is corrected in the same commit (§7); suite count 1023 → N stated in the verdict (N includes A7's +2)
 - [ ] **Pre-registration commit**: `specs/sweep_mg_2021.json`, `sweep_mg_2019.json`, `sweep_mg_syn.json`, `mg_points_2019.json`, M3's dry-run legs, §3, §10, §11 — before any run
 - [ ] Artefacts: three sweep directories, two calendar reports, one episode report, committed together; §2.3 anchors confirmed in the verdict
 - [ ] `notes/mg-verdict.md` per §9–§10; the winners-file edit per 10.2 or 10.4; comp residual 1 closed with a pointer
