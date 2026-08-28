@@ -3,6 +3,10 @@
 Written at `4eecc76` (episode attribution merged; 979 tests green on a fresh clone).
 Refreshed at `49f007f` (return-stacked merged; 1023 tests green): §7.1 is **done**
 (`notes/rs-verdict.md`), and §8–§9 now point at §7.2.
+Refreshed again after the monthly-gate merge (`bf92fcd` plus the commit carrying
+MONTHLY_GATE_SPEC §15 erratum 3; 1078 tests green): §7.2 is **done**
+(`notes/mg-verdict.md`), and §1 and §8–§9 now point at the §7 remainder, with §7.4
+as the recommendation.
 Supersedes `HANDOFF_COMPOSITION.md` as the entry point; that file's §1–§6 are still
 correct and are not repeated here except where something changed. Read this, then
 CLAUDE.md §6, then the verdict you are about to build on. Everything decision-grade
@@ -10,11 +14,16 @@ is in committed artefacts; nothing in any previous conversation is needed.
 
 ## 1. The task for the next conversation
 
-Pick **one** increment from §7 — the recommendation is §7.1, the return-stacked
-statics, with §7.2 (the monthly-read gate) as the alternative — and write its spec
-under the Option A protocol: fresh clone, suite green, inspect the surface it
-touches, measure, pilot, pre-register, hand off. Do not open a sleeve spec (§4) or
-a gate spec (§4) without new data; both lines are closed on their own terms.
+Pick **one** increment from §7. With §7.1 and §7.2 both done, the recommendation is
+**§7.4** — σ below 0.20, the bear-first re-fit that syn residual 1 flagged and that
+was explicitly deferred "not before 7.1 / 7.2". Of the rest: §7.3 stays low value
+until the rotation catalog reopens, §7.5 returns only with its kill conditions and
+the expectation of nothing, §7.6 is a data need with no path, §7.7 is closed. Write
+the spec under the Option A protocol: fresh clone, suite green, inspect the surface
+it touches, measure, pilot, pre-register, hand off. Do not open a sleeve spec (§4) or
+a gate spec (§4) without new data; both lines are closed on their own terms — §7.4 is
+a *coordinate* question (the σ/w_max grid), not a sleeve or gate question, which is
+why it is open at all.
 
 ## 2. Standing verdicts (authoritative files, all in `notes/` and `docs/`)
 
@@ -31,6 +40,7 @@ a gate spec (§4) without new data; both lines are closed on their own terms.
 | cash sleeve | CASH_SLEEVE_SPEC → `cash-verdict.md` | half-swap not adopted; **pure BTAL dominated at σ0.20 on all three real lanes** |
 | episode attribution | EPISODE_SPEC → `episode-verdict.md` | **the hinge is E4 (2020-09 → 2021-09), not 2022**; the winners' 2022 return is KMLM's, their deepest hole is BTAL's |
 | return-stacked statics | RETURN_STACKED_SPEC → `rs-verdict.md` | no static is a substitute; **the simplicity premium is 9.6 pp/yr at a matched floor**; RSSB / NTSX open on the bear-free 2023 window until 2027-12 |
+| monthly gate | MONTHLY_GATE_SPEC → `mg-verdict.md` | **the daily series is not load-bearing**: `sma_months: 10` adopted as an approved live read (documentation only, no winner redefined); the 2021-lane twins are bit-identical; the one live-vs-backtest divergence is a gated June 2019 |
 
 The winners are unchanged since the blend verdict: `vol_target` on TQQQ against
 QQQ's EWMA vol, λ0.80, σ0.20, w_max 0.8, leverage 3, monthly, SMA-200 gate on QQQ,
@@ -159,6 +169,11 @@ These are the things a fresh context would otherwise relearn the hard way.
    margin under 0.02 that involves BIL.
 9. **Every σ point in a two-value grid is an edge point**; `neighbour_min` is then
    the one neighbour that exists. Extend before believing a neighbourhood-bound score.
+10. **A signal calendar alone does not predict a portfolio partition.** The gate
+    blocks *buys*; on a consultation date where the machine is selling the gated
+    asset, a closed gate is inert. Any prediction that partitions windows by where
+    two signals disagree must intersect the disagreement dates with the direction of
+    the rebalance (mg-verdict residual 1; the 2011-11-30 trade log is the exhibit).
 
 ## 7. Open threads — the candidates for the next spec, with their shapes
 
@@ -247,8 +262,11 @@ momentum −50.30 % on the crisis window). Catalog closed; noted for completenes
 
 ## 8. Verification expectations for the next conversation
 
-Fresh clone at ≥ `49f007f`; `uv sync`; suite **1023** green. Before writing anything,
-reproduce at least these from the committed artefacts (not from this file):
+Fresh clone at ≥ `bf92fcd` **including the commit that carries MONTHLY_GATE_SPEC §15
+erratum 3** (the A7 housekeeping); `uv sync`; suite **1078** green. If the suite
+prints 1076, that housekeeping commit is missing — stop and add it before anything
+else. Before writing anything, reproduce at least these from the committed artefacts
+(not from this file):
 
 - 2012 lane, `VT TQQQ/BTAL t30 w0-60 λ0.80 gate QQQ<SMA200`, `2026-08-24-net15`,
   2012-01-03 →, blend costs: full Calmar **0.86123626**, CAGR 0.23817105, max DD
@@ -272,15 +290,24 @@ reproduce at least these from the committed artefacts (not from this file):
   `_c20` bracket the machine's and `NTSX62.5/BIL37.5`'s floors cross by 0.012 pp
   (−20.4320 against −20.4201). The simplicity premium: 18.83 − 9.25 = **9.58 pp/yr**
   at NTSX fraction 0.625.
+- Monthly gate: on `results/sweep_mg_2021/runs.json`, each sleeve's `QQQ<SMA10M` row
+  equals its `QQQ<SMA200` row on all 44 columns (everything but `label` and
+  `params.gate`) in all nine windows — 1188 cells, zero differences; on
+  `sweep_mg_2019` the two gate arms' `robust_score`, sensitivity median and holdout
+  test are all bit-identical (0.91868785 / 0.91995598 / 0.91868785) with full Calmars
+  0.93621129 against 0.92721074 and floors −20.1131 against −20.1135; `uv run
+  score_report.py --data tests/data/2026-08-24-net15 --sma-months 10 --start
+  2012-01-03` reproduces `results/gate_calendar_2012.md` byte-for-byte (`SMA10M`-only
+  closes exactly 2016-06-30 and 2019-05-31).
 
-Then read `notes/rs-verdict.md` (and `notes/comp-verdict.md` §4, residual 1) and the
-winners file's flags, and start the spec from the surface it touches — for 7.2 that
-is `strategies/gate.py`'s `sma_months` kind, `indicators.sma_monthly` (mean of the
-last `m` month-end closes, carried forward; the value on a rebalance day includes
-that day's close), and `results/sweep_comp_2012`, where `G_sma10m` already ran at the
-2012 winner's coordinate: robust 0.8572 against `G_sma`'s 0.8612, holdout test
-identical (1.112), `rank_worst` 7 against 4, sensitivity median 0.8875 against
-0.9009.
+Then read `notes/mg-verdict.md` and the winners file's flags, and start the spec from
+the surface it touches — for 7.4 that is the synthetic cycle's feasibility tables
+(`results/sweep_syn_*`, where every feasible bear-lane point sits at the grid's
+lowest σ; `notes/syn-verdict.md` residual 1), the syn roots and their fitted `c`
+(1.8970 / 1.9431), and the real lanes' σ pricing in `results/sweep_cash_*` (a lower σ
+costs ~3 pp of CAGR there). It is explicitly a re-fit, so it needs its own holdout
+design, and §6.9 applies to any two-value σ grid it inherits. Carry §6.10 into any
+calendar-based prediction.
 
 ## 9. Startup prompt for the next conversation
 
@@ -288,18 +315,19 @@ Paste this as the first message:
 
 > Continue the `vlaas/balancing_portfolio` program. Start by reading
 > `docs/HANDOFF_EPISODE.md` (the entry point), then `CLAUDE.md` §6, then
-> `notes/rs-verdict.md`. Follow the Option A protocol: fresh clone at or after
-> `49f007f`, `uv sync`, suite 1023 green, reproduce the §8 anchors from committed
-> artefacts before writing anything, cite only numbers from your own sandbox runs or
-> committed files. The task is HANDOFF_EPISODE §7.2 — the monthly-read gate
-> (`sma_months: 10`) as a drop-in for the daily SMA-200 read at the winners'
-> coordinates, on the 2021 and 2019 lanes. If `docs/MONTHLY_GATE_SPEC.md` exists,
-> implement it per its own commit order and do not rewrite it; if it does not, write
-> it: measure the two signals' month-end calendars, pilot on full windows,
-> pre-register the ±0.02 `robust_score` / 1 pp floor band per §6's conventions, core
-> engine untouched (read-only report tooling per the spec is fine). If you judge
-> another §7 item the better first increment, say why before writing. Deliver specs
-> as `docs/<NAME>_SPEC.md` in the house structure (goal · measured facts · design ·
+> `notes/mg-verdict.md`. Follow the Option A protocol: fresh clone at or after
+> `bf92fcd` with the MONTHLY_GATE_SPEC §15-erratum-3 housekeeping commit present,
+> `uv sync`, suite 1078 green, reproduce the §8 anchors from committed artefacts
+> before writing anything, cite only numbers from your own sandbox runs or committed
+> files. The task is HANDOFF_EPISODE §7.4 — σ below 0.20, the bear-first re-fit
+> flagged by syn residual 1: every feasible bear-lane point sits at the current
+> grid's lowest σ, so measure the synthetic feasibility boundary below it, price the
+> candidate σ on the real lanes, and pre-register a holdout design of the spec's own
+> (this is explicitly a re-fit, not an equivalence check) per §6's conventions, core
+> engine untouched. If `docs/<NAME>_SPEC.md` for this task already exists, implement
+> it per its own commit order and do not rewrite it. If you judge another §7 item the
+> better first increment, say why before writing. Deliver specs as
+> `docs/<NAME>_SPEC.md` in the house structure (goal · measured facts · design ·
 > tests with a fresh letter · lanes · docs · run protocol · read protocol · frozen
 > decision rule · pilot with falsifiable predictions · limitations · not in scope ·
 > checklist · errata).
