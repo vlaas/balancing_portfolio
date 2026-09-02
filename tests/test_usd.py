@@ -16,6 +16,11 @@ import pytest
 from make_usd import fx_on, load_map
 from make_usd import main as usd_main
 
+GOLDEN_DIR = Path(__file__).parent / "data"
+NET = GOLDEN_DIR / "2026-09-02-net15"
+USD = GOLDEN_DIR / "2026-09-02-net15-usd"
+MAP = Path(__file__).parents[1] / "data" / "fx_lines.json"
+
 SYN = [("2024-01-01", 100.0), ("2024-01-02", 101.0), ("2024-01-03", 102.0),
        ("2024-01-04", 103.0), ("2024-01-05", 104.0)]
 OTH = [("2024-01-01", 50.0), ("2024-01-02", 51.0), ("2024-01-03", 52.0)]
@@ -163,3 +168,38 @@ def test_existing_out_dir_refused_without_force(src, tmp_path):
     assert not (out / "SYN.csv").exists()
     run(src, out, None, "--force")
     assert (out / "SYN.csv").exists()
+
+
+# The committed decision root (EU_SUBSTITUTE_SPEC §3.6).
+
+
+def test_generator_reproduces_the_committed_usd_root_byte_for_byte(tmp_path):
+    out = tmp_path / "usd"
+    usd_main([str(NET), "--map", str(MAP), "--out", str(out)])
+    produced = sorted(p.relative_to(out) for p in out.rglob("*") if p.is_file())
+    committed = sorted(p.relative_to(USD) for p in USD.rglob("*") if p.is_file())
+    assert produced == committed
+    assert len(produced) == 64 + 53 + 1  # four converted symbols carry no twin
+    for rel in committed:
+        assert filecmp.cmp(out / rel, USD / rel, shallow=False), rel
+
+
+def test_the_usd_root_differs_from_its_parent_in_the_mapped_symbols_alone():
+    moved = [p.name for p in sorted(USD.glob("*.csv"))
+             if not filecmp.cmp(p, NET / p.name, shallow=False)]
+    assert moved == ["DBMF_EU.csv", "LQQ.csv", "MVEA.csv", "XSPS.csv"]
+    assert sorted(json.loads(MAP.read_text())) == [p.removesuffix(".csv") for p in moved]
+    for name in moved:
+        assert not (USD / "price" / name).exists()
+    assert filecmp.cmp(USD / "price" / "TQQQ.csv", NET / "price" / "TQQQ.csv", shallow=False)
+
+
+def test_a_converted_row_is_the_parent_close_times_the_previous_labels_fx():
+    # XSPS 2026-09-02 (GBX): 411.6 pence x GBPUSD of the bar labelled 2026-09-01.
+    xsps = pl.read_csv(USD / "XSPS.csv", try_parse_dates=True).tail(1)
+    fx = pl.read_csv(NET / "GBPUSD.csv", columns=["time", "close"], try_parse_dates=True).tail(1)
+    assert str(xsps["time"][0]) == "2026-09-02" and str(fx["time"][0]) == "2026-09-01"
+    assert xsps["close"][0] == 411.6 * fx["close"][0] * 0.01
+    readme = (USD / "README.md").read_text()
+    assert readme.startswith("# USD-converted snapshot — 2026-09-02-net15-usd\n")
+    assert "| XSPS | GBPUSD | 0.01 | 4623 | 0 | 1.946 | 1.3481 |" in readme

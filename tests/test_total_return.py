@@ -13,6 +13,7 @@ a bad refresh fails the suite the day it lands.
 
 import dataclasses
 import datetime as dt
+import filecmp
 from pathlib import Path
 
 import polars as pl
@@ -27,8 +28,12 @@ from prices import load_prices
 GOLDEN_DIR = Path(__file__).parent / "data"
 TR_DIR = Path(__file__).parent / "data" / "2026-08-20"
 NEW_TR_DIR = GOLDEN_DIR / "2026-08-24"
+EU_TR_DIR = GOLDEN_DIR / "2026-09-02"  # EU_SUBSTITUTE_SPEC §3.6
 LIVE_DIR = Path(__file__).parents[1] / "data"
-ROOTS = [TR_DIR, NEW_TR_DIR, LIVE_DIR]
+ROOTS = [TR_DIR, NEW_TR_DIR, EU_TR_DIR, LIVE_DIR]
+# FX singles are stamped by their 17:00 New York open, so their last label is
+# the day before the snapshot date (data/README.md, "FX bar stamps").
+FX_SINGLES = {"EURUSD", "GBPUSD"}
 SYMBOLS = ["TQQQ", "BTAL", "QQQ", "SPY", "DBMF", "KMLM"]
 
 # The battery's symbol list is per-root, not global: BIL was exported in the
@@ -39,6 +44,7 @@ SYMBOLS = ["TQQQ", "BTAL", "QQQ", "SPY", "DBMF", "KMLM"]
 ROOT_SYMBOLS = {
     TR_DIR: SYMBOLS,
     NEW_TR_DIR: SYMBOLS + ["BIL"],
+    EU_TR_DIR: SYMBOLS + ["BIL"],
     LIVE_DIR: SYMBOLS + ["BIL"],
 }
 ROOT_SYMBOL_PAIRS = [(root, symbol) for root, syms in ROOT_SYMBOLS.items() for symbol in syms]
@@ -308,6 +314,35 @@ def test_new_snapshot_is_self_describing() -> None:
     last_bar = dt.date.fromisoformat(NEW_TR_DIR.name)
     for path in sorted(NEW_TR_DIR.glob("*.csv")):
         assert read_close(path)["time"][-1] == last_bar, path.stem
+
+
+# The EU_SUBSTITUTE_SPEC §3.6 snapshot: the 57 pairs of the live lane, five
+# indices, two FX singles, `macro/` carried; the same pins as above, with the
+# FX singles ending on the label before the snapshot date.
+
+
+def test_eu_snapshot_is_self_describing() -> None:
+    assert (EU_TR_DIR / "README.md").exists()
+    last_bar = dt.date.fromisoformat(EU_TR_DIR.name)
+    tops = sorted(EU_TR_DIR.glob("*.csv"))
+    assert len(tops) == 64 and len(list((EU_TR_DIR / "price").glob("*.csv"))) == 57
+    assert sorted(p.stem for p in (EU_TR_DIR / "price").glob("*.csv")) == LIVE_PAIRS
+    for path in tops:
+        expected = last_bar - dt.timedelta(days=1) if path.stem in FX_SINGLES else last_bar
+        assert read_close(path)["time"][-1] == expected, path.stem
+
+
+@pytest.mark.parametrize("symbol", SYMBOLS + ["BIL"])
+def test_eu_snapshot_calendar_agrees_with_the_previous_snapshot(symbol: str) -> None:
+    old = read_close(NEW_TR_DIR / f"{symbol}.csv")["time"]
+    new = read_close(EU_TR_DIR / f"{symbol}.csv")["time"]
+    assert new.filter(new <= dt.date(2026, 8, 24)).to_list() == old.to_list()
+
+
+@pytest.mark.parametrize("symbol", sorted(ZERO_YIELD))
+def test_eu_snapshot_zero_distribution_pairs_are_byte_identical(symbol: str) -> None:
+    assert filecmp.cmp(EU_TR_DIR / f"{symbol}.csv", EU_TR_DIR / "price" / f"{symbol}.csv",
+                       shallow=False)
 
 
 # T7 — TR golden. The default bundle on the TR snapshot, ended at 2026-08-14 so
