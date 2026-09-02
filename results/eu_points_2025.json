@@ -1,0 +1,2214 @@
+{
+  "benchmark": "SPY benchmark",
+  "config": {
+    "cash_yield": 0.03,
+    "cost_bps": {
+      "*": 15.0,
+      "BIL": 0.5,
+      "BTAL": 6.0,
+      "CNDX": 4.0,
+      "CSPX": 2.0,
+      "DBMF": 2.5,
+      "DBMF_EU": 15.0,
+      "IB01": 2.0,
+      "KMLM": 6.0,
+      "MVEA": 12.0,
+      "QQL3": 20.0,
+      "QQQ": 1.0,
+      "QQQ3": 15.0,
+      "SPY": 0.7,
+      "TQQQ": 1.5,
+      "XSPS": 12.0
+    },
+    "initial_capital": 10000.0,
+    "monthly_contribution": 500.0,
+    "start": "2025-03-17"
+  },
+  "data": {
+    "end": "2026-09-02",
+    "start": "2025-03-17",
+    "symbols": [
+      "CNDX",
+      "CSPX",
+      "DBMF_EU",
+      "IB01",
+      "MVEA",
+      "QQQ3",
+      "SPY",
+      "XSPS"
+    ],
+    "trading_days": 379
+  },
+  "run": {
+    "bundle": "eu_points_2025",
+    "data_dir": "tests/data/2026-09-02-net15-usd",
+    "generated_at": "2026-09-02T21:44:54Z",
+    "git_dirty": true,
+    "git_sha": "d49a1b9b1e0f9ebea0c8e723c5565acb1f497737",
+    "schema_version": 4,
+    "spec_path": "specs/eu_points_2025.json"
+  },
+  "spec": {
+    "config": {
+      "cash_yield": 0.03,
+      "cost_bps": {
+        "*": 15.0,
+        "BIL": 0.5,
+        "BTAL": 6.0,
+        "CNDX": 4.0,
+        "CSPX": 2.0,
+        "DBMF": 2.5,
+        "DBMF_EU": 15.0,
+        "IB01": 2.0,
+        "KMLM": 6.0,
+        "MVEA": 12.0,
+        "QQL3": 20.0,
+        "QQQ": 1.0,
+        "QQQ3": 15.0,
+        "SPY": 0.7,
+        "TQQQ": 1.5,
+        "XSPS": 12.0
+      },
+      "initial_capital": 10000.0,
+      "monthly_contribution": 500.0,
+      "start": "2025-03-17"
+    },
+    "schema_version": 1,
+    "strategies": [
+      {
+        "fallback": 0.8,
+        "gate": {
+          "assets": [
+            "QQQ3"
+          ],
+          "contribution_exempt": false,
+          "sma_days": 200,
+          "symbol": "CNDX"
+        },
+        "label": "1 EU-B75D25 (DOCUMENT-ONLY) - VT SYNB75(w45)+DBMF_EU25 gated, CNDX signal",
+        "leverage": 3,
+        "risk": "QQQ3",
+        "safe": {
+          "DBMF_EU": 0.25,
+          "MVEA": 0.4125,
+          "XSPS": 0.3375
+        },
+        "sigma_target": 0.2,
+        "type": "vol_target",
+        "vol": {
+          "kind": "ewma",
+          "lam": 0.8
+        },
+        "vol_symbol": "CNDX",
+        "w_max": 0.8,
+        "w_min": 0.0
+      },
+      {
+        "fallback": 0.8,
+        "gate": {
+          "assets": [
+            "QQQ3"
+          ],
+          "contribution_exempt": false,
+          "sma_days": 200,
+          "symbol": "CNDX"
+        },
+        "label": "2 EU-B75D25 w40 sens (DOCUMENT-ONLY) - VT SYNB75(w40)+DBMF_EU25 gated, CNDX signal",
+        "leverage": 3,
+        "risk": "QQQ3",
+        "safe": {
+          "DBMF_EU": 0.25,
+          "MVEA": 0.45,
+          "XSPS": 0.3
+        },
+        "sigma_target": 0.2,
+        "type": "vol_target",
+        "vol": {
+          "kind": "ewma",
+          "lam": 0.8
+        },
+        "vol_symbol": "CNDX",
+        "w_max": 0.8,
+        "w_min": 0.0
+      },
+      {
+        "fallback": 0.8,
+        "gate": {
+          "assets": [
+            "QQQ3"
+          ],
+          "contribution_exempt": false,
+          "sma_days": 200,
+          "symbol": "CNDX"
+        },
+        "label": "3 EU-B75D25 w50 sens (DOCUMENT-ONLY) - VT SYNB75(w50)+DBMF_EU25 gated, CNDX signal",
+        "leverage": 3,
+        "risk": "QQQ3",
+        "safe": {
+          "DBMF_EU": 0.25,
+          "MVEA": 0.375,
+          "XSPS": 0.375
+        },
+        "sigma_target": 0.2,
+        "type": "vol_target",
+        "vol": {
+          "kind": "ewma",
+          "lam": 0.8
+        },
+        "vol_symbol": "CNDX",
+        "w_max": 0.8,
+        "w_min": 0.0
+      },
+      {
+        "fallback": 0.8,
+        "gate": {
+          "assets": [
+            "QQQ3"
+          ],
+          "contribution_exempt": false,
+          "sma_days": 200,
+          "symbol": "CNDX"
+        },
+        "label": "4 EU SYNB100 w45 (DOCUMENT-ONLY) - VT MVEA55+XSPS45 gated, CNDX signal",
+        "leverage": 3,
+        "risk": "QQQ3",
+        "safe": {
+          "MVEA": 0.55,
+          "XSPS": 0.45
+        },
+        "sigma_target": 0.2,
+        "type": "vol_target",
+        "vol": {
+          "kind": "ewma",
+          "lam": 0.8
+        },
+        "vol_symbol": "CNDX",
+        "w_max": 0.8,
+        "w_min": 0.0
+      },
+      {
+        "fallback": 0.8,
+        "gate": {
+          "assets": [
+            "QQQ3"
+          ],
+          "contribution_exempt": false,
+          "sma_days": 200,
+          "symbol": "CNDX"
+        },
+        "label": "5 NEW BLEND fallback (DOCUMENT-ONLY) - VT IB01_50+DBMF_EU50 gated, CNDX signal",
+        "leverage": 3,
+        "risk": "QQQ3",
+        "safe": {
+          "DBMF_EU": 0.5,
+          "IB01": 0.5
+        },
+        "sigma_target": 0.2,
+        "type": "vol_target",
+        "vol": {
+          "kind": "ewma",
+          "lam": 0.8
+        },
+        "vol_symbol": "CNDX",
+        "w_max": 0.8,
+        "w_min": 0.0
+      },
+      {
+        "fallback": 0.8,
+        "gate": {
+          "assets": [
+            "QQQ3"
+          ],
+          "contribution_exempt": false,
+          "sma_days": 200,
+          "symbol": "CNDX"
+        },
+        "label": "6 NEW BLEND fallback (DOCUMENT-ONLY) - VT DBMF_EU100 gated, CNDX signal",
+        "leverage": 3,
+        "risk": "QQQ3",
+        "safe": "DBMF_EU",
+        "sigma_target": 0.2,
+        "type": "vol_target",
+        "vol": {
+          "kind": "ewma",
+          "lam": 0.8
+        },
+        "vol_symbol": "CNDX",
+        "w_max": 0.8,
+        "w_min": 0.0
+      },
+      {
+        "label": "CSPX benchmark",
+        "type": "fixed",
+        "weights": {
+          "CSPX": 1.0
+        }
+      },
+      {
+        "label": "SPY benchmark",
+        "type": "fixed",
+        "weights": {
+          "SPY": 1.0
+        }
+      }
+    ]
+  },
+  "strategies": [
+    {
+      "class": "VolTarget",
+      "correlation_to_benchmark": 0.37060953,
+      "data": [
+        "CNDX"
+      ],
+      "drawdowns": [
+        {
+          "days": 86,
+          "depth": -0.16091169,
+          "peak": "2026-01-28",
+          "recovery": "2026-04-24",
+          "trough": "2026-03-30"
+        },
+        {
+          "days": 91,
+          "depth": -0.10177677,
+          "peak": "2025-10-29",
+          "recovery": "2026-01-28",
+          "trough": "2025-11-21"
+        },
+        {
+          "days": null,
+          "depth": -0.08992115,
+          "peak": "2026-06-02",
+          "recovery": null,
+          "trough": "2026-07-29"
+        },
+        {
+          "days": 33,
+          "depth": -0.06886304,
+          "peak": "2025-08-13",
+          "recovery": "2025-09-15",
+          "trough": "2025-08-20"
+        },
+        {
+          "days": 10,
+          "depth": -0.06352115,
+          "peak": "2025-07-29",
+          "recovery": "2025-08-08",
+          "trough": "2025-08-01"
+        }
+      ],
+      "exposure": {
+        "CASH": {
+          "avg": 0.01226306,
+          "avg_target": 0.0,
+          "max": 0.02326599,
+          "min": 0.00241665
+        },
+        "DBMF_EU": {
+          "avg": 0.14286999,
+          "avg_target": 0.13676062,
+          "max": 0.24815642,
+          "min": 0.04285013
+        },
+        "MVEA": {
+          "avg": 0.24288642,
+          "avg_target": 0.22565502,
+          "max": 0.41230384,
+          "min": 0.0821629
+        },
+        "QQQ3": {
+          "avg": 0.40276064,
+          "avg_target": 0.45295753,
+          "max": 0.79925397,
+          "min": 0.0
+        },
+        "XSPS": {
+          "avg": 0.19877222,
+          "avg_target": 0.18462683,
+          "max": 0.33749134,
+          "min": 0.06726532
+        }
+      },
+      "imbalance": {
+        "avg_asset_deviation": 0.05077523,
+        "avg_misallocation": 0.05391286,
+        "by_date": [
+          {
+            "date": "2025-03-17",
+            "max_deviation": 0.27610304,
+            "misallocated": 0.27547278
+          },
+          {
+            "date": "2025-03-31",
+            "max_deviation": 0.25806552,
+            "misallocated": 0.25803067
+          },
+          {
+            "date": "2025-04-30",
+            "max_deviation": 0.25874189,
+            "misallocated": 0.25871509
+          },
+          {
+            "date": "2025-05-30",
+            "max_deviation": 0.00703958,
+            "misallocated": 0.01097071
+          },
+          {
+            "date": "2025-06-30",
+            "max_deviation": 0.01316044,
+            "misallocated": 0.01825705
+          },
+          {
+            "date": "2025-07-31",
+            "max_deviation": 0.00714987,
+            "misallocated": 0.00806315
+          },
+          {
+            "date": "2025-08-29",
+            "max_deviation": 0.01513363,
+            "misallocated": 0.01933663
+          },
+          {
+            "date": "2025-09-30",
+            "max_deviation": 0.014851,
+            "misallocated": 0.02346516
+          },
+          {
+            "date": "2025-10-31",
+            "max_deviation": 0.01908505,
+            "misallocated": 0.0235046
+          },
+          {
+            "date": "2025-11-28",
+            "max_deviation": 0.0076976,
+            "misallocated": 0.00853837
+          },
+          {
+            "date": "2025-12-31",
+            "max_deviation": 0.00686299,
+            "misallocated": 0.01051962
+          },
+          {
+            "date": "2026-01-30",
+            "max_deviation": 0.00477174,
+            "misallocated": 0.00956674
+          },
+          {
+            "date": "2026-02-27",
+            "max_deviation": 0.00858213,
+            "misallocated": 0.01218753
+          },
+          {
+            "date": "2026-03-31",
+            "max_deviation": 0.01260456,
+            "misallocated": 0.01776473
+          },
+          {
+            "date": "2026-04-30",
+            "max_deviation": 0.0151712,
+            "misallocated": 0.01700699
+          },
+          {
+            "date": "2026-05-29",
+            "max_deviation": 0.01278477,
+            "misallocated": 0.01651649
+          },
+          {
+            "date": "2026-06-30",
+            "max_deviation": 0.00450554,
+            "misallocated": 0.00482631
+          },
+          {
+            "date": "2026-07-31",
+            "max_deviation": 0.00930151,
+            "misallocated": 0.01448232
+          },
+          {
+            "date": "2026-08-31",
+            "max_deviation": 0.01311737,
+            "misallocated": 0.01711946
+          }
+        ],
+        "max_asset_deviation": 0.27610304,
+        "max_misallocation": 0.27547278
+      },
+      "indicators": {
+        "CNDX": [
+          "VOL_EWMA80",
+          "SMA200"
+        ]
+      },
+      "label": "1 EU-B75D25 (DOCUMENT-ONLY) - VT SYNB75(w45)+DBMF_EU25 gated, CNDX signal",
+      "slug": "1-eu-b75d25-document-only-vt-synb75-w45-dbmf-eu25-gated-cndx-signal",
+      "spec": {
+        "fallback": 0.8,
+        "gate": {
+          "assets": [
+            "QQQ3"
+          ],
+          "contribution_exempt": false,
+          "sma_days": 200,
+          "symbol": "CNDX"
+        },
+        "label": "1 EU-B75D25 (DOCUMENT-ONLY) - VT SYNB75(w45)+DBMF_EU25 gated, CNDX signal",
+        "leverage": 3,
+        "risk": "QQQ3",
+        "safe": {
+          "DBMF_EU": 0.25,
+          "MVEA": 0.4125,
+          "XSPS": 0.3375
+        },
+        "sigma_target": 0.2,
+        "type": "vol_target",
+        "vol": {
+          "kind": "ewma",
+          "lam": 0.8
+        },
+        "vol_symbol": "CNDX",
+        "w_max": 0.8,
+        "w_min": 0.0
+      },
+      "summary": {
+        "avg_asset_deviation": 0.05077523,
+        "avg_misallocation": 0.05391286,
+        "best_year": {
+          "return": 0.25383196,
+          "year": 2025
+        },
+        "cagr": 0.29828583,
+        "calmar": 1.85372376,
+        "fee_drag": 0.00717029,
+        "final_value": 25527.5037127,
+        "max_asset_deviation": 0.27610304,
+        "max_drawdown": -0.16091169,
+        "max_drawdown_days": 86,
+        "max_misallocation": 0.27547278,
+        "net_profit": 6527.5037127,
+        "net_profit_pct": 0.34355283,
+        "sharpe": 1.30476212,
+        "sortino": 1.92119423,
+        "total_contributed": 19000.0,
+        "total_fees": 136.23544591,
+        "traded_value": 99022.41650708,
+        "turnover": 1.9500409,
+        "volatility": 0.21236113,
+        "worst_year": {
+          "return": 0.16817918,
+          "year": 2026
+        },
+        "xirr": 0.29635184
+      },
+      "weights": {
+        "DBMF_EU": 0.05,
+        "MVEA": 0.0825,
+        "QQQ3": 0.8,
+        "XSPS": 0.0675
+      },
+      "yearly_returns": [
+        {
+          "return": 0.25383196,
+          "year": 2025
+        },
+        {
+          "return": 0.16817918,
+          "year": 2026
+        }
+      ]
+    },
+    {
+      "class": "VolTarget",
+      "correlation_to_benchmark": 0.3699491,
+      "data": [
+        "CNDX"
+      ],
+      "drawdowns": [
+        {
+          "days": 177,
+          "depth": -0.16306171,
+          "peak": "2025-10-29",
+          "recovery": "2026-04-24",
+          "trough": "2026-03-30"
+        },
+        {
+          "days": null,
+          "depth": -0.08981046,
+          "peak": "2026-06-02",
+          "recovery": null,
+          "trough": "2026-07-29"
+        },
+        {
+          "days": 33,
+          "depth": -0.06866262,
+          "peak": "2025-08-13",
+          "recovery": "2025-09-15",
+          "trough": "2025-08-20"
+        },
+        {
+          "days": 10,
+          "depth": -0.06370166,
+          "peak": "2025-07-29",
+          "recovery": "2025-08-08",
+          "trough": "2025-08-01"
+        },
+        {
+          "days": 12,
+          "depth": -0.04509154,
+          "peak": "2025-10-08",
+          "recovery": "2025-10-20",
+          "trough": "2025-10-14"
+        }
+      ],
+      "exposure": {
+        "CASH": {
+          "avg": 0.01203722,
+          "avg_target": 0.0,
+          "max": 0.02123734,
+          "min": 0.00213202
+        },
+        "DBMF_EU": {
+          "avg": 0.14307663,
+          "avg_target": 0.13676062,
+          "max": 0.24832786,
+          "min": 0.04272517
+        },
+        "MVEA": {
+          "avg": 0.26502724,
+          "avg_target": 0.24616911,
+          "max": 0.449786,
+          "min": 0.0898122
+        },
+        "QQQ3": {
+          "avg": 0.40279136,
+          "avg_target": 0.45295753,
+          "max": 0.79692315,
+          "min": 0.0
+        },
+        "XSPS": {
+          "avg": 0.17662473,
+          "avg_target": 0.16411274,
+          "max": 0.29974438,
+          "min": 0.05981843
+        }
+      },
+      "imbalance": {
+        "avg_asset_deviation": 0.0508111,
+        "avg_misallocation": 0.05366129,
+        "by_date": [
+          {
+            "date": "2025-03-17",
+            "max_deviation": 0.27610304,
+            "misallocated": 0.27547317
+          },
+          {
+            "date": "2025-03-31",
+            "max_deviation": 0.25806552,
+            "misallocated": 0.2580301
+          },
+          {
+            "date": "2025-04-30",
+            "max_deviation": 0.25874189,
+            "misallocated": 0.25871528
+          },
+          {
+            "date": "2025-05-30",
+            "max_deviation": 0.00788782,
+            "misallocated": 0.01216622
+          },
+          {
+            "date": "2025-06-30",
+            "max_deviation": 0.01446327,
+            "misallocated": 0.01979431
+          },
+          {
+            "date": "2025-07-31",
+            "max_deviation": 0.00727483,
+            "misallocated": 0.01031721
+          },
+          {
+            "date": "2025-08-29",
+            "max_deviation": 0.01655438,
+            "misallocated": 0.02164117
+          },
+          {
+            "date": "2025-09-30",
+            "max_deviation": 0.01683565,
+            "misallocated": 0.0173518
+          },
+          {
+            "date": "2025-10-31",
+            "max_deviation": 0.00473867,
+            "misallocated": 0.00536757
+          },
+          {
+            "date": "2025-11-28",
+            "max_deviation": 0.00847065,
+            "misallocated": 0.00936856
+          },
+          {
+            "date": "2025-12-31",
+            "max_deviation": 0.00819938,
+            "misallocated": 0.01203716
+          },
+          {
+            "date": "2026-01-30",
+            "max_deviation": 0.00543652,
+            "misallocated": 0.01033638
+          },
+          {
+            "date": "2026-02-27",
+            "max_deviation": 0.00952615,
+            "misallocated": 0.01332208
+          },
+          {
+            "date": "2026-03-31",
+            "max_deviation": 0.01243151,
+            "misallocated": 0.01751769
+          },
+          {
+            "date": "2026-04-30",
+            "max_deviation": 0.01611932,
+            "misallocated": 0.018546
+          },
+          {
+            "date": "2026-05-29",
+            "max_deviation": 0.01399997,
+            "misallocated": 0.0181699
+          },
+          {
+            "date": "2026-06-30",
+            "max_deviation": 0.00496717,
+            "misallocated": 0.00587905
+          },
+          {
+            "date": "2026-07-31",
+            "max_deviation": 0.01019244,
+            "misallocated": 0.01559438
+          },
+          {
+            "date": "2026-08-31",
+            "max_deviation": 0.01540263,
+            "misallocated": 0.01993652
+          }
+        ],
+        "max_asset_deviation": 0.27610304,
+        "max_misallocation": 0.27547317
+      },
+      "indicators": {
+        "CNDX": [
+          "VOL_EWMA80",
+          "SMA200"
+        ]
+      },
+      "label": "2 EU-B75D25 w40 sens (DOCUMENT-ONLY) - VT SYNB75(w40)+DBMF_EU25 gated, CNDX signal",
+      "slug": "2-eu-b75d25-w40-sens-document-only-vt-synb75-w40-dbmf-eu25-gated-cndx-signal",
+      "spec": {
+        "fallback": 0.8,
+        "gate": {
+          "assets": [
+            "QQQ3"
+          ],
+          "contribution_exempt": false,
+          "sma_days": 200,
+          "symbol": "CNDX"
+        },
+        "label": "2 EU-B75D25 w40 sens (DOCUMENT-ONLY) - VT SYNB75(w40)+DBMF_EU25 gated, CNDX signal",
+        "leverage": 3,
+        "risk": "QQQ3",
+        "safe": {
+          "DBMF_EU": 0.25,
+          "MVEA": 0.45,
+          "XSPS": 0.3
+        },
+        "sigma_target": 0.2,
+        "type": "vol_target",
+        "vol": {
+          "kind": "ewma",
+          "lam": 0.8
+        },
+        "vol_symbol": "CNDX",
+        "w_max": 0.8,
+        "w_min": 0.0
+      },
+      "summary": {
+        "avg_asset_deviation": 0.0508111,
+        "avg_misallocation": 0.05366129,
+        "best_year": {
+          "return": 0.25690436,
+          "year": 2025
+        },
+        "cagr": 0.30330618,
+        "calmar": 1.86006998,
+        "fee_drag": 0.00710272,
+        "final_value": 25645.40471086,
+        "max_asset_deviation": 0.27610304,
+        "max_drawdown": -0.16306171,
+        "max_drawdown_days": 177,
+        "max_misallocation": 0.27547317,
+        "net_profit": 6645.40471086,
+        "net_profit_pct": 0.34975814,
+        "sharpe": 1.30728111,
+        "sortino": 1.92615711,
+        "total_contributed": 19000.0,
+        "total_fees": 134.95164795,
+        "traded_value": 98184.19186808,
+        "turnover": 1.92925045,
+        "volatility": 0.21531238,
+        "worst_year": {
+          "return": 0.17191767,
+          "year": 2026
+        },
+        "xirr": 0.30148861
+      },
+      "weights": {
+        "DBMF_EU": 0.05,
+        "MVEA": 0.09,
+        "QQQ3": 0.8,
+        "XSPS": 0.06
+      },
+      "yearly_returns": [
+        {
+          "return": 0.25690436,
+          "year": 2025
+        },
+        {
+          "return": 0.17191767,
+          "year": 2026
+        }
+      ]
+    },
+    {
+      "class": "VolTarget",
+      "correlation_to_benchmark": 0.36978906,
+      "data": [
+        "CNDX"
+      ],
+      "drawdowns": [
+        {
+          "days": 86,
+          "depth": -0.15907934,
+          "peak": "2026-01-28",
+          "recovery": "2026-04-24",
+          "trough": "2026-03-30"
+        },
+        {
+          "days": 91,
+          "depth": -0.10114686,
+          "peak": "2025-10-29",
+          "recovery": "2026-01-28",
+          "trough": "2025-11-21"
+        },
+        {
+          "days": null,
+          "depth": -0.08533152,
+          "peak": "2026-06-02",
+          "recovery": null,
+          "trough": "2026-07-29"
+        },
+        {
+          "days": 33,
+          "depth": -0.06740329,
+          "peak": "2025-08-13",
+          "recovery": "2025-09-15",
+          "trough": "2025-08-20"
+        },
+        {
+          "days": 10,
+          "depth": -0.06174661,
+          "peak": "2025-07-29",
+          "recovery": "2025-08-08",
+          "trough": "2025-08-01"
+        }
+      ],
+      "exposure": {
+        "CASH": {
+          "avg": 0.01304447,
+          "avg_target": 0.0,
+          "max": 0.02495635,
+          "min": 0.00260136
+        },
+        "DBMF_EU": {
+          "avg": 0.14309094,
+          "avg_target": 0.13676062,
+          "max": 0.24798806,
+          "min": 0.04297648
+        },
+        "MVEA": {
+          "avg": 0.22077068,
+          "avg_target": 0.20514093,
+          "max": 0.37491568,
+          "min": 0.07446985
+        },
+        "QQQ3": {
+          "avg": 0.40176674,
+          "avg_target": 0.45295753,
+          "max": 0.78205914,
+          "min": 0.0
+        },
+        "XSPS": {
+          "avg": 0.22087939,
+          "avg_target": 0.20514093,
+          "max": 0.37495961,
+          "min": 0.07475702
+        }
+      },
+      "imbalance": {
+        "avg_asset_deviation": 0.05123971,
+        "avg_misallocation": 0.05466376,
+        "by_date": [
+          {
+            "date": "2025-03-17",
+            "max_deviation": 0.27610304,
+            "misallocated": 0.27547282
+          },
+          {
+            "date": "2025-03-31",
+            "max_deviation": 0.25806552,
+            "misallocated": 0.25803082
+          },
+          {
+            "date": "2025-04-30",
+            "max_deviation": 0.25874189,
+            "misallocated": 0.25871489
+          },
+          {
+            "date": "2025-05-30",
+            "max_deviation": 0.00618308,
+            "misallocated": 0.01049147
+          },
+          {
+            "date": "2025-06-30",
+            "max_deviation": 0.01184228,
+            "misallocated": 0.01669498
+          },
+          {
+            "date": "2025-07-31",
+            "max_deviation": 0.01794086,
+            "misallocated": 0.02534693
+          },
+          {
+            "date": "2025-08-29",
+            "max_deviation": 0.01384691,
+            "misallocated": 0.0177608
+          },
+          {
+            "date": "2025-09-30",
+            "max_deviation": 0.01305144,
+            "misallocated": 0.02110765
+          },
+          {
+            "date": "2025-10-31",
+            "max_deviation": 0.01795115,
+            "misallocated": 0.0220353
+          },
+          {
+            "date": "2025-11-28",
+            "max_deviation": 0.00644621,
+            "misallocated": 0.00683282
+          },
+          {
+            "date": "2025-12-31",
+            "max_deviation": 0.00476044,
+            "misallocated": 0.00797078
+          },
+          {
+            "date": "2026-01-30",
+            "max_deviation": 0.00441166,
+            "misallocated": 0.00767649
+          },
+          {
+            "date": "2026-02-27",
+            "max_deviation": 0.00716252,
+            "misallocated": 0.01052941
+          },
+          {
+            "date": "2026-03-31",
+            "max_deviation": 0.01240223,
+            "misallocated": 0.01747811
+          },
+          {
+            "date": "2026-04-30",
+            "max_deviation": 0.01384596,
+            "misallocated": 0.01558387
+          },
+          {
+            "date": "2026-05-29",
+            "max_deviation": 0.01128866,
+            "misallocated": 0.01416988
+          },
+          {
+            "date": "2026-06-30",
+            "max_deviation": 0.01771054,
+            "misallocated": 0.02188604
+          },
+          {
+            "date": "2026-07-31",
+            "max_deviation": 0.00945842,
+            "misallocated": 0.01451555
+          },
+          {
+            "date": "2026-08-31",
+            "max_deviation": 0.01234175,
+            "misallocated": 0.01631291
+          }
+        ],
+        "max_asset_deviation": 0.27610304,
+        "max_misallocation": 0.27547282
+      },
+      "indicators": {
+        "CNDX": [
+          "VOL_EWMA80",
+          "SMA200"
+        ]
+      },
+      "label": "3 EU-B75D25 w50 sens (DOCUMENT-ONLY) - VT SYNB75(w50)+DBMF_EU25 gated, CNDX signal",
+      "slug": "3-eu-b75d25-w50-sens-document-only-vt-synb75-w50-dbmf-eu25-gated-cndx-signal",
+      "spec": {
+        "fallback": 0.8,
+        "gate": {
+          "assets": [
+            "QQQ3"
+          ],
+          "contribution_exempt": false,
+          "sma_days": 200,
+          "symbol": "CNDX"
+        },
+        "label": "3 EU-B75D25 w50 sens (DOCUMENT-ONLY) - VT SYNB75(w50)+DBMF_EU25 gated, CNDX signal",
+        "leverage": 3,
+        "risk": "QQQ3",
+        "safe": {
+          "DBMF_EU": 0.25,
+          "MVEA": 0.375,
+          "XSPS": 0.375
+        },
+        "sigma_target": 0.2,
+        "type": "vol_target",
+        "vol": {
+          "kind": "ewma",
+          "lam": 0.8
+        },
+        "vol_symbol": "CNDX",
+        "w_max": 0.8,
+        "w_min": 0.0
+      },
+      "summary": {
+        "avg_asset_deviation": 0.05123971,
+        "avg_misallocation": 0.05466376,
+        "best_year": {
+          "return": 0.24943002,
+          "year": 2025
+        },
+        "cagr": 0.29615737,
+        "calmar": 1.86169596,
+        "fee_drag": 0.00718533,
+        "final_value": 25493.51833064,
+        "max_asset_deviation": 0.27610304,
+        "max_drawdown": -0.15907934,
+        "max_drawdown_days": 86,
+        "max_misallocation": 0.27547282,
+        "net_profit": 6493.51833064,
+        "net_profit_pct": 0.34176412,
+        "sharpe": 1.31247265,
+        "sortino": 1.93445535,
+        "total_contributed": 19000.0,
+        "total_fees": 136.52124905,
+        "traded_value": 99185.36704315,
+        "turnover": 1.95760889,
+        "volatility": 0.2094206,
+        "worst_year": {
+          "return": 0.16948609,
+          "year": 2026
+        },
+        "xirr": 0.29486988
+      },
+      "weights": {
+        "DBMF_EU": 0.05,
+        "MVEA": 0.075,
+        "QQQ3": 0.8,
+        "XSPS": 0.075
+      },
+      "yearly_returns": [
+        {
+          "return": 0.24943002,
+          "year": 2025
+        },
+        {
+          "return": 0.16948609,
+          "year": 2026
+        }
+      ]
+    },
+    {
+      "class": "VolTarget",
+      "correlation_to_benchmark": 0.37437717,
+      "data": [
+        "CNDX"
+      ],
+      "drawdowns": [
+        {
+          "days": 177,
+          "depth": -0.16427527,
+          "peak": "2025-10-29",
+          "recovery": "2026-04-24",
+          "trough": "2026-03-30"
+        },
+        {
+          "days": null,
+          "depth": -0.08032775,
+          "peak": "2026-06-03",
+          "recovery": null,
+          "trough": "2026-07-27"
+        },
+        {
+          "days": 36,
+          "depth": -0.06729255,
+          "peak": "2025-08-13",
+          "recovery": "2025-09-18",
+          "trough": "2025-08-20"
+        },
+        {
+          "days": 8,
+          "depth": -0.06219384,
+          "peak": "2025-07-31",
+          "recovery": "2025-08-08",
+          "trough": "2025-08-01"
+        },
+        {
+          "days": 68,
+          "depth": -0.0437825,
+          "peak": "2025-04-04",
+          "recovery": "2025-06-11",
+          "trough": "2025-05-14"
+        }
+      ],
+      "exposure": {
+        "CASH": {
+          "avg": 0.00435602,
+          "avg_target": 0.0,
+          "max": 0.01752836,
+          "min": 0.000143
+        },
+        "MVEA": {
+          "avg": 0.32357398,
+          "avg_target": 0.30087336,
+          "max": 0.5498366,
+          "min": 0.10985905
+        },
+        "QQQ3": {
+          "avg": 0.4068157,
+          "avg_target": 0.45295753,
+          "max": 0.79520943,
+          "min": 0.0
+        },
+        "XSPS": {
+          "avg": 0.26482382,
+          "avg_target": 0.24616911,
+          "max": 0.44991091,
+          "min": 0.08991907
+        }
+      },
+      "imbalance": {
+        "avg_asset_deviation": 0.04614183,
+        "avg_misallocation": 0.0462225,
+        "by_date": [
+          {
+            "date": "2025-03-17",
+            "max_deviation": 0.27610304,
+            "misallocated": 0.27550384
+          },
+          {
+            "date": "2025-03-31",
+            "max_deviation": 0.25806552,
+            "misallocated": 0.25803729
+          },
+          {
+            "date": "2025-04-30",
+            "max_deviation": 0.25874189,
+            "misallocated": 0.2587147
+          },
+          {
+            "date": "2025-05-30",
+            "max_deviation": 0.00102271,
+            "misallocated": 0.00133895
+          },
+          {
+            "date": "2025-06-30",
+            "max_deviation": 0.00252692,
+            "misallocated": 0.00294267
+          },
+          {
+            "date": "2025-07-31",
+            "max_deviation": 0.00479057,
+            "misallocated": 0.00463064
+          },
+          {
+            "date": "2025-08-29",
+            "max_deviation": 0.00530385,
+            "misallocated": 0.00509794
+          },
+          {
+            "date": "2025-09-30",
+            "max_deviation": 0.01745648,
+            "misallocated": 0.01770385
+          },
+          {
+            "date": "2025-10-31",
+            "max_deviation": 0.00602701,
+            "misallocated": 0.0061531
+          },
+          {
+            "date": "2025-11-28",
+            "max_deviation": 0.01287558,
+            "misallocated": 0.01341797
+          },
+          {
+            "date": "2025-12-31",
+            "max_deviation": 0.00072033,
+            "misallocated": 0.00107617
+          },
+          {
+            "date": "2026-01-30",
+            "max_deviation": 0.00623753,
+            "misallocated": 0.00601659
+          },
+          {
+            "date": "2026-02-27",
+            "max_deviation": 0.00492914,
+            "misallocated": 0.00516231
+          },
+          {
+            "date": "2026-03-31",
+            "max_deviation": 0.00148724,
+            "misallocated": 0.00141108
+          },
+          {
+            "date": "2026-04-30",
+            "max_deviation": 0.00155589,
+            "misallocated": 0.00194173
+          },
+          {
+            "date": "2026-05-29",
+            "max_deviation": 0.00141252,
+            "misallocated": 0.00156885
+          },
+          {
+            "date": "2026-06-30",
+            "max_deviation": 0.01196575,
+            "misallocated": 0.01208251
+          },
+          {
+            "date": "2026-07-31",
+            "max_deviation": 0.00303969,
+            "misallocated": 0.0030682
+          },
+          {
+            "date": "2026-08-31",
+            "max_deviation": 0.00243318,
+            "misallocated": 0.00235904
+          }
+        ],
+        "max_asset_deviation": 0.27610304,
+        "max_misallocation": 0.27550384
+      },
+      "indicators": {
+        "CNDX": [
+          "VOL_EWMA80",
+          "SMA200"
+        ]
+      },
+      "label": "4 EU SYNB100 w45 (DOCUMENT-ONLY) - VT MVEA55+XSPS45 gated, CNDX signal",
+      "slug": "4-eu-synb100-w45-document-only-vt-mvea55-xsps45-gated-cndx-signal",
+      "spec": {
+        "fallback": 0.8,
+        "gate": {
+          "assets": [
+            "QQQ3"
+          ],
+          "contribution_exempt": false,
+          "sma_days": 200,
+          "symbol": "CNDX"
+        },
+        "label": "4 EU SYNB100 w45 (DOCUMENT-ONLY) - VT MVEA55+XSPS45 gated, CNDX signal",
+        "leverage": 3,
+        "risk": "QQQ3",
+        "safe": {
+          "MVEA": 0.55,
+          "XSPS": 0.45
+        },
+        "sigma_target": 0.2,
+        "type": "vol_target",
+        "vol": {
+          "kind": "ewma",
+          "lam": 0.8
+        },
+        "vol_symbol": "CNDX",
+        "w_max": 0.8,
+        "w_min": 0.0
+      },
+      "summary": {
+        "avg_asset_deviation": 0.04614183,
+        "avg_misallocation": 0.0462225,
+        "best_year": {
+          "return": 0.20525998,
+          "year": 2025
+        },
+        "cagr": 0.26708349,
+        "calmar": 1.62582897,
+        "fee_drag": 0.00678339,
+        "final_value": 24952.74988176,
+        "max_asset_deviation": 0.27610304,
+        "max_drawdown": -0.16427527,
+        "max_drawdown_days": 177,
+        "max_misallocation": 0.27550384,
+        "net_profit": 5952.74988176,
+        "net_profit_pct": 0.31330263,
+        "sharpe": 1.21800423,
+        "sortino": 1.79446725,
+        "total_contributed": 19000.0,
+        "total_fees": 128.88435341,
+        "traded_value": 96652.21159523,
+        "turnover": 1.95365939,
+        "volatility": 0.20709435,
+        "worst_year": {
+          "return": 0.17279412,
+          "year": 2026
+        },
+        "xirr": 0.27121208
+      },
+      "weights": {
+        "MVEA": 0.11,
+        "QQQ3": 0.8,
+        "XSPS": 0.09
+      },
+      "yearly_returns": [
+        {
+          "return": 0.20525998,
+          "year": 2025
+        },
+        {
+          "return": 0.17279412,
+          "year": 2026
+        }
+      ]
+    },
+    {
+      "class": "VolTarget",
+      "correlation_to_benchmark": 0.38514121,
+      "data": [
+        "CNDX"
+      ],
+      "drawdowns": [
+        {
+          "days": 85,
+          "depth": -0.1702108,
+          "peak": "2026-01-28",
+          "recovery": "2026-04-23",
+          "trough": "2026-03-30"
+        },
+        {
+          "days": 90,
+          "depth": -0.11366849,
+          "peak": "2025-10-29",
+          "recovery": "2026-01-27",
+          "trough": "2025-11-21"
+        },
+        {
+          "days": null,
+          "depth": -0.11049029,
+          "peak": "2026-06-02",
+          "recovery": null,
+          "trough": "2026-07-29"
+        },
+        {
+          "days": 30,
+          "depth": -0.07003643,
+          "peak": "2025-08-13",
+          "recovery": "2025-09-12",
+          "trough": "2025-08-20"
+        },
+        {
+          "days": 11,
+          "depth": -0.06505412,
+          "peak": "2025-07-28",
+          "recovery": "2025-08-08",
+          "trough": "2025-08-01"
+        }
+      ],
+      "exposure": {
+        "CASH": {
+          "avg": 0.01255071,
+          "avg_target": 0.0,
+          "max": 0.01950672,
+          "min": 0.00537232
+        },
+        "DBMF_EU": {
+          "avg": 0.29112388,
+          "avg_target": 0.27352123,
+          "max": 0.49914604,
+          "min": 0.09849606
+        },
+        "IB01": {
+          "avg": 0.29119541,
+          "avg_target": 0.27352123,
+          "max": 0.494328,
+          "min": 0.09716284
+        },
+        "QQQ3": {
+          "avg": 0.40476863,
+          "avg_target": 0.45295753,
+          "max": 0.78416176,
+          "min": 0.0
+        }
+      },
+      "imbalance": {
+        "avg_asset_deviation": 0.04938238,
+        "avg_misallocation": 0.05286631,
+        "by_date": [
+          {
+            "date": "2025-03-17",
+            "max_deviation": 0.27610304,
+            "misallocated": 0.27568465
+          },
+          {
+            "date": "2025-03-31",
+            "max_deviation": 0.25806552,
+            "misallocated": 0.25803993
+          },
+          {
+            "date": "2025-04-30",
+            "max_deviation": 0.25874189,
+            "misallocated": 0.2587312
+          },
+          {
+            "date": "2025-05-30",
+            "max_deviation": 0.00652518,
+            "misallocated": 0.00820121
+          },
+          {
+            "date": "2025-06-30",
+            "max_deviation": 0.01400754,
+            "misallocated": 0.01644968
+          },
+          {
+            "date": "2025-07-31",
+            "max_deviation": 0.01583824,
+            "misallocated": 0.01984303
+          },
+          {
+            "date": "2025-08-29",
+            "max_deviation": 0.00342735,
+            "misallocated": 0.0056866
+          },
+          {
+            "date": "2025-09-30",
+            "max_deviation": 0.01361973,
+            "misallocated": 0.01589713
+          },
+          {
+            "date": "2025-10-31",
+            "max_deviation": 0.00863629,
+            "misallocated": 0.016843
+          },
+          {
+            "date": "2025-11-28",
+            "max_deviation": 0.01504509,
+            "misallocated": 0.01713075
+          },
+          {
+            "date": "2025-12-31",
+            "max_deviation": 0.00679376,
+            "misallocated": 0.01268073
+          },
+          {
+            "date": "2026-01-30",
+            "max_deviation": 0.00399409,
+            "misallocated": 0.00765321
+          },
+          {
+            "date": "2026-02-27",
+            "max_deviation": 0.00842645,
+            "misallocated": 0.01724648
+          },
+          {
+            "date": "2026-03-31",
+            "max_deviation": 0.00524339,
+            "misallocated": 0.00790597
+          },
+          {
+            "date": "2026-04-30",
+            "max_deviation": 0.01216532,
+            "misallocated": 0.01524141
+          },
+          {
+            "date": "2026-05-29",
+            "max_deviation": 0.00532718,
+            "misallocated": 0.01231983
+          },
+          {
+            "date": "2026-06-30",
+            "max_deviation": 0.00369843,
+            "misallocated": 0.00794007
+          },
+          {
+            "date": "2026-07-31",
+            "max_deviation": 0.01264062,
+            "misallocated": 0.01848932
+          },
+          {
+            "date": "2026-08-31",
+            "max_deviation": 0.00996607,
+            "misallocated": 0.01247567
+          }
+        ],
+        "max_asset_deviation": 0.27610304,
+        "max_misallocation": 0.27568465
+      },
+      "indicators": {
+        "CNDX": [
+          "VOL_EWMA80",
+          "SMA200"
+        ]
+      },
+      "label": "5 NEW BLEND fallback (DOCUMENT-ONLY) - VT IB01_50+DBMF_EU50 gated, CNDX signal",
+      "slug": "5-new-blend-fallback-document-only-vt-ib01-50-dbmf-eu50-gated-cndx-signal",
+      "spec": {
+        "fallback": 0.8,
+        "gate": {
+          "assets": [
+            "QQQ3"
+          ],
+          "contribution_exempt": false,
+          "sma_days": 200,
+          "symbol": "CNDX"
+        },
+        "label": "5 NEW BLEND fallback (DOCUMENT-ONLY) - VT IB01_50+DBMF_EU50 gated, CNDX signal",
+        "leverage": 3,
+        "risk": "QQQ3",
+        "safe": {
+          "DBMF_EU": 0.5,
+          "IB01": 0.5
+        },
+        "sigma_target": 0.2,
+        "type": "vol_target",
+        "vol": {
+          "kind": "ewma",
+          "lam": 0.8
+        },
+        "vol_symbol": "CNDX",
+        "w_max": 0.8,
+        "w_min": 0.0
+      },
+      "summary": {
+        "avg_asset_deviation": 0.04938238,
+        "avg_misallocation": 0.05286631,
+        "best_year": {
+          "return": 0.34863115,
+          "year": 2025
+        },
+        "cagr": 0.37481756,
+        "calmar": 2.20207858,
+        "fee_drag": 0.00618112,
+        "final_value": 27088.89055372,
+        "max_asset_deviation": 0.27610304,
+        "max_drawdown": -0.1702108,
+        "max_drawdown_days": 85,
+        "max_misallocation": 0.27568465,
+        "net_profit": 8088.89055372,
+        "net_profit_pct": 0.42573108,
+        "sharpe": 1.45938811,
+        "sortino": 2.17283461,
+        "total_contributed": 19000.0,
+        "total_fees": 117.44135168,
+        "traded_value": 102625.1037885,
+        "turnover": 1.91101885,
+        "volatility": 0.23096812,
+        "worst_year": {
+          "return": 0.18092634,
+          "year": 2026
+        },
+        "xirr": 0.36383994
+      },
+      "weights": {
+        "DBMF_EU": 0.1,
+        "IB01": 0.1,
+        "QQQ3": 0.8
+      },
+      "yearly_returns": [
+        {
+          "return": 0.34863115,
+          "year": 2025
+        },
+        {
+          "return": 0.18092634,
+          "year": 2026
+        }
+      ]
+    },
+    {
+      "class": "VolTarget",
+      "correlation_to_benchmark": 0.34147425,
+      "data": [
+        "CNDX"
+      ],
+      "drawdowns": [
+        {
+          "days": 85,
+          "depth": -0.17495849,
+          "peak": "2026-01-28",
+          "recovery": "2026-04-23",
+          "trough": "2026-03-30"
+        },
+        {
+          "days": 89,
+          "depth": -0.11731148,
+          "peak": "2025-10-29",
+          "recovery": "2026-01-26",
+          "trough": "2025-11-21"
+        },
+        {
+          "days": null,
+          "depth": -0.11448215,
+          "peak": "2026-06-02",
+          "recovery": null,
+          "trough": "2026-07-29"
+        },
+        {
+          "days": 14,
+          "depth": -0.07273997,
+          "peak": "2025-07-25",
+          "recovery": "2025-08-08",
+          "trough": "2025-08-01"
+        },
+        {
+          "days": 29,
+          "depth": -0.07176805,
+          "peak": "2025-08-13",
+          "recovery": "2025-09-11",
+          "trough": "2025-08-20"
+        }
+      ],
+      "exposure": {
+        "CASH": {
+          "avg": 0.01138207,
+          "avg_target": 0.0,
+          "max": 0.02127991,
+          "min": 0.00123939
+        },
+        "DBMF_EU": {
+          "avg": 0.58543111,
+          "avg_target": 0.54704247,
+          "max": 0.99752923,
+          "min": 0.1930046
+        },
+        "QQQ3": {
+          "avg": 0.40269917,
+          "avg_target": 0.45295753,
+          "max": 0.78658133,
+          "min": 0.0
+        }
+      },
+      "imbalance": {
+        "avg_asset_deviation": 0.05025836,
+        "avg_misallocation": 0.05285274,
+        "by_date": [
+          {
+            "date": "2025-03-17",
+            "max_deviation": 0.27610304,
+            "misallocated": 0.27535694
+          },
+          {
+            "date": "2025-03-31",
+            "max_deviation": 0.25806552,
+            "misallocated": 0.25803425
+          },
+          {
+            "date": "2025-04-30",
+            "max_deviation": 0.25874189,
+            "misallocated": 0.25870448
+          },
+          {
+            "date": "2025-05-30",
+            "max_deviation": 0.00649964,
+            "misallocated": 0.00711158
+          },
+          {
+            "date": "2025-06-30",
+            "max_deviation": 0.00875679,
+            "misallocated": 0.01475058
+          },
+          {
+            "date": "2025-07-31",
+            "max_deviation": 0.01341867,
+            "misallocated": 0.01999553
+          },
+          {
+            "date": "2025-08-29",
+            "max_deviation": 0.01093912,
+            "misallocated": 0.0179511
+          },
+          {
+            "date": "2025-09-30",
+            "max_deviation": 0.01682404,
+            "misallocated": 0.02150108
+          },
+          {
+            "date": "2025-10-31",
+            "max_deviation": 0.00630702,
+            "misallocated": 0.00806268
+          },
+          {
+            "date": "2025-11-28",
+            "max_deviation": 0.01503265,
+            "misallocated": 0.01946282
+          },
+          {
+            "date": "2025-12-31",
+            "max_deviation": 0.01559536,
+            "misallocated": 0.01833128
+          },
+          {
+            "date": "2026-01-30",
+            "max_deviation": 0.00657209,
+            "misallocated": 0.0124586
+          },
+          {
+            "date": "2026-02-27",
+            "max_deviation": 0.01225751,
+            "misallocated": 0.01305936
+          },
+          {
+            "date": "2026-03-31",
+            "max_deviation": 0.00919114,
+            "misallocated": 0.00907112
+          },
+          {
+            "date": "2026-04-30",
+            "max_deviation": 0.00172381,
+            "misallocated": 0.00307725
+          },
+          {
+            "date": "2026-05-29",
+            "max_deviation": 0.00659333,
+            "misallocated": 0.00825968
+          },
+          {
+            "date": "2026-06-30",
+            "max_deviation": 0.01333661,
+            "misallocated": 0.01535763
+          },
+          {
+            "date": "2026-07-31",
+            "max_deviation": 0.01292784,
+            "misallocated": 0.01629108
+          },
+          {
+            "date": "2026-08-31",
+            "max_deviation": 0.00602276,
+            "misallocated": 0.00736494
+          }
+        ],
+        "max_asset_deviation": 0.27610304,
+        "max_misallocation": 0.27535694
+      },
+      "indicators": {
+        "CNDX": [
+          "VOL_EWMA80",
+          "SMA200"
+        ]
+      },
+      "label": "6 NEW BLEND fallback (DOCUMENT-ONLY) - VT DBMF_EU100 gated, CNDX signal",
+      "slug": "6-new-blend-fallback-document-only-vt-dbmf-eu100-gated-cndx-signal",
+      "spec": {
+        "fallback": 0.8,
+        "gate": {
+          "assets": [
+            "QQQ3"
+          ],
+          "contribution_exempt": false,
+          "sma_days": 200,
+          "symbol": "CNDX"
+        },
+        "label": "6 NEW BLEND fallback (DOCUMENT-ONLY) - VT DBMF_EU100 gated, CNDX signal",
+        "leverage": 3,
+        "risk": "QQQ3",
+        "safe": "DBMF_EU",
+        "sigma_target": 0.2,
+        "type": "vol_target",
+        "vol": {
+          "kind": "ewma",
+          "lam": 0.8
+        },
+        "vol_symbol": "CNDX",
+        "w_max": 0.8,
+        "w_min": 0.0
+      },
+      "summary": {
+        "avg_asset_deviation": 0.05025836,
+        "avg_misallocation": 0.05285274,
+        "best_year": {
+          "return": 0.419792,
+          "year": 2025
+        },
+        "cagr": 0.44378081,
+        "calmar": 2.53649205,
+        "fee_drag": 0.00847191,
+        "final_value": 28603.18585635,
+        "max_asset_deviation": 0.27610304,
+        "max_drawdown": -0.17495849,
+        "max_drawdown_days": 85,
+        "max_misallocation": 0.27535694,
+        "net_profit": 9603.18585635,
+        "net_profit_pct": 0.50543083,
+        "sharpe": 1.56401952,
+        "sortino": 2.34106673,
+        "total_contributed": 19000.0,
+        "total_fees": 160.96625666,
+        "traded_value": 107310.8377712,
+        "turnover": 1.91980517,
+        "volatility": 0.24877925,
+        "worst_year": {
+          "return": 0.2049474,
+          "year": 2026
+        },
+        "xirr": 0.42822817
+      },
+      "weights": {
+        "DBMF_EU": 0.2,
+        "QQQ3": 0.8
+      },
+      "yearly_returns": [
+        {
+          "return": 0.419792,
+          "year": 2025
+        },
+        {
+          "return": 0.2049474,
+          "year": 2026
+        }
+      ]
+    },
+    {
+      "class": "Fixed",
+      "correlation_to_benchmark": 0.36837183,
+      "data": [],
+      "drawdowns": [
+        {
+          "days": 48,
+          "depth": -0.13076447,
+          "peak": "2025-03-25",
+          "recovery": "2025-05-12",
+          "trough": "2025-04-07"
+        },
+        {
+          "days": 78,
+          "depth": -0.08034006,
+          "peak": "2026-01-27",
+          "recovery": "2026-04-15",
+          "trough": "2026-03-30"
+        },
+        {
+          "days": 56,
+          "depth": -0.04639428,
+          "peak": "2025-10-29",
+          "recovery": "2025-12-24",
+          "trough": "2025-11-21"
+        },
+        {
+          "days": 63,
+          "depth": -0.04140439,
+          "peak": "2026-06-02",
+          "recovery": "2026-08-04",
+          "trough": "2026-06-11"
+        },
+        {
+          "days": 15,
+          "depth": -0.02372889,
+          "peak": "2025-07-28",
+          "recovery": "2025-08-12",
+          "trough": "2025-08-01"
+        }
+      ],
+      "exposure": {
+        "CASH": {
+          "avg": 0.02070483,
+          "avg_target": 0.0,
+          "max": 0.04484429,
+          "min": 0.00060051
+        },
+        "CSPX": {
+          "avg": 0.97927903,
+          "avg_target": 1.0,
+          "max": 0.99939041,
+          "min": 0.95515571
+        }
+      },
+      "imbalance": {
+        "avg_asset_deviation": 0.02072097,
+        "avg_misallocation": 0.0207129,
+        "by_date": [
+          {
+            "date": "2025-03-17",
+            "max_deviation": 0.039312,
+            "misallocated": 0.03921593
+          },
+          {
+            "date": "2025-03-31",
+            "max_deviation": 0.02920308,
+            "misallocated": 0.02919737
+          },
+          {
+            "date": "2025-04-30",
+            "max_deviation": 0.02005506,
+            "misallocated": 0.02004962
+          },
+          {
+            "date": "2025-05-30",
+            "max_deviation": 0.00737549,
+            "misallocated": 0.00737027
+          },
+          {
+            "date": "2025-06-30",
+            "max_deviation": 0.04484429,
+            "misallocated": 0.04484429
+          },
+          {
+            "date": "2025-07-31",
+            "max_deviation": 0.02910813,
+            "misallocated": 0.02910328
+          },
+          {
+            "date": "2025-08-29",
+            "max_deviation": 0.01496473,
+            "misallocated": 0.01496004
+          },
+          {
+            "date": "2025-09-30",
+            "max_deviation": 0.00060959,
+            "misallocated": 0.00060505
+          },
+          {
+            "date": "2025-10-31",
+            "max_deviation": 0.03067336,
+            "misallocated": 0.03067336
+          },
+          {
+            "date": "2025-11-28",
+            "max_deviation": 0.01627163,
+            "misallocated": 0.01626736
+          },
+          {
+            "date": "2025-12-31",
+            "max_deviation": 0.00228399,
+            "misallocated": 0.00227983
+          },
+          {
+            "date": "2026-01-30",
+            "max_deviation": 0.0294096,
+            "misallocated": 0.0294096
+          },
+          {
+            "date": "2026-02-27",
+            "max_deviation": 0.01620879,
+            "misallocated": 0.01620485
+          },
+          {
+            "date": "2026-03-31",
+            "max_deviation": 0.00627184,
+            "misallocated": 0.00626802
+          },
+          {
+            "date": "2026-04-30",
+            "max_deviation": 0.02972251,
+            "misallocated": 0.02972251
+          },
+          {
+            "date": "2026-05-29",
+            "max_deviation": 0.01335782,
+            "misallocated": 0.01335416
+          },
+          {
+            "date": "2026-06-30",
+            "max_deviation": 0.03543823,
+            "misallocated": 0.03543823
+          },
+          {
+            "date": "2026-07-31",
+            "max_deviation": 0.02184397,
+            "misallocated": 0.02184047
+          },
+          {
+            "date": "2026-08-31",
+            "max_deviation": 0.00674433,
+            "misallocated": 0.0067409
+          }
+        ],
+        "max_asset_deviation": 0.04484429,
+        "max_misallocation": 0.04484429
+      },
+      "indicators": {},
+      "label": "CSPX benchmark",
+      "slug": "cspx-benchmark",
+      "spec": {
+        "label": "CSPX benchmark",
+        "type": "fixed",
+        "weights": {
+          "CSPX": 1.0
+        }
+      },
+      "summary": {
+        "avg_asset_deviation": 0.02072097,
+        "avg_misallocation": 0.0207129,
+        "best_year": {
+          "return": 0.22661239,
+          "year": 2025
+        },
+        "cagr": 0.24204361,
+        "calmar": 1.85098906,
+        "fee_drag": 0.00019838,
+        "final_value": 24163.60032058,
+        "max_asset_deviation": 0.04484429,
+        "max_drawdown": -0.13076447,
+        "max_drawdown_days": 48,
+        "max_misallocation": 0.04484429,
+        "net_profit": 5163.60032058,
+        "net_profit_pct": 0.27176844,
+        "sharpe": 1.51267438,
+        "sortino": 2.30533702,
+        "total_contributed": 19000.0,
+        "total_fees": 3.769268,
+        "traded_value": 18846.34,
+        "turnover": 0.3823947,
+        "volatility": 0.14682679,
+        "worst_year": {
+          "return": 0.11923654,
+          "year": 2026
+        },
+        "xirr": 0.23642151
+      },
+      "weights": {
+        "CSPX": 1.0
+      },
+      "yearly_returns": [
+        {
+          "return": 0.22661239,
+          "year": 2025
+        },
+        {
+          "return": 0.11923654,
+          "year": 2026
+        }
+      ]
+    },
+    {
+      "class": "Fixed",
+      "correlation_to_benchmark": null,
+      "data": [],
+      "drawdowns": [
+        {
+          "days": 48,
+          "depth": -0.13131967,
+          "peak": "2025-03-25",
+          "recovery": "2025-05-12",
+          "trough": "2025-04-08"
+        },
+        {
+          "days": 77,
+          "depth": -0.08805356,
+          "peak": "2026-01-27",
+          "recovery": "2026-04-14",
+          "trough": "2026-03-30"
+        },
+        {
+          "days": 42,
+          "depth": -0.04986579,
+          "peak": "2025-10-29",
+          "recovery": "2025-12-10",
+          "trough": "2025-11-20"
+        },
+        {
+          "days": 63,
+          "depth": -0.04434775,
+          "peak": "2026-06-02",
+          "recovery": "2026-08-04",
+          "trough": "2026-06-10"
+        },
+        {
+          "days": 16,
+          "depth": -0.02905135,
+          "peak": "2025-10-08",
+          "recovery": "2025-10-24",
+          "trough": "2025-10-10"
+        }
+      ],
+      "exposure": {
+        "CASH": {
+          "avg": 0.02126785,
+          "avg_target": 0.0,
+          "max": 0.04958671,
+          "min": 0.00206282
+        },
+        "SPY": {
+          "avg": 0.97872653,
+          "avg_target": 1.0,
+          "max": 0.99793485,
+          "min": 0.95034676
+        }
+      },
+      "imbalance": {
+        "avg_asset_deviation": 0.02127347,
+        "avg_misallocation": 0.02127066,
+        "by_date": [
+          {
+            "date": "2025-03-17",
+            "max_deviation": 0.04965324,
+            "misallocated": 0.04961998
+          },
+          {
+            "date": "2025-03-31",
+            "max_deviation": 0.04268328,
+            "misallocated": 0.04268142
+          },
+          {
+            "date": "2025-04-30",
+            "max_deviation": 0.03670117,
+            "misallocated": 0.0366994
+          },
+          {
+            "date": "2025-05-30",
+            "max_deviation": 0.02634444,
+            "misallocated": 0.02634274
+          },
+          {
+            "date": "2025-06-30",
+            "max_deviation": 0.01561074,
+            "misallocated": 0.0156091
+          },
+          {
+            "date": "2025-07-31",
+            "max_deviation": 0.00563885,
+            "misallocated": 0.00563727
+          },
+          {
+            "date": "2025-08-29",
+            "max_deviation": 0.03950662,
+            "misallocated": 0.03950662
+          },
+          {
+            "date": "2025-09-30",
+            "max_deviation": 0.02675292,
+            "misallocated": 0.02675144
+          },
+          {
+            "date": "2025-10-31",
+            "max_deviation": 0.01466614,
+            "misallocated": 0.0146647
+          },
+          {
+            "date": "2025-11-28",
+            "max_deviation": 0.0037485,
+            "misallocated": 0.00374711
+          },
+          {
+            "date": "2025-12-31",
+            "max_deviation": 0.03216116,
+            "misallocated": 0.03216116
+          },
+          {
+            "date": "2026-01-30",
+            "max_deviation": 0.02058685,
+            "misallocated": 0.02058553
+          },
+          {
+            "date": "2026-02-27",
+            "max_deviation": 0.01043143,
+            "misallocated": 0.01043014
+          },
+          {
+            "date": "2026-03-31",
+            "max_deviation": 0.00252002,
+            "misallocated": 0.00251878
+          },
+          {
+            "date": "2026-04-30",
+            "max_deviation": 0.0264719,
+            "misallocated": 0.0264719
+          },
+          {
+            "date": "2026-05-29",
+            "max_deviation": 0.01318275,
+            "misallocated": 0.01318156
+          },
+          {
+            "date": "2026-06-30",
+            "max_deviation": 0.00206515,
+            "misallocated": 0.00206398
+          },
+          {
+            "date": "2026-07-31",
+            "max_deviation": 0.0238018,
+            "misallocated": 0.0238018
+          },
+          {
+            "date": "2026-08-31",
+            "max_deviation": 0.01166905,
+            "misallocated": 0.01166793
+          }
+        ],
+        "max_asset_deviation": 0.04965324,
+        "max_misallocation": 0.04961998
+      },
+      "indicators": {},
+      "label": "SPY benchmark",
+      "slug": "spy-benchmark",
+      "spec": {
+        "label": "SPY benchmark",
+        "type": "fixed",
+        "weights": {
+          "SPY": 1.0
+        }
+      },
+      "summary": {
+        "avg_asset_deviation": 0.02127347,
+        "avg_misallocation": 0.02127066,
+        "best_year": {
+          "return": 0.20897556,
+          "year": 2025
+        },
+        "cagr": 0.23449937,
+        "calmar": 1.78571399,
+        "fee_drag": 6.901e-05,
+        "final_value": 24000.70085316,
+        "max_asset_deviation": 0.04965324,
+        "max_drawdown": -0.13131967,
+        "max_drawdown_days": 48,
+        "max_misallocation": 0.04961998,
+        "net_profit": 5000.70085316,
+        "net_profit_pct": 0.26319478,
+        "sharpe": 1.31673523,
+        "sortino": 2.02717828,
+        "total_contributed": 19000.0,
+        "total_fees": 1.31122135,
+        "traded_value": 18731.73363328,
+        "turnover": 0.38245142,
+        "volatility": 0.16639216,
+        "worst_year": {
+          "return": 0.1254942,
+          "year": 2026
+        },
+        "xirr": 0.22919952
+      },
+      "weights": {
+        "SPY": 1.0
+      },
+      "yearly_returns": [
+        {
+          "return": 0.20897556,
+          "year": 2025
+        },
+        {
+          "return": 0.1254942,
+          "year": 2026
+        }
+      ]
+    }
+  ]
+}
