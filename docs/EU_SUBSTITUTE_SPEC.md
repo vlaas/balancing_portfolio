@@ -2,10 +2,8 @@
 
 Repo: `vlaas/balancing_portfolio` · baseline commit: `c066eef` ("Fresh data";
 suite **25 failed / 1070 passed** on a fresh clone — deliberately red, see §2.2)
-· status: **in progress** — Phase 0a and the Phase 1–2 tools landed on branch
-`eu-substitute`; §4.4 amendment pre-registered 2026-09-03 before any Phase-3
-run; the §3.6 freeze waits on the operator's post-close re-export and FX
-exports (§12) · inputs: `docs/RESEARCH_RECAP.md`, the EU instrument
+· status: **implemented** (branch `eu-substitute`, 2026-09-03; verdict
+`notes/eu-verdict.md`; §4.4 amendment and errata 1–15 in §12) · inputs: `docs/RESEARCH_RECAP.md`, the EU instrument
 memo of 2026-08-31 (candidate tables, fidelity classes, tax findings) ·
 predecessors: `TOTAL_RETURN_SPEC.md` / `NET_TR_SPEC.md` (dataset conventions),
 `ROTATION_SPEC.md` §3 (data-convention amendments accompany every new export
@@ -604,3 +602,12 @@ order mechanics beyond the cost map; any change to engine files or
     CNDX are used as the benchmark and the signal of every lane as
     pre-written, and the verdict compares against SPY as well (the benchmark
     choice moves no bar: 18.26 vs 18.39 % CAGR on the eu-2020 lane).
+15. **§6.3 references.** Two reference runs were added beyond the listed
+    lanes: `specs/eu_points_2020_usref.json` (the US winners on the eu-2020
+    window, so the translation is read on one window) and the un-haircut
+    parent runs `results/eu_points_{2019,2021}_hc_parent.json` (so the
+    haircut is isolated from the window). Seven of the eu-2020 lane's 77
+    rebalance days fall on one exchange's holiday and trade forward-filled
+    closes on the other (2020-08-31, 2021-05-31, 2026-08-31 on the LSE lines
+    and CNDX; every 12-31 on MVEA) — the engine's union calendar, unchanged,
+    stated in the verdict.

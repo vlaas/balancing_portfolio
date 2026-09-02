@@ -196,3 +196,45 @@ runner's own warning; the 2012 lane carries the weight.
   **Not decidable before 2027-12** — RSSB's first bar plus four years, the
   earliest date the window carries a two-year holdout and three three-year
   sensitivity windows.
+
+## The EU expression — what has been asked and answered
+
+- *Can the same machine be run from IBKR IE out of PRIIPs-compliant
+  instruments, and at what measured cost?* **Yes for the flag variant, at a
+  translation cost near zero; not for the DBMF and KMLM arms.** On
+  `tests/data/2026-09-02-net15-usd` (EU_SUBSTITUTE_SPEC, `notes/eu-verdict.md`)
+  QQQ3 tracks TQQQ within 0.14 %/yr (quarterly β 0.998, R² 0.985), IB01
+  tracks BIL within 0.09 %/yr against gross BIL (it *outperforms* the net-15
+  series by the withholding it does not pay — erratum 13), and the two-ETF
+  blend `SYNB = {MVEA: 0.55, XSPS: 0.45}` clears the pre-registered proxy bars
+  for BTAL (corr 0.525, insurance +0.87 pp, E4 peak-to-trough −4.2 % against
+  BTAL's −31.1 %). QQL3 fails on drift (−3.8 %/yr); DBMF_EU is not US DBMF's
+  twin (weekly corr 0.655, a 9.7 %/yr residual); nothing runs KMLM's mandate.
+  The verdicts, a parallel column and not an edit to the three winners:
+
+  | EU expression | verdict | direct lane 2020-04-23 → 2026-09-02 (base / flat-20) | CSPX |
+  |---|---|---|---|
+  | `EU flag variant` — VT QQQ3 / IB01 50 + SYNB 50, CNDX signal | **IMPLEMENTABLE** (errata 13–14) | 23.68 % / −23.19 % · 23.31 % / −23.39 % | 18.26 % / −24.25 % |
+  | `EU SYNB100` — VT QQQ3 / SYNB, CNDX signal | NEW BLEND, clears the bars | 22.82 % / −23.28 % · 22.61 % / −23.41 % | 18.26 % / −24.25 % |
+  | `EU-B75D25` — SYNB 75 + DBMF_EU 25 | BLOCKED(DBMF_EU) | 18 months, DOCUMENT-ONLY | — |
+  | B50K50, B75K25 | BLOCKED(KMLM) | — | — |
+
+  The haircut lanes put the translation of the substitutable components at
+  0.06–0.13 pp/yr of CAGR on the winners' own 2019 and 2021 windows, every
+  winner still beating CSPX and SPY on both bars with BTAL and KMLM
+  untranslated. The US flag variant on the *same* 2020-04-23 window makes
+  17.63 % / −19.12 %: the EU expression's extra 6 pp of CAGR is SYNB's
+  behaviour in the anti-beta unwind, and its 4 pp deeper 2022 floor is the
+  price — a better sleeve on one era, untested in a BTAL-style regime. The
+  contemporaneous CNDX signal (no look-ahead) beats the QQQ signal by 2.5 pp
+  on the direct lane and by 3.4 pp on the 2019 haircut lane. Costs are the
+  spec's placeholder EU spreads until the operator measures them; the flat-20
+  twin moves each arm by 0.2–0.4 pp and no verdict.
+
+  Open: whether `DBMF_EU` is US DBMF's twin once it has a record — 17 months
+  give corr 0.83 monthly and 0.66 weekly against a 0.90 bar, on a +5 %/yr
+  drift that says it is trading something else. **Not decidable before
+  2028-03** — its first bar plus three years, the ≥ 36 months of overlap
+  EU_SUBSTITUTE_SPEC §4.2 P6 asks for. Until then the EU expression of
+  B75D25 is blocked at the managed-futures arm, and the EU answer is the flag
+  variant.

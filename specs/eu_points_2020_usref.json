@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "config": {
+    "start": "2020-04-23",
+    "initial_capital": 10000,
+    "monthly_contribution": 500,
+    "cost_bps": {
+      "QQQ3": 15,
+      "QQL3": 20,
+      "CNDX": 4,
+      "CSPX": 2,
+      "IB01": 2,
+      "MVEA": 12,
+      "XSPS": 12,
+      "DBMF_EU": 15,
+      "TQQQ": 1.5,
+      "BTAL": 6,
+      "DBMF": 2.5,
+      "KMLM": 6,
+      "QQQ": 1,
+      "SPY": 0.7,
+      "BIL": 0.5,
+      "*": 15
+    },
+    "cash_yield": 0.03
+  },
+  "strategies": [
+    {
+      "type": "vol_target",
+      "label": "1 US REF B75D25 - VT BTAL75+DBMF25 gated, QQQ signal (same window as eu-2020)",
+      "risk": "TQQQ",
+      "safe": {
+        "BTAL": 0.75,
+        "DBMF": 0.25
+      },
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.2,
+      "w_max": 0.8,
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_days": 200
+      }
+    },
+    {
+      "type": "vol_target",
+      "label": "2 US REF flag variant - VT BIL50+BTAL50 gated, QQQ signal (same window as eu-2020)",
+      "risk": "TQQQ",
+      "safe": {
+        "BIL": 0.5,
+        "BTAL": 0.5
+      },
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.2,
+      "w_max": 0.8,
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_days": 200
+      }
+    },
+    {
+      "type": "vol_target",
+      "label": "3 US REF BTAL100 - VT BTAL gated, QQQ signal (SYNB100's US analogue)",
+      "risk": "TQQQ",
+      "safe": "BTAL",
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.2,
+      "w_max": 0.8,
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "TQQQ"
+        ],
+        "sma_days": 200
+      }
+    },
+    {
+      "type": "fixed",
+      "label": "CSPX benchmark",
+      "weights": {
+        "CSPX": 1.0
+      }
+    },
+    {
+      "type": "fixed",
+      "label": "SPY benchmark",
+      "weights": {
+        "SPY": 1.0
+      }
+    }
+  ]
+}

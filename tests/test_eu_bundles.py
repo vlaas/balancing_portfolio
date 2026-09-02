@@ -20,6 +20,7 @@ LANES = [
     ("eu_points_2025", USD), ("eu_points_2025_c20", USD),
     ("eu_points_2019_hc", HC), ("eu_points_2019_hc_c20", HC),
     ("eu_points_2021_hc", HC), ("eu_points_2021_hc_c20", HC),
+    ("eu_points_2020_usref", USD),  # the US winners on the eu-2020 window (reference)
 ]
 ROOT = pytest.mark.skipif(not HC.exists(), reason="the roots are committed with the freeze")
 
@@ -43,7 +44,7 @@ def test_each_lane_loads_simulates_and_names_every_symbol_it_reads(stem, root):
         assert got.stats["max_drawdown"] == pytest.approx(want["summary"]["max_drawdown"], abs=1e-8)
 
 
-@pytest.mark.parametrize("stem", [s for s, _ in LANES if not s.endswith("_c20")])
+@pytest.mark.parametrize("stem", [s for s, _ in LANES if not s.endswith(("_c20", "_usref"))])
 def test_the_c20_twin_differs_from_its_base_in_the_cost_schedule_alone(stem):
     base = json.loads((SPECS / f"{stem}.json").read_text())
     twin = json.loads((SPECS / f"{stem}_c20.json").read_text())
