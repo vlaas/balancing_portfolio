@@ -1,14 +1,24 @@
 """Phase-1 overlap validation of the EU-substitute lines (EU_SUBSTITUTE_SPEC §4).
 
 For each registered EU/US pair, on the pair's common calendar in a decision
-root, OLS of the EU line's period log returns on the US line's — at month-ends
-(the decision horizon) and at ISO-week ends (the supplement, which decides P6
-alone: seventeen months are underpowered). Emits n, beta, alpha_yr (%/yr),
-r2, resid_yr (%/yr), the rolling-12-period tracking difference and the worst
-single period, applies the pre-registered bars (§4.2) and pins the haircut
-constants h = max(0, -alpha) for the carried component slots (§4.3, §6.3).
-Both horizons are computed in one run so that `haircuts.json` and every
-verdict come from the same invocation.
+root, OLS of the EU line's period log returns on the US line's at three
+horizons — month-ends (the §4.2 letter), quarter-ends (the §4.4 decision
+horizon) and ISO-week ends (the supplement, which decides P6 alone: seventeen
+months are underpowered). Emits n, beta, alpha_yr, drift_yr (%/yr), r2,
+resid_yr (%/yr), the rolling-12-period tracking difference and the worst
+single period, applies the pre-registered bars and pins the haircut constants
+h = max(0, -drift) for the carried component slots (§4.3, §6.3).
+
+§4.4 (the async-close amendment, pre-registered before any Phase-3 run): an
+LSE or Euronext close precedes New York's by ~4.5 h, so a period return of an
+EU line carries the gap's move twice, in and out. The gap is a constant ~3 %
+per period whatever the horizon, so it is ~6 % of a monthly move's variance
+(R² ≈ 0.95, β attenuated, α biased up by the attenuation) and ~2 % of a
+quarterly one. The bars keep their thresholds and are read on the quarter-end
+calendar; the intercept is replaced by the endpoint-only drift, which the gap
+enters only at the window's two ends. The monthly reading stays recorded as
+the letter of §4.2. All horizons are computed in one run so that
+`haircuts.json` and every verdict come from the same invocation.
 
 Writes overlap.json, overlap.md and haircuts.json under --out and prints the
 markdown. The pairs and the bars are frozen here; a bar not listed is not a
@@ -42,8 +52,9 @@ PAIRS = (
 # The component slots whose US symbol carries a pair's haircut in the -hc root
 # (§6.3). P4/P5 are adoption bars — real CSPX/CNDX bars are used directly.
 CARRIED = {"P1": "TQQQ", "P3": "BIL", "P6": "DBMF"}
-PERIODS = {"monthly": 12, "weekly": 52}
-DECISION = {"P6": "weekly"}  # every other pair decides on the monthly horizon
+PERIODS = {"monthly": 12, "quarterly": 4, "weekly": 52}
+DECISION = {"P6": "weekly"}  # every other pair decides on the quarterly horizon (§4.4)
+LETTER = {"P6": "weekly"}    # the §4.2 letter: monthly, P6 weekly, the intercept as α
 PASSING = {"PASS", "CONDITIONAL", "PROVISIONAL PASS"}
 
 
@@ -55,12 +66,16 @@ def joint(data_dir: Path, eu: str, us: str) -> pl.DataFrame:
 
 
 def period_ends(frame: pl.DataFrame, horizon: str) -> pl.DataFrame:
-    """The joint calendar's last bar of each month or ISO week — the
+    """The joint calendar's last bar of each month, quarter or ISO week — the
     `is_rebalance_day` rule on the joined frame, so both lines' holidays are
     respected; the final row never ends a period."""
     if horizon == "monthly":
         return month_ends(frame)
-    key = frame["date"].dt.iso_year() * 100 + frame["date"].dt.week()
+    date = frame["date"]
+    if horizon == "quarterly":
+        key = date.dt.year() * 10 + (date.dt.month() - 1) // 3
+    else:
+        key = date.dt.iso_year() * 100 + date.dt.week()
     return frame.filter((key != key.shift(-1)).fill_null(False))
 
 
@@ -99,10 +114,11 @@ def regress(ends: pl.DataFrame, periods: int) -> dict:
     }
 
 
-def verdict(pair_id: str, monthly: dict, weekly: dict) -> str:
-    """The §4.2 verdict grammar, on the pair's decision horizon."""
-    s = weekly if DECISION.get(pair_id) == "weekly" else monthly
-    a, b, r2, resid = s["alpha_yr"], s["beta"], s["r2"], s["resid_yr"]
+def verdict(pair_id: str, s: dict, alpha: str = "drift_yr") -> str:
+    """The §4.2 verdict grammar on one horizon's statistics, with `alpha`
+    naming the drag estimator: the endpoint drift (§4.4) or the intercept
+    (the letter)."""
+    a, b, r2, resid = s[alpha], s["beta"], s["r2"], s["resid_yr"]
     if pair_id in ("P1", "P2"):
         if not (0.97 <= b <= 1.03 and r2 >= 0.98):
             return "FAIL"
@@ -125,13 +141,13 @@ def verdict(pair_id: str, monthly: dict, weekly: dict) -> str:
 
 
 def haircuts(rows: list[dict]) -> dict[str, float]:
-    """h = max(0, -alpha) %/yr on the decision horizon, for the carried slots
+    """h = max(0, -drift) %/yr on the decision horizon, for the carried slots
     of passing pairs only — a FAILed slot is absent, not zero (§4.3)."""
     out = {}
     for row in rows:
         if row["id"] in CARRIED and row["verdict"] in PASSING:
-            alpha = row[DECISION.get(row["id"], "monthly")]["alpha_yr"]
-            out[CARRIED[row["id"]]] = max(0.0, -alpha)
+            drift = row[DECISION.get(row["id"], "quarterly")]["drift_yr"]
+            out[CARRIED[row["id"]]] = max(0.0, -drift)
     return out
 
 
@@ -140,13 +156,16 @@ def report(data_dir: Path) -> dict:
     for pair_id, eu, us, cls in PAIRS:
         frame = joint(data_dir, eu, us)
         stats = {h: regress(period_ends(frame, h), p) for h, p in PERIODS.items()}
+        decision, letter = DECISION.get(pair_id, "quarterly"), LETTER.get(pair_id, "monthly")
         rows.append({
             "id": pair_id, "eu": eu, "us": us, "class": cls,
             "first": frame["date"][0].isoformat(),
             "last": frame["date"][-1].isoformat(),
-            "decision_horizon": DECISION.get(pair_id, "monthly"),
+            "decision_horizon": decision,
+            "letter_horizon": letter,
             **stats,
-            "verdict": verdict(pair_id, stats["monthly"], stats["weekly"]),
+            "verdict": verdict(pair_id, stats[decision]),
+            "verdict_letter": verdict(pair_id, stats[letter], "alpha_yr"),
         })
     return {"root": data_dir.name, "pairs": rows, "haircuts": haircuts(rows)}
 
@@ -155,13 +174,30 @@ def _cell(value: float | None, digits: int = 2) -> str:
     return "·" if value is None else f"{value:+.{digits}f}"
 
 
+def _verdict_cell(row: dict, horizon: str) -> str:
+    if horizon == row["decision_horizon"]:
+        return f"**{row['verdict']}**"
+    if horizon == row["letter_horizon"]:
+        return f"letter: {row['verdict_letter']}"
+    return "·"
+
+
 def render_md(payload: dict) -> str:
-    lines = [f"# Overlap validation — `{payload['root']}` (EU_SUBSTITUTE_SPEC §4)", ""]
+    lines = [
+        f"# Overlap validation — `{payload['root']}` (EU_SUBSTITUTE_SPEC §4)", "",
+        "Verdicts: the **quarterly** table decides (§4.4, drift as α; P6 decides on the",
+        "weekly supplement); the **monthly** table records the letter of §4.2 (the",
+        "intercept as α), gap-attenuated for every LSE/Euronext line. `·` = not the",
+        "row's verdict horizon.", "",
+    ]
+    titles = {
+        "monthly": "monthly horizon — the §4.2 letter (verdict column: intercept as α)",
+        "quarterly": "quarterly horizon — the §4.4 decision horizon (verdict column: drift as α)",
+        "weekly": "weekly horizon — the supplement (decides P6, drift as α)",
+    }
     for horizon in PERIODS:
         lines += [
-            f"## {horizon} horizon"
-            + (" — the decision horizon (P6 decides weekly)" if horizon == "monthly"
-               else " — the supplement (decides P6)"),
+            f"## {titles[horizon]}",
             "",
             "| pair | eu / us | class | first | last | n | β | α %/yr | drift %/yr | R² "
             "| corr | resid %/yr | TD12 min / med / max pp | worst period pp (date) "
@@ -177,10 +213,10 @@ def render_md(payload: dict) -> str:
                 f"| {s['corr']:.4f} "
                 f"| {s['resid_yr']:.2f} | {_cell(s['td_min'])} / {_cell(s['td_median'])} "
                 f"/ {_cell(s['td_max'])} | {s['worst_pp']:+.2f} ({s['worst_date']}) "
-                f"| {row['verdict'] if horizon == row['decision_horizon'] else '·'} |"
+                f"| {_verdict_cell(row, horizon)} |"
             )
         lines.append("")
-    lines += ["## Haircuts pinned (§4.3) — `h = max(0, −α̂)` %/yr, carried slots only", "",
+    lines += ["## Haircuts pinned (§4.3) — `h = max(0, −drift)` %/yr, carried slots only", "",
               "| US symbol | h %/yr |", "|---|---|"]
     for symbol, h in sorted(payload["haircuts"].items()):
         lines.append(f"| {symbol} | {h:.4f} |")

@@ -2,7 +2,10 @@
 
 Repo: `vlaas/balancing_portfolio` · baseline commit: `c066eef` ("Fresh data";
 suite **25 failed / 1070 passed** on a fresh clone — deliberately red, see §2.2)
-· status: **proposed** · inputs: `docs/RESEARCH_RECAP.md`, the EU instrument
+· status: **in progress** — Phase 0a and the Phase 1–2 tools landed on branch
+`eu-substitute`; §4.4 amendment pre-registered 2026-09-03 before any Phase-3
+run; the §3.6 freeze waits on the operator's post-close re-export and FX
+exports (§12) · inputs: `docs/RESEARCH_RECAP.md`, the EU instrument
 memo of 2026-08-31 (candidate tables, fidelity classes, tax findings) ·
 predecessors: `TOTAL_RETURN_SPEC.md` / `NET_TR_SPEC.md` (dataset conventions),
 `ROTATION_SPEC.md` §3 (data-convention amendments accompany every new export
@@ -280,6 +283,37 @@ Every PASS/CONDITIONAL/PROVISIONAL-PASS pair pins `h = −α̂` (%/yr, ≥ 0; a
 negative-drag estimate pins h = 0) into `results/overlap_eu/haircuts.json`.
 These constants are the **only** free numbers Phase 3's haircut lanes consume.
 
+### 4.4 Amendment — the asynchronous-close reading (pre-registered 2026-09-03, before any Phase-3 run)
+
+The Phase-1 tool's first run (live gross `data/`, 2026-09-03, recorded in the
+verdict as documentation) showed that the §4.2 monthly β / R² bars are
+unattainable by **any** LSE or Euronext line for a structural reason: the EU
+close precedes New York's by ~4.5 h, so every period return of an EU line
+carries the gap's move at both of its ends. The gap's contribution is a
+constant ≈ 3 % per period at every horizon (QQQ3/TQQQ residual 11.4 %/yr
+monthly = 3.3 % per period, 7.4 %/yr quarterly = 3.7 %, 2.8 %/yr annual) — so
+≈ 6 % of a monthly move's variance: R² ≈ 0.95, β attenuated to ≈ 0.96, and the
+intercept biased upward by (1 − β)·mean(x) (QQQ3 α̂ +1.63 %/yr against a
+−0.2 %/yr drift). §2.4 reading 1 mis-estimated this ("~3 % of the window") by
+reasoning in time rather than in variance. Measured β / R² at monthly →
+quarterly → annual: QQQ3/TQQQ 0.957/0.955 → 0.998/0.985 → 1.020/0.998;
+CSPX/SPY 0.948/0.946 → 0.980/0.979 → 1.025/0.993; CNDX/QQQ 0.964/0.953 →
+1.005/0.983 → 1.023/0.997.
+
+Amendment, **thresholds unchanged**: (a) β and R² are read on the
+**quarter-end** calendar of the joint series (n ≈ 54–63 for P1/P4/P5), where
+the gap is ≈ 2 % of the variance; (b) α̂ is replaced by the **endpoint
+drift** — the mean period difference of log returns × periods, which the gap
+enters only at the window's two ends — in every bar that names α, P3's and
+P6's |α| bars and the §4.3 haircut `h = max(0, −drift)` included; (c) P6 keeps
+its weekly supplement as the decision horizon (five quarters decide nothing),
+with the drift as α and its corr bar noted as gap-exposed; (d) the monthly
+reading with the intercept is still computed and recorded as the **letter** of
+§4.2 beside every decision. The haircut lanes and the §6.5 bars consume the
+§4.4 verdicts. Nothing else moves: the same thresholds, pairs and root. A bar
+that P4/P5 still miss at quarterly (R² ≥ 0.99) is a FAIL under this reading
+too — the amendment corrects the estimator, not the bar.
+
 ## 5. Phase 2 — the synthesis arm `SYNB` (BTAL's slot)
 
 ### 5.1 Construction
@@ -494,4 +528,46 @@ order mechanics beyond the cost map; any change to engine files or
 
 ## 12. Errata
 
-None at freeze.
+1. **§2.2 count.** At `246eafb` (this spec's commit) the suite is 29 failed /
+   1067 passed, not 25 / 1070: `677133f` "Corrected data" moved it.
+2. **§3.1 landed before Phase 0.** `677133f` already restored US `DBMF`
+   (1814 rows 2019-05-08 → 2026-09-02, pair green, no duplicate dates) and
+   landed `DBMF_EU` (335 rows from 2025-03-17). Phase 0 verified, it did not
+   re-export.
+3. **§2.2 / §3.3 — more stray twins.** The batch also dropped `price/` copies
+   of SPX, VIX, VIX3M, XNDX and GLD (fresh 2026-09-02 exports, the top-level
+   copies left stale at 2026-08-24) and of DTB3, INDPRO, RRSFS, UNRATE. Phase
+   0a promoted the four index exports to the top level (shared history
+   identical), restored GLD's byte-identical pair from the fresh export, and
+   deleted the ten twins.
+4. **§3.4 pin and bands.** The pin is **57**, not 56 — NDX was never one of the
+   48 incumbents (48 + 9 EU lines). The eight `R ≡ 1` classes take the
+   identical-pair invariant (`ZERO_YIELD`, with GLD), not a zero band; LQQ's
+   band is the derived `[0.5y, 1.5y]` of `LIVE_YIELDS["LQQ"] = 0.066`, not a
+   stored `[0.0004, 0.0009]`.
+5. **§3.5 currency.** Operator-recorded 2026-09-02: MVEA, LQQ **and DBMF_EU**
+   are EUR lines (the spec expected DBMF_EU in USD); XSPS is a **GBX** line, so
+   `GBPUSD.csv` is required and the map entry carries a pence scale.
+   `fx_lines.json` entries are therefore objects `{"fx": SYM, "scale": s}`
+   (the illustrative string form cannot express the scale). A converted symbol
+   carries no `price/` twin in the `-usd` root (a converted series has no
+   unadjusted twin in its trading currency).
+6. **§4.1 `--horizon`.** Dropped: `overlap_report.py` computes the monthly,
+   quarterly and weekly horizons in one run so `haircuts.json` and every
+   verdict come from the same invocation.
+7. **§4.2 → §4.4.** The monthly β / R² bars measure the close gap, not
+   fidelity; amended by §4.4 (pre-registered 2026-09-03) — thresholds
+   unchanged, quarter-end calendar, drift as α, letter recorded.
+8. **§4.3 carriers.** `haircuts.json` is `{US symbol: h}` for the carried
+   slots only — TQQQ ← P1, BIL ← P3, DBMF ← P6; P4/P5 are adoption bars whose
+   drift is recorded but never carried (§6.5 compares against real SPY).
+9. **§6.3 bundles.** The loader rejects a traded symbol whose first bar is
+   after the start, so the DBMF_EU fallbacks run in `specs/eu_points_2025.json`;
+   the 2021 haircut lane is `specs/eu_points_2021_hc.json` (new, mirroring
+   `top_strategies_2021.json` at HEAD plus CSPX); `main.py` has no cost
+   override, so every c20 twin is a `_c20.json` file.
+10. **§3.6 / §9 LQQ.** LQQ stays gross via `make_net_tr.py --rate-override
+    LQQ=0 --out <date>-net15`; the generated README's H1 reads
+    `<date>-net15-lqq0` while the directory keeps the spec's name.
+11. **Inputs.** `docs/RESEARCH_RECAP.md` and the EU memo of 2026-08-31 are not
+    in the repository; this spec is the source of every bar and instrument.
