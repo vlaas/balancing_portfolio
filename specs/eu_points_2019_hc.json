@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "config": {
+    "start": "2019-05-08",
+    "initial_capital": 10000,
+    "monthly_contribution": 500,
+    "cost_bps": {
+      "TQQQ": 1.5,
+      "BTAL": 6,
+      "DBMF": 2.5,
+      "KMLM": 6,
+      "QQQ": 1,
+      "SPY": 0.7,
+      "BIL": 0.5,
+      "CNDX": 4,
+      "CSPX": 2,
+      "*": 6
+    },
+    "cash_yield": 0.03
+  },
+  "strategies": [
+    {
+      "type": "vol_target",
+      "label": "1 B75D25 hc - VT BTAL75+DBMF25 gated (TQQQ,DBMF carry h)",
+      "risk": "TQQQ",
+      "safe": { "BTAL": 0.75, "DBMF": 0.25 },
+      "vol_symbol": "QQQ",
+      "vol": { "kind": "ewma", "lam": 0.8 },
+      "leverage": 3,
+      "sigma_target": 0.2,
+      "w_max": 0.8,
+      "gate": { "symbol": "QQQ", "assets": ["TQQQ"], "sma_days": 200 }
+    },
+    {
+      "type": "vol_target",
+      "label": "2 flag variant hc - VT BIL50+BTAL50 gated (TQQQ,BIL carry h)",
+      "risk": "TQQQ",
+      "safe": { "BIL": 0.5, "BTAL": 0.5 },
+      "vol_symbol": "QQQ",
+      "vol": { "kind": "ewma", "lam": 0.8 },
+      "leverage": 3,
+      "sigma_target": 0.2,
+      "w_max": 0.8,
+      "gate": { "symbol": "QQQ", "assets": ["TQQQ"], "sma_days": 200 }
+    },
+    {
+      "type": "vol_target",
+      "label": "3 REF signal-source - B75D25 hc with CNDX signal",
+      "risk": "TQQQ",
+      "safe": { "BTAL": 0.75, "DBMF": 0.25 },
+      "vol_symbol": "CNDX",
+      "vol": { "kind": "ewma", "lam": 0.8 },
+      "leverage": 3,
+      "sigma_target": 0.2,
+      "w_max": 0.8,
+      "gate": { "symbol": "CNDX", "assets": ["TQQQ"], "sma_days": 200 }
+    },
+    {
+      "type": "fixed",
+      "label": "CSPX benchmark",
+      "weights": { "CSPX": 1.0 }
+    },
+    {
+      "type": "fixed",
+      "label": "SPY benchmark",
+      "weights": { "SPY": 1.0 }
+    }
+  ]
+}
