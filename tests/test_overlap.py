@@ -223,3 +223,67 @@ def test_a_run_writes_the_three_artefacts(twin_root, tmp_path):
     assert md.count("| P1 |") == 3 and md.count("| P8 |") == 3
     assert "| **PASS** |" in md and "| letter: PASS |" in md
     assert "| BIL | 0.0000 |" in md
+
+
+# The committed Phase-1 run on the frozen decision root (EU_SUBSTITUTE_SPEC
+# §3.6, §4.4): every pair's decision-horizon row, both verdicts, and the
+# haircut map, pinned from the first run and byte-compared to the artefacts.
+
+USD = Path(__file__).parent / "data" / "2026-09-02-net15-usd"
+ARTEFACTS = Path(__file__).parents[1] / "results" / "overlap_eu"
+ROOT = pytest.mark.skipif(not USD.exists(), reason="the decision root is committed with the freeze")
+
+# id: (decision horizon, n, beta, r2, drift_yr, verdict, letter verdict)
+GOLDEN_ROWS = {
+    "P1": ("quarterly", 54, 0.99764916, 0.98462007, -0.14206396, "PASS", "FAIL"),
+    "P2": ("quarterly", 16, 1.07181571, 0.97863386, -3.77922656, "FAIL", "FAIL"),
+    "P3": ("quarterly", 29, 1.17690634, 0.95081871, 0.48157531, "FAIL", "PASS"),
+    "P4": ("quarterly", 63, 0.97918548, 0.97942306, 0.00030675, "FAIL", "FAIL"),
+    "P5": ("quarterly", 63, 1.00469251, 0.98277252, -0.13596175, "FAIL", "FAIL"),
+    "P6": ("weekly", 75, 0.94648114, 0.42898342, 4.89624001, "FAIL", "FAIL"),
+    "P7": ("quarterly", 80, 2.02345753, 0.98582913, 8.29159235, "characterization", "characterization"),
+    "P8": ("quarterly", 5, -0.07871749, 0.01221914, 20.84556578, "documentation", "documentation"),
+}
+
+
+@pytest.fixture(scope="module")
+def frozen():
+    from overlap_report import report
+    return report(USD)
+
+
+@ROOT
+@pytest.mark.parametrize("pair_id", list(GOLDEN_ROWS))
+def test_golden_rows_on_the_frozen_root(frozen, pair_id):
+    horizon, n, beta, r2, drift, verdict, letter = GOLDEN_ROWS[pair_id]
+    row = next(p for p in frozen["pairs"] if p["id"] == pair_id)
+    assert row["decision_horizon"] == horizon
+    s = row[horizon]
+    assert s["n"] == n
+    assert s["beta"] == pytest.approx(beta, abs=1e-6)
+    assert s["r2"] == pytest.approx(r2, abs=1e-6)
+    assert s["drift_yr"] == pytest.approx(drift, abs=1e-6)
+    assert (row["verdict"], row["verdict_letter"]) == (verdict, letter)
+
+
+@ROOT
+def test_the_monthly_letter_is_the_close_gap_and_the_quarterly_reading_recovers(frozen):
+    # §4.4: monthly R² ≈ 0.95 on every LSE line, quarterly ≥ 0.98; P6's weekly
+    # corr fails its bar on a 9.7 %/yr residual — a strategy difference, not
+    # the gap; P3 fails the two-sided drift bar by outperforming net-15 BIL.
+    p1, p3, p6 = (next(p for p in frozen["pairs"] if p["id"] == i) for i in ("P1", "P3", "P6"))
+    assert p1["monthly"]["r2"] == pytest.approx(0.95451997, abs=1e-6)
+    assert p1["monthly"]["alpha_yr"] == pytest.approx(1.68159075, abs=1e-6)  # attenuation bias
+    assert p6["weekly"]["corr"] == pytest.approx(0.65496826, abs=1e-6)
+    assert p6["weekly"]["resid_yr"] == pytest.approx(9.65936321, abs=1e-6)
+    assert p6["monthly"]["n"] == 17
+    assert p3["quarterly"]["drift_yr"] > 0.30 and p3["quarterly"]["resid_yr"] < 0.75
+
+
+@ROOT
+def test_the_committed_artefacts_are_the_rounded_report(frozen):
+    import results_json
+    payload = results_json._round(frozen)
+    assert payload == json.loads((ARTEFACTS / "overlap.json").read_text())
+    assert json.loads((ARTEFACTS / "haircuts.json").read_text()) == {"TQQQ": 0.14206396}
+    assert payload["haircuts"] == {"TQQQ": 0.14206396}
