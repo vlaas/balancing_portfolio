@@ -1,12 +1,13 @@
 # Market data
 
-Daily bars exported from **TradingView**, in three file classes
-(ROTATION_SPEC §3.2–§3.3):
+Daily bars exported from **TradingView**, in four file classes
+(ROTATION_SPEC §3.2–§3.3, EU_SUBSTITUTE_SPEC §3):
 
 | class | files | loader reads |
 |---|---|---|
-| **Paired ETF** (48) | `<SYM>.csv` — the **dividend-adjusted (total-return) export**, the traded series; `price/<SYM>.csv` — the unadjusted export from the **same session**, reference only | `<SYM>.csv` |
-| **Single-series index** (SPX, XNDX, VIX, VIX3M) | `<SYM>.csv` only — indices have no adjustment toggle (XNDX embeds dividends by construction, SPX excludes them; VIX/VIX3M are cash vol indices), so no `price/` twin. XNDX before 2010-01-04 is stamped one day late and must not be used as a reference there (SYNTHETIC_HISTORY_SPEC §2.6) | `<SYM>.csv`, signal-only |
+| **Paired ETF** (57) | `<SYM>.csv` — the **dividend-adjusted (total-return) export**, the traded series; `price/<SYM>.csv` — the unadjusted export from the **same session**, reference only. 48 US lines plus the nine EU lines of the 2026-09-02 batch (see "EU lines" below); the eight accumulating EU classes have a byte-identical pair, `R ≡ 1` | `<SYM>.csv` |
+| **Single-series index** (SPX, XNDX, VIX, VIX3M, NDX) | `<SYM>.csv` only — indices have no adjustment toggle (XNDX embeds dividends by construction, SPX and NDX exclude them; VIX/VIX3M are cash vol indices), so no `price/` twin. XNDX before 2010-01-04 is stamped one day late and must not be used as a reference there (SYNTHETIC_HISTORY_SPEC §2.6). NDX is the Nasdaq-100 **price** index: documentation only, never a TR seed, never a gate or vol basis | `<SYM>.csv`, signal-only |
+| **FX single** (EURUSD, GBPUSD) | `<SYM>.csv` only — spot closes, no toggle, no `price/` twin. Read by `make_usd.py` to build a `-usd` root; never traded, never a strategy input | never by a strategy |
 | **Macro** (`macro/`: UNRATE, RRSFS, INDPRO, DTB3) | quarantined FRED series — see "Macro series" below | **never** |
 
 The loader resolves every read — traded, `extra`, or indicator `inputs` —
@@ -97,7 +98,13 @@ Two passes per symbol, same chart, same session:
 2. Toggle **OFF** → export again → `data/price/<SYM>.csv`.
 3. Toggle back **ON**, so the chart's resting state matches the traded series.
 
-- Symbol: the ETF's primary listing; chart interval **1D**.
+- Symbol: the ETF's primary listing (an EU line: the listing named in the
+  line registry below); chart interval **1D**.
+- **Both passes of a US paired symbol run after 16:00 ET** (EU_SUBSTITUTE_SPEC
+  §3.2). A pass taken mid-session leaves the live bar with different closes in
+  the two files, so `R_last ≠ 1` and the pair tests fail — twice bitten (the
+  2026-09-02 batch, both at ~15:40 ET). An EU line is immune whenever the
+  export happens after its own close.
 - No indicator on the chart (the Pine SMA overlay left the procedure with the
   2026-08 batch — see "Where the SMA verification fixture went").
 - Exported via *Chart → Export chart data…*, ISO dates, `.` decimal
@@ -105,6 +112,40 @@ Two passes per symbol, same chart, same session:
 - The full available history is exported; files therefore start at different
   dates (SPY 1993, QQQ 1999, TQQQ 2010, BTAL 2011, DBMF 2019, KMLM 2020) and may
   end on different dates.
+
+## EU lines — line registry (EU_SUBSTITUTE_SPEC §3.5)
+
+The 2026-09-02 batch added the PRIIPs-compliant substitutes the EU spec
+evaluates. **Naming rule:** an EU line whose ticker collides with an existing
+repo symbol takes the `_EU` suffix (`DBMF_EU`); a non-colliding EU ticker keeps
+its exchange ticker. The trading currency is operator-recorded from the chart
+(2026-09-02), not inferred; a non-USD line is converted by `make_usd.py`
+through the map `fx_lines.json` in this directory, never used raw. Where a
+genuine USD line exists on an IBKR-tradable exchange, a re-export of that line
+is preferred to conversion (§3.5) — none has been requested yet, so every
+non-USD line below converts. Spreads are the §6.4 **placeholders** until the
+operator records a 5-session median at the London close in the last column.
+
+| symbol | instrument | TradingView symbol | exchange | currency | class / pair | first bar | conversion | spread bp (placeholder) | measured |
+|---|---|---|---|---|---|---|---|---|---|
+| QQQ3 | WisdomTree NASDAQ 100 3x Daily Leveraged (IE00BLRPRL42) | `LSE:QQQ3` | LSE | USD | MECHANICAL, P1 | 2012-12-17 | none | 15 | — |
+| QQL3 | Leverage Shares 3x Long Nasdaq 100 (XS2472197065) | `LSE:QQL3` | LSE | USD | MECHANICAL, P2 | 2022-06-09 | none | 20 | — |
+| LQQ | Amundi Nasdaq-100 2x Leveraged UCITS (FR0010342592) | `EURONEXT:LQQ` | Euronext Paris | EUR | PARAMETRIC, P7 | 2006-06-28 | × EURUSD | 15 (`*`) | — |
+| CNDX | iShares Nasdaq 100 UCITS Acc (IE00B53SZB19) | `LSE:CNDX` | LSE | USD | MECHANICAL, P5 — the EU signal symbol | 2010-09-15 | none | 4 | — |
+| CSPX | iShares Core S&P 500 UCITS Acc (IE00B5BMR087) | `LSE:CSPX` | LSE | USD | MECHANICAL, P4 — the holdable benchmark | 2010-09-15 | none | 2 | — |
+| IB01 | iShares $ Treasury Bond 0-1yr UCITS Acc (IE00BGSF1X88) | `LSE:IB01` | LSE | USD | MECHANICAL, P3 | 2019-02-22 | none | 2 | — |
+| MVEA | iShares Edge MSCI USA Min Vol UCITS (IE00BKVL7331) | `XETR:MVEA` | Xetra | EUR | SYNTHESIS leg (SYNB long) | 2020-04-23 | × EURUSD | 12 | — |
+| XSPS | Xtrackers S&P 500 Inverse Daily Swap 1C (LU0322251520) | `LSE:XSPS` | LSE | GBX (pence) | SYNTHESIS leg (SYNB short) | 2008-02-08 | × 0.01 × GBPUSD | 12 | — |
+| DBMF_EU | iMGP DBi Managed Futures UCITS (Euronext ticker `DBMF`) | `EURONEXT:DBMF` | Euronext Paris | EUR | FUNCTIONAL, P6 | 2025-03-17 | × EURUSD | 15 | — |
+| NDX | Nasdaq-100 price index | `NASDAQ:NDX` | — | USD | index, documentation only | 1985-01-31 | none | — | — |
+| EURUSD | euro spot | `FX_IDC:EURUSD` | — | — | FX single | pending export | — | — | — |
+| GBPUSD | sterling spot | `FX_IDC:GBPUSD` | — | — | FX single | pending export | — | — | — |
+
+The TradingView symbol column carries the expected exchange prefixes; the
+operator confirms each exact string from the chart when the FX exports land.
+LQQ is the one distributing EU line (one early distribution, 0.066 %/yr over
+20 years, French-source): it stays **gross** in every net derivative
+(`make_net_tr.py --rate-override LQQ=0`, EU_SUBSTITUTE_SPEC §9).
 
 ## Macro series (`macro/`) — quarantined, never loaded
 
@@ -151,9 +192,18 @@ new one, where `<newdate>` is the last bar of its TQQQ export.
   **synthetic-extended** derivatives of the two above, generated by
   `make_synthetic.py` (`docs/SYNTHETIC_HISTORY_SPEC.md`). See below.
 
+- `<date>-net15-usd/` — the **USD-converted** derivative of a net root,
+  generated by `make_usd.py` from `fx_lines.json` (EU_SUBSTITUTE_SPEC §3.5):
+  each mapped non-USD line's close × same-date FX close × line scale, the FX
+  series read from the root itself; converted files carry `time,close` and no
+  `price/` twin, everything else is byte-copied. The currency suffix comes
+  **after** the convention suffix (`-net15-usd`), a new position in the naming
+  grammar. This is the **decision root for every EU lane**. A `-hc` suffix
+  after it names the haircut derivative of `make_haircut.py` (§6.3).
+
 Live `data/` runs the bundle-loading smoke test plus the live-pair lane of
 `tests/test_total_return.py` — pair invariants and the committed per-symbol
-implied-yield bands over all 48 pairs — so a bad refresh fails the suite the
+implied-yield bands over all 57 pairs — so a bad refresh fails the suite the
 day it lands.
 
 ## Synthetic roots (`-syn`, `-syn-net15`)
@@ -183,11 +233,16 @@ numbers exactly, bit for bit.
 adopted from a window that contains synthetic bars. It exists to test the
 machine chosen on 2012–2026 against the two bears that era does not contain.
 
-## Index series (SPX, XNDX, VIX, VIX3M)
+## Index series (SPX, XNDX, VIX, VIX3M, NDX)
 
 Single-series indices have no adjustment toggle and hence no `price/` twin;
 `make_net_tr.py` byte-copies them into a net snapshot as
-`| SYM | index | — | — |`. All four are **signal symbols**, never traded.
+`| SYM | index | — | — |`. All five are **signal symbols**, never traded, and
+NDX (the Nasdaq-100 price index, from 1985-01-31) is reference only. The
+2026-09-02 batch dropped a second copy of each index into `price/` — the drift
+trap ROTATION_SPEC §3.4 removed — and left the top-level copies stale; the
+fresh exports were promoted to the top level and the twins deleted
+(EU_SUBSTITUTE_SPEC §3.3).
 `XNDX` (Nasdaq-100 TR) starts 2006-11-08 on TradingView; `SPX` excludes
 dividends by construction and must never seed a TR sim. **XNDX rows before
 2010-01-04 are stamped one trading day late relative to every ETF export**

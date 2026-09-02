@@ -190,15 +190,27 @@ LIVE_YIELDS = {
     "BIL": 1.39, "EWJ": 1.31, "NTSX": 1.20, "IWM": 1.17, "DBC": 1.13,
     "BTAL": 1.07, "SSO": 1.02, "RSST": 0.70, "QLD": 0.68, "QQQ": 0.62,
     "UPRO": 0.38, "TQQQ": 0.31,
+    # EU_SUBSTITUTE_SPEC §3.4: LQQ (Amundi Nasdaq-100 2x, Euronext) is the one
+    # distributing EU line — a single early distribution, measured 0.066 %/yr
+    # over 20.2 years; the derived band is [0.033, 0.099].
+    "LQQ": 0.066,
 }
+
+# Zero-distribution pairs: the identical pair *is* the invariant (R == 1
+# exactly, ROTATION_SPEC §3.2). GLD never distributed; the eight EU lines of
+# the 2026-09-02 batch are accumulating UCITS share classes, so their export
+# is the total-return series by construction (EU_SUBSTITUTE_SPEC §2.1, §3.4).
+ZERO_YIELD = {"GLD", "CNDX", "CSPX", "DBMF_EU", "IB01", "MVEA", "QQL3", "QQQ3", "XSPS"}
 
 
 def test_live_pair_universe_is_pinned() -> None:
     # A refresh that adds or drops a paired symbol updates this pin and the
     # yield table in the same commit — silent scope shrink is the failure
-    # class this guards (ROTATION_SPEC §8 T9).
-    assert len(LIVE_PAIRS) == 48
-    assert set(LIVE_PAIRS) == set(LIVE_YIELDS) | {"GLD"}
+    # class this guards (ROTATION_SPEC §8 T9). 57 = the 48 pairs of the
+    # 2026-08 batch + the nine EU lines of 2026-09-02 (EU_SUBSTITUTE_SPEC
+    # §3.4 — NDX joined the single-series index class instead).
+    assert len(LIVE_PAIRS) == 57
+    assert set(LIVE_PAIRS) == set(LIVE_YIELDS) | ZERO_YIELD
 
 
 @pytest.mark.parametrize("symbol", LIVE_PAIRS)
@@ -216,9 +228,9 @@ def test_live_pair_invariants(symbol: str) -> None:
 
     years = (price["time"][-1] - price["time"][0]).days / 365.25
     y = -r[0] / years
-    if symbol == "GLD":
+    if symbol in ZERO_YIELD:
         # The identical pair *is* the invariant for a zero-distribution fund:
-        # this fires if GLD ever starts distributing and a refresh forgets
+        # this fires if it ever starts distributing and a refresh forgets
         # the adjusted pass (ROTATION_SPEC §3.2).
         assert (ratio == 1.0).all()
         assert abs(y) < 1e-4
