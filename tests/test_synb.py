@@ -119,3 +119,62 @@ def test_f4_reports_the_monthly_held_short_leg_per_calendar_year():
 def test_the_verdict_grammar(f1_ok, f2_ok, f3_ok):
     expected = "FAIL" if not (f2_ok and f3_ok) else ("PROXY" if f1_ok else "ARM-ONLY")
     assert arm_verdict(f1_ok, f2_ok, f3_ok) == expected
+
+
+# The committed Phase-2 run on the frozen decision root (EU_SUBSTITUTE_SPEC
+# §3.6, §5): the solve, the grid point, and every falsifier, pinned from the
+# first run and compared to the artefacts.
+
+from pathlib import Path  # noqa: E402
+
+USD = Path(__file__).parent / "data" / "2026-09-02-net15-usd"
+ARTEFACTS = Path(__file__).parents[1] / "results" / "synb"
+ROOT = pytest.mark.skipif(not USD.exists(), reason="the decision root is committed with the freeze")
+
+
+@pytest.fixture(scope="module")
+def frozen():
+    from synb_report import report
+    return report(USD)
+
+
+@ROOT
+def test_the_estimation_window_is_44_month_ends_and_43_returns(frozen):
+    e, w = frozen["estimation"], frozen["window"]
+    assert (e["first_month_end"], e["last_month_end"]) == ("2020-05-29", "2023-12-29")
+    assert (e["n_month_ends"], e["n_returns"]) == (44, 43)
+    assert (w["first_month_end"], w["last_month_end"]) == ("2020-05-29", "2026-08-28")
+    assert (w["n_month_ends"], w["n_returns"]) == (76, 75)
+
+
+@ROOT
+def test_w_star_and_the_grid_point_are_pinned(frozen):
+    e = frozen["estimation"]
+    assert e["beta_long"] == pytest.approx(0.7739439, abs=1e-6)
+    assert e["beta_short"] == pytest.approx(-0.97813058, abs=1e-6)
+    assert e["w_star"] == pytest.approx(0.44173002, abs=1e-6)
+    assert e["chosen"] == 0.45 == quantize(e["w_star"])
+
+
+@ROOT
+@pytest.mark.parametrize("key,corr,mean_pp,synb_dd,ratio,verdict", [
+    ("0.40", 0.33189196, 0.32897616, -0.03472936, 0.11159914, "ARM-ONLY"),
+    ("0.45", 0.52453114, 0.87284472, -0.04227021, 0.13583087, "PROXY"),
+    ("0.50", 0.65557494, 1.41671327, -0.05502082, 0.17680363, "PROXY"),
+])
+def test_the_falsifiers_are_pinned_per_grid_point(frozen, key, corr, mean_pp, synb_dd, ratio, verdict):
+    a = frozen["arms"][key]
+    assert a["primary"] == (key == "0.45")
+    assert a["f1_corr"] == pytest.approx(corr, abs=1e-6)
+    assert a["f2_mean_pp"] == pytest.approx(mean_pp, abs=1e-6) and a["f2_k"] == 7
+    assert a["f3_synb_dd"] == pytest.approx(synb_dd, abs=1e-6)
+    assert a["f3_btal_dd"] == pytest.approx(-0.31119733, abs=1e-6)
+    assert a["f3_ratio"] == pytest.approx(ratio, abs=1e-6)
+    assert a["verdict"] == verdict
+
+
+@ROOT
+def test_the_committed_artefacts_are_the_rounded_report(frozen):
+    import json
+    import results_json
+    assert results_json._round(frozen) == json.loads((ARTEFACTS / "synb.json").read_text())
