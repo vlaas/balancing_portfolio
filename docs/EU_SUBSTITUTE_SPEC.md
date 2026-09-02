@@ -2,7 +2,8 @@
 
 Repo: `vlaas/balancing_portfolio` · baseline commit: `c066eef` ("Fresh data";
 suite **25 failed / 1070 passed** on a fresh clone — deliberately red, see §2.2)
-· status: **proposed** · inputs: `docs/RESEARCH_RECAP.md`, the EU instrument
+· status: **implemented** (branch `eu-substitute`, 2026-09-03; verdict
+`notes/eu-verdict.md`; §4.4 amendment and errata 1–15 in §12) · inputs: `docs/RESEARCH_RECAP.md`, the EU instrument
 memo of 2026-08-31 (candidate tables, fidelity classes, tax findings) ·
 predecessors: `TOTAL_RETURN_SPEC.md` / `NET_TR_SPEC.md` (dataset conventions),
 `ROTATION_SPEC.md` §3 (data-convention amendments accompany every new export
@@ -262,7 +263,7 @@ listed is not a bar.
 |---|---|---|---|---|---|
 | P1 | QQQ3 / TQQQ | MECHANICAL | ~164 | β ∈ [0.97, 1.03]; R² ≥ 0.98; α ∈ (−2.0, +0.5] %/yr | PASS → pin h = −α̂. α ∈ (−3, −2] → CONDITIONAL (usable, flagged). else FAIL |
 | P2 | QQL3 / TQQQ | MECHANICAL | ~51 | same as P1 | same; expected FAIL on α (session −5.25) — run and record either way |
-| P3 | IB01 / BIL | MECHANICAL | ~90 | \|α\| ≤ 0.30 %/yr; resid ≤ 0.75 %/yr (β unbarred — ill-conditioned at near-zero vol) | PASS → h = −α̂ |
+| P3 | IB01 / BIL | MECHANICAL | ~90 | \|α\| ≤ 0.30 %/yr; resid ≤ 0.75 %/yr (β unbarred — ill-conditioned at near-zero vol). **Basis corrected in place (erratum 13): gross BIL**, the parent snapshot — a net-15 root charges BIL's Treasury interest a withholding IB01 does not pay | PASS → h = −α̂; on the corrected basis the pass is labelled **PASS-BY-ERRATUM** and the net-15 reading is recorded beside it |
 | P4 | CSPX / SPY | MECHANICAL | ~190 | β ∈ [0.97, 1.03]; R² ≥ 0.99; α ∈ [−0.60, +0.10] %/yr on the net15 root | PASS → CSPX adopted as the holdable benchmark |
 | P5 | CNDX / QQQ | MECHANICAL | ~190 | same as P4 | PASS → CNDX adopted as the EU signal symbol |
 | P6 | DBMF_EU / DBMF | FUNCTIONAL (near-MECHANICAL: same manager, same strategy) | ~17 (underpowered) | weekly supplement, n ≈ 76: corr ≥ 0.90; β ∈ [0.8, 1.2]; \|α\| ≤ 1.5 %/yr | at best **PROVISIONAL PASS**; full promotion deferred to ≥ 36 months of overlap — ledger `Open:` line at 2028-03 |
@@ -279,6 +280,37 @@ auditable.
 Every PASS/CONDITIONAL/PROVISIONAL-PASS pair pins `h = −α̂` (%/yr, ≥ 0; a
 negative-drag estimate pins h = 0) into `results/overlap_eu/haircuts.json`.
 These constants are the **only** free numbers Phase 3's haircut lanes consume.
+
+### 4.4 Amendment — the asynchronous-close reading (pre-registered 2026-09-03, before any Phase-3 run)
+
+The Phase-1 tool's first run (live gross `data/`, 2026-09-03, recorded in the
+verdict as documentation) showed that the §4.2 monthly β / R² bars are
+unattainable by **any** LSE or Euronext line for a structural reason: the EU
+close precedes New York's by ~4.5 h, so every period return of an EU line
+carries the gap's move at both of its ends. The gap's contribution is a
+constant ≈ 3 % per period at every horizon (QQQ3/TQQQ residual 11.4 %/yr
+monthly = 3.3 % per period, 7.4 %/yr quarterly = 3.7 %, 2.8 %/yr annual) — so
+≈ 6 % of a monthly move's variance: R² ≈ 0.95, β attenuated to ≈ 0.96, and the
+intercept biased upward by (1 − β)·mean(x) (QQQ3 α̂ +1.63 %/yr against a
+−0.2 %/yr drift). §2.4 reading 1 mis-estimated this ("~3 % of the window") by
+reasoning in time rather than in variance. Measured β / R² at monthly →
+quarterly → annual: QQQ3/TQQQ 0.957/0.955 → 0.998/0.985 → 1.020/0.998;
+CSPX/SPY 0.948/0.946 → 0.980/0.979 → 1.025/0.993; CNDX/QQQ 0.964/0.953 →
+1.005/0.983 → 1.023/0.997.
+
+Amendment, **thresholds unchanged**: (a) β and R² are read on the
+**quarter-end** calendar of the joint series (n ≈ 54–63 for P1/P4/P5), where
+the gap is ≈ 2 % of the variance; (b) α̂ is replaced by the **endpoint
+drift** — the mean period difference of log returns × periods, which the gap
+enters only at the window's two ends — in every bar that names α, P3's and
+P6's |α| bars and the §4.3 haircut `h = max(0, −drift)` included; (c) P6 keeps
+its weekly supplement as the decision horizon (five quarters decide nothing),
+with the drift as α and its corr bar noted as gap-exposed; (d) the monthly
+reading with the intercept is still computed and recorded as the **letter** of
+§4.2 beside every decision. The haircut lanes and the §6.5 bars consume the
+§4.4 verdicts. Nothing else moves: the same thresholds, pairs and root. A bar
+that P4/P5 still miss at quarterly (R² ≥ 0.99) is a FAIL under this reading
+too — the amendment corrects the estimator, not the bar.
 
 ## 5. Phase 2 — the synthesis arm `SYNB` (BTAL's slot)
 
@@ -494,4 +526,88 @@ order mechanics beyond the cost map; any change to engine files or
 
 ## 12. Errata
 
-None at freeze.
+1. **§2.2 count.** At `246eafb` (this spec's commit) the suite is 29 failed /
+   1067 passed, not 25 / 1070: `677133f` "Corrected data" moved it.
+2. **§3.1 landed before Phase 0.** `677133f` already restored US `DBMF`
+   (1814 rows 2019-05-08 → 2026-09-02, pair green, no duplicate dates) and
+   landed `DBMF_EU` (335 rows from 2025-03-17). Phase 0 verified, it did not
+   re-export.
+3. **§2.2 / §3.3 — more stray twins.** The batch also dropped `price/` copies
+   of SPX, VIX, VIX3M, XNDX and GLD (fresh 2026-09-02 exports, the top-level
+   copies left stale at 2026-08-24) and of DTB3, INDPRO, RRSFS, UNRATE. Phase
+   0a promoted the four index exports to the top level (shared history
+   identical), restored GLD's byte-identical pair from the fresh export, and
+   deleted the ten twins.
+4. **§3.4 pin and bands.** The pin is **57**, not 56 — NDX was never one of the
+   48 incumbents (48 + 9 EU lines). The eight `R ≡ 1` classes take the
+   identical-pair invariant (`ZERO_YIELD`, with GLD), not a zero band; LQQ's
+   band is the derived `[0.5y, 1.5y]` of `LIVE_YIELDS["LQQ"] = 0.066`, not a
+   stored `[0.0004, 0.0009]`.
+5. **§3.5 currency.** Operator-recorded 2026-09-02: MVEA, LQQ **and DBMF_EU**
+   are EUR lines (the spec expected DBMF_EU in USD); XSPS is a **GBX** line, so
+   `GBPUSD.csv` is required and the map entry carries a pence scale.
+   `fx_lines.json` entries are therefore objects `{"fx": SYM, "scale": s}`
+   (the illustrative string form cannot express the scale). A converted symbol
+   carries no `price/` twin in the `-usd` root (a converted series has no
+   unadjusted twin in its trading currency).
+6. **§4.1 `--horizon`.** Dropped: `overlap_report.py` computes the monthly,
+   quarterly and weekly horizons in one run so `haircuts.json` and every
+   verdict come from the same invocation.
+7. **§4.2 → §4.4.** The monthly β / R² bars measure the close gap, not
+   fidelity; amended by §4.4 (pre-registered 2026-09-03) — thresholds
+   unchanged, quarter-end calendar, drift as α, letter recorded.
+8. **§4.3 carriers.** `haircuts.json` is `{US symbol: h}` for the carried
+   slots only — TQQQ ← P1, BIL ← P3, DBMF ← P6; P4/P5 are adoption bars whose
+   drift is recorded but never carried (§6.5 compares against real SPY).
+9. **§6.3 bundles.** The loader rejects a traded symbol whose first bar is
+   after the start, so the DBMF_EU fallbacks run in `specs/eu_points_2025.json`;
+   the 2021 haircut lane is `specs/eu_points_2021_hc.json` (new, mirroring
+   `top_strategies_2021.json` at HEAD plus CSPX); `main.py` has no cost
+   override, so every c20 twin is a `_c20.json` file.
+10. **§3.6 / §9 LQQ.** LQQ stays gross via `make_net_tr.py --rate-override
+    LQQ=0 --out <date>-net15`; the generated README's H1 reads
+    `<date>-net15-lqq0` while the directory keeps the spec's name.
+11. **Inputs.** `docs/RESEARCH_RECAP.md` and the EU memo of 2026-08-31 are not
+    in the repository; this spec is the source of every bar and instrument.
+12. **§3.5 FX stamps.** TradingView labels an `FX_IDC` daily bar by its 17:00
+    New York *open* (Sunday–Thursday labels, no Fridays; the bar labelled
+    2016-06-23 holds the Brexit-vote crash of Friday the 24th), so the bar
+    that closes on date D is labelled D − 1. `make_usd.py` joins the latest
+    FX bar labelled **strictly before** the symbol's date — ~5.5 h after the
+    London close, the same-day offset this section accepts — not the
+    same-date label, which would close on D + 1 and look a day ahead. The
+    operator's 2026-09-03 batch also re-exported every US pair after the
+    close (all 48 anchors exact) and the two FX singles, whose last label is
+    2026-09-01 (the bar closing 2026-09-02).
+13. **§4.2 P3 basis (operator decision 2026-09-03, corrected in place).** On
+    the pre-registered net-15 basis IB01 fails the two-sided drift bar by
+    **outperforming** BIL: quarterly drift +0.48 %/yr (residual 0.24, β 1.18
+    unbarred) — exactly the 15 % withholding the net-15 root charges BIL's
+    Treasury interest, which an Irish accumulating fund does not pay (and
+    which CASH_SLEEVE_SPEC §10.5 argues BIL itself does not owe — the `-bil0`
+    root). §2.4 reading 4 had predicted the gross comparison (+0.11 %/yr).
+    The P3 row is corrected in place to the gross basis (the parent snapshot
+    `2026-09-02`): drift +0.09, residual 0.23, β 1.005 → **PASS-BY-ERRATUM**,
+    h(BIL) = 0; `overlap_report.py` reads P3 from the gross parent
+    (`--gross`, default the root's name before its first `-net` suffix) and
+    records the net-15 reading beside it. Under the letter of the net-15
+    basis P3 is FAIL and the EU flag variant BLOCKED(cash) — by an instrument
+    that beats the original.
+14. **§4.2 P4/P5 (operator decision 2026-09-03, recorded, not amended).** At
+    the §4.4 quarterly horizon CSPX/SPY and CNDX/QQQ pass β and drift (0.979
+    / +0.00 and 1.005 / −0.14) but miss R² ≥ 0.99 at 0.979 and 0.983 — the
+    close gap's residual ≈ 2 % variance share that §4.4 predicted, against a
+    bar that tolerates 1 %. The annual reading (0.993 / 0.997, n = 15) would
+    pass but was not pre-registered. Both verdicts stay **FAIL**; CSPX and
+    CNDX are used as the benchmark and the signal of every lane as
+    pre-written, and the verdict compares against SPY as well (the benchmark
+    choice moves no bar: 18.26 vs 18.39 % CAGR on the eu-2020 lane).
+15. **§6.3 references.** Two reference runs were added beyond the listed
+    lanes: `specs/eu_points_2020_usref.json` (the US winners on the eu-2020
+    window, so the translation is read on one window) and the un-haircut
+    parent runs `results/eu_points_{2019,2021}_hc_parent.json` (so the
+    haircut is isolated from the window). Seven of the eu-2020 lane's 77
+    rebalance days fall on one exchange's holiday and trade forward-filled
+    closes on the other (2020-08-31, 2021-05-31, 2026-08-31 on the LSE lines
+    and CNDX; every 12-31 on MVEA) — the engine's union calendar, unchanged,
+    stated in the verdict.

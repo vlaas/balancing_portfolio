@@ -134,6 +134,26 @@ def test_cumulative_yield_contracts_by_the_withholding(symbol: str) -> None:
 # generator may read a clock.
 
 
+EU_DIR = Path(__file__).parent / "data" / "2026-09-02"
+EU_NET_DIR = Path(__file__).parent / "data" / "2026-09-02-net15"
+
+
+def test_generator_reproduces_the_eu_snapshot_byte_for_byte(tmp_path):
+    # EU_SUBSTITUTE_SPEC §3.6 / §9: LQQ's French-source distribution stays
+    # gross, so the root is built with a rate override and the spec's name.
+    out = tmp_path / "net"
+    net_main([str(EU_DIR), "--rate-override", "LQQ=0", "--out", str(out)])
+    produced = sorted(p.relative_to(out) for p in out.rglob("*") if p.is_file())
+    committed = sorted(p.relative_to(EU_NET_DIR) for p in EU_NET_DIR.rglob("*") if p.is_file())
+    assert produced == committed
+    assert len(produced) == 64 + 57 + 1  # top level, price/ twins, README; no macro/
+    for rel in committed:
+        assert filecmp.cmp(out / rel, EU_NET_DIR / rel, shallow=False), rel
+    readme = (EU_NET_DIR / "README.md").read_text()
+    assert readme.startswith("# Net total-return snapshot — 2026-09-02-net15-lqq0\n")
+    assert "| LQQ | 1 | 0.07%/yr | 0.07%/yr | w = 0 |" in readme
+
+
 def test_generator_reproduces_the_committed_snapshot_byte_for_byte(tmp_path):
     out = tmp_path / "net"
     net_main([str(TR_DIR), "--out", str(out)])

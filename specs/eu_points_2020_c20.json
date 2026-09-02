@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "config": {
+    "start": "2020-04-23",
+    "initial_capital": 10000,
+    "monthly_contribution": 500,
+    "cost_bps": {
+      "*": 20
+    },
+    "cash_yield": 0.03
+  },
+  "strategies": [
+    {
+      "type": "vol_target",
+      "label": "1 EU SYNB100 w45 - VT MVEA55+XSPS45 gated, CNDX signal",
+      "risk": "QQQ3",
+      "safe": {
+        "MVEA": 0.55,
+        "XSPS": 0.45
+      },
+      "vol_symbol": "CNDX",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.2,
+      "w_max": 0.8,
+      "gate": {
+        "symbol": "CNDX",
+        "assets": [
+          "QQQ3"
+        ],
+        "sma_days": 200
+      }
+    },
+    {
+      "type": "vol_target",
+      "label": "2 EU SYNB100 w40 sens - VT MVEA60+XSPS40 gated, CNDX signal",
+      "risk": "QQQ3",
+      "safe": {
+        "MVEA": 0.6,
+        "XSPS": 0.4
+      },
+      "vol_symbol": "CNDX",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.2,
+      "w_max": 0.8,
+      "gate": {
+        "symbol": "CNDX",
+        "assets": [
+          "QQQ3"
+        ],
+        "sma_days": 200
+      }
+    },
+    {
+      "type": "vol_target",
+      "label": "3 EU SYNB100 w50 sens - VT MVEA50+XSPS50 gated, CNDX signal",
+      "risk": "QQQ3",
+      "safe": {
+        "MVEA": 0.5,
+        "XSPS": 0.5
+      },
+      "vol_symbol": "CNDX",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.2,
+      "w_max": 0.8,
+      "gate": {
+        "symbol": "CNDX",
+        "assets": [
+          "QQQ3"
+        ],
+        "sma_days": 200
+      }
+    },
+    {
+      "type": "vol_target",
+      "label": "4 EU flag variant - VT IB01_50+SYNB50(w45) gated, CNDX signal",
+      "risk": "QQQ3",
+      "safe": {
+        "IB01": 0.5,
+        "MVEA": 0.275,
+        "XSPS": 0.225
+      },
+      "vol_symbol": "CNDX",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.2,
+      "w_max": 0.8,
+      "gate": {
+        "symbol": "CNDX",
+        "assets": [
+          "QQQ3"
+        ],
+        "sma_days": 200
+      }
+    },
+    {
+      "type": "vol_target",
+      "label": "5 REF lookahead - VT MVEA55+XSPS45 gated, QQQ signal (flagged)",
+      "risk": "QQQ3",
+      "safe": {
+        "MVEA": 0.55,
+        "XSPS": 0.45
+      },
+      "vol_symbol": "QQQ",
+      "vol": {
+        "kind": "ewma",
+        "lam": 0.8
+      },
+      "leverage": 3,
+      "sigma_target": 0.2,
+      "w_max": 0.8,
+      "gate": {
+        "symbol": "QQQ",
+        "assets": [
+          "QQQ3"
+        ],
+        "sma_days": 200
+      }
+    },
+    {
+      "type": "fixed",
+      "label": "CSPX benchmark",
+      "weights": {
+        "CSPX": 1.0
+      }
+    },
+    {
+      "type": "fixed",
+      "label": "SPY benchmark",
+      "weights": {
+        "SPY": 1.0
+      }
+    }
+  ]
+}

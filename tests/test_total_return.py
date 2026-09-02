@@ -13,6 +13,7 @@ a bad refresh fails the suite the day it lands.
 
 import dataclasses
 import datetime as dt
+import filecmp
 from pathlib import Path
 
 import polars as pl
@@ -27,8 +28,12 @@ from prices import load_prices
 GOLDEN_DIR = Path(__file__).parent / "data"
 TR_DIR = Path(__file__).parent / "data" / "2026-08-20"
 NEW_TR_DIR = GOLDEN_DIR / "2026-08-24"
+EU_TR_DIR = GOLDEN_DIR / "2026-09-02"  # EU_SUBSTITUTE_SPEC §3.6
 LIVE_DIR = Path(__file__).parents[1] / "data"
-ROOTS = [TR_DIR, NEW_TR_DIR, LIVE_DIR]
+ROOTS = [TR_DIR, NEW_TR_DIR, EU_TR_DIR, LIVE_DIR]
+# FX singles are stamped by their 17:00 New York open, so their last label is
+# the day before the snapshot date (data/README.md, "FX bar stamps").
+FX_SINGLES = {"EURUSD", "GBPUSD"}
 SYMBOLS = ["TQQQ", "BTAL", "QQQ", "SPY", "DBMF", "KMLM"]
 
 # The battery's symbol list is per-root, not global: BIL was exported in the
@@ -39,6 +44,7 @@ SYMBOLS = ["TQQQ", "BTAL", "QQQ", "SPY", "DBMF", "KMLM"]
 ROOT_SYMBOLS = {
     TR_DIR: SYMBOLS,
     NEW_TR_DIR: SYMBOLS + ["BIL"],
+    EU_TR_DIR: SYMBOLS + ["BIL"],
     LIVE_DIR: SYMBOLS + ["BIL"],
 }
 ROOT_SYMBOL_PAIRS = [(root, symbol) for root, syms in ROOT_SYMBOLS.items() for symbol in syms]
@@ -190,15 +196,27 @@ LIVE_YIELDS = {
     "BIL": 1.39, "EWJ": 1.31, "NTSX": 1.20, "IWM": 1.17, "DBC": 1.13,
     "BTAL": 1.07, "SSO": 1.02, "RSST": 0.70, "QLD": 0.68, "QQQ": 0.62,
     "UPRO": 0.38, "TQQQ": 0.31,
+    # EU_SUBSTITUTE_SPEC §3.4: LQQ (Amundi Nasdaq-100 2x, Euronext) is the one
+    # distributing EU line — a single early distribution, measured 0.066 %/yr
+    # over 20.2 years; the derived band is [0.033, 0.099].
+    "LQQ": 0.066,
 }
+
+# Zero-distribution pairs: the identical pair *is* the invariant (R == 1
+# exactly, ROTATION_SPEC §3.2). GLD never distributed; the eight EU lines of
+# the 2026-09-02 batch are accumulating UCITS share classes, so their export
+# is the total-return series by construction (EU_SUBSTITUTE_SPEC §2.1, §3.4).
+ZERO_YIELD = {"GLD", "CNDX", "CSPX", "DBMF_EU", "IB01", "MVEA", "QQL3", "QQQ3", "XSPS"}
 
 
 def test_live_pair_universe_is_pinned() -> None:
     # A refresh that adds or drops a paired symbol updates this pin and the
     # yield table in the same commit — silent scope shrink is the failure
-    # class this guards (ROTATION_SPEC §8 T9).
-    assert len(LIVE_PAIRS) == 48
-    assert set(LIVE_PAIRS) == set(LIVE_YIELDS) | {"GLD"}
+    # class this guards (ROTATION_SPEC §8 T9). 57 = the 48 pairs of the
+    # 2026-08 batch + the nine EU lines of 2026-09-02 (EU_SUBSTITUTE_SPEC
+    # §3.4 — NDX joined the single-series index class instead).
+    assert len(LIVE_PAIRS) == 57
+    assert set(LIVE_PAIRS) == set(LIVE_YIELDS) | ZERO_YIELD
 
 
 @pytest.mark.parametrize("symbol", LIVE_PAIRS)
@@ -216,9 +234,9 @@ def test_live_pair_invariants(symbol: str) -> None:
 
     years = (price["time"][-1] - price["time"][0]).days / 365.25
     y = -r[0] / years
-    if symbol == "GLD":
+    if symbol in ZERO_YIELD:
         # The identical pair *is* the invariant for a zero-distribution fund:
-        # this fires if GLD ever starts distributing and a refresh forgets
+        # this fires if it ever starts distributing and a refresh forgets
         # the adjusted pass (ROTATION_SPEC §3.2).
         assert (ratio == 1.0).all()
         assert abs(y) < 1e-4
@@ -296,6 +314,35 @@ def test_new_snapshot_is_self_describing() -> None:
     last_bar = dt.date.fromisoformat(NEW_TR_DIR.name)
     for path in sorted(NEW_TR_DIR.glob("*.csv")):
         assert read_close(path)["time"][-1] == last_bar, path.stem
+
+
+# The EU_SUBSTITUTE_SPEC §3.6 snapshot: the 57 pairs of the live lane, five
+# indices, two FX singles, `macro/` carried; the same pins as above, with the
+# FX singles ending on the label before the snapshot date.
+
+
+def test_eu_snapshot_is_self_describing() -> None:
+    assert (EU_TR_DIR / "README.md").exists()
+    last_bar = dt.date.fromisoformat(EU_TR_DIR.name)
+    tops = sorted(EU_TR_DIR.glob("*.csv"))
+    assert len(tops) == 64 and len(list((EU_TR_DIR / "price").glob("*.csv"))) == 57
+    assert sorted(p.stem for p in (EU_TR_DIR / "price").glob("*.csv")) == LIVE_PAIRS
+    for path in tops:
+        expected = last_bar - dt.timedelta(days=1) if path.stem in FX_SINGLES else last_bar
+        assert read_close(path)["time"][-1] == expected, path.stem
+
+
+@pytest.mark.parametrize("symbol", SYMBOLS + ["BIL"])
+def test_eu_snapshot_calendar_agrees_with_the_previous_snapshot(symbol: str) -> None:
+    old = read_close(NEW_TR_DIR / f"{symbol}.csv")["time"]
+    new = read_close(EU_TR_DIR / f"{symbol}.csv")["time"]
+    assert new.filter(new <= dt.date(2026, 8, 24)).to_list() == old.to_list()
+
+
+@pytest.mark.parametrize("symbol", sorted(ZERO_YIELD))
+def test_eu_snapshot_zero_distribution_pairs_are_byte_identical(symbol: str) -> None:
+    assert filecmp.cmp(EU_TR_DIR / f"{symbol}.csv", EU_TR_DIR / "price" / f"{symbol}.csv",
+                       shallow=False)
 
 
 # T7 — TR golden. The default bundle on the TR snapshot, ended at 2026-08-14 so

@@ -1,0 +1,3218 @@
+{
+  "benchmark": "SPY benchmark",
+  "config": {
+    "cash_yield": 0.03,
+    "cost_bps": {
+      "*": 6.0,
+      "BIL": 0.5,
+      "BTAL": 6.0,
+      "CNDX": 4.0,
+      "CSPX": 2.0,
+      "DBMF": 2.5,
+      "KMLM": 6.0,
+      "QQQ": 1.0,
+      "SPY": 0.7,
+      "TQQQ": 1.5
+    },
+    "initial_capital": 10000.0,
+    "monthly_contribution": 500.0,
+    "start": "2019-05-08"
+  },
+  "data": {
+    "end": "2026-09-02",
+    "start": "2019-05-08",
+    "symbols": [
+      "BIL",
+      "BTAL",
+      "CNDX",
+      "CSPX",
+      "DBMF",
+      "QQQ",
+      "SPY",
+      "TQQQ"
+    ],
+    "trading_days": 1885
+  },
+  "run": {
+    "bundle": "eu_points_2019_hc",
+    "data_dir": "tests/data/2026-09-02-net15-usd",
+    "generated_at": "2026-09-02T21:46:25Z",
+    "git_dirty": true,
+    "git_sha": "d49a1b9b1e0f9ebea0c8e723c5565acb1f497737",
+    "schema_version": 4,
+    "spec_path": "specs/eu_points_2019_hc.json"
+  },
+  "spec": {
+    "config": {
+      "cash_yield": 0.03,
+      "cost_bps": {
+        "*": 6.0,
+        "BIL": 0.5,
+        "BTAL": 6.0,
+        "CNDX": 4.0,
+        "CSPX": 2.0,
+        "DBMF": 2.5,
+        "KMLM": 6.0,
+        "QQQ": 1.0,
+        "SPY": 0.7,
+        "TQQQ": 1.5
+      },
+      "initial_capital": 10000.0,
+      "monthly_contribution": 500.0,
+      "start": "2019-05-08"
+    },
+    "schema_version": 1,
+    "strategies": [
+      {
+        "fallback": 0.8,
+        "gate": {
+          "assets": [
+            "TQQQ"
+          ],
+          "contribution_exempt": false,
+          "sma_days": 200,
+          "symbol": "QQQ"
+        },
+        "label": "1 B75D25 hc - VT BTAL75+DBMF25 gated (TQQQ,DBMF carry h)",
+        "leverage": 3,
+        "risk": "TQQQ",
+        "safe": {
+          "BTAL": 0.75,
+          "DBMF": 0.25
+        },
+        "sigma_target": 0.2,
+        "type": "vol_target",
+        "vol": {
+          "kind": "ewma",
+          "lam": 0.8
+        },
+        "vol_symbol": "QQQ",
+        "w_max": 0.8,
+        "w_min": 0.0
+      },
+      {
+        "fallback": 0.8,
+        "gate": {
+          "assets": [
+            "TQQQ"
+          ],
+          "contribution_exempt": false,
+          "sma_days": 200,
+          "symbol": "QQQ"
+        },
+        "label": "2 flag variant hc - VT BIL50+BTAL50 gated (TQQQ,BIL carry h)",
+        "leverage": 3,
+        "risk": "TQQQ",
+        "safe": {
+          "BIL": 0.5,
+          "BTAL": 0.5
+        },
+        "sigma_target": 0.2,
+        "type": "vol_target",
+        "vol": {
+          "kind": "ewma",
+          "lam": 0.8
+        },
+        "vol_symbol": "QQQ",
+        "w_max": 0.8,
+        "w_min": 0.0
+      },
+      {
+        "fallback": 0.8,
+        "gate": {
+          "assets": [
+            "TQQQ"
+          ],
+          "contribution_exempt": false,
+          "sma_days": 200,
+          "symbol": "CNDX"
+        },
+        "label": "3 REF signal-source - B75D25 hc with CNDX signal",
+        "leverage": 3,
+        "risk": "TQQQ",
+        "safe": {
+          "BTAL": 0.75,
+          "DBMF": 0.25
+        },
+        "sigma_target": 0.2,
+        "type": "vol_target",
+        "vol": {
+          "kind": "ewma",
+          "lam": 0.8
+        },
+        "vol_symbol": "CNDX",
+        "w_max": 0.8,
+        "w_min": 0.0
+      },
+      {
+        "label": "CSPX benchmark",
+        "type": "fixed",
+        "weights": {
+          "CSPX": 1.0
+        }
+      },
+      {
+        "label": "SPY benchmark",
+        "type": "fixed",
+        "weights": {
+          "SPY": 1.0
+        }
+      }
+    ]
+  },
+  "strategies": [
+    {
+      "class": "VolTarget",
+      "correlation_to_benchmark": 0.53209661,
+      "data": [
+        "QQQ"
+      ],
+      "drawdowns": [
+        {
+          "days": 324,
+          "depth": -0.20113095,
+          "peak": "2020-09-02",
+          "recovery": "2021-07-23",
+          "trough": "2021-03-08"
+        },
+        {
+          "days": 140,
+          "depth": -0.18892232,
+          "peak": "2020-02-19",
+          "recovery": "2020-07-08",
+          "trough": "2020-03-23"
+        },
+        {
+          "days": 447,
+          "depth": -0.18356214,
+          "peak": "2024-07-10",
+          "recovery": "2025-09-30",
+          "trough": "2025-04-08"
+        },
+        {
+          "days": 215,
+          "depth": -0.16371242,
+          "peak": "2025-10-29",
+          "recovery": "2026-06-01",
+          "trough": "2026-03-27"
+        },
+        {
+          "days": 553,
+          "depth": -0.14705868,
+          "peak": "2021-11-19",
+          "recovery": "2023-05-26",
+          "trough": "2023-03-10"
+        }
+      ],
+      "exposure": {
+        "BTAL": {
+          "avg": 0.46331469,
+          "avg_target": 0.45158037,
+          "max": 0.71543087,
+          "min": 0.14955055
+        },
+        "CASH": {
+          "avg": 0.00071393,
+          "avg_target": 0.0,
+          "max": 0.00311229,
+          "min": 9.086e-05
+        },
+        "DBMF": {
+          "avg": 0.15419939,
+          "avg_target": 0.15052679,
+          "max": 0.23811933,
+          "min": 0.04900583
+        },
+        "TQQQ": {
+          "avg": 0.38168441,
+          "avg_target": 0.39789284,
+          "max": 0.79984694,
+          "min": 0.04594996
+        }
+      },
+      "imbalance": {
+        "avg_asset_deviation": 0.0163574,
+        "avg_misallocation": 0.01663118,
+        "by_date": [
+          {
+            "date": "2019-05-08",
+            "max_deviation": 0.00028298,
+            "misallocated": 0.00038732
+          },
+          {
+            "date": "2019-05-31",
+            "max_deviation": 0.0018431,
+            "misallocated": 0.00293895
+          },
+          {
+            "date": "2019-06-28",
+            "max_deviation": 0.00159013,
+            "misallocated": 0.00314094
+          },
+          {
+            "date": "2019-07-31",
+            "max_deviation": 0.00064915,
+            "misallocated": 0.00132998
+          },
+          {
+            "date": "2019-08-30",
+            "max_deviation": 0.00144158,
+            "misallocated": 0.00189887
+          },
+          {
+            "date": "2019-09-30",
+            "max_deviation": 0.00116132,
+            "misallocated": 0.00192697
+          },
+          {
+            "date": "2019-10-31",
+            "max_deviation": 0.00038063,
+            "misallocated": 0.00044481
+          },
+          {
+            "date": "2019-11-29",
+            "max_deviation": 0.0011548,
+            "misallocated": 0.00211747
+          },
+          {
+            "date": "2019-12-31",
+            "max_deviation": 0.00099417,
+            "misallocated": 0.00177481
+          },
+          {
+            "date": "2020-01-31",
+            "max_deviation": 0.00060517,
+            "misallocated": 0.00142373
+          },
+          {
+            "date": "2020-02-28",
+            "max_deviation": 0.00045246,
+            "misallocated": 0.00096921
+          },
+          {
+            "date": "2020-03-31",
+            "max_deviation": 0.00208737,
+            "misallocated": 0.00255019
+          },
+          {
+            "date": "2020-04-30",
+            "max_deviation": 0.00077104,
+            "misallocated": 0.00112788
+          },
+          {
+            "date": "2020-05-29",
+            "max_deviation": 0.00082048,
+            "misallocated": 0.00167381
+          },
+          {
+            "date": "2020-06-30",
+            "max_deviation": 0.00064994,
+            "misallocated": 0.00131973
+          },
+          {
+            "date": "2020-07-31",
+            "max_deviation": 0.00071265,
+            "misallocated": 0.00142576
+          },
+          {
+            "date": "2020-08-31",
+            "max_deviation": 0.00065631,
+            "misallocated": 0.00128519
+          },
+          {
+            "date": "2020-09-30",
+            "max_deviation": 0.00024514,
+            "misallocated": 0.00032238
+          },
+          {
+            "date": "2020-10-30",
+            "max_deviation": 0.00051964,
+            "misallocated": 0.00082561
+          },
+          {
+            "date": "2020-11-30",
+            "max_deviation": 0.00056637,
+            "misallocated": 0.00081836
+          },
+          {
+            "date": "2020-12-31",
+            "max_deviation": 0.0006056,
+            "misallocated": 0.00100021
+          },
+          {
+            "date": "2021-01-29",
+            "max_deviation": 0.00072697,
+            "misallocated": 0.00145517
+          },
+          {
+            "date": "2021-02-26",
+            "max_deviation": 0.00035302,
+            "misallocated": 0.00069267
+          },
+          {
+            "date": "2021-03-31",
+            "max_deviation": 0.00062565,
+            "misallocated": 0.0012946
+          },
+          {
+            "date": "2021-04-30",
+            "max_deviation": 0.00072942,
+            "misallocated": 0.00113455
+          },
+          {
+            "date": "2021-05-28",
+            "max_deviation": 0.00082097,
+            "misallocated": 0.00146992
+          },
+          {
+            "date": "2021-06-30",
+            "max_deviation": 0.00078423,
+            "misallocated": 0.0013031
+          },
+          {
+            "date": "2021-07-30",
+            "max_deviation": 0.00049521,
+            "misallocated": 0.00067257
+          },
+          {
+            "date": "2021-08-31",
+            "max_deviation": 0.00090302,
+            "misallocated": 0.00143948
+          },
+          {
+            "date": "2021-09-30",
+            "max_deviation": 0.00051418,
+            "misallocated": 0.00065918
+          },
+          {
+            "date": "2021-10-29",
+            "max_deviation": 0.00036277,
+            "misallocated": 0.00064416
+          },
+          {
+            "date": "2021-11-30",
+            "max_deviation": 0.00047932,
+            "misallocated": 0.00120733
+          },
+          {
+            "date": "2021-12-31",
+            "max_deviation": 0.00037941,
+            "misallocated": 0.00056316
+          },
+          {
+            "date": "2022-01-31",
+            "max_deviation": 0.00036235,
+            "misallocated": 0.00044422
+          },
+          {
+            "date": "2022-02-28",
+            "max_deviation": 0.04760352,
+            "misallocated": 0.04759571
+          },
+          {
+            "date": "2022-03-31",
+            "max_deviation": 0.09554987,
+            "misallocated": 0.0955447
+          },
+          {
+            "date": "2022-04-29",
+            "max_deviation": 0.03338166,
+            "misallocated": 0.03337796
+          },
+          {
+            "date": "2022-05-31",
+            "max_deviation": 0.09058123,
+            "misallocated": 0.09057883
+          },
+          {
+            "date": "2022-06-30",
+            "max_deviation": 0.13992533,
+            "misallocated": 0.13992362
+          },
+          {
+            "date": "2022-07-29",
+            "max_deviation": 0.10677632,
+            "misallocated": 0.10677021
+          },
+          {
+            "date": "2022-08-31",
+            "max_deviation": 0.16140453,
+            "misallocated": 0.16139964
+          },
+          {
+            "date": "2022-09-30",
+            "max_deviation": 0.17395228,
+            "misallocated": 0.1739479
+          },
+          {
+            "date": "2022-10-31",
+            "max_deviation": 0.15253954,
+            "misallocated": 0.15253681
+          },
+          {
+            "date": "2022-11-30",
+            "max_deviation": 0.11515598,
+            "misallocated": 0.11515164
+          },
+          {
+            "date": "2022-12-30",
+            "max_deviation": 0.22732793,
+            "misallocated": 0.22732631
+          },
+          {
+            "date": "2023-01-31",
+            "max_deviation": 0.00056036,
+            "misallocated": 0.00088322
+          },
+          {
+            "date": "2023-02-28",
+            "max_deviation": 0.00018862,
+            "misallocated": 0.00029854
+          },
+          {
+            "date": "2023-03-31",
+            "max_deviation": 0.00019332,
+            "misallocated": 0.00038031
+          },
+          {
+            "date": "2023-04-28",
+            "max_deviation": 0.00030521,
+            "misallocated": 0.00078879
+          },
+          {
+            "date": "2023-05-31",
+            "max_deviation": 0.00014205,
+            "misallocated": 0.00022815
+          },
+          {
+            "date": "2023-06-30",
+            "max_deviation": 0.00020911,
+            "misallocated": 0.00043751
+          },
+          {
+            "date": "2023-07-31",
+            "max_deviation": 0.00038464,
+            "misallocated": 0.0005478
+          },
+          {
+            "date": "2023-08-31",
+            "max_deviation": 0.00028218,
+            "misallocated": 0.00062302
+          },
+          {
+            "date": "2023-09-29",
+            "max_deviation": 0.00022519,
+            "misallocated": 0.00025134
+          },
+          {
+            "date": "2023-10-31",
+            "max_deviation": 0.00029163,
+            "misallocated": 0.0006872
+          },
+          {
+            "date": "2023-11-30",
+            "max_deviation": 0.00026176,
+            "misallocated": 0.00030648
+          },
+          {
+            "date": "2023-12-29",
+            "max_deviation": 0.00027815,
+            "misallocated": 0.00056755
+          },
+          {
+            "date": "2024-01-31",
+            "max_deviation": 0.00017042,
+            "misallocated": 0.00019862
+          },
+          {
+            "date": "2024-02-29",
+            "max_deviation": 0.00022817,
+            "misallocated": 0.00055124
+          },
+          {
+            "date": "2024-03-28",
+            "max_deviation": 0.00030982,
+            "misallocated": 0.00048047
+          },
+          {
+            "date": "2024-04-30",
+            "max_deviation": 0.00023653,
+            "misallocated": 0.00021456
+          },
+          {
+            "date": "2024-05-31",
+            "max_deviation": 0.00017559,
+            "misallocated": 0.00023262
+          },
+          {
+            "date": "2024-06-28",
+            "max_deviation": 0.00025679,
+            "misallocated": 0.00037896
+          },
+          {
+            "date": "2024-07-31",
+            "max_deviation": 0.00037393,
+            "misallocated": 0.00032751
+          },
+          {
+            "date": "2024-08-30",
+            "max_deviation": 0.00020159,
+            "misallocated": 0.00019459
+          },
+          {
+            "date": "2024-09-30",
+            "max_deviation": 0.00030122,
+            "misallocated": 0.00057252
+          },
+          {
+            "date": "2024-10-31",
+            "max_deviation": 0.0001991,
+            "misallocated": 0.00039546
+          },
+          {
+            "date": "2024-11-29",
+            "max_deviation": 0.00021515,
+            "misallocated": 0.00028871
+          },
+          {
+            "date": "2024-12-31",
+            "max_deviation": 0.00022436,
+            "misallocated": 0.00032636
+          },
+          {
+            "date": "2025-01-31",
+            "max_deviation": 0.00042579,
+            "misallocated": 0.00082256
+          },
+          {
+            "date": "2025-02-28",
+            "max_deviation": 0.00023912,
+            "misallocated": 0.00043273
+          },
+          {
+            "date": "2025-03-31",
+            "max_deviation": 0.06298528,
+            "misallocated": 0.06298135
+          },
+          {
+            "date": "2025-04-30",
+            "max_deviation": 0.0115497,
+            "misallocated": 0.0115467
+          },
+          {
+            "date": "2025-05-30",
+            "max_deviation": 0.00014292,
+            "misallocated": 0.00018679
+          },
+          {
+            "date": "2025-06-30",
+            "max_deviation": 0.00026984,
+            "misallocated": 0.00065696
+          },
+          {
+            "date": "2025-07-31",
+            "max_deviation": 0.00028814,
+            "misallocated": 0.00036025
+          },
+          {
+            "date": "2025-08-29",
+            "max_deviation": 0.00025699,
+            "misallocated": 0.00022245
+          },
+          {
+            "date": "2025-09-30",
+            "max_deviation": 0.00015306,
+            "misallocated": 0.00025413
+          },
+          {
+            "date": "2025-10-31",
+            "max_deviation": 0.00030292,
+            "misallocated": 0.00027748
+          },
+          {
+            "date": "2025-11-28",
+            "max_deviation": 0.0003661,
+            "misallocated": 0.00059002
+          },
+          {
+            "date": "2025-12-31",
+            "max_deviation": 0.0004797,
+            "misallocated": 0.0005857
+          },
+          {
+            "date": "2026-01-30",
+            "max_deviation": 0.00011977,
+            "misallocated": 0.00028582
+          },
+          {
+            "date": "2026-02-27",
+            "max_deviation": 0.00018789,
+            "misallocated": 0.00036286
+          },
+          {
+            "date": "2026-03-31",
+            "max_deviation": 0.00018913,
+            "misallocated": 0.00018292
+          },
+          {
+            "date": "2026-04-30",
+            "max_deviation": 0.00028351,
+            "misallocated": 0.00048315
+          },
+          {
+            "date": "2026-05-29",
+            "max_deviation": 0.00048872,
+            "misallocated": 0.00065061
+          },
+          {
+            "date": "2026-06-30",
+            "max_deviation": 0.00030796,
+            "misallocated": 0.00053583
+          },
+          {
+            "date": "2026-07-31",
+            "max_deviation": 0.00024998,
+            "misallocated": 0.00038084
+          },
+          {
+            "date": "2026-08-31",
+            "max_deviation": 0.00038252,
+            "misallocated": 0.00037912
+          }
+        ],
+        "max_asset_deviation": 0.22732793,
+        "max_misallocation": 0.22732631
+      },
+      "indicators": {
+        "QQQ": [
+          "VOL_EWMA80",
+          "SMA200"
+        ]
+      },
+      "label": "1 B75D25 hc - VT BTAL75+DBMF25 gated (TQQQ,DBMF carry h)",
+      "slug": "1-b75d25-hc-vt-btal75-dbmf25-gated-tqqq-dbmf-carry-h",
+      "spec": {
+        "fallback": 0.8,
+        "gate": {
+          "assets": [
+            "TQQQ"
+          ],
+          "contribution_exempt": false,
+          "sma_days": 200,
+          "symbol": "QQQ"
+        },
+        "label": "1 B75D25 hc - VT BTAL75+DBMF25 gated (TQQQ,DBMF carry h)",
+        "leverage": 3,
+        "risk": "TQQQ",
+        "safe": {
+          "BTAL": 0.75,
+          "DBMF": 0.25
+        },
+        "sigma_target": 0.2,
+        "type": "vol_target",
+        "vol": {
+          "kind": "ewma",
+          "lam": 0.8
+        },
+        "vol_symbol": "QQQ",
+        "w_max": 0.8,
+        "w_min": 0.0
+      },
+      "summary": {
+        "avg_asset_deviation": 0.0163574,
+        "avg_misallocation": 0.01663118,
+        "best_year": {
+          "return": 0.34348124,
+          "year": 2023
+        },
+        "cagr": 0.18759019,
+        "calmar": 0.9326769,
+        "fee_drag": 0.00847882,
+        "final_value": 117642.56098981,
+        "max_asset_deviation": 0.22732793,
+        "max_drawdown": -0.20113095,
+        "max_drawdown_days": 324,
+        "max_misallocation": 0.22732631,
+        "net_profit": 63642.56098981,
+        "net_profit_pct": 1.17856594,
+        "sharpe": 0.90019409,
+        "sortino": 1.24318041,
+        "total_contributed": 54000.0,
+        "total_fees": 457.85647387,
+        "traded_value": 1384318.06569571,
+        "turnover": 1.72200672,
+        "volatility": 0.21224309,
+        "worst_year": {
+          "return": -0.07938807,
+          "year": 2022
+        },
+        "xirr": 0.17747984
+      },
+      "weights": {
+        "BTAL": 0.15,
+        "DBMF": 0.05,
+        "TQQQ": 0.8
+      },
+      "yearly_returns": [
+        {
+          "return": 0.27963594,
+          "year": 2019
+        },
+        {
+          "return": 0.19067182,
+          "year": 2020
+        },
+        {
+          "return": 0.26543346,
+          "year": 2021
+        },
+        {
+          "return": -0.07938807,
+          "year": 2022
+        },
+        {
+          "return": 0.34348124,
+          "year": 2023
+        },
+        {
+          "return": 0.18386304,
+          "year": 2024
+        },
+        {
+          "return": 0.18756305,
+          "year": 2025
+        },
+        {
+          "return": 0.05014921,
+          "year": 2026
+        }
+      ]
+    },
+    {
+      "class": "VolTarget",
+      "correlation_to_benchmark": 0.61679251,
+      "data": [
+        "QQQ"
+      ],
+      "drawdowns": [
+        {
+          "days": 141,
+          "depth": -0.19403544,
+          "peak": "2020-02-19",
+          "recovery": "2020-07-09",
+          "trough": "2020-03-23"
+        },
+        {
+          "days": 573,
+          "depth": -0.1926024,
+          "peak": "2021-11-19",
+          "recovery": "2023-06-15",
+          "trough": "2023-03-10"
+        },
+        {
+          "days": 162,
+          "depth": -0.18217366,
+          "peak": "2021-01-26",
+          "recovery": "2021-07-07",
+          "trough": "2021-05-12"
+        },
+        {
+          "days": 398,
+          "depth": -0.17398314,
+          "peak": "2024-07-10",
+          "recovery": "2025-08-12",
+          "trough": "2025-04-08"
+        },
+        {
+          "days": 209,
+          "depth": -0.1698559,
+          "peak": "2025-10-29",
+          "recovery": "2026-05-26",
+          "trough": "2026-03-30"
+        }
+      ],
+      "exposure": {
+        "BIL": {
+          "avg": 0.30755849,
+          "avg_target": 0.30105358,
+          "max": 0.47493975,
+          "min": 0.09885058
+        },
+        "BTAL": {
+          "avg": 0.30849629,
+          "avg_target": 0.30105358,
+          "max": 0.47541107,
+          "min": 0.09979431
+        },
+        "CASH": {
+          "avg": 0.00164683,
+          "avg_target": 0.0,
+          "max": 0.00859801,
+          "min": 6.394e-05
+        },
+        "TQQQ": {
+          "avg": 0.38223605,
+          "avg_target": 0.39789284,
+          "max": 0.79995381,
+          "min": 0.04877759
+        }
+      },
+      "imbalance": {
+        "avg_asset_deviation": 0.01654462,
+        "avg_misallocation": 0.01693525,
+        "by_date": [
+          {
+            "date": "2019-05-08",
+            "max_deviation": 0.00640657,
+            "misallocated": 0.00738801
+          },
+          {
+            "date": "2019-05-31",
+            "max_deviation": 0.00343654,
+            "misallocated": 0.00546283
+          },
+          {
+            "date": "2019-06-28",
+            "max_deviation": 0.00695819,
+            "misallocated": 0.0086191
+          },
+          {
+            "date": "2019-07-31",
+            "max_deviation": 0.0052364,
+            "misallocated": 0.0067541
+          },
+          {
+            "date": "2019-08-30",
+            "max_deviation": 0.00576222,
+            "misallocated": 0.00603224
+          },
+          {
+            "date": "2019-09-30",
+            "max_deviation": 0.00495531,
+            "misallocated": 0.00550778
+          },
+          {
+            "date": "2019-10-31",
+            "max_deviation": 0.00424746,
+            "misallocated": 0.00570882
+          },
+          {
+            "date": "2019-11-29",
+            "max_deviation": 0.00123571,
+            "misallocated": 0.00252022
+          },
+          {
+            "date": "2019-12-31",
+            "max_deviation": 0.0005901,
+            "misallocated": 0.00104517
+          },
+          {
+            "date": "2020-01-31",
+            "max_deviation": 0.00263087,
+            "misallocated": 0.00323624
+          },
+          {
+            "date": "2020-02-28",
+            "max_deviation": 0.00214956,
+            "misallocated": 0.00347079
+          },
+          {
+            "date": "2020-03-31",
+            "max_deviation": 0.0008706,
+            "misallocated": 0.00165698
+          },
+          {
+            "date": "2020-04-30",
+            "max_deviation": 0.00151839,
+            "misallocated": 0.00260278
+          },
+          {
+            "date": "2020-05-29",
+            "max_deviation": 0.00325501,
+            "misallocated": 0.00391139
+          },
+          {
+            "date": "2020-06-30",
+            "max_deviation": 0.0011014,
+            "misallocated": 0.00230561
+          },
+          {
+            "date": "2020-07-31",
+            "max_deviation": 0.00060472,
+            "misallocated": 0.00072284
+          },
+          {
+            "date": "2020-08-31",
+            "max_deviation": 0.00225351,
+            "misallocated": 0.00329644
+          },
+          {
+            "date": "2020-09-30",
+            "max_deviation": 0.00078489,
+            "misallocated": 0.00081784
+          },
+          {
+            "date": "2020-10-30",
+            "max_deviation": 0.00247435,
+            "misallocated": 0.0032535
+          },
+          {
+            "date": "2020-11-30",
+            "max_deviation": 0.00178389,
+            "misallocated": 0.00244596
+          },
+          {
+            "date": "2020-12-31",
+            "max_deviation": 0.00114942,
+            "misallocated": 0.0013501
+          },
+          {
+            "date": "2021-01-29",
+            "max_deviation": 0.00068778,
+            "misallocated": 0.00118593
+          },
+          {
+            "date": "2021-02-26",
+            "max_deviation": 0.00124286,
+            "misallocated": 0.00174672
+          },
+          {
+            "date": "2021-03-31",
+            "max_deviation": 0.00160463,
+            "misallocated": 0.00239164
+          },
+          {
+            "date": "2021-04-30",
+            "max_deviation": 0.00111612,
+            "misallocated": 0.00179207
+          },
+          {
+            "date": "2021-05-28",
+            "max_deviation": 0.00081491,
+            "misallocated": 0.00121794
+          },
+          {
+            "date": "2021-06-30",
+            "max_deviation": 0.00111943,
+            "misallocated": 0.00161453
+          },
+          {
+            "date": "2021-07-30",
+            "max_deviation": 0.00214753,
+            "misallocated": 0.00280742
+          },
+          {
+            "date": "2021-08-31",
+            "max_deviation": 0.00157652,
+            "misallocated": 0.00203986
+          },
+          {
+            "date": "2021-09-30",
+            "max_deviation": 0.00051603,
+            "misallocated": 0.00120129
+          },
+          {
+            "date": "2021-10-29",
+            "max_deviation": 0.00111053,
+            "misallocated": 0.00135027
+          },
+          {
+            "date": "2021-11-30",
+            "max_deviation": 0.00156081,
+            "misallocated": 0.00214763
+          },
+          {
+            "date": "2021-12-31",
+            "max_deviation": 0.00168477,
+            "misallocated": 0.0019631
+          },
+          {
+            "date": "2022-01-31",
+            "max_deviation": 0.00055888,
+            "misallocated": 0.00058533
+          },
+          {
+            "date": "2022-02-28",
+            "max_deviation": 0.04823712,
+            "misallocated": 0.04823216
+          },
+          {
+            "date": "2022-03-31",
+            "max_deviation": 0.09287444,
+            "misallocated": 0.09287376
+          },
+          {
+            "date": "2022-04-29",
+            "max_deviation": 0.02733031,
+            "misallocated": 0.02732622
+          },
+          {
+            "date": "2022-05-31",
+            "max_deviation": 0.08501562,
+            "misallocated": 0.08501453
+          },
+          {
+            "date": "2022-06-30",
+            "max_deviation": 0.13431101,
+            "misallocated": 0.13430731
+          },
+          {
+            "date": "2022-07-29",
+            "max_deviation": 0.1019315,
+            "misallocated": 0.10192346
+          },
+          {
+            "date": "2022-08-31",
+            "max_deviation": 0.15704989,
+            "misallocated": 0.15704709
+          },
+          {
+            "date": "2022-09-30",
+            "max_deviation": 0.16988456,
+            "misallocated": 0.16988426
+          },
+          {
+            "date": "2022-10-31",
+            "max_deviation": 0.14796937,
+            "misallocated": 0.14796844
+          },
+          {
+            "date": "2022-11-30",
+            "max_deviation": 0.11162699,
+            "misallocated": 0.11162469
+          },
+          {
+            "date": "2022-12-30",
+            "max_deviation": 0.2245003,
+            "misallocated": 0.22449956
+          },
+          {
+            "date": "2023-01-31",
+            "max_deviation": 0.00025038,
+            "misallocated": 0.0003982
+          },
+          {
+            "date": "2023-02-28",
+            "max_deviation": 0.00103811,
+            "misallocated": 0.00152802
+          },
+          {
+            "date": "2023-03-31",
+            "max_deviation": 0.0006311,
+            "misallocated": 0.00113249
+          },
+          {
+            "date": "2023-04-28",
+            "max_deviation": 0.00068404,
+            "misallocated": 0.00100235
+          },
+          {
+            "date": "2023-05-31",
+            "max_deviation": 0.00154982,
+            "misallocated": 0.00193258
+          },
+          {
+            "date": "2023-06-30",
+            "max_deviation": 0.00038828,
+            "misallocated": 0.00073049
+          },
+          {
+            "date": "2023-07-31",
+            "max_deviation": 0.00029734,
+            "misallocated": 0.00067715
+          },
+          {
+            "date": "2023-08-31",
+            "max_deviation": 0.00083184,
+            "misallocated": 0.0011783
+          },
+          {
+            "date": "2023-09-29",
+            "max_deviation": 0.00139652,
+            "misallocated": 0.00145912
+          },
+          {
+            "date": "2023-10-31",
+            "max_deviation": 0.00117883,
+            "misallocated": 0.0014831
+          },
+          {
+            "date": "2023-11-30",
+            "max_deviation": 0.0003692,
+            "misallocated": 0.00043345
+          },
+          {
+            "date": "2023-12-29",
+            "max_deviation": 0.00041131,
+            "misallocated": 0.00060476
+          },
+          {
+            "date": "2024-01-31",
+            "max_deviation": 0.00047622,
+            "misallocated": 0.00084411
+          },
+          {
+            "date": "2024-02-29",
+            "max_deviation": 0.00037524,
+            "misallocated": 0.00041695
+          },
+          {
+            "date": "2024-03-28",
+            "max_deviation": 0.00011605,
+            "misallocated": 0.00013442
+          },
+          {
+            "date": "2024-04-30",
+            "max_deviation": 0.00025524,
+            "misallocated": 0.00021489
+          },
+          {
+            "date": "2024-05-31",
+            "max_deviation": 0.00113678,
+            "misallocated": 0.00145837
+          },
+          {
+            "date": "2024-06-28",
+            "max_deviation": 0.00067294,
+            "misallocated": 0.00094234
+          },
+          {
+            "date": "2024-07-31",
+            "max_deviation": 0.00045041,
+            "misallocated": 0.00067338
+          },
+          {
+            "date": "2024-08-30",
+            "max_deviation": 0.00074574,
+            "misallocated": 0.00079705
+          },
+          {
+            "date": "2024-09-30",
+            "max_deviation": 0.00017829,
+            "misallocated": 0.00019128
+          },
+          {
+            "date": "2024-10-31",
+            "max_deviation": 0.00063507,
+            "misallocated": 0.00099375
+          },
+          {
+            "date": "2024-11-29",
+            "max_deviation": 0.00094328,
+            "misallocated": 0.00115994
+          },
+          {
+            "date": "2024-12-31",
+            "max_deviation": 0.00085691,
+            "misallocated": 0.00113751
+          },
+          {
+            "date": "2025-01-31",
+            "max_deviation": 0.00041924,
+            "misallocated": 0.00069854
+          },
+          {
+            "date": "2025-02-28",
+            "max_deviation": 0.00024088,
+            "misallocated": 0.00040055
+          },
+          {
+            "date": "2025-03-31",
+            "max_deviation": 0.06110648,
+            "misallocated": 0.06110331
+          },
+          {
+            "date": "2025-04-30",
+            "max_deviation": 0.01112111,
+            "misallocated": 0.01111827
+          },
+          {
+            "date": "2025-05-30",
+            "max_deviation": 0.00032874,
+            "misallocated": 0.00059407
+          },
+          {
+            "date": "2025-06-30",
+            "max_deviation": 0.0006032,
+            "misallocated": 0.00072097
+          },
+          {
+            "date": "2025-07-31",
+            "max_deviation": 0.00012625,
+            "misallocated": 0.00024827
+          },
+          {
+            "date": "2025-08-29",
+            "max_deviation": 0.000771,
+            "misallocated": 0.00115465
+          },
+          {
+            "date": "2025-09-30",
+            "max_deviation": 0.00053991,
+            "misallocated": 0.00063301
+          },
+          {
+            "date": "2025-10-31",
+            "max_deviation": 0.00040303,
+            "misallocated": 0.00055189
+          },
+          {
+            "date": "2025-11-28",
+            "max_deviation": 0.00061214,
+            "misallocated": 0.00098179
+          },
+          {
+            "date": "2025-12-31",
+            "max_deviation": 0.00052192,
+            "misallocated": 0.00072921
+          },
+          {
+            "date": "2026-01-30",
+            "max_deviation": 0.00074949,
+            "misallocated": 0.00112997
+          },
+          {
+            "date": "2026-02-27",
+            "max_deviation": 0.00024793,
+            "misallocated": 0.00058703
+          },
+          {
+            "date": "2026-03-31",
+            "max_deviation": 0.00066471,
+            "misallocated": 0.00093791
+          },
+          {
+            "date": "2026-04-30",
+            "max_deviation": 0.00046653,
+            "misallocated": 0.00070697
+          },
+          {
+            "date": "2026-05-29",
+            "max_deviation": 0.00051753,
+            "misallocated": 0.00072263
+          },
+          {
+            "date": "2026-06-30",
+            "max_deviation": 0.00036146,
+            "misallocated": 0.00063031
+          },
+          {
+            "date": "2026-07-31",
+            "max_deviation": 0.00040605,
+            "misallocated": 0.00046745
+          },
+          {
+            "date": "2026-08-31",
+            "max_deviation": 0.00051739,
+            "misallocated": 0.00074246
+          }
+        ],
+        "max_asset_deviation": 0.2245003,
+        "max_misallocation": 0.22449956
+      },
+      "indicators": {
+        "QQQ": [
+          "VOL_EWMA80",
+          "SMA200"
+        ]
+      },
+      "label": "2 flag variant hc - VT BIL50+BTAL50 gated (TQQQ,BIL carry h)",
+      "slug": "2-flag-variant-hc-vt-bil50-btal50-gated-tqqq-bil-carry-h",
+      "spec": {
+        "fallback": 0.8,
+        "gate": {
+          "assets": [
+            "TQQQ"
+          ],
+          "contribution_exempt": false,
+          "sma_days": 200,
+          "symbol": "QQQ"
+        },
+        "label": "2 flag variant hc - VT BIL50+BTAL50 gated (TQQQ,BIL carry h)",
+        "leverage": 3,
+        "risk": "TQQQ",
+        "safe": {
+          "BIL": 0.5,
+          "BTAL": 0.5
+        },
+        "sigma_target": 0.2,
+        "type": "vol_target",
+        "vol": {
+          "kind": "ewma",
+          "lam": 0.8
+        },
+        "vol_symbol": "QQQ",
+        "w_max": 0.8,
+        "w_min": 0.0
+      },
+      "summary": {
+        "avg_asset_deviation": 0.01654462,
+        "avg_misallocation": 0.01693525,
+        "best_year": {
+          "return": 0.40613356,
+          "year": 2023
+        },
+        "cagr": 0.18828986,
+        "calmar": 0.97038899,
+        "fee_drag": 0.00605207,
+        "final_value": 119757.99765669,
+        "max_asset_deviation": 0.2245003,
+        "max_drawdown": -0.19403544,
+        "max_drawdown_days": 141,
+        "max_misallocation": 0.22449956,
+        "net_profit": 65757.99765669,
+        "net_profit_pct": 1.2177407,
+        "sharpe": 0.91477099,
+        "sortino": 1.26094608,
+        "total_contributed": 54000.0,
+        "total_fees": 326.81181264,
+        "traded_value": 1388282.53853841,
+        "turnover": 1.73682248,
+        "volatility": 0.20866341,
+        "worst_year": {
+          "return": -0.14708428,
+          "year": 2022
+        },
+        "xirr": 0.18152515
+      },
+      "weights": {
+        "BIL": 0.1,
+        "BTAL": 0.1,
+        "TQQQ": 0.8
+      },
+      "yearly_returns": [
+        {
+          "return": 0.25780694,
+          "year": 2019
+        },
+        {
+          "return": 0.22745183,
+          "year": 2020
+        },
+        {
+          "return": 0.2619128,
+          "year": 2021
+        },
+        {
+          "return": -0.14708428,
+          "year": 2022
+        },
+        {
+          "return": 0.40613356,
+          "year": 2023
+        },
+        {
+          "return": 0.18153475,
+          "year": 2024
+        },
+        {
+          "return": 0.21057356,
+          "year": 2025
+        },
+        {
+          "return": 0.05800965,
+          "year": 2026
+        }
+      ]
+    },
+    {
+      "class": "VolTarget",
+      "correlation_to_benchmark": 0.52518283,
+      "data": [
+        "CNDX"
+      ],
+      "drawdowns": [
+        {
+          "days": 315,
+          "depth": -0.22081601,
+          "peak": "2020-09-02",
+          "recovery": "2021-07-14",
+          "trough": "2021-05-12"
+        },
+        {
+          "days": 166,
+          "depth": -0.19656011,
+          "peak": "2020-02-19",
+          "recovery": "2020-08-03",
+          "trough": "2020-03-23"
+        },
+        {
+          "days": 448,
+          "depth": -0.19499469,
+          "peak": "2024-07-10",
+          "recovery": "2025-10-01",
+          "trough": "2024-07-30"
+        },
+        {
+          "days": 189,
+          "depth": -0.17627282,
+          "peak": "2025-10-29",
+          "recovery": "2026-05-06",
+          "trough": "2026-03-30"
+        },
+        {
+          "days": 98,
+          "depth": -0.15418179,
+          "peak": "2019-07-26",
+          "recovery": "2019-11-01",
+          "trough": "2019-08-05"
+        }
+      ],
+      "exposure": {
+        "BTAL": {
+          "avg": 0.45292058,
+          "avg_target": 0.43487558,
+          "max": 0.71987869,
+          "min": 0.14848834
+        },
+        "CASH": {
+          "avg": 0.00065581,
+          "avg_target": 0.0,
+          "max": 0.00286453,
+          "min": 1.822e-05
+        },
+        "DBMF": {
+          "avg": 0.15077275,
+          "avg_target": 0.14495853,
+          "max": 0.2394834,
+          "min": 0.04875464
+        },
+        "TQQQ": {
+          "avg": 0.39556114,
+          "avg_target": 0.42016589,
+          "max": 0.79979055,
+          "min": 0.03993192
+        }
+      },
+      "imbalance": {
+        "avg_asset_deviation": 0.0247225,
+        "avg_misallocation": 0.02499937,
+        "by_date": [
+          {
+            "date": "2019-05-08",
+            "max_deviation": 0.00054352,
+            "misallocated": 0.0011373
+          },
+          {
+            "date": "2019-05-31",
+            "max_deviation": 0.0003543,
+            "misallocated": 0.00082246
+          },
+          {
+            "date": "2019-06-28",
+            "max_deviation": 0.00054457,
+            "misallocated": 0.00111213
+          },
+          {
+            "date": "2019-07-31",
+            "max_deviation": 0.00151166,
+            "misallocated": 0.0029155
+          },
+          {
+            "date": "2019-08-30",
+            "max_deviation": 0.00052418,
+            "misallocated": 0.00105107
+          },
+          {
+            "date": "2019-09-30",
+            "max_deviation": 0.0002122,
+            "misallocated": 0.00031226
+          },
+          {
+            "date": "2019-10-31",
+            "max_deviation": 0.00029559,
+            "misallocated": 0.00074745
+          },
+          {
+            "date": "2019-11-29",
+            "max_deviation": 0.00105544,
+            "misallocated": 0.00207948
+          },
+          {
+            "date": "2019-12-31",
+            "max_deviation": 0.0009669,
+            "misallocated": 0.0018941
+          },
+          {
+            "date": "2020-01-31",
+            "max_deviation": 0.00018687,
+            "misallocated": 0.00031949
+          },
+          {
+            "date": "2020-02-28",
+            "max_deviation": 0.00107498,
+            "misallocated": 0.00176238
+          },
+          {
+            "date": "2020-03-31",
+            "max_deviation": 0.04315614,
+            "misallocated": 0.0431516
+          },
+          {
+            "date": "2020-04-30",
+            "max_deviation": 0.00071304,
+            "misallocated": 0.00156155
+          },
+          {
+            "date": "2020-05-29",
+            "max_deviation": 0.00014155,
+            "misallocated": 0.00027342
+          },
+          {
+            "date": "2020-06-30",
+            "max_deviation": 0.00051642,
+            "misallocated": 0.00102035
+          },
+          {
+            "date": "2020-07-31",
+            "max_deviation": 0.00070062,
+            "misallocated": 0.00126699
+          },
+          {
+            "date": "2020-08-31",
+            "max_deviation": 0.0005173,
+            "misallocated": 0.00124552
+          },
+          {
+            "date": "2020-09-30",
+            "max_deviation": 0.00074416,
+            "misallocated": 0.00135189
+          },
+          {
+            "date": "2020-10-30",
+            "max_deviation": 0.00029298,
+            "misallocated": 0.00062848
+          },
+          {
+            "date": "2020-11-30",
+            "max_deviation": 0.00062157,
+            "misallocated": 0.00125997
+          },
+          {
+            "date": "2020-12-31",
+            "max_deviation": 0.00047139,
+            "misallocated": 0.00075952
+          },
+          {
+            "date": "2021-01-29",
+            "max_deviation": 0.0004908,
+            "misallocated": 0.00095702
+          },
+          {
+            "date": "2021-02-26",
+            "max_deviation": 0.0004556,
+            "misallocated": 0.00101093
+          },
+          {
+            "date": "2021-03-31",
+            "max_deviation": 0.000684,
+            "misallocated": 0.00176738
+          },
+          {
+            "date": "2021-04-30",
+            "max_deviation": 0.0008101,
+            "misallocated": 0.00131063
+          },
+          {
+            "date": "2021-05-28",
+            "max_deviation": 0.00045721,
+            "misallocated": 0.00097468
+          },
+          {
+            "date": "2021-06-30",
+            "max_deviation": 0.00062755,
+            "misallocated": 0.00124819
+          },
+          {
+            "date": "2021-07-30",
+            "max_deviation": 0.00053367,
+            "misallocated": 0.0011341
+          },
+          {
+            "date": "2021-08-31",
+            "max_deviation": 0.00078897,
+            "misallocated": 0.00089634
+          },
+          {
+            "date": "2021-09-30",
+            "max_deviation": 0.0003509,
+            "misallocated": 0.00080631
+          },
+          {
+            "date": "2021-10-29",
+            "max_deviation": 0.00055898,
+            "misallocated": 0.00103366
+          },
+          {
+            "date": "2021-11-30",
+            "max_deviation": 0.00077909,
+            "misallocated": 0.00131719
+          },
+          {
+            "date": "2021-12-31",
+            "max_deviation": 0.00076205,
+            "misallocated": 0.00117013
+          },
+          {
+            "date": "2022-01-31",
+            "max_deviation": 0.00035558,
+            "misallocated": 0.0006571
+          },
+          {
+            "date": "2022-02-28",
+            "max_deviation": 0.04025298,
+            "misallocated": 0.0402453
+          },
+          {
+            "date": "2022-03-31",
+            "max_deviation": 0.16854644,
+            "misallocated": 0.16854121
+          },
+          {
+            "date": "2022-04-29",
+            "max_deviation": 0.24227461,
+            "misallocated": 0.2422708
+          },
+          {
+            "date": "2022-05-31",
+            "max_deviation": 0.10955928,
+            "misallocated": 0.10955698
+          },
+          {
+            "date": "2022-06-30",
+            "max_deviation": 0.18936316,
+            "misallocated": 0.18936149
+          },
+          {
+            "date": "2022-07-29",
+            "max_deviation": 0.17999528,
+            "misallocated": 0.17998931
+          },
+          {
+            "date": "2022-08-31",
+            "max_deviation": 0.16143829,
+            "misallocated": 0.16143332
+          },
+          {
+            "date": "2022-09-30",
+            "max_deviation": 0.25501703,
+            "misallocated": 0.25501278
+          },
+          {
+            "date": "2022-10-31",
+            "max_deviation": 0.21787561,
+            "misallocated": 0.21787295
+          },
+          {
+            "date": "2022-11-30",
+            "max_deviation": 0.2806144,
+            "misallocated": 0.28061005
+          },
+          {
+            "date": "2022-12-30",
+            "max_deviation": 0.17363211,
+            "misallocated": 0.17363059
+          },
+          {
+            "date": "2023-01-31",
+            "max_deviation": 0.00025741,
+            "misallocated": 0.0004456
+          },
+          {
+            "date": "2023-02-28",
+            "max_deviation": 0.00033865,
+            "misallocated": 0.00060487
+          },
+          {
+            "date": "2023-03-31",
+            "max_deviation": 8.09e-05,
+            "misallocated": 5.447e-05
+          },
+          {
+            "date": "2023-04-28",
+            "max_deviation": 0.00045579,
+            "misallocated": 0.00069422
+          },
+          {
+            "date": "2023-05-31",
+            "max_deviation": 0.00020402,
+            "misallocated": 0.00025406
+          },
+          {
+            "date": "2023-06-30",
+            "max_deviation": 0.00010157,
+            "misallocated": 0.00018806
+          },
+          {
+            "date": "2023-07-31",
+            "max_deviation": 0.00029071,
+            "misallocated": 0.0002918
+          },
+          {
+            "date": "2023-08-31",
+            "max_deviation": 0.0003824,
+            "misallocated": 0.00064358
+          },
+          {
+            "date": "2023-09-29",
+            "max_deviation": 0.00030278,
+            "misallocated": 0.00024392
+          },
+          {
+            "date": "2023-10-31",
+            "max_deviation": 0.0003988,
+            "misallocated": 0.00059501
+          },
+          {
+            "date": "2023-11-30",
+            "max_deviation": 0.00024474,
+            "misallocated": 0.00038422
+          },
+          {
+            "date": "2023-12-29",
+            "max_deviation": 0.00018377,
+            "misallocated": 0.00032613
+          },
+          {
+            "date": "2024-01-31",
+            "max_deviation": 0.00027187,
+            "misallocated": 0.00055556
+          },
+          {
+            "date": "2024-02-29",
+            "max_deviation": 0.00028036,
+            "misallocated": 0.00049776
+          },
+          {
+            "date": "2024-03-28",
+            "max_deviation": 0.00029315,
+            "misallocated": 0.00057796
+          },
+          {
+            "date": "2024-04-30",
+            "max_deviation": 0.00027594,
+            "misallocated": 0.00053767
+          },
+          {
+            "date": "2024-05-31",
+            "max_deviation": 0.00014782,
+            "misallocated": 0.00023996
+          },
+          {
+            "date": "2024-06-28",
+            "max_deviation": 0.00016864,
+            "misallocated": 0.0002537
+          },
+          {
+            "date": "2024-07-31",
+            "max_deviation": 0.00030789,
+            "misallocated": 0.0003882
+          },
+          {
+            "date": "2024-08-30",
+            "max_deviation": 0.00030682,
+            "misallocated": 0.00050989
+          },
+          {
+            "date": "2024-09-30",
+            "max_deviation": 0.00018512,
+            "misallocated": 0.00028013
+          },
+          {
+            "date": "2024-10-31",
+            "max_deviation": 0.00020479,
+            "misallocated": 0.00047589
+          },
+          {
+            "date": "2024-11-29",
+            "max_deviation": 0.00030826,
+            "misallocated": 0.00043199
+          },
+          {
+            "date": "2024-12-31",
+            "max_deviation": 0.00027068,
+            "misallocated": 0.00048113
+          },
+          {
+            "date": "2025-01-31",
+            "max_deviation": 0.00016946,
+            "misallocated": 0.00022934
+          },
+          {
+            "date": "2025-02-28",
+            "max_deviation": 0.00036939,
+            "misallocated": 0.00055634
+          },
+          {
+            "date": "2025-03-31",
+            "max_deviation": 0.05151829,
+            "misallocated": 0.05151427
+          },
+          {
+            "date": "2025-04-30",
+            "max_deviation": 0.05685864,
+            "misallocated": 0.05685581
+          },
+          {
+            "date": "2025-05-30",
+            "max_deviation": 0.00022688,
+            "misallocated": 0.00054008
+          },
+          {
+            "date": "2025-06-30",
+            "max_deviation": 0.00016668,
+            "misallocated": 0.00031024
+          },
+          {
+            "date": "2025-07-31",
+            "max_deviation": 0.00031987,
+            "misallocated": 0.00056883
+          },
+          {
+            "date": "2025-08-29",
+            "max_deviation": 0.00021362,
+            "misallocated": 0.00044263
+          },
+          {
+            "date": "2025-09-30",
+            "max_deviation": 0.00027104,
+            "misallocated": 0.00041081
+          },
+          {
+            "date": "2025-10-31",
+            "max_deviation": 0.00020216,
+            "misallocated": 0.00033587
+          },
+          {
+            "date": "2025-11-28",
+            "max_deviation": 0.00025532,
+            "misallocated": 0.00043569
+          },
+          {
+            "date": "2025-12-31",
+            "max_deviation": 0.00017854,
+            "misallocated": 0.00033257
+          },
+          {
+            "date": "2026-01-30",
+            "max_deviation": 0.00031663,
+            "misallocated": 0.0004783
+          },
+          {
+            "date": "2026-02-27",
+            "max_deviation": 0.00016167,
+            "misallocated": 0.00033034
+          },
+          {
+            "date": "2026-03-31",
+            "max_deviation": 9.473e-05,
+            "misallocated": 0.0001937
+          },
+          {
+            "date": "2026-04-30",
+            "max_deviation": 0.00015183,
+            "misallocated": 0.00030246
+          },
+          {
+            "date": "2026-05-29",
+            "max_deviation": 0.0005909,
+            "misallocated": 0.00072155
+          },
+          {
+            "date": "2026-06-30",
+            "max_deviation": 0.00021806,
+            "misallocated": 0.00044488
+          },
+          {
+            "date": "2026-07-31",
+            "max_deviation": 0.00022595,
+            "misallocated": 0.00025578
+          },
+          {
+            "date": "2026-08-31",
+            "max_deviation": 0.00016087,
+            "misallocated": 0.00024716
+          }
+        ],
+        "max_asset_deviation": 0.2806144,
+        "max_misallocation": 0.28061005
+      },
+      "indicators": {
+        "CNDX": [
+          "VOL_EWMA80",
+          "SMA200"
+        ]
+      },
+      "label": "3 REF signal-source - B75D25 hc with CNDX signal",
+      "slug": "3-ref-signal-source-b75d25-hc-with-cndx-signal",
+      "spec": {
+        "fallback": 0.8,
+        "gate": {
+          "assets": [
+            "TQQQ"
+          ],
+          "contribution_exempt": false,
+          "sma_days": 200,
+          "symbol": "CNDX"
+        },
+        "label": "3 REF signal-source - B75D25 hc with CNDX signal",
+        "leverage": 3,
+        "risk": "TQQQ",
+        "safe": {
+          "BTAL": 0.75,
+          "DBMF": 0.25
+        },
+        "sigma_target": 0.2,
+        "type": "vol_target",
+        "vol": {
+          "kind": "ewma",
+          "lam": 0.8
+        },
+        "vol_symbol": "CNDX",
+        "w_max": 0.8,
+        "w_min": 0.0
+      },
+      "summary": {
+        "avg_asset_deviation": 0.0247225,
+        "avg_misallocation": 0.02499937,
+        "best_year": {
+          "return": 0.47218593,
+          "year": 2023
+        },
+        "cagr": 0.22165068,
+        "calmar": 1.00377996,
+        "fee_drag": 0.00897882,
+        "final_value": 139844.79412906,
+        "max_asset_deviation": 0.2806144,
+        "max_drawdown": -0.22081601,
+        "max_drawdown_days": 315,
+        "max_misallocation": 0.28061005,
+        "net_profit": 85844.79412906,
+        "net_profit_pct": 1.58971841,
+        "sharpe": 0.98857471,
+        "sortino": 1.37565955,
+        "total_contributed": 54000.0,
+        "total_fees": 484.856333,
+        "traded_value": 1461718.27871946,
+        "turnover": 1.65966449,
+        "volatility": 0.22389223,
+        "worst_year": {
+          "return": -0.04817131,
+          "year": 2022
+        },
+        "xirr": 0.21678149
+      },
+      "weights": {
+        "BTAL": 0.15,
+        "DBMF": 0.05,
+        "TQQQ": 0.8
+      },
+      "yearly_returns": [
+        {
+          "return": 0.3009272,
+          "year": 2019
+        },
+        {
+          "return": 0.17907124,
+          "year": 2020
+        },
+        {
+          "return": 0.2558696,
+          "year": 2021
+        },
+        {
+          "return": -0.04817131,
+          "year": 2022
+        },
+        {
+          "return": 0.47218593,
+          "year": 2023
+        },
+        {
+          "return": 0.19746809,
+          "year": 2024
+        },
+        {
+          "return": 0.16746793,
+          "year": 2025
+        },
+        {
+          "return": 0.14755227,
+          "year": 2026
+        }
+      ]
+    },
+    {
+      "class": "Fixed",
+      "correlation_to_benchmark": 0.57961377,
+      "data": [],
+      "drawdowns": [
+        {
+          "days": 174,
+          "depth": -0.33470244,
+          "peak": "2020-02-19",
+          "recovery": "2020-08-11",
+          "trough": "2020-03-23"
+        },
+        {
+          "days": 714,
+          "depth": -0.24222672,
+          "peak": "2021-12-30",
+          "recovery": "2023-12-14",
+          "trough": "2022-10-12"
+        },
+        {
+          "days": 127,
+          "depth": -0.1842522,
+          "peak": "2025-02-19",
+          "recovery": "2025-06-26",
+          "trough": "2025-04-07"
+        },
+        {
+          "days": 68,
+          "depth": -0.08739679,
+          "peak": "2020-09-02",
+          "recovery": "2020-11-09",
+          "trough": "2020-09-21"
+        },
+        {
+          "days": 78,
+          "depth": -0.08130198,
+          "peak": "2026-01-27",
+          "recovery": "2026-04-15",
+          "trough": "2026-03-30"
+        }
+      ],
+      "exposure": {
+        "CASH": {
+          "avg": 0.00605177,
+          "avg_target": 0.0,
+          "max": 0.02079312,
+          "min": 0.0001778
+        },
+        "CSPX": {
+          "avg": 0.99394306,
+          "avg_target": 1.0,
+          "max": 0.99981648,
+          "min": 0.97920172
+        }
+      },
+      "imbalance": {
+        "avg_asset_deviation": 0.00605694,
+        "avg_misallocation": 0.00605436,
+        "by_date": [
+          {
+            "date": "2019-05-08",
+            "max_deviation": 0.00694497,
+            "misallocated": 0.00684566
+          },
+          {
+            "date": "2019-05-31",
+            "max_deviation": 0.00225189,
+            "misallocated": 0.0022465
+          },
+          {
+            "date": "2019-06-28",
+            "max_deviation": 0.02079828,
+            "misallocated": 0.0207957
+          },
+          {
+            "date": "2019-07-31",
+            "max_deviation": 0.01154328,
+            "misallocated": 0.01153833
+          },
+          {
+            "date": "2019-08-30",
+            "max_deviation": 0.00503815,
+            "misallocated": 0.00503341
+          },
+          {
+            "date": "2019-09-30",
+            "max_deviation": 0.02059222,
+            "misallocated": 0.02058994
+          },
+          {
+            "date": "2019-10-31",
+            "max_deviation": 0.01222122,
+            "misallocated": 0.01221683
+          },
+          {
+            "date": "2019-11-29",
+            "max_deviation": 0.00292939,
+            "misallocated": 0.00292514
+          },
+          {
+            "date": "2019-12-31",
+            "max_deviation": 0.01428373,
+            "misallocated": 0.01428168
+          },
+          {
+            "date": "2020-01-31",
+            "max_deviation": 0.00486431,
+            "misallocated": 0.00486033
+          },
+          {
+            "date": "2020-02-28",
+            "max_deviation": 0.01903437,
+            "misallocated": 0.01903245
+          },
+          {
+            "date": "2020-03-31",
+            "max_deviation": 0.01838607,
+            "misallocated": 0.01838236
+          },
+          {
+            "date": "2020-04-30",
+            "max_deviation": 0.01107702,
+            "misallocated": 0.01107342
+          },
+          {
+            "date": "2020-05-29",
+            "max_deviation": 0.00444501,
+            "misallocated": 0.00444151
+          },
+          {
+            "date": "2020-06-30",
+            "max_deviation": 0.01479423,
+            "misallocated": 0.01479253
+          },
+          {
+            "date": "2020-07-31",
+            "max_deviation": 0.00600616,
+            "misallocated": 0.00600284
+          },
+          {
+            "date": "2020-08-31",
+            "max_deviation": 0.01232785,
+            "misallocated": 0.01232623
+          },
+          {
+            "date": "2020-09-30",
+            "max_deviation": 0.00412216,
+            "misallocated": 0.00411899
+          },
+          {
+            "date": "2020-10-30",
+            "max_deviation": 0.01220406,
+            "misallocated": 0.01220252
+          },
+          {
+            "date": "2020-11-30",
+            "max_deviation": 0.00145405,
+            "misallocated": 0.00145103
+          },
+          {
+            "date": "2020-12-31",
+            "max_deviation": 0.00622283,
+            "misallocated": 0.00622134
+          },
+          {
+            "date": "2021-01-29",
+            "max_deviation": 0.01085263,
+            "misallocated": 0.01085118
+          },
+          {
+            "date": "2021-02-26",
+            "max_deviation": 0.00018352,
+            "misallocated": 0.00018066
+          },
+          {
+            "date": "2021-03-31",
+            "max_deviation": 0.0035495,
+            "misallocated": 0.0035481
+          },
+          {
+            "date": "2021-04-30",
+            "max_deviation": 0.0058081,
+            "misallocated": 0.00580672
+          },
+          {
+            "date": "2021-05-28",
+            "max_deviation": 0.00798897,
+            "misallocated": 0.00798761
+          },
+          {
+            "date": "2021-06-30",
+            "max_deviation": 0.00969693,
+            "misallocated": 0.0096956
+          },
+          {
+            "date": "2021-07-30",
+            "max_deviation": 0.01092251,
+            "misallocated": 0.01092119
+          },
+          {
+            "date": "2021-08-31",
+            "max_deviation": 0.01157535,
+            "misallocated": 0.01157405
+          },
+          {
+            "date": "2021-09-30",
+            "max_deviation": 0.00074467,
+            "misallocated": 0.0007421
+          },
+          {
+            "date": "2021-10-29",
+            "max_deviation": 0.00154946,
+            "misallocated": 0.0015482
+          },
+          {
+            "date": "2021-11-30",
+            "max_deviation": 0.00239187,
+            "misallocated": 0.00239062
+          },
+          {
+            "date": "2021-12-31",
+            "max_deviation": 0.00259039,
+            "misallocated": 0.00258916
+          },
+          {
+            "date": "2022-01-31",
+            "max_deviation": 0.00390248,
+            "misallocated": 0.00390126
+          },
+          {
+            "date": "2022-02-28",
+            "max_deviation": 0.00531049,
+            "misallocated": 0.00530929
+          },
+          {
+            "date": "2022-03-31",
+            "max_deviation": 0.00576084,
+            "misallocated": 0.00575966
+          },
+          {
+            "date": "2022-04-29",
+            "max_deviation": 0.00798532,
+            "misallocated": 0.00798416
+          },
+          {
+            "date": "2022-05-31",
+            "max_deviation": 0.01018372,
+            "misallocated": 0.01018257
+          },
+          {
+            "date": "2022-06-30",
+            "max_deviation": 0.00285815,
+            "misallocated": 0.00285589
+          },
+          {
+            "date": "2022-07-29",
+            "max_deviation": 0.00469814,
+            "misallocated": 0.00469702
+          },
+          {
+            "date": "2022-08-31",
+            "max_deviation": 0.00719437,
+            "misallocated": 0.00719326
+          },
+          {
+            "date": "2022-09-30",
+            "max_deviation": 0.00035583,
+            "misallocated": 0.00035365
+          },
+          {
+            "date": "2022-10-31",
+            "max_deviation": 0.00302178,
+            "misallocated": 0.00302071
+          },
+          {
+            "date": "2022-11-30",
+            "max_deviation": 0.00527736,
+            "misallocated": 0.0052763
+          },
+          {
+            "date": "2022-12-30",
+            "max_deviation": 0.00812533,
+            "misallocated": 0.00812428
+          },
+          {
+            "date": "2023-01-31",
+            "max_deviation": 0.00961457,
+            "misallocated": 0.00961354
+          },
+          {
+            "date": "2023-02-28",
+            "max_deviation": 0.00160282,
+            "misallocated": 0.00160078
+          },
+          {
+            "date": "2023-03-31",
+            "max_deviation": 0.00335111,
+            "misallocated": 0.0033501
+          },
+          {
+            "date": "2023-04-28",
+            "max_deviation": 0.00483835,
+            "misallocated": 0.00483735
+          },
+          {
+            "date": "2023-05-31",
+            "max_deviation": 0.00627075,
+            "misallocated": 0.00626977
+          },
+          {
+            "date": "2023-06-30",
+            "max_deviation": 0.00662563,
+            "misallocated": 0.00662466
+          },
+          {
+            "date": "2023-07-31",
+            "max_deviation": 0.00680904,
+            "misallocated": 0.00680808
+          },
+          {
+            "date": "2023-08-31",
+            "max_deviation": 0.0074026,
+            "misallocated": 0.00740164
+          },
+          {
+            "date": "2023-09-29",
+            "max_deviation": 0.00871615,
+            "misallocated": 0.0087152
+          },
+          {
+            "date": "2023-10-31",
+            "max_deviation": 0.00094779,
+            "misallocated": 0.00094593
+          },
+          {
+            "date": "2023-11-30",
+            "max_deviation": 0.00131822,
+            "misallocated": 0.0013173
+          },
+          {
+            "date": "2023-12-29",
+            "max_deviation": 0.00120147,
+            "misallocated": 0.00120055
+          },
+          {
+            "date": "2024-01-31",
+            "max_deviation": 0.00094935,
+            "misallocated": 0.00094844
+          },
+          {
+            "date": "2024-02-29",
+            "max_deviation": 0.00032817,
+            "misallocated": 0.00032727
+          },
+          {
+            "date": "2024-03-28",
+            "max_deviation": 0.00839831,
+            "misallocated": 0.00839831
+          },
+          {
+            "date": "2024-04-30",
+            "max_deviation": 0.00805841,
+            "misallocated": 0.00805753
+          },
+          {
+            "date": "2024-05-31",
+            "max_deviation": 0.00702228,
+            "misallocated": 0.0070214
+          },
+          {
+            "date": "2024-06-28",
+            "max_deviation": 0.00539715,
+            "misallocated": 0.00539627
+          },
+          {
+            "date": "2024-07-31",
+            "max_deviation": 0.00409477,
+            "misallocated": 0.00409391
+          },
+          {
+            "date": "2024-08-30",
+            "max_deviation": 0.00268894,
+            "misallocated": 0.00268808
+          },
+          {
+            "date": "2024-09-30",
+            "max_deviation": 0.00109945,
+            "misallocated": 0.0010986
+          },
+          {
+            "date": "2024-10-31",
+            "max_deviation": 0.00808391,
+            "misallocated": 0.00808391
+          },
+          {
+            "date": "2024-11-29",
+            "max_deviation": 0.00580331,
+            "misallocated": 0.00580247
+          },
+          {
+            "date": "2024-12-31",
+            "max_deviation": 0.00415998,
+            "misallocated": 0.00415914
+          },
+          {
+            "date": "2025-01-31",
+            "max_deviation": 0.00211361,
+            "misallocated": 0.00211278
+          },
+          {
+            "date": "2025-02-28",
+            "max_deviation": 0.00052893,
+            "misallocated": 0.00052811
+          },
+          {
+            "date": "2025-03-31",
+            "max_deviation": 0.00750791,
+            "misallocated": 0.00750791
+          },
+          {
+            "date": "2025-04-30",
+            "max_deviation": 0.00632057,
+            "misallocated": 0.00631975
+          },
+          {
+            "date": "2025-05-30",
+            "max_deviation": 0.00423259,
+            "misallocated": 0.00423178
+          },
+          {
+            "date": "2025-06-30",
+            "max_deviation": 0.00206012,
+            "misallocated": 0.00205932
+          },
+          {
+            "date": "2025-07-31",
+            "max_deviation": 0.00785667,
+            "misallocated": 0.00785667
+          },
+          {
+            "date": "2025-08-29",
+            "max_deviation": 0.00555321,
+            "misallocated": 0.00555241
+          },
+          {
+            "date": "2025-09-30",
+            "max_deviation": 0.00302241,
+            "misallocated": 0.00302162
+          },
+          {
+            "date": "2025-10-31",
+            "max_deviation": 0.00043375,
+            "misallocated": 0.00043297
+          },
+          {
+            "date": "2025-11-28",
+            "max_deviation": 0.0057775,
+            "misallocated": 0.0057775
+          },
+          {
+            "date": "2025-12-31",
+            "max_deviation": 0.003197,
+            "misallocated": 0.00319622
+          },
+          {
+            "date": "2026-01-30",
+            "max_deviation": 0.00063055,
+            "misallocated": 0.00062978
+          },
+          {
+            "date": "2026-02-27",
+            "max_deviation": 0.00585413,
+            "misallocated": 0.00585413
+          },
+          {
+            "date": "2026-03-31",
+            "max_deviation": 0.00411,
+            "misallocated": 0.00410923
+          },
+          {
+            "date": "2026-04-30",
+            "max_deviation": 0.00100194,
+            "misallocated": 0.00100118
+          },
+          {
+            "date": "2026-05-29",
+            "max_deviation": 0.00559006,
+            "misallocated": 0.00559006
+          },
+          {
+            "date": "2026-06-30",
+            "max_deviation": 0.00278834,
+            "misallocated": 0.00278759
+          },
+          {
+            "date": "2026-07-31",
+            "max_deviation": 0.00749431,
+            "misallocated": 0.00749431
+          },
+          {
+            "date": "2026-08-31",
+            "max_deviation": 0.0041429,
+            "misallocated": 0.00414215
+          }
+        ],
+        "max_asset_deviation": 0.02079828,
+        "max_misallocation": 0.0207957
+      },
+      "indicators": {},
+      "label": "CSPX benchmark",
+      "slug": "cspx-benchmark",
+      "spec": {
+        "label": "CSPX benchmark",
+        "type": "fixed",
+        "weights": {
+          "CSPX": 1.0
+        }
+      },
+      "summary": {
+        "avg_asset_deviation": 0.00605694,
+        "avg_misallocation": 0.00605436,
+        "best_year": {
+          "return": 0.29247188,
+          "year": 2021
+        },
+        "cagr": 0.15695021,
+        "calmar": 0.46892461,
+        "fee_drag": 0.00019844,
+        "final_value": 110527.09625347,
+        "max_asset_deviation": 0.02079828,
+        "max_drawdown": -0.33470244,
+        "max_drawdown_days": 174,
+        "max_misallocation": 0.0207957,
+        "net_profit": 56527.09625347,
+        "net_profit_pct": 1.04679808,
+        "sharpe": 0.91273111,
+        "sortino": 1.28815923,
+        "total_contributed": 54000.0,
+        "total_fees": 10.71578187,
+        "traded_value": 53578.90935,
+        "turnover": 0.07506776,
+        "volatility": 0.17286711,
+        "worst_year": {
+          "return": -0.18534874,
+          "year": 2022
+        },
+        "xirr": 0.16332593
+      },
+      "weights": {
+        "CSPX": 1.0
+      },
+      "yearly_returns": [
+        {
+          "return": 0.12781417,
+          "year": 2019
+        },
+        {
+          "return": 0.17453508,
+          "year": 2020
+        },
+        {
+          "return": 0.29247188,
+          "year": 2021
+        },
+        {
+          "return": -0.18534874,
+          "year": 2022
+        },
+        {
+          "return": 0.26730076,
+          "year": 2023
+        },
+        {
+          "return": 0.25129765,
+          "year": 2024
+        },
+        {
+          "return": 0.17343277,
+          "year": 2025
+        },
+        {
+          "return": 0.12029557,
+          "year": 2026
+        }
+      ]
+    },
+    {
+      "class": "Fixed",
+      "correlation_to_benchmark": null,
+      "data": [],
+      "drawdowns": [
+        {
+          "days": 173,
+          "depth": -0.33667817,
+          "peak": "2020-02-19",
+          "recovery": "2020-08-10",
+          "trough": "2020-03-23"
+        },
+        {
+          "days": 709,
+          "depth": -0.24425155,
+          "peak": "2022-01-03",
+          "recovery": "2023-12-13",
+          "trough": "2022-10-12"
+        },
+        {
+          "days": 127,
+          "depth": -0.18718881,
+          "peak": "2025-02-19",
+          "recovery": "2025-06-26",
+          "trough": "2025-04-08"
+        },
+        {
+          "days": 70,
+          "depth": -0.09393825,
+          "peak": "2020-09-02",
+          "recovery": "2020-11-11",
+          "trough": "2020-09-23"
+        },
+        {
+          "days": 77,
+          "depth": -0.08918094,
+          "peak": "2026-01-27",
+          "recovery": "2026-04-14",
+          "trough": "2026-03-30"
+        }
+      ],
+      "exposure": {
+        "CASH": {
+          "avg": 0.00562785,
+          "avg_target": 0.0,
+          "max": 0.02233221,
+          "min": 2.24e-06
+        },
+        "SPY": {
+          "avg": 0.99437034,
+          "avg_target": 1.0,
+          "max": 0.99999608,
+          "min": 0.97766612
+        }
+      },
+      "imbalance": {
+        "avg_asset_deviation": 0.00562966,
+        "avg_misallocation": 0.00562876,
+        "by_date": [
+          {
+            "date": "2019-05-08",
+            "max_deviation": 0.00235755,
+            "misallocated": 0.00232264
+          },
+          {
+            "date": "2019-05-31",
+            "max_deviation": 0.0020085,
+            "misallocated": 0.00200675
+          },
+          {
+            "date": "2019-06-28",
+            "max_deviation": 0.02233388,
+            "misallocated": 0.02233304
+          },
+          {
+            "date": "2019-07-31",
+            "max_deviation": 0.01733564,
+            "misallocated": 0.01733404
+          },
+          {
+            "date": "2019-08-30",
+            "max_deviation": 0.01397921,
+            "misallocated": 0.01397768
+          },
+          {
+            "date": "2019-09-30",
+            "max_deviation": 0.00965277,
+            "misallocated": 0.0096513
+          },
+          {
+            "date": "2019-10-31",
+            "max_deviation": 0.00487458,
+            "misallocated": 0.00487316
+          },
+          {
+            "date": "2019-11-29",
+            "max_deviation": 0.01884462,
+            "misallocated": 0.01884393
+          },
+          {
+            "date": "2019-12-31",
+            "max_deviation": 0.01172579,
+            "misallocated": 0.01172446
+          },
+          {
+            "date": "2020-01-31",
+            "max_deviation": 0.0055255,
+            "misallocated": 0.00552421
+          },
+          {
+            "date": "2020-02-28",
+            "max_deviation": 0.00271348,
+            "misallocated": 0.00271224
+          },
+          {
+            "date": "2020-03-31",
+            "max_deviation": 0.0045122,
+            "misallocated": 0.004511
+          },
+          {
+            "date": "2020-04-30",
+            "max_deviation": 0.00144373,
+            "misallocated": 0.00144256
+          },
+          {
+            "date": "2020-05-29",
+            "max_deviation": 0.01376884,
+            "misallocated": 0.01376827
+          },
+          {
+            "date": "2020-06-30",
+            "max_deviation": 0.00909939,
+            "misallocated": 0.00909829
+          },
+          {
+            "date": "2020-07-31",
+            "max_deviation": 0.00291385,
+            "misallocated": 0.00291278
+          },
+          {
+            "date": "2020-08-31",
+            "max_deviation": 0.01068885,
+            "misallocated": 0.01068833
+          },
+          {
+            "date": "2020-09-30",
+            "max_deviation": 0.00495892,
+            "misallocated": 0.0049579
+          },
+          {
+            "date": "2020-10-30",
+            "max_deviation": 0.01407375,
+            "misallocated": 0.01407325
+          },
+          {
+            "date": "2020-11-30",
+            "max_deviation": 0.00513711,
+            "misallocated": 0.00513613
+          },
+          {
+            "date": "2020-12-31",
+            "max_deviation": 0.01070097,
+            "misallocated": 0.01070049
+          },
+          {
+            "date": "2021-01-29",
+            "max_deviation": 0.00306582,
+            "misallocated": 0.00306487
+          },
+          {
+            "date": "2021-02-26",
+            "max_deviation": 0.0082227,
+            "misallocated": 0.00822224
+          },
+          {
+            "date": "2021-03-31",
+            "max_deviation": 0.0121727,
+            "misallocated": 0.01217225
+          },
+          {
+            "date": "2021-04-30",
+            "max_deviation": 0.00209974,
+            "misallocated": 0.00209885
+          },
+          {
+            "date": "2021-05-28",
+            "max_deviation": 0.00538287,
+            "misallocated": 0.00538242
+          },
+          {
+            "date": "2021-06-30",
+            "max_deviation": 0.00814024,
+            "misallocated": 0.0081398
+          },
+          {
+            "date": "2021-07-30",
+            "max_deviation": 0.01038562,
+            "misallocated": 0.01038519
+          },
+          {
+            "date": "2021-08-31",
+            "max_deviation": 3.92e-06,
+            "misallocated": 3.08e-06
+          },
+          {
+            "date": "2021-09-30",
+            "max_deviation": 0.00274092,
+            "misallocated": 0.0027405
+          },
+          {
+            "date": "2021-10-29",
+            "max_deviation": 0.00428931,
+            "misallocated": 0.0042889
+          },
+          {
+            "date": "2021-11-30",
+            "max_deviation": 0.0061172,
+            "misallocated": 0.0061168
+          },
+          {
+            "date": "2021-12-31",
+            "max_deviation": 0.00703093,
+            "misallocated": 0.00703053
+          },
+          {
+            "date": "2022-01-31",
+            "max_deviation": 0.00925716,
+            "misallocated": 0.00925676
+          },
+          {
+            "date": "2022-02-28",
+            "max_deviation": 0.00061137,
+            "misallocated": 0.0006106
+          },
+          {
+            "date": "2022-03-31",
+            "max_deviation": 0.00236684,
+            "misallocated": 0.00236646
+          },
+          {
+            "date": "2022-04-29",
+            "max_deviation": 0.0055326,
+            "misallocated": 0.00553222
+          },
+          {
+            "date": "2022-05-31",
+            "max_deviation": 0.00835697,
+            "misallocated": 0.0083566
+          },
+          {
+            "date": "2022-06-30",
+            "max_deviation": 0.00255927,
+            "misallocated": 0.00255853
+          },
+          {
+            "date": "2022-07-29",
+            "max_deviation": 0.00511592,
+            "misallocated": 0.00511556
+          },
+          {
+            "date": "2022-08-31",
+            "max_deviation": 0.00858584,
+            "misallocated": 0.00858548
+          },
+          {
+            "date": "2022-09-30",
+            "max_deviation": 0.00390596,
+            "misallocated": 0.00390526
+          },
+          {
+            "date": "2022-10-31",
+            "max_deviation": 0.00704917,
+            "misallocated": 0.00704882
+          },
+          {
+            "date": "2022-11-30",
+            "max_deviation": 0.00934864,
+            "misallocated": 0.0093483
+          },
+          {
+            "date": "2022-12-30",
+            "max_deviation": 0.00360502,
+            "misallocated": 0.00360435
+          },
+          {
+            "date": "2023-01-31",
+            "max_deviation": 0.00601362,
+            "misallocated": 0.00601328
+          },
+          {
+            "date": "2023-02-28",
+            "max_deviation": 0.00903746,
+            "misallocated": 0.00903713
+          },
+          {
+            "date": "2023-03-31",
+            "max_deviation": 0.00177964,
+            "misallocated": 0.00177899
+          },
+          {
+            "date": "2023-04-28",
+            "max_deviation": 0.00399134,
+            "misallocated": 0.00399102
+          },
+          {
+            "date": "2023-05-31",
+            "max_deviation": 0.00611747,
+            "misallocated": 0.00611715
+          },
+          {
+            "date": "2023-06-30",
+            "max_deviation": 0.00718586,
+            "misallocated": 0.00718554
+          },
+          {
+            "date": "2023-07-31",
+            "max_deviation": 0.00804437,
+            "misallocated": 0.00804405
+          },
+          {
+            "date": "2023-08-31",
+            "max_deviation": 0.00055947,
+            "misallocated": 0.00055885
+          },
+          {
+            "date": "2023-09-29",
+            "max_deviation": 0.00236407,
+            "misallocated": 0.00236376
+          },
+          {
+            "date": "2023-10-31",
+            "max_deviation": 0.00439093,
+            "misallocated": 0.00439063
+          },
+          {
+            "date": "2023-11-30",
+            "max_deviation": 0.00508795,
+            "misallocated": 0.00508765
+          },
+          {
+            "date": "2023-12-29",
+            "max_deviation": 0.00550611,
+            "misallocated": 0.00550581
+          },
+          {
+            "date": "2024-01-31",
+            "max_deviation": 0.00590728,
+            "misallocated": 0.00590698
+          },
+          {
+            "date": "2024-02-29",
+            "max_deviation": 0.00565847,
+            "misallocated": 0.00565818
+          },
+          {
+            "date": "2024-03-28",
+            "max_deviation": 0.00526575,
+            "misallocated": 0.00526546
+          },
+          {
+            "date": "2024-04-30",
+            "max_deviation": 0.00560856,
+            "misallocated": 0.00560827
+          },
+          {
+            "date": "2024-05-31",
+            "max_deviation": 0.00506409,
+            "misallocated": 0.0050638
+          },
+          {
+            "date": "2024-06-28",
+            "max_deviation": 0.00435962,
+            "misallocated": 0.00435934
+          },
+          {
+            "date": "2024-07-31",
+            "max_deviation": 0.00369176,
+            "misallocated": 0.00369148
+          },
+          {
+            "date": "2024-08-30",
+            "max_deviation": 0.00283075,
+            "misallocated": 0.00283047
+          },
+          {
+            "date": "2024-09-30",
+            "max_deviation": 0.00186277,
+            "misallocated": 0.00186249
+          },
+          {
+            "date": "2024-10-31",
+            "max_deviation": 0.00104149,
+            "misallocated": 0.00104121
+          },
+          {
+            "date": "2024-11-29",
+            "max_deviation": 0.00757566,
+            "misallocated": 0.00757566
+          },
+          {
+            "date": "2024-12-31",
+            "max_deviation": 0.00668899,
+            "misallocated": 0.00668871
+          },
+          {
+            "date": "2025-01-31",
+            "max_deviation": 0.00527696,
+            "misallocated": 0.00527669
+          },
+          {
+            "date": "2025-02-28",
+            "max_deviation": 0.00420046,
+            "misallocated": 0.00420019
+          },
+          {
+            "date": "2025-03-31",
+            "max_deviation": 0.00370284,
+            "misallocated": 0.00370258
+          },
+          {
+            "date": "2025-04-30",
+            "max_deviation": 0.00305635,
+            "misallocated": 0.00305608
+          },
+          {
+            "date": "2025-05-30",
+            "max_deviation": 0.00180182,
+            "misallocated": 0.00180155
+          },
+          {
+            "date": "2025-06-30",
+            "max_deviation": 0.00034183,
+            "misallocated": 0.00034157
+          },
+          {
+            "date": "2025-07-31",
+            "max_deviation": 0.00625404,
+            "misallocated": 0.00625404
+          },
+          {
+            "date": "2025-08-29",
+            "max_deviation": 0.00450354,
+            "misallocated": 0.00450328
+          },
+          {
+            "date": "2025-09-30",
+            "max_deviation": 0.00254687,
+            "misallocated": 0.00254662
+          },
+          {
+            "date": "2025-10-31",
+            "max_deviation": 0.0005704,
+            "misallocated": 0.00057015
+          },
+          {
+            "date": "2025-11-28",
+            "max_deviation": 0.00591329,
+            "misallocated": 0.00591329
+          },
+          {
+            "date": "2025-12-31",
+            "max_deviation": 0.00399387,
+            "misallocated": 0.00399362
+          },
+          {
+            "date": "2026-01-30",
+            "max_deviation": 0.00195603,
+            "misallocated": 0.00195578
+          },
+          {
+            "date": "2026-02-27",
+            "max_deviation": 5.366e-05,
+            "misallocated": 5.341e-05
+          },
+          {
+            "date": "2026-03-31",
+            "max_deviation": 0.005529,
+            "misallocated": 0.005529
+          },
+          {
+            "date": "2026-04-30",
+            "max_deviation": 0.00285243,
+            "misallocated": 0.00285218
+          },
+          {
+            "date": "2026-05-29",
+            "max_deviation": 0.00032676,
+            "misallocated": 0.00032651
+          },
+          {
+            "date": "2026-06-30",
+            "max_deviation": 0.00502056,
+            "misallocated": 0.00502056
+          },
+          {
+            "date": "2026-07-31",
+            "max_deviation": 0.00270166,
+            "misallocated": 0.00270142
+          },
+          {
+            "date": "2026-08-31",
+            "max_deviation": 0.0002083,
+            "misallocated": 0.00020806
+          }
+        ],
+        "max_asset_deviation": 0.02233388,
+        "max_misallocation": 0.02233304
+      },
+      "indicators": {},
+      "label": "SPY benchmark",
+      "slug": "spy-benchmark",
+      "spec": {
+        "label": "SPY benchmark",
+        "type": "fixed",
+        "weights": {
+          "SPY": 1.0
+        }
+      },
+      "summary": {
+        "avg_asset_deviation": 0.00562966,
+        "avg_misallocation": 0.00562876,
+        "best_year": {
+          "return": 0.28241522,
+          "year": 2021
+        },
+        "cagr": 0.15658161,
+        "calmar": 0.465078,
+        "fee_drag": 7.003e-05,
+        "final_value": 110206.00297799,
+        "max_asset_deviation": 0.02233388,
+        "max_drawdown": -0.33667817,
+        "max_drawdown_days": 173,
+        "max_misallocation": 0.02233304,
+        "net_profit": 56206.00297799,
+        "net_profit_pct": 1.04085191,
+        "sharpe": 0.83653271,
+        "sortino": 1.18280651,
+        "total_contributed": 54000.0,
+        "total_fees": 3.78152701,
+        "traded_value": 54021.81437652,
+        "turnover": 0.07574465,
+        "volatility": 0.192545,
+        "worst_year": {
+          "return": -0.18161772,
+          "year": 2022
+        },
+        "xirr": 0.16266615
+      },
+      "weights": {
+        "SPY": 1.0
+      },
+      "yearly_returns": [
+        {
+          "return": 0.13199059,
+          "year": 2019
+        },
+        {
+          "return": 0.17831235,
+          "year": 2020
+        },
+        {
+          "return": 0.28241522,
+          "year": 2021
+        },
+        {
+          "return": -0.18161772,
+          "year": 2022
+        },
+        {
+          "return": 0.25731657,
+          "year": 2023
+        },
+        {
+          "return": 0.24561192,
+          "year": 2024
+        },
+        {
+          "return": 0.17473225,
+          "year": 2025
+        },
+        {
+          "return": 0.12631528,
+          "year": 2026
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "DBMF_EU": {"fx": "EURUSD", "scale": 1},
+  "LQQ": {"fx": "EURUSD", "scale": 1},
+  "MVEA": {"fx": "EURUSD", "scale": 1},
+  "XSPS": {"fx": "GBPUSD", "scale": 0.01}
+}

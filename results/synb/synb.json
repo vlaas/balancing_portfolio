@@ -1,0 +1,118 @@
+{
+  "arms": {
+    "0.40": {
+      "f1": false,
+      "f1_corr": 0.33189196,
+      "f2": true,
+      "f2_k": 7,
+      "f2_mean_pp": 0.32897616,
+      "f3": true,
+      "f3_btal_dd": -0.31119733,
+      "f3_ratio": 0.11159914,
+      "f3_synb_dd": -0.03472936,
+      "primary": false,
+      "verdict": "ARM-ONLY",
+      "w": 0.4
+    },
+    "0.45": {
+      "f1": true,
+      "f1_corr": 0.52453114,
+      "f2": true,
+      "f2_k": 7,
+      "f2_mean_pp": 0.87284472,
+      "f3": true,
+      "f3_btal_dd": -0.31119733,
+      "f3_ratio": 0.13583087,
+      "f3_synb_dd": -0.04227021,
+      "primary": true,
+      "verdict": "PROXY",
+      "w": 0.45
+    },
+    "0.50": {
+      "f1": true,
+      "f1_corr": 0.65557494,
+      "f2": true,
+      "f2_k": 7,
+      "f2_mean_pp": 1.41671327,
+      "f3": true,
+      "f3_btal_dd": -0.31119733,
+      "f3_ratio": 0.17680363,
+      "f3_synb_dd": -0.05502082,
+      "primary": false,
+      "verdict": "PROXY",
+      "w": 0.5
+    }
+  },
+  "estimation": {
+    "beta_long": 0.7739439,
+    "beta_short": -0.97813058,
+    "chosen": 0.45,
+    "first_month_end": "2020-05-29",
+    "last_month_end": "2023-12-29",
+    "n_month_ends": 44,
+    "n_returns": 43,
+    "w_star": 0.44173002
+  },
+  "f4": [
+    {
+      "months": 7,
+      "short_spy_pct": -21.01863034,
+      "shortfall_pp": -0.65028746,
+      "xsps_pct": -21.6689178,
+      "year": 2020
+    },
+    {
+      "months": 12,
+      "short_spy_pct": -24.06776213,
+      "shortfall_pp": -0.34572511,
+      "xsps_pct": -24.41348724,
+      "year": 2021
+    },
+    {
+      "months": 12,
+      "short_spy_pct": 16.60054148,
+      "shortfall_pp": 4.33441664,
+      "xsps_pct": 20.93495812,
+      "year": 2022
+    },
+    {
+      "months": 12,
+      "short_spy_pct": -22.51546171,
+      "shortfall_pp": 7.76438887,
+      "xsps_pct": -14.75107284,
+      "year": 2023
+    },
+    {
+      "months": 12,
+      "short_spy_pct": -21.22539411,
+      "shortfall_pp": 9.2137831,
+      "xsps_pct": -12.01161101,
+      "year": 2024
+    },
+    {
+      "months": 12,
+      "short_spy_pct": -16.34553352,
+      "shortfall_pp": 5.48756595,
+      "xsps_pct": -10.85796757,
+      "year": 2025
+    },
+    {
+      "months": 8,
+      "short_spy_pct": -12.64462814,
+      "shortfall_pp": 4.57512478,
+      "xsps_pct": -8.06950336,
+      "year": 2026
+    }
+  ],
+  "root": "2026-09-02-net15-usd",
+  "window": {
+    "e4": [
+      "2020-09-01",
+      "2021-03-31"
+    ],
+    "first_month_end": "2020-05-29",
+    "last_month_end": "2026-08-28",
+    "n_month_ends": 76,
+    "n_returns": 75
+  }
+}
