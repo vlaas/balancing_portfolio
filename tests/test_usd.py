@@ -20,11 +20,13 @@ SYN = [("2024-01-01", 100.0), ("2024-01-02", 101.0), ("2024-01-03", 102.0),
        ("2024-01-04", 103.0), ("2024-01-05", 104.0)]
 OTH = [("2024-01-01", 50.0), ("2024-01-02", 51.0), ("2024-01-03", 52.0)]
 IDX = [("2024-01-01", 1.0), ("2024-01-02", 1.5)]
-# Starts before SYN, lacks 2024-01-03 (carried from the 2nd), has a bar SYN
-# lacks (2024-01-06, never used).
+# TradingView labels an FX bar by its 17:00 New York open, so the bar that
+# closes on date D is labelled D - 1: SYN's 01-01 takes the 12-31 bar. The
+# 01-03 label is missing (an FX holiday), so 01-04 carries the 01-02 bar and
+# is the one stale row; 01-06 is a label SYN never reaches.
 FX = [("2023-12-31", 1.10), ("2024-01-01", 1.11), ("2024-01-02", 1.12),
       ("2024-01-04", 1.14), ("2024-01-05", 1.15), ("2024-01-06", 1.16)]
-RATES = [1.11, 1.12, 1.12, 1.14, 1.15]
+RATES = [1.10, 1.11, 1.12, 1.12, 1.14]
 SCALE = 0.01
 
 
@@ -96,17 +98,23 @@ def test_readme_names_the_parent_and_the_conversion(src, tmp_path):
     run(src, out)
     readme = (out / "README.md").read_text()
     assert readme.startswith("# USD-converted snapshot — src-usd\n")
-    assert "| SYN | FX | 0.01 | 5 | 1 | 1.11 | 1.15 |" in readme
+    assert "| SYN | FX | 0.01 | 5 | 1 | 1.1 | 1.14 |" in readme
 
 
-def test_fx_is_carried_from_the_latest_bar_on_or_before_each_date():
+def test_fx_is_the_latest_bar_labelled_strictly_before_each_date():
     rate, stale = fx_on("SYN", [t for t, _ in FX], [v for _, v in FX], [t for t, _ in SYN])
     assert rate == RATES
     assert stale == 1
 
 
-def test_a_bar_before_the_fx_series_begins_is_loud(src, tmp_path):
-    write_series(src, "FX", FX[2:])  # first FX bar 2024-01-02
+def test_a_same_date_fx_bar_is_never_used():
+    # The bar labelled D closes on D + 1 — a day of look-ahead.
+    rate, _ = fx_on("SYN", ["2024-01-01", "2024-01-02"], [1.0, 2.0], ["2024-01-02"])
+    assert rate == [1.0]
+
+
+def test_a_bar_with_no_earlier_fx_bar_is_loud(src, tmp_path):
+    write_series(src, "FX", FX[1:])  # first FX label 2024-01-01, SYN starts 2024-01-01
     with pytest.raises(ValueError, match="SYN 2024-01-01"):
         run(src, tmp_path / "usd")
     assert not (tmp_path / "usd").exists()

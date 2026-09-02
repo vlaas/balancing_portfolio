@@ -571,3 +571,13 @@ order mechanics beyond the cost map; any change to engine files or
     `<date>-net15-lqq0` while the directory keeps the spec's name.
 11. **Inputs.** `docs/RESEARCH_RECAP.md` and the EU memo of 2026-08-31 are not
     in the repository; this spec is the source of every bar and instrument.
+12. **§3.5 FX stamps.** TradingView labels an `FX_IDC` daily bar by its 17:00
+    New York *open* (Sunday–Thursday labels, no Fridays; the bar labelled
+    2016-06-23 holds the Brexit-vote crash of Friday the 24th), so the bar
+    that closes on date D is labelled D − 1. `make_usd.py` joins the latest
+    FX bar labelled **strictly before** the symbol's date — ~5.5 h after the
+    London close, the same-day offset this section accepts — not the
+    same-date label, which would close on D + 1 and look a day ahead. The
+    operator's 2026-09-03 batch also re-exported every US pair after the
+    close (all 48 anchors exact) and the two FX singles, whose last label is
+    2026-09-01 (the bar closing 2026-09-02).

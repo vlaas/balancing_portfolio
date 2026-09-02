@@ -2,13 +2,18 @@
 
 Reads a dataset root in the TOTAL_RETURN_SPEC §3 convention and the committed
 line map `data/fx_lines.json` (EU_SUBSTITUTE_SPEC §3.5): for every mapped
-symbol the close is multiplied by the same-date close of its FX series and by
-a per-line scale (1 for a EUR line, 0.01 for a GBX line quoted in pence). The
-FX series is read from the root itself — it is an index-class single series
-that every generator byte-copies — and forward-filled onto the symbol's own
-calendar, so the snapshot stays reproducible from committed inputs alone. The
-~1 h offset between the Xetra/LSE close and the 17:00 New York FX stamp is
-accepted and documented. Every other file is byte-copied. A converted
+symbol the close is multiplied by the close of the FX bar that ends on its
+date and by a per-line scale (1 for a EUR line, 0.01 for a GBX line quoted
+in pence). TradingView stamps an FX_IDC daily bar by its 17:00 New York
+*open* (Sunday–Thursday labels, no Friday), so the bar that closes at 17:00
+New York on date D is the one labelled D − 1: the join takes the latest FX
+bar labelled strictly before the symbol's date, carried across FX holidays.
+That close is ~5.5 h after the London close and ~6 h after Xetra's — the
+same-day offset EU_SUBSTITUTE_SPEC §3.5 accepts; the bar labelled D would
+close on D + 1 and look a day ahead. The FX series is read from the root
+itself — it is an index-class single series that every generator byte-copies
+— so the snapshot stays reproducible from committed inputs alone. Every
+other file is byte-copied. A converted
 `<SYM>.csv` carries `time,close` only and has no `price/` twin: a converted
 series has no unadjusted twin in its trading currency, and the parent keeps
 the original. Deterministic by construction — no clock, no environment — so
@@ -20,6 +25,7 @@ Run: uv run make_usd.py tests/data/2026-09-02-net15 [--map data/fx_lines.json]
 """
 
 import argparse
+import datetime as dt
 import json
 import shutil
 from pathlib import Path
@@ -58,20 +64,22 @@ def load_map(path: Path) -> dict[str, tuple[str, float]]:
 
 def fx_on(symbol: str, fx_times: list[str], fx_values: list[float],
           times: list[str]) -> tuple[list[float], int]:
-    """The FX close carried onto `times` (same-date, else the latest earlier
-    bar) and the count of bars that took an earlier bar's rate. ISO dates
-    compare as strings. A bar before the FX series begins is a hard error."""
+    """The close of the latest FX bar labelled strictly before each of
+    `times` — the bar that closes at 17:00 New York on that date — and the
+    count of bars whose FX bar is older than the previous calendar day (an FX
+    holiday, carried). ISO dates compare as strings. A bar with no earlier FX
+    bar is a hard error."""
     if any(b <= a for a, b in zip(fx_times, fx_times[1:])):
         raise ValueError(f"{symbol}: FX series is not strictly ascending")
     filled, stale, i, last, last_time = [], 0, 0, None, None
     for time in times:
-        while i < len(fx_times) and fx_times[i] <= time:
+        while i < len(fx_times) and fx_times[i] < time:
             last, last_time = fx_values[i], fx_times[i]
             i += 1
         if last is None:
-            raise ValueError(f"{symbol} {time}: no FX bar on or before this date")
+            raise ValueError(f"{symbol} {time}: no FX bar before this date")
         filled.append(last)
-        stale += last_time != time
+        stale += (dt.date.fromisoformat(time) - dt.date.fromisoformat(last_time)).days > 1
     return filled, stale
 
 
@@ -129,12 +137,15 @@ def render_readme(parent: str, results: dict) -> str:
         "",
         f"Derived from the frozen `{parent}` snapshot by `make_usd.py`",
         "(EU_SUBSTITUTE_SPEC §3.5): each mapped symbol's close is multiplied by",
-        "the same-date close of its FX series (read from the parent root,",
-        "forward-filled onto the symbol's own calendar — a bar with no FX bar",
-        "on its date takes the latest earlier one, counted as stale below) and by",
-        "the line's scale (1 for a EUR line, 0.01 for a GBX line quoted in",
-        "pence). The ~1 h offset between the Xetra/LSE close and the 17:00 New",
-        "York FX stamp is accepted. A converted `<SYM>.csv` carries `time,close`",
+        "the close of the FX bar that ends on its date and by the line's scale",
+        "(1 for a EUR line, 0.01 for a GBX line quoted in pence). TradingView",
+        "stamps an FX_IDC daily bar by its 17:00 New York open, so the bar that",
+        "closes on date D is labelled D − 1: the join takes the latest FX bar",
+        "labelled strictly before the symbol's date (read from the parent root),",
+        "carried across FX holidays — a bar whose FX bar is older than the",
+        "previous calendar day is counted as stale below. That close is ~5.5 h",
+        "after the London close, the same-day offset the spec accepts; the bar",
+        "labelled D would close on D + 1. A converted `<SYM>.csv` carries `time,close`",
         "only and has no `price/` twin — a converted series has no unadjusted",
         "twin in its trading currency; the parent keeps the original. Every",
         "other file, `price/` twins included, is byte-copied from the parent.",
