@@ -16,8 +16,8 @@ import polars as pl
 import pytest
 
 from overlap_report import (
-    CARRIED, DECISION, LETTER, PAIRS, PERIODS, haircuts, joint, period_ends, regress,
-    verdict,
+    CARRIED, DECISION, GROSS_BASIS, LETTER, PAIRS, PERIODS, gross_root, haircuts, joint,
+    period_ends, regress, verdict,
 )
 from overlap_report import main as overlap_main
 
@@ -41,7 +41,14 @@ def test_the_registered_pairs_and_carried_slots_are_frozen():
     assert CARRIED == {"P1": "TQQQ", "P3": "BIL", "P6": "DBMF"}
     assert DECISION == {"P6": "weekly"}
     assert LETTER == {"P6": "weekly"}
+    assert GROSS_BASIS == {"P3"}
     assert PERIODS == {"monthly": 12, "quarterly": 4, "weekly": 52}
+
+
+def test_the_gross_parent_is_the_root_name_before_its_first_net_suffix():
+    assert gross_root(Path("tests/data/2026-09-02-net15-usd")) == Path("tests/data/2026-09-02")
+    assert gross_root(Path("tests/data/2026-09-02-net15")) == Path("tests/data/2026-09-02")
+    assert gross_root(Path("x/root")) == Path("x/root")  # its own gross basis
 
 
 def test_joint_month_ends_respect_both_calendars(tmp_path):
@@ -207,7 +214,9 @@ def test_a_run_writes_the_three_artefacts(twin_root, tmp_path):
     assert payload["root"] == twin_root.name
     assert [p["id"] for p in payload["pairs"]] == [p[0] for p in PAIRS]
     for pair in payload["pairs"][:5]:
-        assert pair["verdict"] == pair["verdict_letter"] == "PASS"
+        expected = "PASS-BY-ERRATUM" if pair["id"] == "P3" else "PASS"
+        assert (pair["verdict"], pair["verdict_letter"]) == (expected, "PASS")
+        assert pair["basis"] == twin_root.name  # no -net suffix: its own gross basis
         assert pair["decision_horizon"] == "quarterly" and pair["letter_horizon"] == "monthly"
         for horizon in PERIODS:
             assert pair[horizon]["beta"] == pytest.approx(1.0)
@@ -218,10 +227,12 @@ def test_a_run_writes_the_three_artefacts(twin_root, tmp_path):
     assert p6["decision_horizon"] == p6["letter_horizon"] == "weekly"
     assert p6["weekly"]["n"] > p6["monthly"]["n"] > p6["quarterly"]["n"]
     assert payload["haircuts"] == {"TQQQ": 0.0, "BIL": 0.0, "DBMF": 0.0}
+    assert payload["pairs"][2]["net_basis"]["root"] == twin_root.name
     assert json.loads((out / "haircuts.json").read_text()) == payload["haircuts"]
     md = (out / "overlap.md").read_text()
     assert md.count("| P1 |") == 3 and md.count("| P8 |") == 3
     assert "| **PASS** |" in md and "| letter: PASS |" in md
+    assert "| **PASS-BY-ERRATUM** |" in md and "P3 on `" in md
     assert "| BIL | 0.0000 |" in md
 
 
@@ -237,7 +248,8 @@ ROOT = pytest.mark.skipif(not USD.exists(), reason="the decision root is committ
 GOLDEN_ROWS = {
     "P1": ("quarterly", 54, 0.99764916, 0.98462007, -0.14206396, "PASS", "FAIL"),
     "P2": ("quarterly", 16, 1.07181571, 0.97863386, -3.77922656, "FAIL", "FAIL"),
-    "P3": ("quarterly", 29, 1.17690634, 0.95081871, 0.48157531, "FAIL", "PASS"),
+    # P3 on its gross basis (erratum 13): IB01 against gross BIL.
+    "P3": ("quarterly", 29, 1.00526208, 0.95506755, 0.09234548, "PASS-BY-ERRATUM", "PASS"),
     "P4": ("quarterly", 63, 0.97918548, 0.97942306, 0.00030675, "FAIL", "FAIL"),
     "P5": ("quarterly", 63, 1.00469251, 0.98277252, -0.13596175, "FAIL", "FAIL"),
     "P6": ("weekly", 75, 0.94648114, 0.42898342, 4.89624001, "FAIL", "FAIL"),
@@ -277,7 +289,13 @@ def test_the_monthly_letter_is_the_close_gap_and_the_quarterly_reading_recovers(
     assert p6["weekly"]["corr"] == pytest.approx(0.65496826, abs=1e-6)
     assert p6["weekly"]["resid_yr"] == pytest.approx(9.65936321, abs=1e-6)
     assert p6["monthly"]["n"] == 17
-    assert p3["quarterly"]["drift_yr"] > 0.30 and p3["quarterly"]["resid_yr"] < 0.75
+    # P3: gross basis passes; the pre-registered net-15 basis fails by outperforming.
+    assert p3["basis"] == "2026-09-02" and frozen["gross"] == "2026-09-02"
+    net = p3["net_basis"]["quarterly"]
+    assert p3["net_basis"]["root"] == "2026-09-02-net15-usd"
+    assert net["drift_yr"] == pytest.approx(0.48157531, abs=1e-6)
+    assert net["resid_yr"] == pytest.approx(0.23682501, abs=1e-6)
+    assert verdict("P3", net) == "FAIL"
 
 
 @ROOT
@@ -285,5 +303,5 @@ def test_the_committed_artefacts_are_the_rounded_report(frozen):
     import results_json
     payload = results_json._round(frozen)
     assert payload == json.loads((ARTEFACTS / "overlap.json").read_text())
-    assert json.loads((ARTEFACTS / "haircuts.json").read_text()) == {"TQQQ": 0.14206396}
-    assert payload["haircuts"] == {"TQQQ": 0.14206396}
+    assert json.loads((ARTEFACTS / "haircuts.json").read_text()) == {"BIL": 0.0, "TQQQ": 0.14206396}
+    assert payload["haircuts"] == {"BIL": 0.0, "TQQQ": 0.14206396}

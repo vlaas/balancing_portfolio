@@ -265,7 +265,7 @@ listed is not a bar.
 |---|---|---|---|---|---|
 | P1 | QQQ3 / TQQQ | MECHANICAL | ~164 | β ∈ [0.97, 1.03]; R² ≥ 0.98; α ∈ (−2.0, +0.5] %/yr | PASS → pin h = −α̂. α ∈ (−3, −2] → CONDITIONAL (usable, flagged). else FAIL |
 | P2 | QQL3 / TQQQ | MECHANICAL | ~51 | same as P1 | same; expected FAIL on α (session −5.25) — run and record either way |
-| P3 | IB01 / BIL | MECHANICAL | ~90 | \|α\| ≤ 0.30 %/yr; resid ≤ 0.75 %/yr (β unbarred — ill-conditioned at near-zero vol) | PASS → h = −α̂ |
+| P3 | IB01 / BIL | MECHANICAL | ~90 | \|α\| ≤ 0.30 %/yr; resid ≤ 0.75 %/yr (β unbarred — ill-conditioned at near-zero vol). **Basis corrected in place (erratum 13): gross BIL**, the parent snapshot — a net-15 root charges BIL's Treasury interest a withholding IB01 does not pay | PASS → h = −α̂; on the corrected basis the pass is labelled **PASS-BY-ERRATUM** and the net-15 reading is recorded beside it |
 | P4 | CSPX / SPY | MECHANICAL | ~190 | β ∈ [0.97, 1.03]; R² ≥ 0.99; α ∈ [−0.60, +0.10] %/yr on the net15 root | PASS → CSPX adopted as the holdable benchmark |
 | P5 | CNDX / QQQ | MECHANICAL | ~190 | same as P4 | PASS → CNDX adopted as the EU signal symbol |
 | P6 | DBMF_EU / DBMF | FUNCTIONAL (near-MECHANICAL: same manager, same strategy) | ~17 (underpowered) | weekly supplement, n ≈ 76: corr ≥ 0.90; β ∈ [0.8, 1.2]; \|α\| ≤ 1.5 %/yr | at best **PROVISIONAL PASS**; full promotion deferred to ≥ 36 months of overlap — ledger `Open:` line at 2028-03 |
@@ -581,3 +581,26 @@ order mechanics beyond the cost map; any change to engine files or
     operator's 2026-09-03 batch also re-exported every US pair after the
     close (all 48 anchors exact) and the two FX singles, whose last label is
     2026-09-01 (the bar closing 2026-09-02).
+13. **§4.2 P3 basis (operator decision 2026-09-03, corrected in place).** On
+    the pre-registered net-15 basis IB01 fails the two-sided drift bar by
+    **outperforming** BIL: quarterly drift +0.48 %/yr (residual 0.24, β 1.18
+    unbarred) — exactly the 15 % withholding the net-15 root charges BIL's
+    Treasury interest, which an Irish accumulating fund does not pay (and
+    which CASH_SLEEVE_SPEC §10.5 argues BIL itself does not owe — the `-bil0`
+    root). §2.4 reading 4 had predicted the gross comparison (+0.11 %/yr).
+    The P3 row is corrected in place to the gross basis (the parent snapshot
+    `2026-09-02`): drift +0.09, residual 0.23, β 1.005 → **PASS-BY-ERRATUM**,
+    h(BIL) = 0; `overlap_report.py` reads P3 from the gross parent
+    (`--gross`, default the root's name before its first `-net` suffix) and
+    records the net-15 reading beside it. Under the letter of the net-15
+    basis P3 is FAIL and the EU flag variant BLOCKED(cash) — by an instrument
+    that beats the original.
+14. **§4.2 P4/P5 (operator decision 2026-09-03, recorded, not amended).** At
+    the §4.4 quarterly horizon CSPX/SPY and CNDX/QQQ pass β and drift (0.979
+    / +0.00 and 1.005 / −0.14) but miss R² ≥ 0.99 at 0.979 and 0.983 — the
+    close gap's residual ≈ 2 % variance share that §4.4 predicted, against a
+    bar that tolerates 1 %. The annual reading (0.993 / 0.997, n = 15) would
+    pass but was not pre-registered. Both verdicts stay **FAIL**; CSPX and
+    CNDX are used as the benchmark and the signal of every lane as
+    pre-written, and the verdict compares against SPY as well (the benchmark
+    choice moves no bar: 18.26 vs 18.39 % CAGR on the eu-2020 lane).

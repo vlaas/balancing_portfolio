@@ -180,7 +180,9 @@ def test_the_hc_root_differs_from_its_parent_in_tqqq_alone():
     moved = [p.name for p in sorted(HC.glob("*.csv")) if not filecmp.cmp(p, USD / p.name, shallow=False)]
     assert moved == ["TQQQ.csv"]
     assert not (HC / "price" / "TQQQ.csv").exists()
-    assert json.loads(HAIRCUTS.read_text()) == {"TQQQ": 0.14206396}
+    assert json.loads(HAIRCUTS.read_text()) == {"BIL": 0.0, "TQQQ": 0.14206396}
+    assert filecmp.cmp(HC / "BIL.csv", USD / "BIL.csv", shallow=False)  # h = 0: byte-copied
+    assert "| BIL | 0 | — | byte-copied |" in (HC / "README.md").read_text()
     parent = pl.read_csv(USD / "TQQQ.csv")["close"]
     cut = pl.read_csv(HC / "TQQQ.csv")["close"]
     assert cut[0] == parent[0]

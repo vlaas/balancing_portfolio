@@ -9,6 +9,13 @@ resid_yr (%/yr), the rolling-12-period tracking difference and the worst
 single period, applies the pre-registered bars and pins the haircut constants
 h = max(0, -drift) for the carried component slots (§4.3, §6.3).
 
+Erratum 13 (P3's basis): a net-15 root charges BIL's Treasury interest a
+withholding an Irish accumulating fund does not pay, so IB01 outperforms
+net-15 BIL by that withholding and fails a two-sided drift bar by winning.
+P3 is therefore read against **gross** BIL — the parent snapshot, by default
+the root's name before its first `-net` suffix — and a pass on that basis
+is labelled PASS-BY-ERRATUM; the net-15 reading is recorded beside it.
+
 §4.4 (the async-close amendment, pre-registered before any Phase-3 run): an
 LSE or Euronext close precedes New York's by ~4.5 h, so a period return of an
 EU line carries the gap's move twice, in and out. The gap is a constant ~3 %
@@ -55,7 +62,8 @@ CARRIED = {"P1": "TQQQ", "P3": "BIL", "P6": "DBMF"}
 PERIODS = {"monthly": 12, "quarterly": 4, "weekly": 52}
 DECISION = {"P6": "weekly"}  # every other pair decides on the quarterly horizon (§4.4)
 LETTER = {"P6": "weekly"}    # the §4.2 letter: monthly, P6 weekly, the intercept as α
-PASSING = {"PASS", "CONDITIONAL", "PROVISIONAL PASS"}
+GROSS_BASIS = {"P3"}         # erratum 13: read against the gross parent snapshot
+PASSING = {"PASS", "PASS-BY-ERRATUM", "CONDITIONAL", "PROVISIONAL PASS"}
 
 
 def joint(data_dir: Path, eu: str, us: str) -> pl.DataFrame:
@@ -151,14 +159,23 @@ def haircuts(rows: list[dict]) -> dict[str, float]:
     return out
 
 
-def report(data_dir: Path) -> dict:
+def gross_root(data_dir: Path) -> Path:
+    """The parent gross snapshot of a derived root: `2026-09-02-net15-usd` →
+    `2026-09-02`; a root with no `-net` suffix is its own gross basis."""
+    return data_dir.with_name(data_dir.name.split("-net")[0])
+
+
+def report(data_dir: Path, gross_dir: Path | None = None) -> dict:
+    gross_dir = gross_dir or gross_root(data_dir)
     rows = []
     for pair_id, eu, us, cls in PAIRS:
-        frame = joint(data_dir, eu, us)
+        basis = gross_dir if pair_id in GROSS_BASIS else data_dir
+        frame = joint(basis, eu, us)
         stats = {h: regress(period_ends(frame, h), p) for h, p in PERIODS.items()}
         decision, letter = DECISION.get(pair_id, "quarterly"), LETTER.get(pair_id, "monthly")
-        rows.append({
+        row = {
             "id": pair_id, "eu": eu, "us": us, "class": cls,
+            "basis": basis.name,
             "first": frame["date"][0].isoformat(),
             "last": frame["date"][-1].isoformat(),
             "decision_horizon": decision,
@@ -166,8 +183,18 @@ def report(data_dir: Path) -> dict:
             **stats,
             "verdict": verdict(pair_id, stats[decision]),
             "verdict_letter": verdict(pair_id, stats[letter], "alpha_yr"),
-        })
-    return {"root": data_dir.name, "pairs": rows, "haircuts": haircuts(rows)}
+        }
+        if pair_id in GROSS_BASIS:
+            if row["verdict"] == "PASS":
+                row["verdict"] = "PASS-BY-ERRATUM"
+            net = joint(data_dir, eu, us)
+            row["net_basis"] = {
+                "root": data_dir.name,
+                decision: regress(period_ends(net, decision), PERIODS[decision]),
+            }
+        rows.append(row)
+    return {"root": data_dir.name, "gross": gross_dir.name, "pairs": rows,
+            "haircuts": haircuts(rows)}
 
 
 def _cell(value: float | None, digits: int = 2) -> str:
@@ -188,7 +215,8 @@ def render_md(payload: dict) -> str:
         "Verdicts: the **quarterly** table decides (§4.4, drift as α; P6 decides on the",
         "weekly supplement); the **monthly** table records the letter of §4.2 (the",
         "intercept as α), gap-attenuated for every LSE/Euronext line. `·` = not the",
-        "row's verdict horizon.", "",
+        f"row's verdict horizon. P3 is read against gross BIL in `{payload['gross']}`",
+        "(erratum 13); its net-15 reading is listed under the haircuts.", "",
     ]
     titles = {
         "monthly": "monthly horizon — the §4.2 letter (verdict column: intercept as α)",
@@ -222,17 +250,28 @@ def render_md(payload: dict) -> str:
         lines.append(f"| {symbol} | {h:.4f} |")
     if not payload["haircuts"]:
         lines.append("| — | — |")
+    for row in payload["pairs"]:
+        if "net_basis" in row:
+            h = row["decision_horizon"]
+            s = row["net_basis"][h]
+            lines += ["", f"{row['id']} on `{row['net_basis']['root']}` ({h}, the net-15 basis the "
+                          f"spec pre-registered): n {s['n']}, β {s['beta']:.4f}, drift "
+                          f"{s['drift_yr']:+.2f} %/yr, resid {s['resid_yr']:.2f} — "
+                          f"verdict on that basis: {verdict(row['id'], s)}."]
     return "\n".join(lines) + "\n"
 
 
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--data", type=Path, required=True, help="the decision root")
+    parser.add_argument("--gross", type=Path, default=None,
+                        help="the gross parent snapshot for P3 (default: the root's name "
+                             "before its first -net suffix)")
     parser.add_argument("--out", type=Path, default=Path("results/overlap_eu"),
                         help="artefact directory (default: results/overlap_eu)")
     args = parser.parse_args(argv)
 
-    payload = results_json._round(report(args.data))
+    payload = results_json._round(report(args.data, args.gross))
     md = render_md(payload)
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "overlap.json").write_text(results_json.dumps(payload))

@@ -1,9 +1,12 @@
 {
+  "gross": "2026-09-02",
   "haircuts": {
+    "BIL": 0.0,
     "TQQQ": 0.14206396
   },
   "pairs": [
     {
+      "basis": "2026-09-02-net15-usd",
       "class": "MECHANICAL",
       "decision_horizon": "quarterly",
       "eu": "QQQ3",
@@ -58,6 +61,7 @@
       }
     },
     {
+      "basis": "2026-09-02-net15-usd",
       "class": "MECHANICAL",
       "decision_horizon": "quarterly",
       "eu": "QQL3",
@@ -112,6 +116,7 @@
       }
     },
     {
+      "basis": "2026-09-02",
       "class": "MECHANICAL",
       "decision_horizon": "quarterly",
       "eu": "IB01",
@@ -120,52 +125,70 @@
       "last": "2026-09-02",
       "letter_horizon": "monthly",
       "monthly": {
-        "alpha_yr": 0.11847411,
-        "beta": 1.1689602,
-        "corr": 0.93358526,
-        "drift_yr": 0.49393289,
+        "alpha_yr": 0.07549305,
+        "beta": 1.01019106,
+        "corr": 0.94067662,
+        "drift_yr": 0.10213223,
         "n": 90,
-        "r2": 0.87158144,
-        "resid_yr": 0.22859971,
-        "td_max": 0.99242165,
-        "td_median": 0.66695058,
-        "td_min": -0.34210045,
+        "r2": 0.8848725,
+        "resid_yr": 0.21644688,
+        "td_max": 0.72937462,
+        "td_median": 0.08224611,
+        "td_min": -0.40249547,
         "worst_date": "2020-03-31",
-        "worst_pp": 0.36648379
+        "worst_pp": 0.35052415
+      },
+      "net_basis": {
+        "quarterly": {
+          "alpha_yr": 0.0910022,
+          "beta": 1.17690634,
+          "corr": 0.97509933,
+          "drift_yr": 0.48157531,
+          "n": 29,
+          "r2": 0.95081871,
+          "resid_yr": 0.23682501,
+          "td_max": 0.98082053,
+          "td_median": 0.64470669,
+          "td_min": -0.34210045,
+          "worst_date": "2020-03-31",
+          "worst_pp": 0.46842929
+        },
+        "root": "2026-09-02-net15-usd"
       },
       "quarterly": {
-        "alpha_yr": 0.0910022,
-        "beta": 1.17690634,
-        "corr": 0.97509933,
-        "drift_yr": 0.48157531,
+        "alpha_yr": 0.07867974,
+        "beta": 1.00526208,
+        "corr": 0.97727557,
+        "drift_yr": 0.09234548,
         "n": 29,
-        "r2": 0.95081871,
-        "resid_yr": 0.23682501,
-        "td_max": 0.98082053,
-        "td_median": 0.64470669,
-        "td_min": -0.34210045,
+        "r2": 0.95506755,
+        "resid_yr": 0.22636416,
+        "td_max": 0.68750555,
+        "td_median": 0.06135936,
+        "td_min": -0.39450837,
         "worst_date": "2020-03-31",
-        "worst_pp": 0.46842929
+        "worst_pp": 0.4347001
       },
       "us": "BIL",
-      "verdict": "FAIL",
+      "verdict": "PASS-BY-ERRATUM",
       "verdict_letter": "PASS",
       "weekly": {
-        "alpha_yr": 0.75717393,
-        "beta": 0.87986143,
-        "corr": 0.61963777,
-        "drift_yr": 0.49104536,
+        "alpha_yr": 0.22923231,
+        "beta": 0.95086774,
+        "corr": 0.71051491,
+        "drift_yr": 0.10124368,
         "n": 392,
-        "r2": 0.38395096,
-        "resid_yr": 0.31526759,
-        "td_max": 1.09818707,
-        "td_median": 0.65007357,
-        "td_min": -0.3634847,
+        "r2": 0.50483143,
+        "resid_yr": 0.2826495,
+        "td_max": 0.81490185,
+        "td_median": 0.08407155,
+        "td_min": -0.47542376,
         "worst_date": "2020-03-27",
         "worst_pp": 0.40323516
       }
     },
     {
+      "basis": "2026-09-02-net15-usd",
       "class": "MECHANICAL",
       "decision_horizon": "quarterly",
       "eu": "CSPX",
@@ -220,6 +243,7 @@
       }
     },
     {
+      "basis": "2026-09-02-net15-usd",
       "class": "MECHANICAL",
       "decision_horizon": "quarterly",
       "eu": "CNDX",
@@ -274,6 +298,7 @@
       }
     },
     {
+      "basis": "2026-09-02-net15-usd",
       "class": "FUNCTIONAL",
       "decision_horizon": "weekly",
       "eu": "DBMF_EU",
@@ -328,6 +353,7 @@
       }
     },
     {
+      "basis": "2026-09-02-net15-usd",
       "class": "PARAMETRIC",
       "decision_horizon": "quarterly",
       "eu": "LQQ",
@@ -382,6 +408,7 @@
       }
     },
     {
+      "basis": "2026-09-02-net15-usd",
       "class": "\u2014",
       "decision_horizon": "quarterly",
       "eu": "DBMF_EU",

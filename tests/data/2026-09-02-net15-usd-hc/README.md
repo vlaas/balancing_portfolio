@@ -15,4 +15,5 @@ flagged translation-incomplete in the verdict. Every other file,
 
 | symbol | h %/yr | bars | final factor |
 |---|---|---|---|
+| BIL | 0 | — | byte-copied |
 | TQQQ | 0.142064 | 4165 | 0.9767989371103649 |
