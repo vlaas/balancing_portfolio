@@ -10,7 +10,7 @@ from indicators import ratio_sma, sma
 from main import collect_indicators
 from prices import _read_symbol, load_prices
 
-GOLDEN_DIR = Path(__file__).parent / "data"  # frozen snapshot; numbers are pinned to it
+GOLDEN_DIR = Path(__file__).parent / "data" / "2026-08-14-unadjusted"  # frozen snapshot; numbers are pinned to it
 DATA_DIR = Path(__file__).parent.parent / "data"  # live export; no numeric assertions
 
 

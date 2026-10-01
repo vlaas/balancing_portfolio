@@ -203,5 +203,5 @@ def test_c7_the_bracket_bundles_run_on_the_flat_snapshot(name):
     symbols = {s for st in bundle.strategies for s in (*st.weights, *st.data)}
 
     assert symbols == {"TQQQ", "BTAL", "QQQ", "SPY"}
-    assert all((DATA / f"{s}.csv").exists() for s in symbols)
+    assert all((DATA / "2026-08-14-unadjusted" / f"{s}.csv").exists() for s in symbols)
     assert len(bundle.strategies) == 15  # the fourteen §7.2 arms plus SPY

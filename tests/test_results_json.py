@@ -9,7 +9,7 @@ from main import run_bundle
 from results_json import PRECISION, dumps, results_payload, save_curves, slug
 from stats import correlation
 
-GOLDEN_DIR = Path(__file__).parent / "data"
+GOLDEN_DIR = Path(__file__).parent / "data" / "2026-08-14-unadjusted"
 STAMP = "2026-01-01T00:00:00Z"
 
 CURVE_COLUMNS = ["date", "value", "flow", "ret", "index", "drawdown", "rolling_sharpe"]

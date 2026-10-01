@@ -13,7 +13,8 @@ from spec import _TYPES, REQUIRED_KEYS, build_bundle, load_spec
 from sweep import Window, _window_plan, build_summary, expand, run_sweep, validate, windows
 from sweep import main as sweep_main
 
-GOLDEN_DIR = Path(__file__).parent / "data"
+DATA = Path(__file__).parent / "data"
+GOLDEN_DIR = DATA / "2026-08-14-unadjusted"
 SPECS = Path(__file__).parents[1] / "specs"
 
 # The SWEEP_SPEC §4.1 template, verbatim.
@@ -784,7 +785,7 @@ def test_dry_run_prints_the_counts_and_writes_nothing(tmp_path, monkeypatch, cap
 def test_dry_run_counts_of_the_regime_tune_lane(tmp_path, monkeypatch, capsys):
     # REGIME_SPEC R8: the §8.2 surface is 4 x 4 x 3 x 3 = 144 points over the
     # 2012 lane's 23 windows (full + fit + test + 20 sensitivity).
-    net_dir = GOLDEN_DIR / "2026-08-20-net15"
+    net_dir = DATA / "2026-08-20-net15"
     out = tmp_path / "out"
     monkeypatch.setattr(
         "sys.argv",
@@ -800,7 +801,7 @@ def test_dry_run_counts_of_the_regime_tune_lane(tmp_path, monkeypatch, capsys):
 
 # --- ROTATION_SWEEP_SPEC T3: the six lanes and the two bracket bundles -------
 
-NET_DIR = GOLDEN_DIR / "2026-08-24-net15"
+NET_DIR = DATA / "2026-08-24-net15"
 
 # §5 and §12.1-2, counted on the frozen snapshot: full + fit + test + the
 # rolling 5-year sensitivity windows every 6 months. GEM's native `assets`
@@ -1250,7 +1251,7 @@ COMP_LANES = {  # COMPOSITION_SPEC §7.7, pinned before the lanes were run
 
 @pytest.mark.parametrize("name", COMP_LANES, ids=lambda n: n[len("sweep_comp_"):])
 def test_dry_run_counts_of_the_composition_lanes(name, tmp_path, monkeypatch, capsys):
-    net_dir = GOLDEN_DIR / "2026-08-24-net15"
+    net_dir = DATA / "2026-08-24-net15"
     out = tmp_path / "out"
     monkeypatch.setattr(
         "sys.argv",

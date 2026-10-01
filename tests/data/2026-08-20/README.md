@@ -25,7 +25,7 @@ one order above the measurement):
   records within $0.000011 → tolerance $0.0001. TQQQ split 2:1 on 2025-11-20,
   so published amounts with earlier ex-dates are in pre-split units (exactly
   half in today's basis); the T3 entries use post-split ex-dates only.
-- `unadjusted/` closes are identical (max diff 0.0) to the flat `tests/data/`
+- `unadjusted/` closes are identical (max diff 0.0) to the `2026-08-14-unadjusted`
   snapshot on every shared date ≤ 2026-08-14, all six symbols — TradingView
   revised no history, so the calendars T6 pins and the goldens T7 compares
   across snapshots sit on identical price data.

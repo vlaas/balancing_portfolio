@@ -163,7 +163,7 @@ question is "which parameters are good?", don't hand-write twenty spec entries
 [SWEEP_SPEC.md](SWEEP_SPEC.md)) and run it:
 
 ```
-uv run sweep.py specs/sweep_vt.json --data tests/data --out results/sweep_vt
+uv run sweep.py specs/sweep_vt.json --data tests/data/2026-08-14-unadjusted --out results/sweep_vt
 ```
 
 - **Template**: one strategy entry in the ordinary grammar in which any leaf —

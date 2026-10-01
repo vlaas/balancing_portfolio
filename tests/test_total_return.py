@@ -25,10 +25,11 @@ from main import run_bundle
 from make_net_tr import FLAT_MAX, JUMP_MIN
 from prices import load_prices
 
-GOLDEN_DIR = Path(__file__).parent / "data"
+DATA = Path(__file__).parent / "data"
+GOLDEN_DIR = DATA / "2026-08-14-unadjusted"
 TR_DIR = Path(__file__).parent / "data" / "2026-08-20"
-NEW_TR_DIR = GOLDEN_DIR / "2026-08-24"
-EU_TR_DIR = GOLDEN_DIR / "2026-09-02"  # EU_SUBSTITUTE_SPEC §3.6
+NEW_TR_DIR = DATA / "2026-08-24"
+EU_TR_DIR = DATA / "2026-09-02"  # EU_SUBSTITUTE_SPEC §3.6
 LIVE_DIR = Path(__file__).parents[1] / "data"
 ROOTS = [TR_DIR, NEW_TR_DIR, EU_TR_DIR, LIVE_DIR]
 # FX singles are stamped by their 17:00 New York open, so their last label is

@@ -13,7 +13,7 @@ from strategies.fixed import Fixed
 from strategies.gate import Gate
 from strategy import Cadence, MarketDay, Strategy
 
-GOLDEN_DIR = Path(__file__).parent / "data"  # frozen snapshot; numbers are pinned to it
+GOLDEN_DIR = Path(__file__).parent / "data" / "2026-08-14-unadjusted"  # frozen snapshot; numbers are pinned to it
 START = dt.date(2020, 1, 2)
 
 

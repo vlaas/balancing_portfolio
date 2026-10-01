@@ -17,7 +17,7 @@ from spec import build_bundle, rebalance_str
 from strategy import Cadence, MarketDay, Strategy
 from sweep import expand
 
-GOLDEN_DIR = Path(__file__).parent / "data"
+GOLDEN_DIR = Path(__file__).parent / "data" / "2026-08-14-unadjusted"
 
 
 # --- Cadence masks -----------------------------------------------------------
