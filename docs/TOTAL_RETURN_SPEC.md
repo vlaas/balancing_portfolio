@@ -337,3 +337,12 @@ which is why this spec must land first.
 - **§9 — docs.** The checklist omitted the root `README.md`, whose
   "price-return only" data note the convention change falsifies; fixed in the
   docs commit.
+
+## 12. Erratum (DATA_LAYOUT_SPEC, 2026-10-01)
+
+- **§3 / §6 — folder names.** `<DIR>/price/<SYM>.csv` is now
+  `<DIR>/unadjusted/<SYM>.csv` in every root, live and frozen, and export step 2
+  writes `data/unadjusted/<SYM>.csv`. The flat `tests/data/*.csv` set §3 kept in
+  place moved, byte-identical, to `tests/data/2026-08-14-unadjusted/`, and the
+  reserved `-price` suffix became `-unadjusted`. Root paths, and with them every
+  committed `run.data_dir`, are unchanged (`docs/DATA_LAYOUT_SPEC.md` §3).
