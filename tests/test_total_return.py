@@ -1,7 +1,7 @@
 """Total-return dataset invariants — TOTAL_RETURN_SPEC §4, §7; ROTATION_SPEC §3.5.
 
 A dataset directory holds `<SYM>.csv` (dividend-adjusted export, the traded
-series) and `price/<SYM>.csv` (unadjusted export from the same session,
+series) and `unadjusted/<SYM>.csv` (unadjusted export from the same session,
 reference only). T1–T3 are parametrised over three roots — both frozen TR
 snapshots and live `data/` — with a per-root symbol list: the 2026-08-20
 snapshot predates the paired BIL export and keeps the six original symbols,
@@ -40,7 +40,7 @@ SYMBOLS = ["TQQQ", "BTAL", "QQQ", "SPY", "DBMF", "KMLM"]
 # 2026-08-24 session, so the older snapshot has no pair to check and T6's
 # cross-snapshot calendar pin stays on SYMBOLS. Adding a symbol here is how it
 # enters T1-T3 — the alternative, a glob over the root, would also sweep in the
-# index series (VIX, SPX) that have no `price/` twin by design.
+# index series (VIX, SPX) that have no `unadjusted/` twin by design.
 ROOT_SYMBOLS = {
     TR_DIR: SYMBOLS,
     NEW_TR_DIR: SYMBOLS + ["BIL"],
@@ -79,7 +79,7 @@ def read_close(path: Path) -> pl.DataFrame:
 def ratio_series(root: Path, symbol: str) -> tuple[pl.DataFrame, pl.Series]:
     """The price frame and the adjustment ratio R = adjusted / price."""
     adjusted = read_close(root / f"{symbol}.csv")
-    price = read_close(root / "price" / f"{symbol}.csv")
+    price = read_close(root / "unadjusted" / f"{symbol}.csv")
     assert adjusted["time"].equals(price["time"])
     return price, adjusted["close"] / price["close"]
 
@@ -97,7 +97,7 @@ root_symbol_param = pytest.mark.parametrize(
 def test_paired_files_come_from_one_export_session(root: Path) -> None:
     for symbol in ROOT_SYMBOLS[root]:
         assert (root / f"{symbol}.csv").exists()
-        assert (root / "price" / f"{symbol}.csv").exists()
+        assert (root / "unadjusted" / f"{symbol}.csv").exists()
         ratio_series(root, symbol)  # asserts identical time columns
 
     if root == TR_DIR:
@@ -171,12 +171,12 @@ def test_implied_distributions_match_published_amounts(root: Path, symbol: str) 
 
 
 # T4 — Live-pair invariants (ROTATION_SPEC §3.5): every data/<SYM>.csv +
-# data/price/<SYM>.csv pair. Unlike the goldens these run on live data by
+# data/unadjusted/<SYM>.csv pair. Unlike the goldens these run on live data by
 # design — they guard *future refreshes*, and a failure means the export is
 # wrong, never that a band needs loosening (the TOTAL_RETURN_SPEC rule: a
 # ceiling that cannot be met is a finding).
 
-LIVE_PAIRS = sorted(p.stem for p in (LIVE_DIR / "price").glob("*.csv"))
+LIVE_PAIRS = sorted(p.stem for p in (LIVE_DIR / "unadjusted").glob("*.csv"))
 
 # Cumulative implied yields measured on the 2026-08-24 export (%/yr, full file
 # history) — the ROTATION_SPEC §2 table plus the two symbols it omitted
@@ -317,7 +317,7 @@ def test_new_snapshot_is_self_describing() -> None:
 
 
 # The EU_SUBSTITUTE_SPEC §3.6 snapshot: the 57 pairs of the live lane, five
-# indices, two FX singles, `macro/` carried; the same pins as above, with the
+# indices, two FX singles, `fred/` carried; the same pins as above, with the
 # FX singles ending on the label before the snapshot date.
 
 
@@ -325,8 +325,8 @@ def test_eu_snapshot_is_self_describing() -> None:
     assert (EU_TR_DIR / "README.md").exists()
     last_bar = dt.date.fromisoformat(EU_TR_DIR.name)
     tops = sorted(EU_TR_DIR.glob("*.csv"))
-    assert len(tops) == 64 and len(list((EU_TR_DIR / "price").glob("*.csv"))) == 57
-    assert sorted(p.stem for p in (EU_TR_DIR / "price").glob("*.csv")) == LIVE_PAIRS
+    assert len(tops) == 64 and len(list((EU_TR_DIR / "unadjusted").glob("*.csv"))) == 57
+    assert sorted(p.stem for p in (EU_TR_DIR / "unadjusted").glob("*.csv")) == LIVE_PAIRS
     for path in tops:
         expected = last_bar - dt.timedelta(days=1) if path.stem in FX_SINGLES else last_bar
         assert read_close(path)["time"][-1] == expected, path.stem
@@ -341,7 +341,7 @@ def test_eu_snapshot_calendar_agrees_with_the_previous_snapshot(symbol: str) -> 
 
 @pytest.mark.parametrize("symbol", sorted(ZERO_YIELD))
 def test_eu_snapshot_zero_distribution_pairs_are_byte_identical(symbol: str) -> None:
-    assert filecmp.cmp(EU_TR_DIR / f"{symbol}.csv", EU_TR_DIR / "price" / f"{symbol}.csv",
+    assert filecmp.cmp(EU_TR_DIR / f"{symbol}.csv", EU_TR_DIR / "unadjusted" / f"{symbol}.csv",
                        shallow=False)
 
 

@@ -62,8 +62,8 @@ Decisions and their reasons:
 - **The loaded close is total-return.** `data/<SYM>.csv` is the
   dividend-adjusted TradingView export, so trading, valuation and every
   indicator include distributions reinvested at the ex-date close. The
-  unadjusted series (`data/price/<SYM>.csv`) is reference-only — the loader
-  reads named per-symbol files and never looks inside `price/`. Invariants and
+  unadjusted series (`data/unadjusted/<SYM>.csv`) is reference-only — the loader
+  reads named per-symbol files and never looks inside `unadjusted/`. Invariants and
   spot checks live in `tests/test_total_return.py`; the convention is
   documented in `data/README.md`. A **net-of-withholding** twin of any root is
   derived by `make_net_tr.py` (committed generator, `docs/NET_TR_SPEC.md`):

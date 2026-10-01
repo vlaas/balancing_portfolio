@@ -1,10 +1,10 @@
 """Derive a net-of-withholding total-return dataset from a frozen gross pair.
 
 Reads a dataset root in the TOTAL_RETURN_SPEC §3 convention (`<SYM>.csv`
-gross-adjusted + `price/<SYM>.csv`), replaces each distribution jump factor k
+gross-adjusted + `unadjusted/<SYM>.csv`), replaces each distribution jump factor k
 by k_net = w + (1 - w) * k (NET_TR_SPEC §2) so every ex-date reinvests
 (1 - w) * D instead of D, and writes `<SYM>.csv` with columns `time,close`
-plus a byte-copied `price/` and a README. Deterministic by construction — no
+plus a byte-copied `unadjusted/` and a README. Deterministic by construction — no
 clock, no environment — so the committed snapshot is byte-reproducible from
 the committed parent and this script (N5).
 
@@ -48,7 +48,7 @@ def read_pair(root: Path, symbol: str) -> tuple[list[str], list[float], list[flo
         schema_overrides={"time": pl.String, "close": pl.Float64},
     )
     adjusted = pl.read_csv(root / f"{symbol}.csv", **kwargs)
-    price = pl.read_csv(root / "price" / f"{symbol}.csv", **kwargs)
+    price = pl.read_csv(root / "unadjusted" / f"{symbol}.csv", **kwargs)
     if not adjusted["time"].equals(price["time"]):
         raise ValueError(f"{symbol}: adjusted and price time columns differ")
     return adjusted["time"].to_list(), adjusted["close"].to_list(), price["close"].to_list()
@@ -112,7 +112,7 @@ def build(src: Path, w: float, overrides: dict[str, float] | None = None) -> dic
         raise ValueError(f"{src}: --rate-override names absent symbols {unknown}")
     results = {}
     for symbol in symbols:
-        if not (src / "price" / f"{symbol}.csv").exists():
+        if not (src / "unadjusted" / f"{symbol}.csv").exists():
             # An index series with no distributions (REGIME_SPEC §2.2): the
             # parent file is byte-copied into the net snapshot.
             results[symbol] = {"index": True}
@@ -168,7 +168,7 @@ def render_readme(parent: str, w: float, results: dict[str, dict],
         "reinvests (1 - w) * D instead of D; flat (pure price movement) rows",
         "scale by the constant suffix product C only, and the net series anchors",
         "to the parent at the last bar. `<SYM>.csv` carries columns `time,close`",
-        "only; `price/<SYM>.csv` is byte-copied from the parent. Step",
+        "only; `unadjusted/<SYM>.csv` is byte-copied from the parent. Step",
         f"classification (NET_TR_SPEC §2.1): FLAT_MAX = {FLAT_MAX!r},",
         f"JUMP_MIN = {JUMP_MIN!r}, TAU = {TAU!r}.",
         "",
@@ -188,14 +188,14 @@ def render_readme(parent: str, w: float, results: dict[str, dict],
 
 
 def write_dataset(dst: Path, src: Path, results: dict[str, dict], readme: str) -> None:
-    (dst / "price").mkdir(parents=True, exist_ok=True)
+    (dst / "unadjusted").mkdir(parents=True, exist_ok=True)
     for symbol, r in results.items():
         if r.get("index"):
             shutil.copyfile(src / f"{symbol}.csv", dst / f"{symbol}.csv")
             continue
         rows = "\n".join(f"{t},{c!r}" for t, c in zip(r["times"], r["close"]))
         (dst / f"{symbol}.csv").write_text(f"time,close\n{rows}\n")
-        shutil.copyfile(src / "price" / f"{symbol}.csv", dst / "price" / f"{symbol}.csv")
+        shutil.copyfile(src / "unadjusted" / f"{symbol}.csv", dst / "unadjusted" / f"{symbol}.csv")
     (dst / "README.md").write_text(readme)
 
 

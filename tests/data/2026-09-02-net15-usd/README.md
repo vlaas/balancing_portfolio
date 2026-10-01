@@ -11,9 +11,9 @@ carried across FX holidays — a bar whose FX bar is older than the
 previous calendar day is counted as stale below. That close is ~5.5 h
 after the London close, the same-day offset the spec accepts; the bar
 labelled D would close on D + 1. A converted `<SYM>.csv` carries `time,close`
-only and has no `price/` twin — a converted series has no unadjusted
+only and has no `unadjusted/` twin — a converted series has no unadjusted
 twin in its trading currency; the parent keeps the original. Every
-other file, `price/` twins included, is byte-copied from the parent.
+other file, `unadjusted/` twins included, is byte-copied from the parent.
 
 | symbol | fx | scale | bars | stale FX bars | first rate | last rate |
 |---|---|---|---|---|---|---|

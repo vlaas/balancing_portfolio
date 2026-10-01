@@ -50,7 +50,7 @@ W = 0.15
 # DTB3's last bar. Every fit stops there: the model has no floating leg past
 # it, and a forward-filled tail would quietly bias the constant.
 LAST_RATE = "2026-08-20"
-RATES = read_close(GROSS / "macro" / "DTB3.csv")
+RATES = read_close(GROSS / "fred" / "DTB3.csv")
 
 # The roots are committed one commit after the generator (§9), so the byte
 # check arms itself rather than blocking the engine commit.
@@ -176,7 +176,7 @@ def test_the_net_root_fits_a_higher_constant_by_its_withheld_distributions():
     # recursion carries no w while the bill's does.
     delta = drag("QQQ", "TQQQ", 3, fund_root=NET)["c"] - drag("QQQ", "TQQQ", 3)["c"]
     times, adjusted = read_close(GROSS / "TQQQ.csv")
-    _, price = read_close(GROSS / "price" / "TQQQ.csv")
+    _, price = read_close(GROSS / "unadjusted" / "TQQQ.csv")
     assert drag("QQQ", "TQQQ", 3, fund_root=NET)["c"] == pytest.approx(
         0.01943, abs=0.0001
     )
@@ -260,7 +260,7 @@ def test_the_generator_reproduces_the_committed_root_byte_for_byte(parent, root,
     produced = sorted(p.relative_to(out) for p in out.rglob("*") if p.is_file())
     committed = sorted(p.relative_to(root) for p in root.rglob("*") if p.is_file())
     assert produced == committed
-    assert len(produced) == 99  # 52 top-level + README + 46 price/ twins
+    assert len(produced) == 99  # 52 top-level + README + 46 unadjusted/ twins
     for rel in committed:
         assert filecmp.cmp(out / rel, root / rel, shallow=False), rel
 
@@ -291,10 +291,10 @@ def test_the_real_segment_equals_the_parent_value_for_value(parent, root, symbol
 
 @pytest.mark.parametrize("root", [SYN, SYN_NET], ids=["gross", "net15"])
 @ROOTS
-def test_the_spliced_symbols_have_no_unadjusted_twin_and_macro_is_not_copied(root):
+def test_the_spliced_symbols_have_no_unadjusted_twin_and_fred_is_not_copied(root):
     for symbol in (RISK, BILL):
-        assert not (root / "price" / f"{symbol}.csv").exists()
-    assert not (root / "macro").exists()
+        assert not (root / "unadjusted" / f"{symbol}.csv").exists()
+    assert not (root / "fred").exists()
 
 
 @pytest.mark.parametrize("root", [SYN, SYN_NET], ids=["gross", "net15"])
@@ -426,7 +426,7 @@ def test_the_2012_composition_anchor_survives_the_synthetic_root_bit_for_bit():
 
 def test_the_dot_com_stretch_carries_no_dividends_at_all():
     times, adjusted = read_close(GROSS / "QQQ.csv")
-    _, price = read_close(GROSS / "price" / "QQQ.csv")
+    _, price = read_close(GROSS / "unadjusted" / "QQQ.csv")
     implied = distributions(times, adjusted, price)
     pre = [date for date, _ in implied if date <= "2010-12-31"]
     assert len(pre) == 24
@@ -442,14 +442,14 @@ def test_the_implied_yield_by_year_is_small_enough_to_be_harmless(year, expected
     # Even if every one of these were wrong, 0.95 %/yr is at most ~2.9 %/yr of
     # 3x exposure — inside the §2.4 drag bracket.
     times, adjusted = read_close(GROSS / "QQQ.csv")
-    _, price = read_close(GROSS / "price" / "QQQ.csv")
+    _, price = read_close(GROSS / "unadjusted" / "QQQ.csv")
     yields = yield_by_year(times, price, distributions(times, adjusted, price))
     assert 100 * yields[year] == pytest.approx(expected, abs=0.005)
 
 
 def test_the_implied_distributions_match_the_issuers_published_record():
     times, adjusted = read_close(GROSS / "QQQ.csv")
-    _, price = read_close(GROSS / "price" / "QQQ.csv")
+    _, price = read_close(GROSS / "unadjusted" / "QQQ.csv")
     implied = dict(distributions(times, adjusted, price))
     assert PUBLISHED, "the operator spot check needs at least one published amount"
     for date, published in PUBLISHED.items():

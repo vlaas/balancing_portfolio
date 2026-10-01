@@ -5,7 +5,7 @@ factor k is replaced by k_net = w + (1 - w) * k, so every ex-date
 reinvests (1 - w) * D instead of D; flat (pure price movement) rows
 scale by the constant suffix product C only, and the net series anchors
 to the parent at the last bar. `<SYM>.csv` carries columns `time,close`
-only; `price/<SYM>.csv` is byte-copied from the parent. Step
+only; `unadjusted/<SYM>.csv` is byte-copied from the parent. Step
 classification (NET_TR_SPEC §2.1): FLAT_MAX = 5e-06,
 JUMP_MIN = 1e-05, TAU = 1e-06.
 

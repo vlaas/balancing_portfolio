@@ -25,7 +25,7 @@ GOLDEN_DIR = Path(__file__).parent / "data"
 DATA_DIR = Path(__file__).parent.parent / "data"
 
 # NET_TR_SPEC §7: net dataset roots carry no SMA reference columns; their
-# price/ copies are byte-verified duplicates of already-tested files (N1).
+# unadjusted/ copies are byte-verified duplicates of already-tested files (N1).
 CSV_FILES = [
     p
     for p in sorted(GOLDEN_DIR.rglob("*.csv")) + sorted(DATA_DIR.rglob("*.csv"))
@@ -100,7 +100,7 @@ def test_sma_matches_the_tradingview_column(path: Path, n: int) -> None:
 def test_the_parity_fixture_scope_is_pinned() -> None:
     # ROTATION_SPEC §8 T9: a silent scope shrink (a snapshot losing its SMA
     # columns, a broken rglob) must be loud. 20 = the 6 flat legacy CSVs +
-    # 8 top-level and 6 price/ files of tests/data/2026-08-20.
+    # 8 top-level and 6 unadjusted/ files of tests/data/2026-08-20.
     assert len(SMA_FILES) == 20
 
 

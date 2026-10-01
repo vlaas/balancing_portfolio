@@ -290,7 +290,7 @@ ctx.indicator("QQQ", "SMA200")    # "QQQ:SMA200" column, or None before it exist
 
 - CSVs live in `data/<SYM>.csv` in TradingView's export format. The file is the
   **dividend-adjusted (total-return) export** — the traded series; the
-  unadjusted export from the same session sits in `data/price/<SYM>.csv` as
+  unadjusted export from the same session sits in `data/unadjusted/<SYM>.csv` as
   reference, and the loader never reads it. The loader reads **only `time` and
   `close`**; every other column (`open`, `high`, `low`, `SMA*`, `Volume`) is
   ignored. See `data/README.md`.

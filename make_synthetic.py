@@ -249,7 +249,7 @@ def build(parent: Path, gross: Path, w: float, drag, bill_drag, strict: bool = T
     """Read, fit, model and splice. All computation and validation happen here,
     before anything is written — a hard error can never leave a partial dataset
     behind (§3)."""
-    rate_times, rate_values = read_close(gross / "macro" / f"{RATE}.csv")
+    rate_times, rate_values = read_close(gross / "fred" / f"{RATE}.csv")
     last_rate = rate_times[-1]
     index_times, index_closes = read_close(gross / f"{INDEX}.csv")
     cal_times, _ = read_close(gross / f"{CALENDAR}.csv")
@@ -306,12 +306,12 @@ def build(parent: Path, gross: Path, w: float, drag, bill_drag, strict: bool = T
 
     # --- §2.2 / S10, from the gross pair ------------------------------------
     gross_times, gross_adjusted = read_close(gross / f"{INDEX}.csv")
-    _, gross_price = read_close(gross / "price" / f"{INDEX}.csv")
+    _, gross_price = read_close(gross / "unadjusted" / f"{INDEX}.csv")
     implied = distributions(gross_times, gross_adjusted, gross_price)
 
     return {
         "symbols": sorted(path.stem for path in parent.glob("*.csv")),
-        "pairs": sorted(path.stem for path in (parent / "price").glob("*.csv")),
+        "pairs": sorted(path.stem for path in (parent / "unadjusted").glob("*.csv")),
         "spliced": spliced,
         "fit": {RISK: risk_fit, BILL: bill_fit},
         "drag": {RISK: c, BILL: c_b},
@@ -374,15 +374,15 @@ def render_readme(parent: str, gross: str, w: float, results: dict) -> str:
         "",
         f"Derived from the frozen `{parent}` snapshot by `make_synthetic.py`",
         f"(SYNTHETIC_HISTORY_SPEC §2–§4), with the index leg (`{INDEX}`), the accrual",
-        f"calendar (`{CALENDAR}`) and the floating rate (`macro/{RATE}`) read from the",
+        f"calendar (`{CALENDAR}`) and the floating rate (`fred/{RATE}`) read from the",
         f"gross root `{gross}` — a swap pays the gross total return in either",
         f"convention. `{RISK}.csv` and `{BILL}.csv` carry columns `time,close,source`:",
         "rows before the real fund's first bar are modelled (`synthetic`), rows from",
         "it on are the parent's own values (`real`), and the two meet",
         "multiplicatively at the splice. Every other `<SYM>.csv` and every",
-        f"`price/<SYM>.csv` is byte-copied from the parent; `price/{RISK}.csv` and",
-        f"`price/{BILL}.csv` are deliberately absent — a modelled segment has no",
-        "unadjusted twin — and `macro/` is not copied.",
+        f"`unadjusted/<SYM>.csv` is byte-copied from the parent; `unadjusted/{RISK}.csv` and",
+        f"`unadjusted/{BILL}.csv` are deliberately absent — a modelled segment has no",
+        "unadjusted twin — and `fred/` is not copied.",
         "",
         "**A synthetic root is a falsifier, never a fitting lane**: no parameter is",
         "adopted from a window that contains synthetic bars (§10). Any run whose",
@@ -435,7 +435,7 @@ def render_readme(parent: str, gross: str, w: float, results: dict) -> str:
 
 
 def write_dataset(dst: Path, src: Path, results: dict, readme: str) -> None:
-    (dst / "price").mkdir(parents=True, exist_ok=True)
+    (dst / "unadjusted").mkdir(parents=True, exist_ok=True)
     for symbol in results["symbols"]:
         if symbol in results["spliced"]:
             rows = "\n".join(
@@ -447,7 +447,7 @@ def write_dataset(dst: Path, src: Path, results: dict, readme: str) -> None:
     for symbol in results["pairs"]:
         if symbol in results["spliced"]:
             continue  # a modelled segment has no unadjusted twin (§3)
-        shutil.copyfile(src / "price" / f"{symbol}.csv", dst / "price" / f"{symbol}.csv")
+        shutil.copyfile(src / "unadjusted" / f"{symbol}.csv", dst / "unadjusted" / f"{symbol}.csv")
     (dst / "README.md").write_text(readme)
 
 
@@ -459,7 +459,7 @@ def main(argv: list[str] | None = None) -> None:
     )
     parser.add_argument(
         "--gross", type=Path, required=True,
-        help=f"gross root supplying {INDEX}, {CALENDAR} and macro/{RATE}",
+        help=f"gross root supplying {INDEX}, {CALENDAR} and fred/{RATE}",
     )
     parser.add_argument(
         "--withholding", type=float, required=True,

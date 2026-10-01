@@ -9,7 +9,7 @@ haircut lane (§6.3) measures the translation cost of a substitutable
 component on the winner's own window. A symbol with h = 0 takes the byte-copy
 path, so the no-contamination invariant holds by construction rather than by
 a multiplication by 1.0 (T4). A haircut `<SYM>.csv` carries `time,close` only
-and has no `price/` twin — a modelled series has no unadjusted twin
+and has no `unadjusted/` twin — a modelled series has no unadjusted twin
 (`make_synthetic.py` precedent). Unsubstitutable slots (KMLM, BTAL) are absent
 from the map by design and take no fictitious haircut; their columns are
 flagged translation-incomplete in the verdict. Every other file is
@@ -85,7 +85,7 @@ def build(src: Path, haircuts: dict[str, float]) -> dict:
         }
     return {
         "symbols": symbols,
-        "pairs": sorted(path.stem for path in (src / "price").glob("*.csv")),
+        "pairs": sorted(path.stem for path in (src / "unadjusted").glob("*.csv")),
         "cut": cut,
         "untouched": untouched,
     }
@@ -117,19 +117,19 @@ def render_readme(parent: str, results: dict) -> str:
         "`close_t × (1 − h/100/252)^k`, k bars since the first — so a haircut",
         "lane measures the translation cost of a substitutable component on the",
         "winner's own window. A haircut `<SYM>.csv` carries `time,close` only and",
-        "has no `price/` twin — a modelled series has no unadjusted twin. A",
+        "has no `unadjusted/` twin — a modelled series has no unadjusted twin. A",
         "symbol with h = 0 is byte-copied (the no-contamination invariant holds",
         "by construction). Unsubstitutable slots (KMLM, BTAL) are absent from",
         "the map by design and take no fictitious haircut; their columns are",
         "flagged translation-incomplete in the verdict. Every other file,",
-        "`price/` twins included, is byte-copied from the parent.",
+        "`unadjusted/` twins included, is byte-copied from the parent.",
         "",
     ]
     return "\n".join(lines + _table(results)) + "\n"
 
 
 def write_dataset(dst: Path, src: Path, results: dict, readme: str) -> None:
-    (dst / "price").mkdir(parents=True, exist_ok=True)
+    (dst / "unadjusted").mkdir(parents=True, exist_ok=True)
     cut = results["cut"]
     for symbol in results["symbols"]:
         if symbol in cut:
@@ -141,7 +141,7 @@ def write_dataset(dst: Path, src: Path, results: dict, readme: str) -> None:
     for symbol in results["pairs"]:
         if symbol in cut:
             continue  # a modelled series has no unadjusted twin
-        shutil.copyfile(src / "price" / f"{symbol}.csv", dst / "price" / f"{symbol}.csv")
+        shutil.copyfile(src / "unadjusted" / f"{symbol}.csv", dst / "unadjusted" / f"{symbol}.csv")
     (dst / "README.md").write_text(readme)
 
 
