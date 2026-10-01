@@ -25,7 +25,7 @@ GOLDEN_DIR = Path(__file__).parent / "data"
 GROSS = GOLDEN_DIR / "2026-08-24"
 NET = GOLDEN_DIR / "2026-08-24-net15"
 SPECS = Path(__file__).parents[1] / "specs"
-DIVIDENDS = Path(__file__).parents[1] / "dividends"
+DIVIDENDS = Path(__file__).parents[1] / "data" / "dividends"
 
 # §4's cost map: the incumbent lanes' blend map plus BIL at one tick (a T-bill
 # ETF's spread is 1 cent on $92). Identical to the syn family's.

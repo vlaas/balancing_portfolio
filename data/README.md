@@ -1,7 +1,20 @@
 # Market data
 
-Daily bars exported from **TradingView**, in four file classes
-(ROTATION_SPEC §3.2–§3.3, EU_SUBSTITUTE_SPEC §3):
+This is the live root. Every frozen root under `tests/data/` is a dated copy of
+it and shares its layout (`docs/DATA_LAYOUT_SPEC.md` §2), so each folder below
+means the same thing in every root:
+
+| path | source | dividends | the simulator reads it |
+|---|---|---|---|
+| `<SYM>.csv` | TradingView export | **ON** for an ETF (total return, gross of withholding); an index or FX file is a single series | **yes** — the only thing it reads |
+| `unadjusted/<SYM>.csv` | TradingView, same session | **OFF** — price only | no; reference for the adjustment ratio |
+| `fred/` | FRED | — (macro series) | **never** — quarantined |
+| `dividends/` | Polygon reference API, plus `pre_polygon/` from SEC filings | the distribution records themselves | no; reference for the implied distributions |
+| `fx_lines.json` | operator | — | no; `make_usd.py`'s line map |
+
+The top level and `unadjusted/` hold daily bars exported from **TradingView**;
+with `fred/` they form four file classes (ROTATION_SPEC §3.2–§3.3,
+EU_SUBSTITUTE_SPEC §3):
 
 | class | files | loader reads |
 |---|---|---|
@@ -11,7 +24,8 @@ Daily bars exported from **TradingView**, in four file classes
 | **Macro** (`fred/`: UNRATE, RRSFS, INDPRO, DTB3) | quarantined FRED series — see "Macro series" below | **never** |
 
 The loader resolves every read — traded, `extra`, or indicator `inputs` —
-against `data/<SYM>.csv` and never looks inside `unadjusted/` or `fred/`; the
+against `data/<SYM>.csv` and never looks inside `unadjusted/`, `fred/` or
+`dividends/`; the
 `unadjusted/` twin exists so the adjustment is verifiable (see "The adjustment
 ratio" below).
 
@@ -171,6 +185,18 @@ not yet knowable — a silent look-ahead in every macro-gated backtest. They
 stay inert until a `MACRO_DATA_SPEC` pins the availability-date shift, the
 monthly-to-daily carry rule and the revised-vintage caveat (ROTATION_SPEC
 §3.3); GTT/LAA remain blocked on that spec.
+
+## Dividend records (`dividends/`) — reference only
+
+Per-ticker dividend records from Polygon's reference endpoint
+(`fetch_dividends.py`, needs `POLYGON_API_KEY`), one parquet per symbol: BIL,
+BTAL, DBMF, KMLM, QQQ, SPY, TQQQ. Polygon returns nothing for QQQ before
+2011-03-18, so `pre_polygon/QQQ.csv` carries the 2003–2010 record from the
+trust's SEC filings (its README holds the sources), and `extend_dividends.py`
+merges it into `QQQ.parquet` with a `source` column. The simulator never reads
+these files; `tests/test_cash_sleeve.py` checks BIL's coverage and pinned
+distributions against them. They sat at the repo root until DATA_LAYOUT_SPEC;
+the existing frozen snapshots predate the move and carry no `dividends/`.
 
 ## Frozen snapshots
 

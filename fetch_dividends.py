@@ -26,7 +26,7 @@ from bt_secrets import api_key
 
 BASE_URL = "https://api.polygon.io/v3/reference/dividends"
 SYMBOLS = ["TQQQ", "BTAL", "QQQ", "SPY", "DBMF", "KMLM", 'BIL']
-OUT_DIR = Path("dividends")
+OUT_DIR = Path("data/dividends")
 SINCE = "1999-01-01"
 
 

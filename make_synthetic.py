@@ -50,9 +50,9 @@ JUMP_MIN = 1e-5
 
 # §6 S10: the operator spot check against the issuer's published distribution
 # history — the first distribution the trust ever made, the outlier, and the
-# one after it. Pinned here (not read from `dividends/`) so the README line
+# one after it. Pinned here (not read from `data/dividends/`) so the README line
 # stays deterministic on the generator's declared inputs alone; the full
-# 2003–2010 record and its provenance live in `dividends/pre_polygon/QQQ.csv`.
+# 2003–2010 record and its provenance live in `data/dividends/pre_polygon/QQQ.csv`.
 # 2004-12-17 is quoted verbatim in the trust's audited annual report for the
 # fiscal year ended 2004-09-30 ("the Trust paid an ordinary income dividend to
 # shareholders of $.37858 per share"), a $3.00 Microsoft special dividend
