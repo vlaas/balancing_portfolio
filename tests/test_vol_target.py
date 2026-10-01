@@ -16,7 +16,7 @@ from strategies.gate import Gate
 from strategies.vol_target import SafeSwitch, VolTarget
 from strategy import MarketDay
 
-GOLDEN_DIR = Path(__file__).parent / "data"
+GOLDEN_DIR = Path(__file__).parent / "data" / "2026-08-14-unadjusted"
 DAY = dt.date(2020, 1, 2)
 
 

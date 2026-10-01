@@ -40,9 +40,9 @@ def write_haircuts(path: Path, entries) -> Path:
 def src(tmp_path: Path) -> Path:
     root = tmp_path / "src"
     write_series(root, "SYN", SYN)
-    write_series(root, "SYN", SYN, "price")
+    write_series(root, "SYN", SYN, "unadjusted")
     write_series(root, "OTH", OTH)
-    write_series(root, "OTH", OTH, "price")
+    write_series(root, "OTH", OTH, "unadjusted")
     write_series(root, "IDX", IDX)
     write_haircuts(tmp_path / "haircuts.json", {"SYN": 1.0})
     return root
@@ -81,18 +81,18 @@ def test_a_pinned_h_1_row(src, tmp_path):
     assert close[5] == 100.0 * (1 - 1 / 25200) ** 5
     for a, b in zip(close, close[1:]):
         assert math.log(b / a) == pytest.approx(math.log(1 - 1 / 25200))
-    assert not (out / "price" / "SYN.csv").exists()
+    assert not (out / "unadjusted" / "SYN.csv").exists()
 
 
 def test_unmapped_symbols_are_byte_copied(src, tmp_path):
     out = tmp_path / "hc"
     run(src, out)
-    for rel in ["OTH.csv", "price/OTH.csv", "IDX.csv"]:
+    for rel in ["OTH.csv", "unadjusted/OTH.csv", "IDX.csv"]:
         assert filecmp.cmp(out / rel, src / rel, shallow=False), rel
     assert sorted(p.name for p in out.iterdir()) == [
-        "IDX.csv", "OTH.csv", "README.md", "SYN.csv", "price"
+        "IDX.csv", "OTH.csv", "README.md", "SYN.csv", "unadjusted"
     ]
-    assert sorted(p.name for p in (out / "price").iterdir()) == ["OTH.csv"]
+    assert sorted(p.name for p in (out / "unadjusted").iterdir()) == ["OTH.csv"]
 
 
 @pytest.mark.parametrize("entries", [
@@ -179,7 +179,7 @@ def test_generator_reproduces_the_committed_hc_root_byte_for_byte(tmp_path):
 def test_the_hc_root_differs_from_its_parent_in_tqqq_alone():
     moved = [p.name for p in sorted(HC.glob("*.csv")) if not filecmp.cmp(p, USD / p.name, shallow=False)]
     assert moved == ["TQQQ.csv"]
-    assert not (HC / "price" / "TQQQ.csv").exists()
+    assert not (HC / "unadjusted" / "TQQQ.csv").exists()
     assert json.loads(HAIRCUTS.read_text()) == {"BIL": 0.0, "TQQQ": 0.14206396}
     assert filecmp.cmp(HC / "BIL.csv", USD / "BIL.csv", shallow=False)  # h = 0: byte-copied
     assert "| BIL | 0 | — | byte-copied |" in (HC / "README.md").read_text()

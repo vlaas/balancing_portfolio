@@ -8,7 +8,7 @@ from indicators import ewma_vol, ratio_sma, sma
 from main import collect_indicators, main, run_bundle
 from strategy import Strategy
 
-GOLDEN_DIR = Path(__file__).parent / "data"
+GOLDEN_DIR = Path(__file__).parent / "data" / "2026-08-14-unadjusted"
 
 
 # T7 — Declaration guard.

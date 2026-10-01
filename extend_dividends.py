@@ -1,8 +1,8 @@
-"""Merge the pre-Polygon distribution records into `dividends/<SYM>.parquet`.
+"""Merge the pre-Polygon distribution records into `data/dividends/<SYM>.parquet`.
 
 `fetch_dividends.py` can only reach as far back as the provider does — for QQQ
 that is 2011-03-18, which misses the trust's first eight years. The CSVs under
-`dividends/pre_polygon/` carry the earlier record (see that directory's README
+`data/dividends/pre_polygon/` carry the earlier record (see that directory's README
 for provenance); this merges each into its parquet, tagging every row with the
 `source` it came from so a refetch can be told from a transcription.
 
@@ -17,7 +17,7 @@ from pathlib import Path
 
 import polars as pl
 
-OUT_DIR = Path("dividends")
+OUT_DIR = Path("data/dividends")
 EXTRA_DIR = OUT_DIR / "pre_polygon"
 
 

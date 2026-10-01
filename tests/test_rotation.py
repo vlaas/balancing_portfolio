@@ -19,8 +19,9 @@ from stats import correlation
 from strategies.rotation import BestOf, Canary, Rotation
 from strategy import MarketDay
 
-GOLDEN_DIR = Path(__file__).parent / "data"
-NET_DIR = GOLDEN_DIR / "2026-08-24-net15"
+DATA = Path(__file__).parent / "data"
+GOLDEN_DIR = DATA / "2026-08-14-unadjusted"
+NET_DIR = DATA / "2026-08-24-net15"
 SPECS = Path(__file__).parents[1] / "specs"
 DAY = dt.date(2020, 1, 2)
 M1 = mom_monthly(1)  # MOM1M

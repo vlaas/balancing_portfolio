@@ -53,9 +53,9 @@ def write_map(path: Path, entries: dict) -> Path:
 def src(tmp_path: Path) -> Path:
     root = tmp_path / "src"
     write_series(root, "SYN", SYN)
-    write_series(root, "SYN", SYN, "price")
+    write_series(root, "SYN", SYN, "unadjusted")
     write_series(root, "OTH", OTH)
-    write_series(root, "OTH", OTH, "price")
+    write_series(root, "OTH", OTH, "unadjusted")
     write_series(root, "IDX", IDX)
     write_series(root, "FX", FX)
     write_map(tmp_path / "map.json", {"SYN": {"fx": "FX", "scale": SCALE}})
@@ -80,11 +80,11 @@ def test_converted_close_is_close_times_fx_times_scale_on_every_bar(src, tmp_pat
 def test_unmapped_files_are_byte_copied_and_the_converted_twin_is_dropped(src, tmp_path):
     out = tmp_path / "usd"
     run(src, out)
-    for rel in ["OTH.csv", "price/OTH.csv", "IDX.csv", "FX.csv"]:
+    for rel in ["OTH.csv", "unadjusted/OTH.csv", "IDX.csv", "FX.csv"]:
         assert filecmp.cmp(out / rel, src / rel, shallow=False), rel
-    assert not (out / "price" / "SYN.csv").exists()
+    assert not (out / "unadjusted" / "SYN.csv").exists()
     assert sorted(p.name for p in out.iterdir()) == [
-        "FX.csv", "IDX.csv", "OTH.csv", "README.md", "SYN.csv", "price"
+        "FX.csv", "IDX.csv", "OTH.csv", "README.md", "SYN.csv", "unadjusted"
     ]
 
 
@@ -190,8 +190,8 @@ def test_the_usd_root_differs_from_its_parent_in_the_mapped_symbols_alone():
     assert moved == ["DBMF_EU.csv", "LQQ.csv", "MVEA.csv", "XSPS.csv"]
     assert sorted(json.loads(MAP.read_text())) == [p.removesuffix(".csv") for p in moved]
     for name in moved:
-        assert not (USD / "price" / name).exists()
-    assert filecmp.cmp(USD / "price" / "TQQQ.csv", NET / "price" / "TQQQ.csv", shallow=False)
+        assert not (USD / "unadjusted" / name).exists()
+    assert filecmp.cmp(USD / "unadjusted" / "TQQQ.csv", NET / "unadjusted" / "TQQQ.csv", shallow=False)
 
 
 def test_a_converted_row_is_the_parent_close_times_the_previous_labels_fx():

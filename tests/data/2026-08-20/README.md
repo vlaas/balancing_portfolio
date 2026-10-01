@@ -2,7 +2,7 @@
 
 TradingView two-pass export taken 2026-08-21, last bar 2026-08-20 on all six
 symbols. `<SYM>.csv` was exported with **Adjust data for dividends: ON** (the
-traded, total-return series); `price/<SYM>.csv` with the toggle **OFF**, same
+traded, total-return series); `unadjusted/<SYM>.csv` with the toggle **OFF**, same
 chart and session, identical date columns per symbol. Layout and indicator
 settings as `data/README.md`. Append-only, like every snapshot.
 
@@ -12,7 +12,7 @@ one order above the measurement):
 - Flat-segment noise in `ln R` (`R = adjusted / price`): max monotonicity
   violation 4.3e-8 (TQQQ; every other symbol ≤ 7.1e-10) → `TAU = 1e-6`.
 - `R_last = 1` exactly (0.0) on all six symbols; no bar with `R > 1`.
-- SMA/TV parity max abs diff: 1.3e-12 on adjusted files, 2.0e-12 on `price/`
+- SMA/TV parity max abs diff: 1.3e-12 on adjusted files, 2.0e-12 on `unadjusted/`
   files → the 1e-9 tolerance in `tests/test_indicators.py` holds unchanged,
   no separate lane for adjusted files.
 - Implied cumulative distribution yields `y = −ln(R_first) / years`:
@@ -25,7 +25,7 @@ one order above the measurement):
   records within $0.000011 → tolerance $0.0001. TQQQ split 2:1 on 2025-11-20,
   so published amounts with earlier ex-dates are in pre-split units (exactly
   half in today's basis); the T3 entries use post-split ex-dates only.
-- `price/` closes are identical (max diff 0.0) to the flat `tests/data/`
+- `unadjusted/` closes are identical (max diff 0.0) to the `2026-08-14-unadjusted`
   snapshot on every shared date ≤ 2026-08-14, all six symbols — TradingView
   revised no history, so the calendars T6 pins and the goldens T7 compares
   across snapshots sit on identical price data.
@@ -34,7 +34,7 @@ one order above the measurement):
   max EWMA94 vol delta 1.66% relative.
 
 `VIX.csv` and `VIX3M.csv` (added at the REGIME_SPEC baseline, verbatim from
-`data/` at `184f02b`) are cash index series: no distributions, so no `price/`
+`data/` at `184f02b`) are cash index series: no distributions, so no `unadjusted/`
 twin — `make_net_tr.py` byte-copies them into the net snapshot. VIX carries
 values on 58 US market holidays that VIX3M lacks (22 since 2012, none on any
 traded symbol's calendar); they are TradingView artefacts, not observations,

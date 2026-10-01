@@ -27,7 +27,7 @@ from strategies.tqqq_btal_qqq_sma200 import TqqqBtalQqqSma200
 from strategies.vol_target import SafeSwitch
 from strategy import MarketDay
 
-GOLDEN_DIR = Path(__file__).parent / "data"
+GOLDEN_DIR = Path(__file__).parent / "data" / "2026-08-14-unadjusted"
 SPECS = Path(__file__).parents[1] / "specs"
 
 

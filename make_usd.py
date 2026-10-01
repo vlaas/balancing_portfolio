@@ -14,7 +14,7 @@ close on D + 1 and look a day ahead. The FX series is read from the root
 itself — it is an index-class single series that every generator byte-copies
 — so the snapshot stays reproducible from committed inputs alone. Every
 other file is byte-copied. A converted
-`<SYM>.csv` carries `time,close` only and has no `price/` twin: a converted
+`<SYM>.csv` carries `time,close` only and has no `unadjusted/` twin: a converted
 series has no unadjusted twin in its trading currency, and the parent keeps
 the original. Deterministic by construction — no clock, no environment — so
 the committed snapshot is byte-reproducible from the committed parent and
@@ -110,7 +110,7 @@ def build(src: Path, fx_map: dict[str, tuple[str, float]]) -> dict:
         }
     return {
         "symbols": symbols,
-        "pairs": sorted(path.stem for path in (src / "price").glob("*.csv")),
+        "pairs": sorted(path.stem for path in (src / "unadjusted").glob("*.csv")),
         "converted": converted,
     }
 
@@ -146,16 +146,16 @@ def render_readme(parent: str, results: dict) -> str:
         "previous calendar day is counted as stale below. That close is ~5.5 h",
         "after the London close, the same-day offset the spec accepts; the bar",
         "labelled D would close on D + 1. A converted `<SYM>.csv` carries `time,close`",
-        "only and has no `price/` twin — a converted series has no unadjusted",
+        "only and has no `unadjusted/` twin — a converted series has no unadjusted",
         "twin in its trading currency; the parent keeps the original. Every",
-        "other file, `price/` twins included, is byte-copied from the parent.",
+        "other file, `unadjusted/` twins included, is byte-copied from the parent.",
         "",
     ]
     return "\n".join(lines + _table(results)) + "\n"
 
 
 def write_dataset(dst: Path, src: Path, results: dict, readme: str) -> None:
-    (dst / "price").mkdir(parents=True, exist_ok=True)
+    (dst / "unadjusted").mkdir(parents=True, exist_ok=True)
     converted = results["converted"]
     for symbol in results["symbols"]:
         if symbol in converted:
@@ -167,7 +167,7 @@ def write_dataset(dst: Path, src: Path, results: dict, readme: str) -> None:
     for symbol in results["pairs"]:
         if symbol in converted:
             continue  # a converted series has no unadjusted twin
-        shutil.copyfile(src / "price" / f"{symbol}.csv", dst / "price" / f"{symbol}.csv")
+        shutil.copyfile(src / "unadjusted" / f"{symbol}.csv", dst / "unadjusted" / f"{symbol}.csv")
     (dst / "README.md").write_text(readme)
 
 

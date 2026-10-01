@@ -4,7 +4,7 @@ Polygon's dividend reference endpoint (`fetch_dividends.py`) returns nothing
 before **2011-03-18** for QQQ — verified by asking it explicitly for history
 from 1999. QQQ's first distribution was 2003-12-24, so the provider's boundary
 cuts off eight years of a real record. The CSVs here carry that earlier
-stretch; `extend_dividends.py` merges them into `dividends/<SYM>.parquet` with
+stretch; `extend_dividends.py` merges them into `data/dividends/<SYM>.parquet` with
 a `source` column, so the parquet is the single reusable record and the
 provenance of every row stays visible.
 

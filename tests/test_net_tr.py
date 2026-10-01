@@ -23,9 +23,10 @@ from make_net_tr import FLAT_MAX, JUMP_MIN, TAU, main as net_main
 from sweep import main as sweep_main
 from test_sweep import T6_SPEC
 
-GOLDEN_DIR = Path(__file__).parent / "data"
-TR_DIR = GOLDEN_DIR / "2026-08-20"
-NET_DIR = GOLDEN_DIR / "2026-08-20-net15"
+DATA = Path(__file__).parent / "data"
+GOLDEN_DIR = DATA / "2026-08-14-unadjusted"
+TR_DIR = DATA / "2026-08-20"
+NET_DIR = DATA / "2026-08-20-net15"
 SYMBOLS = ["TQQQ", "BTAL", "QQQ", "SPY", "DBMF", "KMLM"]
 W = 0.15
 MATCHED_END = dt.date(2026, 8, 14)
@@ -43,7 +44,7 @@ def read_close(path: Path) -> pl.DataFrame:
 def series(root: Path, symbol: str) -> tuple[pl.DataFrame, pl.Series]:
     """(price frame, adjusted/price ratio) for one symbol of a dataset root."""
     adjusted = read_close(root / f"{symbol}.csv")
-    price = read_close(root / "price" / f"{symbol}.csv")
+    price = read_close(root / "unadjusted" / f"{symbol}.csv")
     assert adjusted["time"].equals(price["time"])
     return price, adjusted["close"] / price["close"]
 
@@ -61,8 +62,8 @@ def test_net_snapshot_layout_and_self_containment():
         net = pl.read_csv(NET_DIR / f"{symbol}.csv")
         assert net.columns == ["time", "close"]
         assert filecmp.cmp(
-            NET_DIR / "price" / f"{symbol}.csv",
-            TR_DIR / "price" / f"{symbol}.csv",
+            NET_DIR / "unadjusted" / f"{symbol}.csv",
+            TR_DIR / "unadjusted" / f"{symbol}.csv",
             shallow=False,
         )
         parent = pl.read_csv(TR_DIR / f"{symbol}.csv", columns=["time"])
@@ -146,7 +147,7 @@ def test_generator_reproduces_the_eu_snapshot_byte_for_byte(tmp_path):
     produced = sorted(p.relative_to(out) for p in out.rglob("*") if p.is_file())
     committed = sorted(p.relative_to(EU_NET_DIR) for p in EU_NET_DIR.rglob("*") if p.is_file())
     assert produced == committed
-    assert len(produced) == 64 + 57 + 1  # top level, price/ twins, README; no macro/
+    assert len(produced) == 64 + 57 + 1  # top level, unadjusted/ twins, README; no fred/
     for rel in committed:
         assert filecmp.cmp(out / rel, EU_NET_DIR / rel, shallow=False), rel
     readme = (EU_NET_DIR / "README.md").read_text()
@@ -278,7 +279,7 @@ def write_pair(root: Path, ratios: list[float], prices: list[float] | None = Non
         (dt.date(2024, 1, 1) + dt.timedelta(days=i)).isoformat()
         for i in range(len(ratios))
     ]
-    (root / "price").mkdir(parents=True, exist_ok=True)
+    (root / "unadjusted").mkdir(parents=True, exist_ok=True)
 
     def csv(times_, closes):
         return "time,close\n" + "\n".join(
@@ -287,7 +288,7 @@ def write_pair(root: Path, ratios: list[float], prices: list[float] | None = Non
 
     adjusted = [r * p for r, p in zip(ratios, prices)]
     (root / f"{symbol}.csv").write_text(csv(times, adjusted))
-    (root / "price" / f"{symbol}.csv").write_text(csv(price_times or times, prices))
+    (root / "unadjusted" / f"{symbol}.csv").write_text(csv(price_times or times, prices))
     return root
 
 
@@ -379,9 +380,9 @@ def test_an_override_that_cannot_be_honoured_is_refused(tmp_path, override):
 
 
 def test_the_committed_bil0_root_differs_from_the_flat_root_in_bil_alone():
-    bil0 = GOLDEN_DIR / "2026-08-24-net15-bil0"
-    flat = GOLDEN_DIR / "2026-08-24-net15"
-    gross = GOLDEN_DIR / "2026-08-24"
+    bil0 = DATA / "2026-08-24-net15-bil0"
+    flat = DATA / "2026-08-24-net15"
+    gross = DATA / "2026-08-24"
     moved = [p.name for p in sorted(bil0.glob("*.csv"))
              if not filecmp.cmp(p, flat / p.name, shallow=False)]
     assert moved == ["BIL.csv"]
@@ -416,7 +417,7 @@ def test_net_etf_files_are_byte_identical_to_the_pre_regime_baseline():
 def test_index_files_pass_through_byte_identical():
     for symbol in ("VIX", "VIX3M"):
         assert filecmp.cmp(NET_DIR / f"{symbol}.csv", TR_DIR / f"{symbol}.csv", shallow=False)
-        assert not (NET_DIR / "price" / f"{symbol}.csv").exists()
+        assert not (NET_DIR / "unadjusted" / f"{symbol}.csv").exists()
     readme = (NET_DIR / "README.md").read_text()
     assert "| VIX | index | — | — |" in readme
     assert "| VIX3M | index | — | — |" in readme
@@ -429,7 +430,7 @@ def test_synthetic_unpaired_symbol_is_copied_and_listed_as_index(tmp_path):
     net_main([str(src), "--out", str(tmp_path / "net")])
 
     assert filecmp.cmp(src / "IDX.csv", tmp_path / "net" / "IDX.csv", shallow=False)
-    assert not (tmp_path / "net" / "price" / "IDX.csv").exists()
+    assert not (tmp_path / "net" / "unadjusted" / "IDX.csv").exists()
     readme = (tmp_path / "net" / "README.md").read_text()
     assert "| IDX | index | — | — |" in readme
     assert "| SYN | 2 |" in readme  # the paired symbol still nets normally
@@ -449,5 +450,5 @@ def test_existing_out_dir_refused_without_force(tmp_path):
 
     net_main([str(src), "--out", str(out), "--force"])
     assert (out / "SYN.csv").exists()
-    assert (out / "price" / "SYN.csv").exists()
+    assert (out / "unadjusted" / "SYN.csv").exists()
     assert (out / "README.md").exists()
