@@ -6,7 +6,8 @@ per-phase commits; 1307 tests green) — all four VT rows read TIMING-FRAGILE an
 FILL-ROBUST; verdict `notes/execution-verdict.md`; §15 follow-ups run (branch
 `execution-followups`): on net15 only B50K50 stays FILL-ROBUST with a ≈ 0.9 timing
 edge on CAGR, λ is AMPLIFIER-CONFIRMED, the 2012 flag lane reads TIMING-ROBUST /
-PHASE-LOCAL — verdict §7 ·
+PHASE-LOCAL — verdict §7; §16 run: the clean test reads PHASE-INCONCLUSIVE
+(+0.24 pp on 2000–2011) and the live gate GATE-NEUTRAL on all five rows — verdict §8 ·
 inputs: `specs/top_strategies_2021.json` (the four 2021 winners + SPY, as run in
 `simulation/top/top2021/results.md`), REBALANCE_SPEC §7.2 ("phase luck").
 

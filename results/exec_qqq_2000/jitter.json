@@ -1,0 +1,1071 @@
+{
+  "benchmark": "SPY benchmark",
+  "best": {
+    "SPY benchmark": {
+      "cagr": 0.0,
+      "calmar": 0.0
+    },
+    "VT QQQ+cash gated": {
+      "cagr": 0.404,
+      "calmar": 0.412
+    },
+    "VT QQQ+cash gated mg10": {
+      "cagr": 0.596,
+      "calmar": 0.588
+    }
+  },
+  "calendar": {
+    "draws_with_bumps": 113,
+    "draws_with_clamps": 0,
+    "max_bumps": 3,
+    "mean_clamps": 0.0
+  },
+  "command": "uv run execution_report.py jitter --spec specs/exec_qqq_2000.json --data tests/data/2026-08-24-net15 --days 10 --draws 500 --seed 20261020",
+  "data": {
+    "cash_yield": 0.03,
+    "cost_bps": {
+      "*": 6.0,
+      "BIL": 0.5,
+      "BTAL": 6.0,
+      "DBMF": 2.5,
+      "KMLM": 6.0,
+      "QQQ": 1.0,
+      "SPY": 0.7,
+      "TQQQ": 1.5
+    },
+    "end": "2011-12-30",
+    "month_ends": 143,
+    "root": "tests/data/2026-08-24-net15",
+    "root_commit": "b81aa6c",
+    "root_dirty": false,
+    "spec": "specs/exec_qqq_2000.json",
+    "start": "2000-01-03",
+    "trading_days": 3019
+  },
+  "distribution": {
+    "SPY benchmark": {
+      "cagr": {
+        "canonical": 0.00291368,
+        "max": 0.00364916,
+        "mean": 0.00307871,
+        "min": 0.00274744,
+        "p10": 0.00292915,
+        "p25": 0.00299925,
+        "p5": 0.00289047,
+        "p50": 0.00306744,
+        "p75": 0.00314868,
+        "p90": 0.00323012,
+        "p95": 0.00329057,
+        "pctile": 0.08,
+        "sd": 0.00012867
+      },
+      "calmar": {
+        "canonical": 0.00526362,
+        "max": 0.00659191,
+        "mean": 0.00556208,
+        "min": 0.00496414,
+        "p10": 0.00529096,
+        "p25": 0.00541878,
+        "p5": 0.00522272,
+        "p50": 0.0055415,
+        "p75": 0.00568765,
+        "p90": 0.00583548,
+        "p95": 0.00594582,
+        "pctile": 0.08,
+        "sd": 0.00023247
+      },
+      "final_value": {
+        "canonical": 86310.44409909,
+        "max": 86754.56316032,
+        "mean": 86310.89183082,
+        "min": 85782.43038305,
+        "p10": 86072.52041291,
+        "p25": 86191.95851403,
+        "p5": 86029.7198555,
+        "p50": 86311.10972413,
+        "p75": 86435.99890953,
+        "p90": 86545.14711304,
+        "p95": 86608.01271286,
+        "pctile": 0.498,
+        "sd": 178.21801493
+      },
+      "max_drawdown": {
+        "canonical": -0.55355055,
+        "max": -0.55326797,
+        "mean": -0.55351787,
+        "min": -0.55376711,
+        "p10": -0.55363286,
+        "p25": -0.5535824,
+        "p5": -0.55366588,
+        "p50": -0.55351895,
+        "p75": -0.55346042,
+        "p90": -0.55339967,
+        "p95": -0.55336168,
+        "pctile": 0.364,
+        "sd": 9.008e-05
+      },
+      "sharpe": {
+        "canonical": 0.12322902,
+        "max": 0.12655278,
+        "mean": 0.12396475,
+        "min": 0.12247906,
+        "p10": 0.12328254,
+        "p25": 0.12358915,
+        "p5": 0.12310407,
+        "p50": 0.12391737,
+        "p75": 0.12427196,
+        "p90": 0.12465922,
+        "p95": 0.12493515,
+        "pctile": 0.084,
+        "sd": 0.00058887
+      },
+      "xirr": {
+        "canonical": 0.02957412,
+        "max": 0.030397,
+        "mean": 0.02957657,
+        "min": 0.02858772,
+        "p10": 0.0291371,
+        "p25": 0.02935434,
+        "p5": 0.0290419,
+        "p50": 0.02957686,
+        "p75": 0.02980982,
+        "p90": 0.03001651,
+        "p95": 0.03012694,
+        "pctile": 0.496,
+        "sd": 0.00033349
+      }
+    },
+    "VT QQQ+cash gated": {
+      "cagr": {
+        "canonical": 0.05048333,
+        "max": 0.06235471,
+        "mean": 0.03260785,
+        "min": 0.00549645,
+        "p10": 0.0198461,
+        "p25": 0.02480491,
+        "p5": 0.01539913,
+        "p50": 0.03172081,
+        "p75": 0.04012064,
+        "p90": 0.04799247,
+        "p95": 0.05102473,
+        "pctile": 0.944,
+        "sd": 0.01071974
+      },
+      "calmar": {
+        "canonical": 0.14478251,
+        "max": 0.18567256,
+        "mean": 0.08117396,
+        "min": 0.01102255,
+        "p10": 0.04228364,
+        "p25": 0.0564473,
+        "p5": 0.03341894,
+        "p50": 0.07498646,
+        "p75": 0.10447732,
+        "p90": 0.12992585,
+        "p95": 0.14286759,
+        "pctile": 0.962,
+        "sd": 0.03375969
+      },
+      "final_value": {
+        "canonical": 118325.74788619,
+        "max": 127061.15591973,
+        "mean": 107329.75166243,
+        "min": 86548.06662438,
+        "p10": 99199.41176402,
+        "p25": 103066.47969884,
+        "p5": 96527.87765806,
+        "p50": 107498.52965433,
+        "p75": 111760.85122039,
+        "p90": 115401.93486895,
+        "p95": 118163.27581401,
+        "pctile": 0.95,
+        "sd": 6481.30388194
+      },
+      "max_drawdown": {
+        "canonical": -0.34868387,
+        "max": -0.31495238,
+        "mean": -0.41658409,
+        "min": -0.52568756,
+        "p10": -0.46977404,
+        "p25": -0.44741663,
+        "p5": -0.47852805,
+        "p50": -0.42004222,
+        "p75": -0.38669878,
+        "p90": -0.35788398,
+        "p95": -0.34611819,
+        "pctile": 0.942,
+        "sd": 0.04137137
+      },
+      "sharpe": {
+        "canonical": 0.38168383,
+        "max": 0.45736237,
+        "mean": 0.2770967,
+        "min": 0.11816596,
+        "p10": 0.20085015,
+        "p25": 0.22991764,
+        "p5": 0.17505841,
+        "p50": 0.27126378,
+        "p75": 0.32318056,
+        "p90": 0.37076044,
+        "p95": 0.39283509,
+        "pctile": 0.93,
+        "sd": 0.06470494
+      },
+      "xirr": {
+        "canonical": 0.07941099,
+        "max": 0.09039846,
+        "mean": 0.06387623,
+        "min": 0.03001573,
+        "p10": 0.05176642,
+        "p25": 0.05782092,
+        "p5": 0.04747063,
+        "p50": 0.06445731,
+        "p75": 0.07053443,
+        "p90": 0.0755316,
+        "p95": 0.07920129,
+        "pctile": 0.95,
+        "sd": 0.00954367
+      }
+    },
+    "VT QQQ+cash gated mg10": {
+      "cagr": {
+        "canonical": 0.05045134,
+        "max": 0.06242502,
+        "mean": 0.03319558,
+        "min": 0.00896197,
+        "p10": 0.02088661,
+        "p25": 0.02648888,
+        "p5": 0.01769904,
+        "p50": 0.03244184,
+        "p75": 0.03972661,
+        "p90": 0.04638474,
+        "p95": 0.05036711,
+        "pctile": 0.952,
+        "sd": 0.00979514
+      },
+      "calmar": {
+        "canonical": 0.14470917,
+        "max": 0.21173379,
+        "mean": 0.08319295,
+        "min": 0.01714858,
+        "p10": 0.04670045,
+        "p25": 0.0604347,
+        "p5": 0.03802099,
+        "p50": 0.07674717,
+        "p75": 0.10133246,
+        "p90": 0.12854794,
+        "p95": 0.14225229,
+        "pctile": 0.96,
+        "sd": 0.03246434
+      },
+      "final_value": {
+        "canonical": 118305.19714686,
+        "max": 129564.89019481,
+        "mean": 108516.72876994,
+        "min": 92360.27339238,
+        "p10": 100569.85517549,
+        "p25": 104347.58554778,
+        "p5": 99152.41189486,
+        "p50": 108568.26276872,
+        "p75": 112739.46594209,
+        "p90": 115694.28870209,
+        "p95": 117850.87332325,
+        "pctile": 0.956,
+        "sd": 6014.96442117
+      },
+      "max_drawdown": {
+        "canonical": -0.34863952,
+        "max": -0.28752144,
+        "mean": -0.4133921,
+        "min": -0.52568756,
+        "p10": -0.46692698,
+        "p25": -0.44510758,
+        "p5": -0.47819806,
+        "p50": -0.41456679,
+        "p75": -0.38298431,
+        "p90": -0.3566595,
+        "p95": -0.3439635,
+        "pctile": 0.93,
+        "sd": 0.04243572
+      },
+      "sharpe": {
+        "canonical": 0.38153355,
+        "max": 0.46309598,
+        "mean": 0.28086899,
+        "min": 0.138159,
+        "p10": 0.20672931,
+        "p25": 0.23921815,
+        "p5": 0.1889592,
+        "p50": 0.274433,
+        "p75": 0.32022139,
+        "p90": 0.36404532,
+        "p95": 0.38813522,
+        "pctile": 0.938,
+        "sd": 0.05960454
+      },
+      "xirr": {
+        "canonical": 0.07938402,
+        "max": 0.09343871,
+        "mean": 0.0656525,
+        "min": 0.04043062,
+        "p10": 0.0539547,
+        "p25": 0.05978637,
+        "p5": 0.05170641,
+        "p50": 0.06597192,
+        "p75": 0.07187727,
+        "p90": 0.07593402,
+        "p95": 0.07879988,
+        "pctile": 0.956,
+        "sd": 0.00870511
+      }
+    }
+  },
+  "paired": {
+    "VT QQQ+cash gated": {
+      "cagr": 1.0,
+      "calmar": 1.0,
+      "final_value": 1.0,
+      "max_drawdown": 1.0,
+      "sharpe": 0.996,
+      "xirr": 1.0
+    },
+    "VT QQQ+cash gated mg10": {
+      "cagr": 1.0,
+      "calmar": 1.0,
+      "final_value": 1.0,
+      "max_drawdown": 1.0,
+      "sharpe": 1.0,
+      "xirr": 1.0
+    }
+  },
+  "params": {
+    "days": 10,
+    "draws": 500,
+    "seed": 20261020
+  },
+  "readout": {
+    "VT QQQ+cash gated": "TIMING-FRAGILE",
+    "VT QQQ+cash gated mg10": "TIMING-FRAGILE"
+  },
+  "scan": [
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": -10,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.00309309,
+          "calmar": 0.00558858,
+          "final_value": 86014.43409057,
+          "max_drawdown": -0.55346706,
+          "sharpe": 0.12404165,
+          "total_fees": 5.03835301,
+          "xirr": 0.02883945
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.03978746,
+          "calmar": 0.09703356,
+          "final_value": 104289.30319949,
+          "max_drawdown": -0.41003819,
+          "sharpe": 0.31974126,
+          "total_fees": 58.68086534,
+          "xirr": 0.05931837
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.04104301,
+          "calmar": 0.10010643,
+          "final_value": 105538.63488927,
+          "max_drawdown": -0.40999368,
+          "sharpe": 0.32883588,
+          "total_fees": 57.59320112,
+          "xirr": 0.06118011
+        }
+      }
+    },
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": -9,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.00310308,
+          "calmar": 0.0056064,
+          "final_value": 86114.76350264,
+          "max_drawdown": -0.55348884,
+          "sharpe": 0.12410341,
+          "total_fees": 5.03835207,
+          "xirr": 0.02904711
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.02895453,
+          "calmar": 0.07035984,
+          "final_value": 104076.79961273,
+          "max_drawdown": -0.41152073,
+          "sharpe": 0.25452776,
+          "total_fees": 50.38923371,
+          "xirr": 0.0590404
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.03274703,
+          "calmar": 0.07820618,
+          "final_value": 108682.72270795,
+          "max_drawdown": -0.41872693,
+          "sharpe": 0.2764771,
+          "total_fees": 48.0683389,
+          "xirr": 0.06580507
+        }
+      }
+    },
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": -8,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.00302982,
+          "calmar": 0.00547344,
+          "final_value": 86179.34624109,
+          "max_drawdown": -0.5535489,
+          "sharpe": 0.12375043,
+          "total_fees": 5.03391699,
+          "xirr": 0.02918693
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.0349596,
+          "calmar": 0.09373117,
+          "final_value": 104542.54408042,
+          "max_drawdown": -0.37297735,
+          "sharpe": 0.28966759,
+          "total_fees": 51.3407847,
+          "xirr": 0.05977808
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.0357793,
+          "calmar": 0.09717938,
+          "final_value": 105503.15092903,
+          "max_drawdown": -0.36817792,
+          "sharpe": 0.2952802,
+          "total_fees": 49.22563912,
+          "xirr": 0.06120969
+        }
+      }
+    },
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": -7,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.00309945,
+          "calmar": 0.00560042,
+          "final_value": 86355.44867725,
+          "max_drawdown": -0.55343244,
+          "sharpe": 0.12407126,
+          "total_fees": 5.03578701,
+          "xirr": 0.02953125
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.03432956,
+          "calmar": 0.08906698,
+          "final_value": 105688.14332858,
+          "max_drawdown": -0.38543528,
+          "sharpe": 0.28541938,
+          "total_fees": 47.61456931,
+          "xirr": 0.0615181
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.03955624,
+          "calmar": 0.10636872,
+          "final_value": 107672.71684609,
+          "max_drawdown": -0.37187854,
+          "sharpe": 0.31525509,
+          "total_fees": 46.65721981,
+          "xirr": 0.06442652
+        }
+      }
+    },
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": -6,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.0031066,
+          "calmar": 0.00561277,
+          "final_value": 86492.22909285,
+          "max_drawdown": -0.5534871,
+          "sharpe": 0.1240891,
+          "total_fees": 5.04031431,
+          "xirr": 0.02980155
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.05207297,
+          "calmar": 0.15821709,
+          "final_value": 112817.72475579,
+          "max_drawdown": -0.32912355,
+          "sharpe": 0.39883717,
+          "total_fees": 54.64231309,
+          "xirr": 0.07173716
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.05834224,
+          "calmar": 0.19251966,
+          "final_value": 116559.81681624,
+          "max_drawdown": -0.30304562,
+          "sharpe": 0.43820094,
+          "total_fees": 50.39455713,
+          "xirr": 0.07680378
+        }
+      }
+    },
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": -5,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.00308648,
+          "calmar": 0.00557641,
+          "final_value": 86696.4207877,
+          "max_drawdown": -0.55348896,
+          "sharpe": 0.12396717,
+          "total_fees": 5.04029862,
+          "xirr": 0.03019713
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.04705726,
+          "calmar": 0.12733683,
+          "final_value": 110551.0493608,
+          "max_drawdown": -0.36954946,
+          "sharpe": 0.36498065,
+          "total_fees": 53.42805359,
+          "xirr": 0.06861542
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.05512772,
+          "calmar": 0.18228314,
+          "final_value": 118322.89414611,
+          "max_drawdown": -0.30242908,
+          "sharpe": 0.41999336,
+          "total_fees": 45.91932501,
+          "xirr": 0.07917268
+        }
+      }
+    },
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": -4,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.0028938,
+          "calmar": 0.00522743,
+          "final_value": 86634.28717147,
+          "max_drawdown": -0.55357995,
+          "sharpe": 0.12315501,
+          "total_fees": 5.03741907,
+          "xirr": 0.03010581
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.04249247,
+          "calmar": 0.11404439,
+          "final_value": 112707.41916129,
+          "max_drawdown": -0.3725959,
+          "sharpe": 0.33659227,
+          "total_fees": 49.38574833,
+          "xirr": 0.07167778
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.04570158,
+          "calmar": 0.13850998,
+          "final_value": 115511.35825596,
+          "max_drawdown": -0.3299515,
+          "sharpe": 0.36061471,
+          "total_fees": 42.67555774,
+          "xirr": 0.07549968
+        }
+      }
+    },
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": -3,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.00296059,
+          "calmar": 0.00534845,
+          "final_value": 86396.51860314,
+          "max_drawdown": -0.55354309,
+          "sharpe": 0.12339476,
+          "total_fees": 5.04000058,
+          "xirr": 0.02968387
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.03825687,
+          "calmar": 0.10631728,
+          "final_value": 109240.91775857,
+          "max_drawdown": -0.3598368,
+          "sharpe": 0.31061191,
+          "total_fees": 47.79533144,
+          "xirr": 0.06684729
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.03675688,
+          "calmar": 0.1021196,
+          "final_value": 108307.11530144,
+          "max_drawdown": -0.35993951,
+          "sharpe": 0.30195112,
+          "total_fees": 47.42784262,
+          "xirr": 0.06550486
+        }
+      }
+    },
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": -2,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.00344552,
+          "calmar": 0.00622542,
+          "final_value": 86353.18871058,
+          "max_drawdown": -0.55345966,
+          "sharpe": 0.12564367,
+          "total_fees": 5.03595354,
+          "xirr": 0.02962024
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.03926196,
+          "calmar": 0.10853442,
+          "final_value": 111458.94962195,
+          "max_drawdown": -0.36174661,
+          "sharpe": 0.31764807,
+          "total_fees": 44.89702756,
+          "xirr": 0.07002394
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.03933957,
+          "calmar": 0.10875314,
+          "final_value": 111517.04402033,
+          "max_drawdown": -0.36173271,
+          "sharpe": 0.31810044,
+          "total_fees": 44.91460648,
+          "xirr": 0.07010526
+        }
+      }
+    },
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": -1,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.00328554,
+          "calmar": 0.00593709,
+          "final_value": 86326.13815698,
+          "max_drawdown": -0.55339278,
+          "sharpe": 0.12496057,
+          "total_fees": 5.03781973,
+          "xirr": 0.0295863
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.01637977,
+          "calmar": 0.03447018,
+          "final_value": 101522.93672842,
+          "max_drawdown": -0.47518646,
+          "sharpe": 0.18063556,
+          "total_fees": 56.67883943,
+          "xirr": 0.05541049
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.04341788,
+          "calmar": 0.12438377,
+          "final_value": 114393.15860624,
+          "max_drawdown": -0.34906386,
+          "sharpe": 0.34264775,
+          "total_fees": 57.0700822,
+          "xirr": 0.07411299
+        }
+      }
+    },
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": 0,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.00291368,
+          "calmar": 0.00526362,
+          "final_value": 86310.44409909,
+          "max_drawdown": -0.55355055,
+          "sharpe": 0.12322902,
+          "total_fees": 5.03878181,
+          "xirr": 0.02957412
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.05048333,
+          "calmar": 0.14478251,
+          "final_value": 118325.74788619,
+          "max_drawdown": -0.34868387,
+          "sharpe": 0.38168383,
+          "total_fees": 58.96668036,
+          "xirr": 0.07941099
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.05045134,
+          "calmar": 0.14470917,
+          "final_value": 118305.19714686,
+          "max_drawdown": -0.34863952,
+          "sharpe": 0.38153355,
+          "total_fees": 58.94426533,
+          "xirr": 0.07938402
+        }
+      }
+    },
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": 1,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.00316353,
+          "calmar": 0.00571514,
+          "final_value": 86159.90484591,
+          "max_drawdown": -0.5535356,
+          "sharpe": 0.12429159,
+          "total_fees": 5.03541464,
+          "xirr": 0.02931842
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.04196484,
+          "calmar": 0.11740915,
+          "final_value": 114028.67503445,
+          "max_drawdown": -0.35742394,
+          "sharpe": 0.32998492,
+          "total_fees": 60.57746405,
+          "xirr": 0.07371644
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.03035312,
+          "calmar": 0.07034782,
+          "final_value": 110802.74332304,
+          "max_drawdown": -0.43147213,
+          "sharpe": 0.26075043,
+          "total_fees": 58.45825131,
+          "xirr": 0.06923379
+        }
+      }
+    },
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": 2,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.00304758,
+          "calmar": 0.00550558,
+          "final_value": 86089.9780417,
+          "max_drawdown": -0.55354321,
+          "sharpe": 0.1237882,
+          "total_fees": 5.04019715,
+          "xirr": 0.02920465
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.03670605,
+          "calmar": 0.09349893,
+          "final_value": 111777.96591025,
+          "max_drawdown": -0.39258252,
+          "sharpe": 0.30170041,
+          "total_fees": 49.21358602,
+          "xirr": 0.07064316
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.03724633,
+          "calmar": 0.09563764,
+          "final_value": 111947.55135253,
+          "max_drawdown": -0.38945262,
+          "sharpe": 0.30438335,
+          "total_fees": 49.26851045,
+          "xirr": 0.0708802
+        }
+      }
+    },
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": 3,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.00330011,
+          "calmar": 0.00596259,
+          "final_value": 86127.49601187,
+          "max_drawdown": -0.55346957,
+          "sharpe": 0.12495692,
+          "total_fees": 5.0375357,
+          "xirr": 0.02929189
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.03687473,
+          "calmar": 0.09415915,
+          "final_value": 112506.53950544,
+          "max_drawdown": -0.39162131,
+          "sharpe": 0.30324751,
+          "total_fees": 45.18697258,
+          "xirr": 0.07169806
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.03684623,
+          "calmar": 0.09408638,
+          "final_value": 112488.52588077,
+          "max_drawdown": -0.39162131,
+          "sharpe": 0.30310338,
+          "total_fees": 45.14670937,
+          "xirr": 0.07167302
+        }
+      }
+    },
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": 4,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.00315615,
+          "calmar": 0.00570222,
+          "final_value": 86151.65198233,
+          "max_drawdown": -0.55349603,
+          "sharpe": 0.12427825,
+          "total_fees": 5.03585898,
+          "xirr": 0.02935418
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.02879937,
+          "calmar": 0.06804196,
+          "final_value": 106120.67947951,
+          "max_drawdown": -0.42325902,
+          "sharpe": 0.25446655,
+          "total_fees": 51.86113645,
+          "xirr": 0.06256942
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.03012283,
+          "calmar": 0.07138721,
+          "final_value": 106524.74079112,
+          "max_drawdown": -0.42196404,
+          "sharpe": 0.26320917,
+          "total_fees": 52.09353589,
+          "xirr": 0.0631674
+        }
+      }
+    },
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": 5,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.00313827,
+          "calmar": 0.00567042,
+          "final_value": 86255.20990665,
+          "max_drawdown": -0.55344611,
+          "sharpe": 0.12421147,
+          "total_fees": 5.03562867,
+          "xirr": 0.02956669
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.03145055,
+          "calmar": 0.07371243,
+          "final_value": 106348.6611187,
+          "max_drawdown": -0.42666556,
+          "sharpe": 0.27085652,
+          "total_fees": 44.31106019,
+          "xirr": 0.06294512
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.02806617,
+          "calmar": 0.06578025,
+          "final_value": 102889.53264029,
+          "max_drawdown": -0.42666556,
+          "sharpe": 0.25124356,
+          "total_fees": 43.57168035,
+          "xirr": 0.05772975
+        }
+      }
+    },
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": 6,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.00306504,
+          "calmar": 0.0055384,
+          "final_value": 86335.67959408,
+          "max_drawdown": -0.55341743,
+          "sharpe": 0.12388805,
+          "total_fees": 5.03719971,
+          "xirr": 0.02973985
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.03487478,
+          "calmar": 0.09189032,
+          "final_value": 105700.1616804,
+          "max_drawdown": -0.37952616,
+          "sharpe": 0.29113446,
+          "total_fees": 55.73411345,
+          "xirr": 0.06202692
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.03621407,
+          "calmar": 0.09634583,
+          "final_value": 106314.63484685,
+          "max_drawdown": -0.37587589,
+          "sharpe": 0.30103871,
+          "total_fees": 55.0451665,
+          "xirr": 0.06294042
+        }
+      }
+    },
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": 7,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.00313967,
+          "calmar": 0.00567271,
+          "final_value": 86478.49159335,
+          "max_drawdown": -0.55346895,
+          "sharpe": 0.12422147,
+          "total_fees": 5.03424279,
+          "xirr": 0.03002416
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.02973755,
+          "calmar": 0.07252193,
+          "final_value": 106821.14598829,
+          "max_drawdown": -0.4100491,
+          "sharpe": 0.25953378,
+          "total_fees": 51.88087967,
+          "xirr": 0.06372394
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.03234781,
+          "calmar": 0.07888765,
+          "final_value": 109578.99122972,
+          "max_drawdown": -0.4100491,
+          "sharpe": 0.2756045,
+          "total_fees": 48.48657928,
+          "xirr": 0.0677342
+        }
+      }
+    },
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": 8,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.00318149,
+          "calmar": 0.00574886,
+          "final_value": 86487.15256666,
+          "max_drawdown": -0.55341235,
+          "sharpe": 0.12445293,
+          "total_fees": 5.04060597,
+          "xirr": 0.03005691
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.02430873,
+          "calmar": 0.05568675,
+          "final_value": 102316.15844863,
+          "max_drawdown": -0.43652634,
+          "sharpe": 0.22695234,
+          "total_fees": 48.16666961,
+          "xirr": 0.05694981
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.01703485,
+          "calmar": 0.03798651,
+          "final_value": 98103.02894039,
+          "max_drawdown": -0.4484446,
+          "sharpe": 0.18462783,
+          "total_fees": 45.25355752,
+          "xirr": 0.05027385
+        }
+      }
+    },
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": 9,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.00312976,
+          "calmar": 0.00565578,
+          "final_value": 86344.54894808,
+          "max_drawdown": -0.55337387,
+          "sharpe": 0.12417071,
+          "total_fees": 5.03647266,
+          "xirr": 0.02980687
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.04311949,
+          "calmar": 0.10414438,
+          "final_value": 107142.31702535,
+          "max_drawdown": -0.41403572,
+          "sharpe": 0.33893681,
+          "total_fees": 54.9235706,
+          "xirr": 0.06426562
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.02277131,
+          "calmar": 0.05075383,
+          "final_value": 102506.19817604,
+          "max_drawdown": -0.44866196,
+          "sharpe": 0.21672935,
+          "total_fees": 52.86626852,
+          "xirr": 0.05727507
+        }
+      }
+    },
+    {
+      "bumps": 0,
+      "clamps": 0,
+      "d": 10,
+      "metrics": {
+        "SPY benchmark": {
+          "cagr": 0.00325999,
+          "calmar": 0.00589124,
+          "final_value": 86354.89249085,
+          "max_drawdown": -0.55336169,
+          "sharpe": 0.12476968,
+          "total_fees": 5.03575759,
+          "xirr": 0.0298451
+        },
+        "VT QQQ+cash gated": {
+          "cagr": 0.02892919,
+          "calmar": 0.06925615,
+          "final_value": 104007.97436564,
+          "max_drawdown": -0.41771291,
+          "sharpe": 0.2529149,
+          "total_fees": 55.10273994,
+          "xirr": 0.05961376
+        },
+        "VT QQQ+cash gated mg10": {
+          "cagr": 0.02966906,
+          "calmar": 0.07405499,
+          "final_value": 103162.05682483,
+          "max_drawdown": -0.40063557,
+          "sharpe": 0.25837439,
+          "total_fees": 53.86089944,
+          "xirr": 0.05832078
+        }
+      }
+    }
+  ],
+  "strategies": [
+    "VT QQQ+cash gated",
+    "VT QQQ+cash gated mg10",
+    "SPY benchmark"
+  ]
+}
