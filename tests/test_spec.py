@@ -578,7 +578,7 @@ def every_strategy():
             continue
         bundle = build_bundle(load_spec(path))
         symbols = {s for st in bundle.strategies for s in (*st.weights, *st.data)}
-        if any(not (GOLDEN_DIR / f"{s}.csv").exists() for s in symbols):
+        if any(not (GOLDEN_DIR / "unadjusted" / f"{s}.csv").exists() for s in symbols):
             # REGIME_SPEC §2.2 erratum: the flat snapshot gains no files, so a
             # spec reading VIX/VIX3M cannot run here; R10 and the §9 protocol
             # cover it on the dated snapshots instead.

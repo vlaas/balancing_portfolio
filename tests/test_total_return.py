@@ -1,8 +1,8 @@
 """Total-return dataset invariants — TOTAL_RETURN_SPEC §4, §7; ROTATION_SPEC §3.5.
 
-A dataset directory holds `<SYM>.csv` (dividend-adjusted export, the traded
-series) and `unadjusted/<SYM>.csv` (unadjusted export from the same session,
-reference only). T1–T3 are parametrised over three roots — both frozen TR
+A dataset directory holds `adjusted/<SYM>.csv` (dividend-adjusted export, the
+traded series) and `unadjusted/<SYM>.csv` (unadjusted export from the same
+session, reference only; DATA_LAYOUT_V2_SPEC §2). T1–T3 are parametrised over three roots — both frozen TR
 snapshots and live `data/` — with a per-root symbol list: the 2026-08-20
 snapshot predates the paired BIL export and keeps the six original symbols,
 while the 2026-08-24 snapshot and live `data/` run seven (CASH_SLEEVE_SPEC B1,
@@ -79,7 +79,7 @@ def read_close(path: Path) -> pl.DataFrame:
 
 def ratio_series(root: Path, symbol: str) -> tuple[pl.DataFrame, pl.Series]:
     """The price frame and the adjustment ratio R = adjusted / price."""
-    adjusted = read_close(root / f"{symbol}.csv")
+    adjusted = read_close(root / "adjusted" / f"{symbol}.csv")
     price = read_close(root / "unadjusted" / f"{symbol}.csv")
     assert adjusted["time"].equals(price["time"])
     return price, adjusted["close"] / price["close"]
@@ -97,7 +97,7 @@ root_symbol_param = pytest.mark.parametrize(
 @root_param
 def test_paired_files_come_from_one_export_session(root: Path) -> None:
     for symbol in ROOT_SYMBOLS[root]:
-        assert (root / f"{symbol}.csv").exists()
+        assert (root / "adjusted" / f"{symbol}.csv").exists()
         assert (root / "unadjusted" / f"{symbol}.csv").exists()
         ratio_series(root, symbol)  # asserts identical time columns
 
@@ -105,7 +105,7 @@ def test_paired_files_come_from_one_export_session(root: Path) -> None:
         assert (root / "README.md").exists()
         last_bar = dt.date.fromisoformat(root.name)
         for symbol in ("TQQQ", "BTAL", "QQQ", "SPY"):
-            assert read_close(root / f"{symbol}.csv")["time"][-1] == last_bar
+            assert read_close(root / "adjusted" / f"{symbol}.csv")["time"][-1] == last_bar
 
 
 # T2 — Ratio invariants: the shape TradingView's dividend adjustment must have.
@@ -291,8 +291,8 @@ def test_ewma_vol_moves_at_most_two_percent_relative() -> None:
 
 @pytest.mark.parametrize("symbol", ["TQQQ", "BTAL", "QQQ", "SPY"])
 def test_snapshot_calendars_agree_through_the_old_end(symbol: str) -> None:
-    old = read_close(GOLDEN_DIR / f"{symbol}.csv")["time"]
-    new = read_close(TR_DIR / f"{symbol}.csv")["time"]
+    old = read_close(GOLDEN_DIR / "unadjusted" / f"{symbol}.csv")["time"]
+    new = read_close(TR_DIR / "adjusted" / f"{symbol}.csv")["time"]
     assert new.filter(new <= MATCHED_END).to_list() == old.to_list()
 
 
@@ -303,8 +303,8 @@ def test_snapshot_calendars_agree_through_the_old_end(symbol: str) -> None:
 
 @pytest.mark.parametrize("symbol", SYMBOLS)
 def test_new_snapshot_calendar_agrees_with_the_previous_snapshot(symbol: str) -> None:
-    old = read_close(TR_DIR / f"{symbol}.csv")["time"]
-    new = read_close(NEW_TR_DIR / f"{symbol}.csv")["time"]
+    old = read_close(TR_DIR / "adjusted" / f"{symbol}.csv")["time"]
+    new = read_close(NEW_TR_DIR / "adjusted" / f"{symbol}.csv")["time"]
     assert new.filter(new <= dt.date(2026, 8, 20)).to_list() == old.to_list()
 
 
@@ -313,7 +313,9 @@ def test_new_snapshot_is_self_describing() -> None:
     # last bar the directory is named after.
     assert (NEW_TR_DIR / "README.md").exists()
     last_bar = dt.date.fromisoformat(NEW_TR_DIR.name)
-    for path in sorted(NEW_TR_DIR.glob("*.csv")):
+    paths = sorted(NEW_TR_DIR.glob("adjusted/*.csv")) + sorted(NEW_TR_DIR.glob("index/*.csv"))
+    assert len(paths) == 48 + 4
+    for path in paths:
         assert read_close(path)["time"][-1] == last_bar, path.stem
 
 
@@ -325,8 +327,11 @@ def test_new_snapshot_is_self_describing() -> None:
 def test_eu_snapshot_is_self_describing() -> None:
     assert (EU_TR_DIR / "README.md").exists()
     last_bar = dt.date.fromisoformat(EU_TR_DIR.name)
-    tops = sorted(EU_TR_DIR.glob("*.csv"))
-    assert len(tops) == 64 and len(list((EU_TR_DIR / "unadjusted").glob("*.csv"))) == 57
+    adjusted = sorted(EU_TR_DIR.glob("adjusted/*.csv"))
+    indices = sorted(EU_TR_DIR.glob("index/*.csv"))
+    tops = adjusted + indices
+    assert sorted(p.stem for p in adjusted) == LIVE_PAIRS
+    assert {p.stem for p in indices} == {"SPX", "XNDX", "VIX", "VIX3M", "NDX"} | FX_SINGLES
     assert sorted(p.stem for p in (EU_TR_DIR / "unadjusted").glob("*.csv")) == LIVE_PAIRS
     for path in tops:
         expected = last_bar - dt.timedelta(days=1) if path.stem in FX_SINGLES else last_bar
@@ -335,14 +340,14 @@ def test_eu_snapshot_is_self_describing() -> None:
 
 @pytest.mark.parametrize("symbol", SYMBOLS + ["BIL"])
 def test_eu_snapshot_calendar_agrees_with_the_previous_snapshot(symbol: str) -> None:
-    old = read_close(NEW_TR_DIR / f"{symbol}.csv")["time"]
-    new = read_close(EU_TR_DIR / f"{symbol}.csv")["time"]
+    old = read_close(NEW_TR_DIR / "adjusted" / f"{symbol}.csv")["time"]
+    new = read_close(EU_TR_DIR / "adjusted" / f"{symbol}.csv")["time"]
     assert new.filter(new <= dt.date(2026, 8, 24)).to_list() == old.to_list()
 
 
 @pytest.mark.parametrize("symbol", sorted(ZERO_YIELD))
 def test_eu_snapshot_zero_distribution_pairs_are_byte_identical(symbol: str) -> None:
-    assert filecmp.cmp(EU_TR_DIR / f"{symbol}.csv", EU_TR_DIR / "unadjusted" / f"{symbol}.csv",
+    assert filecmp.cmp(EU_TR_DIR / "adjusted" / f"{symbol}.csv", EU_TR_DIR / "unadjusted" / f"{symbol}.csv",
                        shallow=False)
 
 

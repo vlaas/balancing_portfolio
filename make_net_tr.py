@@ -1,10 +1,10 @@
 """Derive a net-of-withholding total-return dataset from a frozen gross pair.
 
-Reads a dataset root in the TOTAL_RETURN_SPEC §3 convention (`<SYM>.csv`
-gross-adjusted + `unadjusted/<SYM>.csv`), replaces each distribution jump factor k
-by k_net = w + (1 - w) * k (NET_TR_SPEC §2) so every ex-date reinvests
-(1 - w) * D instead of D, and writes `<SYM>.csv` with columns `time,close`
-plus a byte-copied `unadjusted/` and a README. Deterministic by construction — no
+Reads a dataset root in the TOTAL_RETURN_SPEC §3 convention (`adjusted/<SYM>.csv`
+gross-adjusted + `unadjusted/<SYM>.csv`, DATA_LAYOUT_V2_SPEC §2), replaces each
+distribution jump factor k by k_net = w + (1 - w) * k (NET_TR_SPEC §2) so every
+ex-date reinvests (1 - w) * D instead of D, and writes `adjusted/<SYM>.csv` with
+columns `time,close` plus a byte-copied `unadjusted/` and `index/` and a README. Deterministic by construction — no
 clock, no environment — so the committed snapshot is byte-reproducible from
 the committed parent and this script (N5).
 
@@ -47,7 +47,7 @@ def read_pair(root: Path, symbol: str) -> tuple[list[str], list[float], list[flo
         columns=["time", "close"],
         schema_overrides={"time": pl.String, "close": pl.Float64},
     )
-    adjusted = pl.read_csv(root / f"{symbol}.csv", **kwargs)
+    adjusted = pl.read_csv(root / "adjusted" / f"{symbol}.csv", **kwargs)
     price = pl.read_csv(root / "unadjusted" / f"{symbol}.csv", **kwargs)
     if not adjusted["time"].equals(price["time"]):
         raise ValueError(f"{symbol}: adjusted and price time columns differ")
@@ -104,15 +104,16 @@ def build(src: Path, w: float, overrides: dict[str, float] | None = None) -> dic
     validation happen here, before anything is written — a hard error can
     never leave a partial dataset behind (NET_TR_SPEC §3)."""
     overrides = overrides or {}
-    symbols = sorted(path.stem for path in src.glob("*.csv"))
+    indices = {path.stem for path in (src / "index").glob("*.csv")}
+    symbols = sorted({path.stem for path in (src / "adjusted").glob("*.csv")} | indices)
     if not symbols:
-        raise ValueError(f"{src}: no <SYM>.csv files found")
+        raise ValueError(f"{src}: no adjusted/<SYM>.csv or index/<SYM>.csv files found")
     unknown = sorted(set(overrides) - set(symbols))
     if unknown:
         raise ValueError(f"{src}: --rate-override names absent symbols {unknown}")
     results = {}
     for symbol in symbols:
-        if not (src / "unadjusted" / f"{symbol}.csv").exists():
+        if symbol in indices:
             # An index series with no distributions (REGIME_SPEC §2.2): the
             # parent file is byte-copied into the net snapshot.
             results[symbol] = {"index": True}
@@ -167,10 +168,10 @@ def render_readme(parent: str, w: float, results: dict[str, dict],
         "factor k is replaced by k_net = w + (1 - w) * k, so every ex-date",
         "reinvests (1 - w) * D instead of D; flat (pure price movement) rows",
         "scale by the constant suffix product C only, and the net series anchors",
-        "to the parent at the last bar. `<SYM>.csv` carries columns `time,close`",
-        "only; `unadjusted/<SYM>.csv` is byte-copied from the parent. Step",
-        f"classification (NET_TR_SPEC §2.1): FLAT_MAX = {FLAT_MAX!r},",
-        f"JUMP_MIN = {JUMP_MIN!r}, TAU = {TAU!r}.",
+        "to the parent at the last bar. `adjusted/<SYM>.csv` carries columns",
+        "`time,close` only; `unadjusted/<SYM>.csv` and `index/<SYM>.csv` are",
+        "byte-copied from the parent. Step classification (NET_TR_SPEC §2.1):",
+        f"FLAT_MAX = {FLAT_MAX!r}, JUMP_MIN = {JUMP_MIN!r}, TAU = {TAU!r}.",
         "",
     ]
     if overrides:
@@ -188,13 +189,14 @@ def render_readme(parent: str, w: float, results: dict[str, dict],
 
 
 def write_dataset(dst: Path, src: Path, results: dict[str, dict], readme: str) -> None:
-    (dst / "unadjusted").mkdir(parents=True, exist_ok=True)
+    for folder in ("adjusted", "index", "unadjusted"):
+        (dst / folder).mkdir(parents=True, exist_ok=True)
     for symbol, r in results.items():
         if r.get("index"):
-            shutil.copyfile(src / f"{symbol}.csv", dst / f"{symbol}.csv")
+            shutil.copyfile(src / "index" / f"{symbol}.csv", dst / "index" / f"{symbol}.csv")
             continue
         rows = "\n".join(f"{t},{c!r}" for t, c in zip(r["times"], r["close"]))
-        (dst / f"{symbol}.csv").write_text(f"time,close\n{rows}\n")
+        (dst / "adjusted" / f"{symbol}.csv").write_text(f"time,close\n{rows}\n")
         shutil.copyfile(src / "unadjusted" / f"{symbol}.csv", dst / "unadjusted" / f"{symbol}.csv")
     (dst / "README.md").write_text(readme)
 

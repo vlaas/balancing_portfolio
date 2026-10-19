@@ -4,10 +4,10 @@ Derived from the frozen `2026-08-24` snapshot by `make_net_tr.py` (NET_TR_SPEC �
 factor k is replaced by k_net = w + (1 - w) * k, so every ex-date
 reinvests (1 - w) * D instead of D; flat (pure price movement) rows
 scale by the constant suffix product C only, and the net series anchors
-to the parent at the last bar. `<SYM>.csv` carries columns `time,close`
-only; `unadjusted/<SYM>.csv` is byte-copied from the parent. Step
-classification (NET_TR_SPEC §2.1): FLAT_MAX = 5e-06,
-JUMP_MIN = 1e-05, TAU = 1e-06.
+to the parent at the last bar. `adjusted/<SYM>.csv` carries columns
+`time,close` only; `unadjusted/<SYM>.csv` and `index/<SYM>.csv` are
+byte-copied from the parent. Step classification (NET_TR_SPEC §2.1):
+FLAT_MAX = 5e-06, JUMP_MIN = 1e-05, TAU = 1e-06.
 
 Per-symbol rate override (CASH_SLEEVE_SPEC §10.5): BIL at w = 0. The flat
 convention is a modelling choice, not a fact; BIL's income is US

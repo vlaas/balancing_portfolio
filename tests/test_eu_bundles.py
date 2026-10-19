@@ -31,7 +31,7 @@ def test_each_lane_loads_simulates_and_names_every_symbol_it_reads(stem, root):
     bundle = build_bundle(load_spec(SPECS / f"{stem}.json"))
     symbols = {s for st in bundle.strategies for s in (*st.weights, *st.data)}
     for symbol in symbols:
-        assert (root / f"{symbol}.csv").exists(), symbol
+        assert any((root / d / f"{symbol}.csv").exists() for d in ("adjusted", "index")), symbol
     results = run_bundle(bundle, root)
     assert [r.label for r in results] == [st.label for st in bundle.strategies]
     assert results[-1].label == "SPY benchmark" and results[-2].label == "CSPX benchmark"

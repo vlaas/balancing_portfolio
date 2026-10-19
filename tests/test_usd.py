@@ -35,9 +35,9 @@ RATES = [1.10, 1.11, 1.12, 1.12, 1.14]
 SCALE = 0.01
 
 
-def write_series(root: Path, symbol: str, rows, sub: str | None = None) -> None:
-    """A file in the TradingView six-column export layout."""
-    folder = root / sub if sub else root
+def write_series(root: Path, symbol: str, rows, sub: str = "adjusted") -> None:
+    """A file in the TradingView six-column export layout, in the root's `sub` folder."""
+    folder = root / sub
     folder.mkdir(parents=True, exist_ok=True)
     lines = ["time,open,high,low,close,Volume"]
     lines += [f"{t},{c},{c},{c},{c},0.0" for t, c in rows]
@@ -56,8 +56,8 @@ def src(tmp_path: Path) -> Path:
     write_series(root, "SYN", SYN, "unadjusted")
     write_series(root, "OTH", OTH)
     write_series(root, "OTH", OTH, "unadjusted")
-    write_series(root, "IDX", IDX)
-    write_series(root, "FX", FX)
+    write_series(root, "IDX", IDX, "index")
+    write_series(root, "FX", FX, "index")
     write_map(tmp_path / "map.json", {"SYN": {"fx": "FX", "scale": SCALE}})
     return root
 
@@ -70,7 +70,7 @@ def run(src: Path, out: Path, map_path: Path | None = None, *extra: str) -> None
 def test_converted_close_is_close_times_fx_times_scale_on_every_bar(src, tmp_path):
     out = tmp_path / "usd"
     run(src, out)
-    got = pl.read_csv(out / "SYN.csv")
+    got = pl.read_csv(out / "adjusted" / "SYN.csv")
     assert got.columns == ["time", "close"]
     assert got["time"].to_list() == [t for t, _ in SYN]
     # Same expression, same order, so the equality is exact.
@@ -80,12 +80,12 @@ def test_converted_close_is_close_times_fx_times_scale_on_every_bar(src, tmp_pat
 def test_unmapped_files_are_byte_copied_and_the_converted_twin_is_dropped(src, tmp_path):
     out = tmp_path / "usd"
     run(src, out)
-    for rel in ["OTH.csv", "unadjusted/OTH.csv", "IDX.csv", "FX.csv"]:
+    for rel in ["adjusted/OTH.csv", "unadjusted/OTH.csv", "index/IDX.csv", "index/FX.csv"]:
         assert filecmp.cmp(out / rel, src / rel, shallow=False), rel
     assert not (out / "unadjusted" / "SYN.csv").exists()
-    assert sorted(p.name for p in out.iterdir()) == [
-        "FX.csv", "IDX.csv", "OTH.csv", "README.md", "SYN.csv", "unadjusted"
-    ]
+    assert sorted(p.name for p in out.iterdir()) == ["README.md", "adjusted", "index", "unadjusted"]
+    assert sorted(p.name for p in (out / "adjusted").iterdir()) == ["OTH.csv", "SYN.csv"]
+    assert sorted(p.name for p in (out / "index").iterdir()) == ["FX.csv", "IDX.csv"]
 
 
 def test_two_runs_are_byte_identical(src, tmp_path):
@@ -119,7 +119,7 @@ def test_a_same_date_fx_bar_is_never_used():
 
 
 def test_a_bar_with_no_earlier_fx_bar_is_loud(src, tmp_path):
-    write_series(src, "FX", FX[1:])  # first FX label 2024-01-01, SYN starts 2024-01-01
+    write_series(src, "FX", FX[1:], "index")  # first FX label 2024-01-01, SYN starts 2024-01-01
     with pytest.raises(ValueError, match="SYN 2024-01-01"):
         run(src, tmp_path / "usd")
     assert not (tmp_path / "usd").exists()
@@ -165,9 +165,9 @@ def test_existing_out_dir_refused_without_force(src, tmp_path):
     with pytest.raises(SystemExit):
         run(src, out)
     assert (out / "sentinel").read_text() == "keep"
-    assert not (out / "SYN.csv").exists()
+    assert not (out / "adjusted" / "SYN.csv").exists()
     run(src, out, None, "--force")
-    assert (out / "SYN.csv").exists()
+    assert (out / "adjusted" / "SYN.csv").exists()
 
 
 # The committed decision root (EU_SUBSTITUTE_SPEC §3.6).
@@ -179,14 +179,14 @@ def test_generator_reproduces_the_committed_usd_root_byte_for_byte(tmp_path):
     produced = sorted(p.relative_to(out) for p in out.rglob("*") if p.is_file())
     committed = sorted(p.relative_to(USD) for p in USD.rglob("*") if p.is_file())
     assert produced == committed
-    assert len(produced) == 64 + 53 + 1  # four converted symbols carry no twin
+    assert len(produced) == 57 + 7 + 53 + 1  # adjusted/, index/, unadjusted/ (four converted symbols carry no twin), README
     for rel in committed:
         assert filecmp.cmp(out / rel, USD / rel, shallow=False), rel
 
 
 def test_the_usd_root_differs_from_its_parent_in_the_mapped_symbols_alone():
-    moved = [p.name for p in sorted(USD.glob("*.csv"))
-             if not filecmp.cmp(p, NET / p.name, shallow=False)]
+    moved = [p.name for p in sorted((USD / "adjusted").glob("*.csv"))
+             if not filecmp.cmp(p, NET / "adjusted" / p.name, shallow=False)]
     assert moved == ["DBMF_EU.csv", "LQQ.csv", "MVEA.csv", "XSPS.csv"]
     assert sorted(json.loads(MAP.read_text())) == [p.removesuffix(".csv") for p in moved]
     for name in moved:
@@ -196,8 +196,8 @@ def test_the_usd_root_differs_from_its_parent_in_the_mapped_symbols_alone():
 
 def test_a_converted_row_is_the_parent_close_times_the_previous_labels_fx():
     # XSPS 2026-09-02 (GBX): 411.6 pence x GBPUSD of the bar labelled 2026-09-01.
-    xsps = pl.read_csv(USD / "XSPS.csv", try_parse_dates=True).tail(1)
-    fx = pl.read_csv(NET / "GBPUSD.csv", columns=["time", "close"], try_parse_dates=True).tail(1)
+    xsps = pl.read_csv(USD / "adjusted" / "XSPS.csv", try_parse_dates=True).tail(1)
+    fx = pl.read_csv(NET / "index" / "GBPUSD.csv", columns=["time", "close"], try_parse_dates=True).tail(1)
     assert str(xsps["time"][0]) == "2026-09-02" and str(fx["time"][0]) == "2026-09-01"
     assert xsps["close"][0] == 411.6 * fx["close"][0] * 0.01
     readme = (USD / "README.md").read_text()

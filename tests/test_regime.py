@@ -19,7 +19,8 @@ NET_DIR = Path(__file__).parent / "data" / "2026-08-20-net15"
 
 def write_csv(data_dir: Path, symbol: str, rows: list[tuple]) -> None:
     lines = ["time,close"] + [f"{date},{close}" for date, close in rows]
-    (data_dir / f"{symbol}.csv").write_text("\n".join(lines) + "\n")
+    (data_dir / "adjusted").mkdir(parents=True, exist_ok=True)
+    (data_dir / "adjusted" / f"{symbol}.csv").write_text("\n".join(lines) + "\n")
 
 
 def test_episodes_are_consecutive_risk_off_runs():

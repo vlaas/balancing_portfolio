@@ -43,7 +43,7 @@ def read_close(path: Path) -> pl.DataFrame:
 
 def series(root: Path, symbol: str) -> tuple[pl.DataFrame, pl.Series]:
     """(price frame, adjusted/price ratio) for one symbol of a dataset root."""
-    adjusted = read_close(root / f"{symbol}.csv")
+    adjusted = read_close(root / "adjusted" / f"{symbol}.csv")
     price = read_close(root / "unadjusted" / f"{symbol}.csv")
     assert adjusted["time"].equals(price["time"])
     return price, adjusted["close"] / price["close"]
@@ -59,14 +59,14 @@ def jump_rows(ratio: pl.Series) -> list[int]:
 
 def test_net_snapshot_layout_and_self_containment():
     for symbol in SYMBOLS:
-        net = pl.read_csv(NET_DIR / f"{symbol}.csv")
+        net = pl.read_csv(NET_DIR / "adjusted" / f"{symbol}.csv")
         assert net.columns == ["time", "close"]
         assert filecmp.cmp(
             NET_DIR / "unadjusted" / f"{symbol}.csv",
             TR_DIR / "unadjusted" / f"{symbol}.csv",
             shallow=False,
         )
-        parent = pl.read_csv(TR_DIR / f"{symbol}.csv", columns=["time"])
+        parent = pl.read_csv(TR_DIR / "adjusted" / f"{symbol}.csv", columns=["time"])
         assert net["time"].equals(parent["time"])
     assert (NET_DIR / "README.md").is_file()
 
@@ -147,7 +147,7 @@ def test_generator_reproduces_the_eu_snapshot_byte_for_byte(tmp_path):
     produced = sorted(p.relative_to(out) for p in out.rglob("*") if p.is_file())
     committed = sorted(p.relative_to(EU_NET_DIR) for p in EU_NET_DIR.rglob("*") if p.is_file())
     assert produced == committed
-    assert len(produced) == 64 + 57 + 1  # top level, unadjusted/ twins, README; no fred/
+    assert len(produced) == 57 + 7 + 57 + 1  # adjusted/, index/, unadjusted/ twins, README; no fred/
     for rel in committed:
         assert filecmp.cmp(out / rel, EU_NET_DIR / rel, shallow=False), rel
     readme = (EU_NET_DIR / "README.md").read_text()
@@ -162,7 +162,7 @@ def test_generator_reproduces_the_committed_snapshot_byte_for_byte(tmp_path):
     produced = sorted(p.relative_to(out) for p in out.rglob("*") if p.is_file())
     committed = sorted(p.relative_to(NET_DIR) for p in NET_DIR.rglob("*") if p.is_file())
     assert produced == committed
-    assert len(produced) == 15  # 13 + the two REGIME_SPEC §2.2 index files
+    assert len(produced) == 15  # 6 adjusted/ + 6 unadjusted/ + README + the two REGIME_SPEC §2.2 index/ files
     for rel in committed:
         assert filecmp.cmp(out / rel, NET_DIR / rel, shallow=False), rel
 
@@ -279,7 +279,8 @@ def write_pair(root: Path, ratios: list[float], prices: list[float] | None = Non
         (dt.date(2024, 1, 1) + dt.timedelta(days=i)).isoformat()
         for i in range(len(ratios))
     ]
-    (root / "unadjusted").mkdir(parents=True, exist_ok=True)
+    for folder in ("adjusted", "unadjusted"):
+        (root / folder).mkdir(parents=True, exist_ok=True)
 
     def csv(times_, closes):
         return "time,close\n" + "\n".join(
@@ -287,7 +288,7 @@ def write_pair(root: Path, ratios: list[float], prices: list[float] | None = Non
         ) + "\n"
 
     adjusted = [r * p for r, p in zip(ratios, prices)]
-    (root / f"{symbol}.csv").write_text(csv(times, adjusted))
+    (root / "adjusted" / f"{symbol}.csv").write_text(csv(times, adjusted))
     (root / "unadjusted" / f"{symbol}.csv").write_text(csv(price_times or times, prices))
     return root
 
@@ -299,8 +300,8 @@ def test_zero_withholding_reproduces_the_parent_exactly(tmp_path):
     src = write_pair(tmp_path / "src", JUMPY_RATIOS)
     net_main([str(src), "--withholding", "0", "--out", str(tmp_path / "net")])
 
-    parent = pl.read_csv(src / "SYN.csv", schema_overrides={"close": pl.Float64})
-    net = pl.read_csv(tmp_path / "net" / "SYN.csv", schema_overrides={"close": pl.Float64})
+    parent = pl.read_csv(src / "adjusted" / "SYN.csv", schema_overrides={"close": pl.Float64})
+    net = pl.read_csv(tmp_path / "net" / "adjusted" / "SYN.csv", schema_overrides={"close": pl.Float64})
     assert net["close"].equals(parent["close"])
     assert net["time"].equals(parent["time"])
 
@@ -350,6 +351,7 @@ def test_the_override_moves_only_the_symbol_it_names(tmp_path):
     net_main([str(src), "--out", str(flat)])
     net_main([str(src), "--rate-override", "SYN=0", "--out", str(over)])
 
+    over, flat, src = over / "adjusted", flat / "adjusted", src / "adjusted"
     assert filecmp.cmp(over / "OTH.csv", flat / "OTH.csv", shallow=False)
     assert not filecmp.cmp(over / "SYN.csv", flat / "SYN.csv", shallow=False)
     # w = 0 is the parent, bitwise (the k_net/k factor is exactly 1.0).
@@ -383,15 +385,18 @@ def test_the_committed_bil0_root_differs_from_the_flat_root_in_bil_alone():
     bil0 = DATA / "2026-08-24-net15-bil0"
     flat = DATA / "2026-08-24-net15"
     gross = DATA / "2026-08-24"
-    moved = [p.name for p in sorted(bil0.glob("*.csv"))
-             if not filecmp.cmp(p, flat / p.name, shallow=False)]
-    assert moved == ["BIL.csv"]
-    assert sorted(p.name for p in bil0.glob("*.csv")) == \
-        sorted(p.name for p in flat.glob("*.csv"))
+    def series(root):
+        return sorted(p.relative_to(root).as_posix()
+                      for folder in ("adjusted", "index") for p in (root / folder).glob("*.csv"))
+
+    moved = [rel for rel in series(bil0)
+             if not filecmp.cmp(bil0 / rel, flat / rel, shallow=False)]
+    assert moved == ["adjusted/BIL.csv"]
+    assert series(bil0) == series(flat)
     # At w = 0 BIL's net series is its gross series to the last bit.
     columns = dict(columns=["time", "close"], schema_overrides={"close": pl.Float64})
-    assert pl.read_csv(bil0 / "BIL.csv", **columns)["close"].equals(
-        pl.read_csv(gross / "BIL.csv", **columns)["close"]
+    assert pl.read_csv(bil0 / "adjusted" / "BIL.csv", **columns)["close"].equals(
+        pl.read_csv(gross / "adjusted" / "BIL.csv", **columns)["close"]
     )
 
 
@@ -411,29 +416,43 @@ ETF_SHA256 = {
 
 def test_net_etf_files_are_byte_identical_to_the_pre_regime_baseline():
     for name, expected in ETF_SHA256.items():
-        assert hashlib.sha256((NET_DIR / name).read_bytes()).hexdigest() == expected, name
+        assert hashlib.sha256((NET_DIR / "adjusted" / name).read_bytes()).hexdigest() == expected, name
 
 
 def test_index_files_pass_through_byte_identical():
     for symbol in ("VIX", "VIX3M"):
-        assert filecmp.cmp(NET_DIR / f"{symbol}.csv", TR_DIR / f"{symbol}.csv", shallow=False)
+        assert filecmp.cmp(NET_DIR / "index" / f"{symbol}.csv", TR_DIR / "index" / f"{symbol}.csv",
+                           shallow=False)
         assert not (NET_DIR / "unadjusted" / f"{symbol}.csv").exists()
     readme = (NET_DIR / "README.md").read_text()
     assert "| VIX | index | — | — |" in readme
     assert "| VIX3M | index | — | — |" in readme
 
 
-def test_synthetic_unpaired_symbol_is_copied_and_listed_as_index(tmp_path):
+def test_an_index_file_is_copied_and_listed_as_index(tmp_path):
     src = write_pair(tmp_path / "src", JUMPY_RATIOS)
-    (src / "IDX.csv").write_text("time,close\n2024-01-01,20.0\n2024-01-02,21.5\n")
+    (src / "index").mkdir()
+    (src / "index" / "IDX.csv").write_text("time,close\n2024-01-01,20.0\n2024-01-02,21.5\n")
 
     net_main([str(src), "--out", str(tmp_path / "net")])
 
-    assert filecmp.cmp(src / "IDX.csv", tmp_path / "net" / "IDX.csv", shallow=False)
+    assert filecmp.cmp(src / "index" / "IDX.csv", tmp_path / "net" / "index" / "IDX.csv",
+                       shallow=False)
     assert not (tmp_path / "net" / "unadjusted" / "IDX.csv").exists()
     readme = (tmp_path / "net" / "README.md").read_text()
     assert "| IDX | index | — | — |" in readme
     assert "| SYN | 2 |" in readme  # the paired symbol still nets normally
+
+
+def test_an_unpaired_adjusted_file_is_refused_before_anything_is_written(tmp_path):
+    # DATA_LAYOUT_V2_SPEC §6: a file's class is its folder, so an adjusted/
+    # file without a twin (a modelled series) is no longer passed off as an index.
+    src = write_pair(tmp_path / "src", JUMPY_RATIOS)
+    (src / "adjusted" / "MOD.csv").write_text("time,close\n2024-01-01,20.0\n2024-01-02,21.5\n")
+
+    with pytest.raises(FileNotFoundError, match="MOD"):
+        net_main([str(src), "--out", str(tmp_path / "net")])
+    assert not (tmp_path / "net").exists()
 
 
 def test_existing_out_dir_refused_without_force(tmp_path):
@@ -449,6 +468,6 @@ def test_existing_out_dir_refused_without_force(tmp_path):
     assert sentinel.read_text() == "untouched"
 
     net_main([str(src), "--out", str(out), "--force"])
-    assert (out / "SYN.csv").exists()
+    assert (out / "adjusted" / "SYN.csv").exists()
     assert (out / "unadjusted" / "SYN.csv").exists()
     assert (out / "README.md").exists()

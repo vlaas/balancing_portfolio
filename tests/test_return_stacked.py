@@ -153,7 +153,7 @@ D1_TRADED = ["NTSX", "BIL", "SPY", "TQQQ", "BTAL", "DBMF"]
     "symbol,first", [(s, f) for s, f, _ in STATICS], ids=[s for s, *_ in STATICS]
 )
 def test_d1_the_statics_first_bars_are_the_same_on_both_roots(root, symbol, first):
-    assert read_close(root / f"{symbol}.csv")["time"][0] == dt.date.fromisoformat(first)
+    assert read_close(root / "adjusted" / f"{symbol}.csv")["time"][0] == dt.date.fromisoformat(first)
 
 
 def test_d1_the_net15_readme_counts_the_statics_jumps():

@@ -99,8 +99,9 @@ def test_sma_matches_the_tradingview_column(path: Path, n: int) -> None:
 
 def test_the_parity_fixture_scope_is_pinned() -> None:
     # ROTATION_SPEC §8 T9: a silent scope shrink (a snapshot losing its SMA
-    # columns, a broken rglob) must be loud. 20 = the 6 flat legacy CSVs +
-    # 8 top-level and 6 unadjusted/ files of tests/data/2026-08-20.
+    # columns, a broken rglob) must be loud. 20 = the 6 flat legacy CSVs (in
+    # its unadjusted/) + the 6 adjusted/, 2 index/ and 6 unadjusted/ files of
+    # tests/data/2026-08-20.
     assert len(SMA_FILES) == 20
 
 
@@ -127,7 +128,7 @@ def cut_points(frame: pl.DataFrame) -> list[int]:
 def test_truncating_the_future_does_not_change_the_past(
     symbol: str, indicator: Indicator
 ) -> None:
-    frame = read_closes(GOLDEN_DIR / f"{symbol}.csv")
+    frame = read_closes(GOLDEN_DIR / "unadjusted" / f"{symbol}.csv")
     full = indicator.fn(frame)
 
     for t in cut_points(frame):
@@ -157,7 +158,7 @@ def test_monthly_indicator_is_causal_one_row_past_the_month_end_flag(
     `is_rebalance_day`. The next test pins the part that matters: no price
     look-ahead.
     """
-    frame = read_closes(GOLDEN_DIR / f"{symbol}.csv")
+    frame = read_closes(GOLDEN_DIR / "unadjusted" / f"{symbol}.csv")
     full = indicator.fn(frame)
 
     for t in cut_points(frame):
@@ -170,7 +171,7 @@ def test_monthly_indicator_is_causal_one_row_past_the_month_end_flag(
 def test_monthly_indicator_ignores_every_close_after_the_row(
     symbol: str, indicator: Indicator
 ) -> None:
-    frame = read_closes(GOLDEN_DIR / f"{symbol}.csv")
+    frame = read_closes(GOLDEN_DIR / "unadjusted" / f"{symbol}.csv")
     full = indicator.fn(frame)
 
     for t in cut_points(frame)[:-1]:

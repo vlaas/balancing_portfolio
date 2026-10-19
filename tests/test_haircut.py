@@ -22,9 +22,9 @@ OTH = [("2024-01-01", 50.0), ("2024-01-02", 51.0), ("2024-01-03", 52.0)]
 IDX = [("2024-01-01", 1.0), ("2024-01-02", 1.5)]
 
 
-def write_series(root: Path, symbol: str, rows, sub: str | None = None) -> None:
-    """A file in the TradingView six-column export layout."""
-    folder = root / sub if sub else root
+def write_series(root: Path, symbol: str, rows, sub: str = "adjusted") -> None:
+    """A file in the TradingView six-column export layout, in the root's `sub` folder."""
+    folder = root / sub
     folder.mkdir(parents=True, exist_ok=True)
     lines = ["time,open,high,low,close,Volume"]
     lines += [f"{t},{c},{c},{c},{c},0.0" for t, c in rows]
@@ -43,7 +43,7 @@ def src(tmp_path: Path) -> Path:
     write_series(root, "SYN", SYN, "unadjusted")
     write_series(root, "OTH", OTH)
     write_series(root, "OTH", OTH, "unadjusted")
-    write_series(root, "IDX", IDX)
+    write_series(root, "IDX", IDX, "index")
     write_haircuts(tmp_path / "haircuts.json", {"SYN": 1.0})
     return root
 
@@ -72,7 +72,7 @@ def test_h_zero_reproduces_the_parent_bit_for_bit(src, tmp_path):
 def test_a_pinned_h_1_row(src, tmp_path):
     out = tmp_path / "hc"
     run(src, out)
-    got = pl.read_csv(out / "SYN.csv")
+    got = pl.read_csv(out / "adjusted" / "SYN.csv")
     assert got.columns == ["time", "close"]
     assert got["time"].to_list() == [t for t, _ in SYN]
     close = got["close"].to_list()
@@ -87,11 +87,11 @@ def test_a_pinned_h_1_row(src, tmp_path):
 def test_unmapped_symbols_are_byte_copied(src, tmp_path):
     out = tmp_path / "hc"
     run(src, out)
-    for rel in ["OTH.csv", "unadjusted/OTH.csv", "IDX.csv"]:
+    for rel in ["adjusted/OTH.csv", "unadjusted/OTH.csv", "index/IDX.csv"]:
         assert filecmp.cmp(out / rel, src / rel, shallow=False), rel
-    assert sorted(p.name for p in out.iterdir()) == [
-        "IDX.csv", "OTH.csv", "README.md", "SYN.csv", "unadjusted"
-    ]
+    assert sorted(p.name for p in out.iterdir()) == ["README.md", "adjusted", "index", "unadjusted"]
+    assert sorted(p.name for p in (out / "adjusted").iterdir()) == ["OTH.csv", "SYN.csv"]
+    assert sorted(p.name for p in (out / "index").iterdir()) == ["IDX.csv"]
     assert sorted(p.name for p in (out / "unadjusted").iterdir()) == ["OTH.csv"]
 
 
@@ -116,9 +116,9 @@ def test_existing_out_dir_refused_without_force(src, tmp_path):
     with pytest.raises(SystemExit):
         run(src, out)
     assert (out / "sentinel").read_text() == "keep"
-    assert not (out / "SYN.csv").exists()
+    assert not (out / "adjusted" / "SYN.csv").exists()
     run(src, out, None, "--force")
-    assert (out / "SYN.csv").exists()
+    assert (out / "adjusted" / "SYN.csv").exists()
 
 
 def test_two_runs_are_byte_identical(src, tmp_path):
@@ -170,21 +170,22 @@ def test_generator_reproduces_the_committed_hc_root_byte_for_byte(tmp_path):
     produced = sorted(p.relative_to(out) for p in out.rglob("*") if p.is_file())
     committed = sorted(p.relative_to(HC) for p in HC.rglob("*") if p.is_file())
     assert produced == committed
-    assert len(produced) == 64 + 52 + 1  # TQQQ's twin dropped, README
+    assert len(produced) == 57 + 7 + 52 + 1  # adjusted/, index/, unadjusted/ (TQQQ's twin dropped), README
     for rel in committed:
         assert filecmp.cmp(out / rel, HC / rel, shallow=False), rel
 
 
 @ROOT
 def test_the_hc_root_differs_from_its_parent_in_tqqq_alone():
-    moved = [p.name for p in sorted(HC.glob("*.csv")) if not filecmp.cmp(p, USD / p.name, shallow=False)]
+    moved = [p.name for p in sorted((HC / "adjusted").glob("*.csv"))
+             if not filecmp.cmp(p, USD / "adjusted" / p.name, shallow=False)]
     assert moved == ["TQQQ.csv"]
     assert not (HC / "unadjusted" / "TQQQ.csv").exists()
     assert json.loads(HAIRCUTS.read_text()) == {"BIL": 0.0, "TQQQ": 0.14206396}
-    assert filecmp.cmp(HC / "BIL.csv", USD / "BIL.csv", shallow=False)  # h = 0: byte-copied
+    assert filecmp.cmp(HC / "adjusted" / "BIL.csv", USD / "adjusted" / "BIL.csv", shallow=False)  # h = 0: byte-copied
     assert "| BIL | 0 | — | byte-copied |" in (HC / "README.md").read_text()
-    parent = pl.read_csv(USD / "TQQQ.csv")["close"]
-    cut = pl.read_csv(HC / "TQQQ.csv")["close"]
+    parent = pl.read_csv(USD / "adjusted" / "TQQQ.csv")["close"]
+    cut = pl.read_csv(HC / "adjusted" / "TQQQ.csv")["close"]
     assert cut[0] == parent[0]
     assert cut[-1] == pytest.approx(parent[-1] * (1 - 0.14206396 / 100 / 252) ** (len(parent) - 1))
 

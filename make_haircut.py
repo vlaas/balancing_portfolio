@@ -8,7 +8,7 @@ compounded down by h/252 per bar from the symbol's first bar in the root —
 haircut lane (§6.3) measures the translation cost of a substitutable
 component on the winner's own window. A symbol with h = 0 takes the byte-copy
 path, so the no-contamination invariant holds by construction rather than by
-a multiplication by 1.0 (T4). A haircut `<SYM>.csv` carries `time,close` only
+a multiplication by 1.0 (T4). A haircut `adjusted/<SYM>.csv` carries `time,close` only
 and has no `unadjusted/` twin — a modelled series has no unadjusted twin
 (`make_synthetic.py` precedent). Unsubstitutable slots (KMLM, BTAL) are absent
 from the map by design and take no fictitious haircut; their columns are
@@ -65,9 +65,9 @@ def build(src: Path, haircuts: dict[str, float]) -> dict:
     """Read and haircut every mapped symbol under src. All computation and
     validation happen here, before anything is written — a hard error can
     never leave a partial dataset behind."""
-    symbols = sorted(path.stem for path in src.glob("*.csv"))
+    symbols = sorted(path.stem for path in (src / "adjusted").glob("*.csv"))
     if not symbols:
-        raise ValueError(f"{src}: no <SYM>.csv files found")
+        raise ValueError(f"{src}: no adjusted/<SYM>.csv files found")
     unknown = sorted(set(haircuts) - set(symbols))
     if unknown:
         raise ValueError(f"{src}: the haircut map names absent symbols {unknown}")
@@ -76,7 +76,7 @@ def build(src: Path, haircuts: dict[str, float]) -> dict:
         if h == 0:
             untouched.append(symbol)  # the byte-copy path, never a multiply
             continue
-        times, closes = read_close(src / f"{symbol}.csv")
+        times, closes = read_close(src / "adjusted" / f"{symbol}.csv")
         cut[symbol] = {
             "times": times,
             "close": haircut(closes, h),
@@ -85,6 +85,7 @@ def build(src: Path, haircuts: dict[str, float]) -> dict:
         }
     return {
         "symbols": symbols,
+        "indices": sorted(path.stem for path in (src / "index").glob("*.csv")),
         "pairs": sorted(path.stem for path in (src / "unadjusted").glob("*.csv")),
         "cut": cut,
         "untouched": untouched,
@@ -116,28 +117,31 @@ def render_readme(parent: str, results: dict) -> str:
         "down by h/252 per bar from its first bar in the root — formula",
         "`close_t × (1 − h/100/252)^k`, k bars since the first — so a haircut",
         "lane measures the translation cost of a substitutable component on the",
-        "winner's own window. A haircut `<SYM>.csv` carries `time,close` only and",
-        "has no `unadjusted/` twin — a modelled series has no unadjusted twin. A",
+        "winner's own window. A haircut `adjusted/<SYM>.csv` carries `time,close`",
+        "only and has no `unadjusted/` twin — a modelled series has no unadjusted twin. A",
         "symbol with h = 0 is byte-copied (the no-contamination invariant holds",
         "by construction). Unsubstitutable slots (KMLM, BTAL) are absent from",
         "the map by design and take no fictitious haircut; their columns are",
         "flagged translation-incomplete in the verdict. Every other file,",
-        "`unadjusted/` twins included, is byte-copied from the parent.",
+        "`unadjusted/` twins and `index/` included, is byte-copied from the parent.",
         "",
     ]
     return "\n".join(lines + _table(results)) + "\n"
 
 
 def write_dataset(dst: Path, src: Path, results: dict, readme: str) -> None:
-    (dst / "unadjusted").mkdir(parents=True, exist_ok=True)
+    for folder in ("adjusted", "index", "unadjusted"):
+        (dst / folder).mkdir(parents=True, exist_ok=True)
     cut = results["cut"]
     for symbol in results["symbols"]:
         if symbol in cut:
             r = cut[symbol]
             rows = "\n".join(f"{t},{c!r}" for t, c in zip(r["times"], r["close"]))
-            (dst / f"{symbol}.csv").write_text(f"time,close\n{rows}\n")
+            (dst / "adjusted" / f"{symbol}.csv").write_text(f"time,close\n{rows}\n")
         else:
-            shutil.copyfile(src / f"{symbol}.csv", dst / f"{symbol}.csv")
+            shutil.copyfile(src / "adjusted" / f"{symbol}.csv", dst / "adjusted" / f"{symbol}.csv")
+    for symbol in results["indices"]:
+        shutil.copyfile(src / "index" / f"{symbol}.csv", dst / "index" / f"{symbol}.csv")
     for symbol in results["pairs"]:
         if symbol in cut:
             continue  # a modelled series has no unadjusted twin

@@ -251,10 +251,10 @@ def build(parent: Path, gross: Path, w: float, drag, bill_drag, strict: bool = T
     behind (§3)."""
     rate_times, rate_values = read_close(gross / "fred" / f"{RATE}.csv")
     last_rate = rate_times[-1]
-    index_times, index_closes = read_close(gross / f"{INDEX}.csv")
-    cal_times, _ = read_close(gross / f"{CALENDAR}.csv")
+    index_times, index_closes = read_close(gross / "adjusted" / f"{INDEX}.csv")
+    cal_times, _ = read_close(gross / "adjusted" / f"{CALENDAR}.csv")
 
-    real = {s: read_close(parent / f"{s}.csv") for s in (RISK, BILL)}
+    real = {s: read_close(parent / "adjusted" / f"{s}.csv") for s in (RISK, BILL)}
     for symbol, (times, _) in real.items():
         if strict and times[0] != INCEPTION[symbol]:
             raise ValueError(
@@ -305,12 +305,13 @@ def build(parent: Path, gross: Path, w: float, drag, bill_drag, strict: bool = T
                            "synthetic": sum(1 for r in rows if r[2] == "synthetic")}
 
     # --- §2.2 / S10, from the gross pair ------------------------------------
-    gross_times, gross_adjusted = read_close(gross / f"{INDEX}.csv")
+    gross_times, gross_adjusted = read_close(gross / "adjusted" / f"{INDEX}.csv")
     _, gross_price = read_close(gross / "unadjusted" / f"{INDEX}.csv")
     implied = distributions(gross_times, gross_adjusted, gross_price)
 
     return {
-        "symbols": sorted(path.stem for path in parent.glob("*.csv")),
+        "symbols": sorted(path.stem for path in (parent / "adjusted").glob("*.csv")),
+        "indices": sorted(path.stem for path in (parent / "index").glob("*.csv")),
         "pairs": sorted(path.stem for path in (parent / "unadjusted").glob("*.csv")),
         "spliced": spliced,
         "fit": {RISK: risk_fit, BILL: bill_fit},
@@ -376,11 +377,11 @@ def render_readme(parent: str, gross: str, w: float, results: dict) -> str:
         f"(SYNTHETIC_HISTORY_SPEC §2–§4), with the index leg (`{INDEX}`), the accrual",
         f"calendar (`{CALENDAR}`) and the floating rate (`fred/{RATE}`) read from the",
         f"gross root `{gross}` — a swap pays the gross total return in either",
-        f"convention. `{RISK}.csv` and `{BILL}.csv` carry columns `time,close,source`:",
-        "rows before the real fund's first bar are modelled (`synthetic`), rows from",
-        "it on are the parent's own values (`real`), and the two meet",
-        "multiplicatively at the splice. Every other `<SYM>.csv` and every",
-        f"`unadjusted/<SYM>.csv` is byte-copied from the parent; `unadjusted/{RISK}.csv` and",
+        f"convention. `adjusted/{RISK}.csv` and `adjusted/{BILL}.csv` carry columns",
+        "`time,close,source`: rows before the real fund's first bar are modelled",
+        "(`synthetic`), rows from it on are the parent's own values (`real`), and",
+        "the two meet multiplicatively at the splice. Every other `adjusted/`,",
+        f"`index/` and `unadjusted/` file is byte-copied from the parent; `unadjusted/{RISK}.csv` and",
         f"`unadjusted/{BILL}.csv` are deliberately absent — a modelled segment has no",
         "unadjusted twin — and `fred/` is not copied.",
         "",
@@ -435,15 +436,18 @@ def render_readme(parent: str, gross: str, w: float, results: dict) -> str:
 
 
 def write_dataset(dst: Path, src: Path, results: dict, readme: str) -> None:
-    (dst / "unadjusted").mkdir(parents=True, exist_ok=True)
+    for folder in ("adjusted", "index", "unadjusted"):
+        (dst / folder).mkdir(parents=True, exist_ok=True)
     for symbol in results["symbols"]:
         if symbol in results["spliced"]:
             rows = "\n".join(
                 f"{t},{c!r},{source}" for t, c, source in results["spliced"][symbol]["rows"]
             )
-            (dst / f"{symbol}.csv").write_text(f"time,close,source\n{rows}\n")
+            (dst / "adjusted" / f"{symbol}.csv").write_text(f"time,close,source\n{rows}\n")
             continue
-        shutil.copyfile(src / f"{symbol}.csv", dst / f"{symbol}.csv")
+        shutil.copyfile(src / "adjusted" / f"{symbol}.csv", dst / "adjusted" / f"{symbol}.csv")
+    for symbol in results["indices"]:
+        shutil.copyfile(src / "index" / f"{symbol}.csv", dst / "index" / f"{symbol}.csv")
     for symbol in results["pairs"]:
         if symbol in results["spliced"]:
             continue  # a modelled segment has no unadjusted twin (§3)
