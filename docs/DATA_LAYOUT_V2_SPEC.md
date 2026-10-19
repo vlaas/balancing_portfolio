@@ -1,6 +1,6 @@
 # Specification: one folder per series class in every data root
 
-Repo: `vlaas/balancing_portfolio` · baseline commit: `bd843ac` ("Merge pull request #24", 1243 tests green, none skipped) · status: draft
+Repo: `vlaas/balancing_portfolio` · baseline commit: `bd843ac` ("Merge pull request #24", 1243 tests green, none skipped) · status: implemented (2026-10-19, branch `data-layout-v2`) — deviations in §9
 
 ## 1. Goal
 
@@ -141,20 +141,20 @@ script producing committed CSVs, never a runtime dependency, SAFE_SWAP_SPEC):
 
 ## 7. Acceptance checklist
 
-- [ ] The repo-root staging folders `adjusted/` and `price/` deleted (all 12 files
+- [x] The repo-root staging folders `adjusted/` and `price/` deleted (all 12 files
       byte-identical to `tests/data/2026-08-20/` and its `unadjusted/`)
-- [ ] §3 applied to `data/` and the 12 frozen roots; no top-level CSV anywhere
-- [ ] `prices.py` resolves by §2; the four generators classify by folder; the eight
+- [x] §3 applied to `data/` and the 12 frozen roots; no top-level CSV anywhere
+- [x] `prices.py` resolves by §2; the four generators classify by folder; the eight
       generated READMEs regenerated, every CSV byte-identical
-- [ ] SHA-256 manifest: every CSV, parquet and JSON of the baseline maps one-to-one
+- [x] SHA-256 manifest: every CSV, parquet and JSON of the baseline maps one-to-one
       under §3; only READMEs (and, after §5, the four live FRED files) differ
-- [ ] Suite: the baseline's 1243 plus the new tests pass, none skipped
-- [ ] Zero changes under `results/`; five committed `main.py` results (`comp_points`,
+- [x] Suite: the baseline's 1243 plus the new tests pass, none skipped
+- [x] Zero changes under `results/`; five committed `main.py` results (`comp_points`,
       `comp_points_tr`, `eu_points_2021_hc`, `syn_points`, `regime_confirm_2012`)
       reproduce on their recorded roots except `generated_at`/`git_sha`/`git_dirty`
-- [ ] `fetch_fred.py` committed with its output; DTB3 agrees with the frozen
+- [x] `fetch_fred.py` committed with its output; DTB3 agrees with the frozen
       TradingView copy on common dates
-- [ ] Docs: `data/README.md`, the four hand-written root READMEs, `README.md`,
+- [x] Docs: `data/README.md`, the four hand-written root READMEs, `README.md`,
       ARCHITECTURE, STRATEGY_DEVELOPMENT; erratum 4 in DATA_LAYOUT_SPEC
 
 ## 8. Deliberately not in scope
@@ -167,4 +167,38 @@ script producing committed CSVs, never a runtime dependency, SAFE_SWAP_SPEC):
 
 ## 9. Errata (implementation)
 
-(none yet)
+1. **§7 — the docs landed before the FRED phase.** The fetch needed the operator's
+   FRED API key, so the commits run Phase 0 spec, Phase 1 layout, Phase 3 docs,
+   Phase 2 FRED. Every commit leaves the suite green.
+2. **§6 — the layout test is its own module**, `tests/test_layout.py`: the 13
+   roots, plus a pin that every directory under `tests/data/` is in its count
+   table (14 tests). With the four loader tests in `tests/test_prices.py`, the
+   `make_net_tr` refusal and the five `tests/test_fred.py` tests, the suite goes
+   from 1243 to 1267 passed, none skipped.
+   `test_synthetic_unpaired_symbol_is_copied_and_listed_as_index` is renamed
+   `test_an_index_file_is_copied_and_listed_as_index`; its fixture now writes
+   `index/`.
+3. **§6 — every generator creates `adjusted/`, `index/` and `unadjusted/`**
+   unconditionally. A parent without indices yields an empty `index/`, which git
+   does not track; every committed root has indices.
+4. **§5 — `fetch_fred.py` passes the dates as a list.** `series.index.date` is a
+   numpy object array that polars can neither write nor cast, so the dates enter
+   as a list with an explicit `Date` schema.
+5. **Verification, as run.**
+   - The SHA-256 manifest of `data/` and `tests/data/` (1161 files) maps one-to-one
+     under §3. Before the docs and FRED phases, the only changed files were the
+     eight generated READMEs, and in those only the lines that name folders.
+   - `git diff -M --summary main...HEAD` shows 602 renames at 100 %, and no CSV
+     remains at the top level of any root.
+   - Regenerating the eight derived roots from their moved parents with their
+     original arguments: zero diff.
+   - `comp_points`, `comp_points_tr`, `eu_points_2021_hc`, `syn_points` and
+     `regime_confirm_2012` rerun on their recorded roots equal the committed
+     files except `generated_at`, `git_sha` and `git_dirty`.
+   - No change under `results/`.
+   - The first fetch (2026-10-19), against `tests/data/2026-09-02/fred/`:
+     - DTB3 (18,150 shared dates) and UNRATE (942) are equal on every shared
+       date, on the same calendar; the 2025-10 gaps are FRED's own.
+     - RRSFS is ×10⁻⁶ of the TradingView copy (FRED's millions) and revised on
+       137 months from 2015-01 (up to 4.9 %).
+     - INDPRO is revised on 2026-03 → 2026-07 (up to 0.21 %).
