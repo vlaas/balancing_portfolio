@@ -17,7 +17,7 @@ program itself must never produce. The program is a script
 
 ```mermaid
 flowchart LR
-    CSV["data/*.csv<br/>(time, total-return close)"] --> P["prices.py<br/>load_prices()"]
+    CSV["data/adjusted/*.csv, data/index/*.csv<br/>(time, total-return close)"] --> P["prices.py<br/>load_prices()"]
     I["indicators.py<br/>sma(), ewma_vol(), …"] --> P
     P --> W["one wide frame<br/>date | SYM… | SYM:COL… | is_rebalance_day"]
     W --> E["simulate.py<br/>simulate() — once per strategy"]
@@ -59,11 +59,12 @@ strategy's declarations.
 
 Decisions and their reasons:
 
-- **The loaded close is total-return.** `data/<SYM>.csv` is the
+- **The loaded close is total-return.** `data/adjusted/<SYM>.csv` is the
   dividend-adjusted TradingView export, so trading, valuation and every
   indicator include distributions reinvested at the ex-date close. The
   unadjusted series (`data/unadjusted/<SYM>.csv`) is reference-only — the loader
-  reads named per-symbol files and never looks inside `unadjusted/`. Invariants and
+  resolves each symbol to `adjusted/<SYM>.csv` or `index/<SYM>.csv` (indices, FX)
+  and never looks inside `unadjusted/` (DATA_LAYOUT_V2_SPEC §2). Invariants and
   spot checks live in `tests/test_total_return.py`; the convention is
   documented in `data/README.md`. A **net-of-withholding** twin of any root is
   derived by `make_net_tr.py` (committed generator, `docs/NET_TR_SPEC.md`):
@@ -81,7 +82,7 @@ Decisions and their reasons:
   `symbols` are full-joined; `extra` symbols (data a strategy reads but never
   trades, e.g. QQQ) are left-joined afterwards so they can never add dates.
   Reason: data files are exported independently and drift apart at the edges —
-  `data/DBMF.csv` and `data/KMLM.csv` currently carry 2026-08-17, a date no traded
+  `data/adjusted/DBMF.csv` and `data/adjusted/KMLM.csv` currently carry 2026-08-17, a date no traded
   file has, because they were exported three days after the rest. A union over
   everything would fabricate a phantom trading day, and a phantom day landing at a
   month boundary would move `is_rebalance_day` onto it. Which file is ahead changes

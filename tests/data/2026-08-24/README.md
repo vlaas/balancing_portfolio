@@ -2,10 +2,10 @@
 
 Verbatim copy of `data/` at the ROTATION_SPEC Phase 0 baseline: the 2026-08
 TradingView two-pass export batch (taken 2026-08-25), last bar 2026-08-24 on
-every top-level file. 48 paired ETFs (`<SYM>.csv` exported with **Adjust data
+every series file. 48 paired ETFs (`adjusted/<SYM>.csv` exported with **Adjust data
 for dividends: ON**, `unadjusted/<SYM>.csv` with the toggle **OFF**, same chart and
-session, identical date columns per symbol), four single-series indices at top
-level (SPX, XNDX, VIX, VIX3M — no `unadjusted/` twin), and `fred/` (UNRATE, RRSFS,
+session, identical date columns per symbol), four single-series indices in
+`index/` (SPX, XNDX, VIX, VIX3M — no `unadjusted/` twin), and `fred/` (UNRATE, RRSFS,
 INDPRO, DTB3) carried for provenance only — the loader must never read it, and
 `make_net_tr.py` does not copy it into the net derivative (observation-stamped
 FRED series; loading them is a look-ahead until `MACRO_DATA_SPEC` exists).

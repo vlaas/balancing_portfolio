@@ -1,11 +1,12 @@
 # Unadjusted snapshot — 2026-08-14-unadjusted
 
 The first frozen snapshot: TradingView daily exports of six symbols with
-**Adjust data for dividends: OFF**, so every `<SYM>.csv` is a price-only
-(unadjusted) series and a run on this root ignores distributions. It is the
-one root whose top level is dividends-OFF; the `-unadjusted` suffix says so
-(DATA_LAYOUT_SPEC §4). Until DATA_LAYOUT_SPEC these files sat flat in
-`tests/data/`; the move changed no byte.
+**Adjust data for dividends: OFF**, so every `unadjusted/<SYM>.csv` is a
+price-only series and a run on this root ignores distributions. It is the one
+root with no `adjusted/`, so the loader reads its `unadjusted/`; the
+`-unadjusted` suffix says so (DATA_LAYOUT_V2_SPEC §4). Until DATA_LAYOUT_SPEC
+these files sat flat in `tests/data/`, until DATA_LAYOUT_V2_SPEC at this root's
+top level; neither move changed a byte.
 
 | symbol | first bar | last bar |
 |---|---|---|

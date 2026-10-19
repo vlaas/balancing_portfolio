@@ -216,7 +216,7 @@ bundle's strategy list (the `default` bundle, or a new `BUNDLES` entry). Keep
 the correlation statistics. Run `uv run main.py [bundle]` and your strategy
 appears as a new column in the table and a new line in every chart.
 
-Requirements: every symbol in `weights` needs a `data/<SYM>.csv`, with price
+Requirements: every symbol in `weights` needs a `data/adjusted/<SYM>.csv`, with price
 history starting no later than the simulation start date (the bundle's
 `Config.start` in `bundles.py`). The start date itself must be an actual
 trading day.
@@ -288,10 +288,11 @@ ctx.indicator("QQQ", "SMA200")    # "QQQ:SMA200" column, or None before it exist
 
 ## Data files and indicators
 
-- CSVs live in `data/<SYM>.csv` in TradingView's export format. The file is the
-  **dividend-adjusted (total-return) export** — the traded series; the
+- CSVs live in `data/adjusted/<SYM>.csv` in TradingView's export format. The file is
+  the **dividend-adjusted (total-return) export** — the traded series; the
   unadjusted export from the same session sits in `data/unadjusted/<SYM>.csv` as
-  reference, and the loader never reads it. The loader reads **only `time` and
+  reference, and the loader never reads it. Indices and FX (no dividend toggle)
+  sit in `data/index/<SYM>.csv` and load like any other symbol. The loader reads **only `time` and
   `close`**; every other column (`open`, `high`, `low`, `SMA*`, `Volume`) is
   ignored. See `data/README.md`.
 - **Dataset roles**: decision numbers come from a **net-of-withholding
