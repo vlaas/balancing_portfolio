@@ -1,7 +1,9 @@
 # Specification: execution robustness — does the winners' edge survive when they trade and at what price?
 
 Repo: `vlaas/balancing_portfolio` · baseline commit: `9c649ed` (report provenance
-merged; 1289 tests green) · status: **proposed** (branch `execution-robustness`) ·
+merged; 1289 tests green) · status: **implemented** (branch `execution-robustness`,
+per-phase commits; 1307 tests green) — all four VT rows read TIMING-FRAGILE and
+FILL-ROBUST; verdict `notes/execution-verdict.md` ·
 inputs: `specs/top_strategies_2021.json` (the four 2021 winners + SPY, as run in
 `simulation/top/top2021/results.md`), REBALANCE_SPEC §7.2 ("phase luck").
 
@@ -311,15 +313,41 @@ integration; a net15 rerun (one command away, §2.4).
 
 ## 13. Acceptance checklist
 
-- [ ] Pre-registration commit: this spec + `specs/exec_top_2021.json`, before any run
-- [ ] `simulate(..., fill=None)` per §5; goldens untouched; commit names the semantics change
-- [ ] `execution_report.py` with `jitter` and `fills` per §3, §4, §6; deterministic
-- [ ] Tests X1–X8 green; suite count > 1289
-- [ ] `docs/STRATEGY_DEVELOPMENT.md` paragraph on `fill`
-- [ ] Artefacts `results/exec_top_2021/{jitter.json,jitter.md,jitter_draws.csv,fills.json,fills.md}` committed together
-- [ ] `notes/execution-verdict.md` per §9–§10, every number labelled gross TR
-- [ ] Errata (below) for every deviation found while implementing
+- [x] Pre-registration commit: this spec + `specs/exec_top_2021.json`, before any run
+- [x] `simulate(..., fill=None)` per §5; goldens untouched; commit names the semantics change
+- [x] `execution_report.py` with `jitter` and `fills` per §3, §4, §6; deterministic
+- [x] Tests X1–X8 green; suite count > 1289 (1307)
+- [x] `docs/STRATEGY_DEVELOPMENT.md` paragraph on `fill`
+- [x] Artefacts `results/exec_top_2021/{jitter.json,jitter.md,jitter_draws.csv,fills.json,fills.md}` committed together
+- [x] `notes/execution-verdict.md` per §9–§10, every number labelled gross TR
+- [x] Errata (below) for every deviation found while implementing
 
 ## 14. Errata (found during implementation)
 
-None yet.
+1. **KMLM has no bar on 80 sessions of the lane** (2020-12-21 → 2022-01-19, thin
+   first year: 6 in 2020, 71 in 2021, 3 in 2022), in `adjusted/` and `unadjusted/`
+   alike. §2.2 did not mention it. The loader already forward-fills KMLM's close
+   over those days, so the engine trades it at the carried close. §4.3's rule
+   (ratio 1, counted) applies unchanged and `fills.md` reports `KMLM 80`. Jitter
+   sessions can land on these days in any draw; that is existing engine behaviour,
+   not new.
+2. **§11 omitted a small-account artefact**, and it decides two predictions
+   (P4, the SPY half of P6). With $500 initial capital and $500 a month in whole
+   shares, the time-weighted return counts the first year as much as the last, and
+   the first year carries a 9.1 % mean cash share for SPY. Contribution timing and
+   per-buy slippage therefore move SPY's CAGR. Verified with `initial_capital`
+   $100,000:
+   - SPY's α = 0.5 Δ CAGR is −0.018 pp, against −0.443 pp at $500.
+   - Its fixed-offset scan range is 0.020 pp, against 0.427 pp.
+   - B50K50's Δ CAGR barely changes, −1.99 pp against −2.11 pp: the VT drag is
+     turnover, not account size.
+3. **§2.2's BIL "~1"** rounds the measured month-end means of 0.8 bp (H−C) and
+   0.5 bp (C−L). P9 is read against those values.
+4. **Tests beyond §7.**
+   - Two additions: a cadence-rejection test (`jitter` refuses a strategy with a
+     `rebalance` cadence) and a unit test for the break-even interpolation.
+   - X6's reproducibility is checked as the prefix property: the same seed with
+     fewer draws gives the identical per-draw rows.
+   - The byte-identity of the committed artefacts was verified by rerunning both
+     commands into the same `--out` and diffing. There is no test for it, because
+     tests do not read live `data/`.
