@@ -47,6 +47,14 @@ internal return — flows, TWR and XIRR need no adjustment. Ranges: cost rates
 in [0, 1000] bps, yield in [0, 0.20]. The calibrated tastytrade base schedule
 lives in `specs/sweep_vt_cbase.json`.
 
+**Execution what-ifs** (EXECUTION_ROBUSTNESS_SPEC.md) are not spec fields:
+`simulate(..., fill=...)` takes an optional `fill(row, asset, delta) -> price`
+that replaces the close as the execution price (cash, fees and the logged
+price use it; targets and valuation stay at the close; `None` is the
+unchanged engine). `execution_report.py jitter` moves the monthly session by
+±N trading days and `execution_report.py fills` fills every trade at an
+adverse fraction α of the bar's one-sided range — both on an unchanged spec.
+
 The three types (`spec.py` maps them to `strategies/fixed.py`,
 `strategies/vol_target.py` and `strategies/rotation.py`):
 
