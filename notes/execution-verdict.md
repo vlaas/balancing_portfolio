@@ -118,3 +118,207 @@ expected. P7 says price is a smaller one.
    numbers decision-grade.
 3. **Jitter × fills combined** was left out of scope. The two effects are close to
    additive in kind (variance against bias), but unmeasured together.
+
+## 7. Follow-ups (EXECUTION_ROBUSTNESS_SPEC §15): decision-grade lane, λ, and 2012
+
+Pre-registered at `bd61352` before any run. Artefacts are in
+`results/exec_top_2021_net15/`, `results/exec_lam94_2021_net15/` and
+`results/exec_flag_2012_net15/`.
+
+- **Basis:** all on `tests/data/2026-08-24-net15`, net-of-withholding TR, the
+  decision root. Same costs (`cost_bps` map, `cash_yield` 3 %).
+- **Reruns** are byte-identical.
+- **F1 and F2 share calendars:** their 500 draws are verified identical
+  (`clamps` / `bumps` columns, SPY rows).
+- **No code changed.**
+
+### 7.1 F1, the net15 rerun: the decision-grade answer
+
+| | CAGR canonical / median / p5 | P(CAGR > SPY) | max DD canonical / median / p5 | P(Calmar > SPY) | Δ CAGR α = 0.5 | CAGR edge α = 0.5 | timing / fills |
+|---|---|---:|---|---:|---:|---:|---|
+| B50K50 | +18.63 / +17.62 / +13.16 % | 0.894 | −20.88 / −21.97 / −30.10 % | 0.842 | −2.15 pp | **+2.18 pp** | FRAGILE / **ROBUST** |
+| B75D25 | +16.48 / +15.77 / +11.47 % | 0.700 | −18.94 / −21.06 / −28.32 % | 0.794 | −2.23 pp | −0.04 pp | FRAGILE / FRAGILE (break-even α 0.49) |
+| B75K25 | +16.41 / +15.57 / +11.14 % | 0.668 | −18.97 / −20.83 / −28.19 % | 0.782 | −2.17 pp | −0.05 pp | FRAGILE / FRAGILE (0.49) |
+| flag | +16.45 / +15.87 / +11.61 % | 0.704 | −18.12 / −21.68 / −27.36 % | 0.786 | −1.90 pp | +0.25 pp | FRAGILE / ROBUST (0.58) |
+| SPY | +14.67 / +14.48 / +14.36 % | · | −23.68 / −23.87 / −24.11 % | · | −0.38 pp | · | · |
+
+- **On decision-grade data, only B50K50 clears both stresses on CAGR.** It beats
+  SPY in about 9 of 10 timing paths, and still by +2.18 pp at α = 0.5 (+0.43 pp at
+  the α = 1 bound).
+- **The other three are roughly 2:1 favourites on timing**, with P(CAGR > SPY)
+  0.67–0.70.
+  - B75D25 and B75K25 lose the CAGR edge at α ≈ 0.49.
+  - The flag variant keeps it by +0.25 pp.
+- **The Calmar edge still survives α = 0.5 for all four**, at +0.12 to +0.16.
+- **The canonical max drawdown stays on the lucky side.** It is shallower than
+  62–96 % of draws, and the flag variant's −18.1 % is again the extreme (96th
+  percentile). Median-draw drawdowns are −21 to −22 %, and p5 is −27 to −30 %.
+- **Net and gross are not directly comparable.** Canonical CAGR edges are 0.4–0.9
+  pp narrower than in §1–§3 (+3.96 / +1.81 / +1.75 / +1.78 against +4.87 / +2.66 /
+  +2.61 / +2.23). But this lane also ends two months earlier, so not all of that is
+  withholding.
+
+### 7.2 F2: the fast EWMA is the amplifier, not the source — **AMPLIFIER-CONFIRMED**
+
+Same calendars, λ 0.94 against λ 0.80:
+
+| | *s* (CAGR sd) | *r* (scan Calmar range) | Calmar sd | max DD sd | mean CAGR, d ∈ [−7, −1] minus d ∈ [+1, +7], λ 0.80 → 0.94 |
+|---|---:|---:|---:|---:|---|
+| B50K50 | 0.458 | 0.543 | 0.465 | 0.458 | +5.20 → +2.47 pp |
+| B75D25 | 0.462 | 0.532 | 0.548 | 0.534 | +5.42 → +2.63 pp |
+| B75K25 | 0.462 | 0.553 | 0.586 | 0.599 | +5.55 → +2.64 pp |
+| flag | 0.460 | 0.555 | 0.519 | 0.432 | +5.20 → +2.50 pp |
+
+- **Slowing σ halves the timing dispersion on every measure.** The scan keeps its
+  shape: best d −3 (−10 for B50K50), worst +5 / +8. So λ amplifies a phase effect
+  that exists without it.
+- **λ 0.94 is no fix.**
+  - Canonical CAGR falls 2.3–2.6 pp.
+  - P(CAGR > SPY) collapses to 0.10–0.71.
+  - P(Calmar > SPY) is no better: 0.676–0.872.
+
+  It is less dispersed but worse, consistent with the λ sweep that put 0.80 on top.
+  Not a candidate.
+
+### 7.3 F3: the 2012 lane (flag variant, 175 sessions)
+
+- **flag λ 0.80 is TIMING-ROBUST.**
+  - P(Calmar > SPY) is 0.984, and the canonical Calmar of 0.821 is inside
+    [0.521, 0.934].
+  - P(CAGR > SPY) is 0.998, with median CAGR +20.38 % against SPY's +14.58 % and
+    p5 at +17.36 %.
+  - Over 14 years, timing luck does not threaten the edge over SPY.
+  - Drawdown is again a lucky draw: canonical −24.44 % against a median of −28.22 %
+    and p5 of −38.37 %.
+- **The λ pair corroborates F2:** *s* 0.494, *r* 0.455.
+- **PHASE-LOCAL by the pre-registered rule:** the best Calmar offset is −4 (the
+  same as every 2021 row), but the worst is −8, not inside [+2, +8].
+
+### 7.4 Not pre-registered: sessions before month-end beat sessions after
+
+| run | row | mean CAGR d ∈ [−7, −1] | mean CAGR d ∈ [+1, +7] | difference | every pre-offset > every post-offset? |
+|---|---|---:|---:|---:|---|
+| F1 (net15 2021) | the four VT rows | 17.8–19.7 % | 12.3–14.5 % | +5.2 to +5.6 pp | yes, all four |
+| F2 (λ 0.94) | the four VT rows | 14.3–16.4 % | 11.7–14.0 % | +2.5 to +2.6 pp | two of four |
+| F3 (2012) | flag λ 0.80 | 21.47 % | 18.10 % | +3.38 pp | yes |
+| F3 (2012) | flag λ 0.94 | 18.99 % | 17.46 % | +1.53 pp | yes |
+
+SPY's scan is flat on every lane: 14.55–14.62 % on 2012. So this belongs to the
+gated vol-target machine, not to the market's turn-of-month alone.
+
+**It is post hoc.** The F3 lane contains the F1 window, so the runs are not
+independent. Pre-registered, the Calmar rule said PHASE-LOCAL. **Do not move the
+session on this evidence.**
+
+Two notes for a future falsifier:
+- **A pre-registered PHASE rule on CAGR**, run on a lane that shares no years with
+  2012–2026. The candidate is the synthetic root with a VT + BIL sleeve back to
+  1999, used as a falsifier only (CLAUDE.md §6); BTAL does not exist before
+  2011-09.
+- **The live gate.** Live execution uses `sma_months: 10`
+  (`notes/mg-verdict.md`), which reads month-end closes. A session before
+  month-end would read last month's gate value, a semantic difference the spec has
+  to settle first.
+
+### 7.5 §15.4 predictions
+
+| # | prediction | outcome |
+|---|---|---|
+| 1 | F1 all TIMING-FRAGILE, P(Calmar > SPY) in [0.75, 0.90], scan best in [−5, −1], worst in [+2, +8] | ✅ 0.782–0.842; best −4 for all four; worst +4…+7 |
+| 2 | F1 fills: B50K50 ROBUST (+1.5…+2.8 pp, break-even ≥ 0.9); B75D25 / B75K25 FRAGILE ([−0.6, +0.1], break-even [0.35, 0.55]); flag [−0.3, +0.6], break-even [0.4, 0.65] | ✅ all six bands: +2.18 > 1; −0.04 / −0.05 at 0.49 / 0.49; +0.25 at 0.58 |
+| 3 | F2 AMPLIFIER-CONFIRMED; the scan pattern flattens | ✅ by the rule (*s* 0.46, *r* 0.53–0.56). "Flattens" only halves; the shape survives (§7.2) |
+| 4 | F3: flag CAGR sd ≤ 0.70 × F1; TIMING-ROBUST; pair *s* ≤ 0.70 | ½: 0.754 ❌; ROBUST ✅; 0.494 ✅ |
+| 5 | F3 PHASE-LOCAL | ✅ by the rule, but §7.4's CAGR asymmetry persists on the same lane |
+
+## 8. Second follow-up (EXECUTION_ROBUSTNESS_SPEC §16): the clean test and the live gate
+
+Pre-registered at `27e1a6c`, together with erratum 5. That erratum corrects §7.4:
+an off-month-end session compares that day's QQQ close with the 10-month SMA
+carried from the last month-end, so the live gate is well-defined there.
+
+Artefacts are in `results/exec_syn_2000/`, `results/exec_qqq_2000/`,
+`results/exec_top_2021_net15_mg10/` and `results/exec_flag_2012_net15_mg10/`.
+- **Settings:** same costs, `$500 / $500`, ±10 trading days, 500 draws, seed
+  20261020.
+- **Reruns** are byte-identical. No code changed.
+
+The phase statistic (§16.2) comes from each row's fixed-offset scan:
+- **Δ** = mean CAGR over d ∈ [−7, −1] minus mean CAGR over d ∈ [+1, +7];
+- **D** = the share of the 49 pre/post pairs in which the pre-offset is ahead.
+
+### 8.1 The clean test: no replication at anything like the 2012–2026 size — **PHASE-INCONCLUSIVE**
+
+On 2000-01-03 → 2011-12-30 (143 sessions, no year shared with 2012–2026):
+
+| run | row | Δ | D | read-out | reference on 2012–2026 |
+|---|---|---:|---:|---|---|
+| **G1** (synthetic TQQQ, decisive) | VT TQQQ + BIL, `sma_days` 200 | **+0.24 pp** | 0.633 | **PHASE-INCONCLUSIVE** | +3.38 to +5.55 pp, D 1.000 |
+| G1 | same, `sma_months` 10 | +1.28 pp | 0.939 | PHASE-SURVIVES (reported) | |
+| G2 (real bars, proxy) | VT QQQ + cash, `sma_days` 200 | +0.42 pp | 0.735 | PHASE-INCONCLUSIVE | |
+| G2 | same, `sma_months` 10 | +1.24 pp | 0.959 | PHASE-SURVIVES (reported) | |
+| both | SPY | −0.00 pp | 0.388 | PHASE-FALSIFIED | |
+
+- **The decisive row is INCONCLUSIVE.** On the gate the effect was found with, it
+  shrinks about 15–20× out of sample. The effect stays a hypothesis.
+  - Not falsified: Δ is still > 0 and D > 0.5.
+  - Not confirmed: on these years it is noise-sized next to the CAGR sd across
+    draws (1.1–1.3 pp).
+  - In both 200-day rows the worst scan point is d = −1, the day before month-end
+    (G1 +0.85 % against +3.97 % at d = 0). A single pre-offset can be the worst
+    session of all.
+- **Under the live gate a smaller, consistent version appears on both lanes:**
+  +1.2 to +1.3 pp, with D 0.94–0.96. That is about a quarter of the 2012–2026
+  size.
+  - G2 is all real bars, so this is the one piece of evidence the synthetic rule
+    does not bar.
+  - But it is a proxy machine (unlevered QQQ), and these rows were secondary by
+    pre-registration.
+- **Month-end flattered the machine on these years too.**
+  - The canonical d = 0 session ranks 1st (G1) and 2nd (G2) of 21 on Calmar for
+    the 200-day rows.
+  - Canonical Calmar sits above the draws' p90 on three of the four rows, so they
+    read TIMING-FRAGILE through the band clause even though they beat SPY in
+    93–100 % of draws.
+  - The G1 machine's median draw earns +2.23 % CAGR against +3.97 % at month-end.
+
+### 8.2 The live gate is no obstacle — **GATE-NEUTRAL on all five rows**
+
+| row (same calendars) | Δ, `sma_days` 200 | Δ, `sma_months` 10 | ratio | D, mg10 | read-out | TIMING, mg10 |
+|---|---:|---:|---:|---:|---|---|
+| B50K50 (F1 lane) | +5.20 pp | +4.96 pp | 0.95 | 1.000 | GATE-NEUTRAL | FRAGILE (0.844) |
+| B75D25 | +5.42 pp | +5.19 pp | 0.96 | 1.000 | GATE-NEUTRAL | FRAGILE (0.796) |
+| B75K25 | +5.55 pp | +5.33 pp | 0.96 | 1.000 | GATE-NEUTRAL | FRAGILE (0.784) |
+| flag | +5.20 pp | +4.99 pp | 0.96 | 1.000 | GATE-NEUTRAL | FRAGILE (0.794) |
+| flag (2012 lane) | +3.38 pp | +3.21 pp | 0.95 | 1.000 | GATE-NEUTRAL | ROBUST (0.984) |
+
+- **At month-end the two gates produce the same portfolios** on both decision
+  lanes (§16.4).
+- **Off month-end the live gate keeps 95–96 % of the phase effect** and leaves
+  every TIMING read-out and every P(Calmar > SPY) within 0.003 of the 200-day
+  gate's.
+- So switching gates changes nothing these experiments measure. A session moved
+  off month-end would trade under the live gate exactly as the backtests above
+  describe.
+
+### 8.3 What this means in practice
+
+- **Do not move the session to before month-end.**
+  - On the only years independent of the discovery (2000–2011), the expected gain
+    is between ~0 (the winners' gate) and ~1.3 pp of CAGR (the live gate). Both are
+    small next to the timing dispersion itself.
+  - The decisive pre-registered row is inconclusive.
+- **What does carry over to every lane is how wide the timing luck is,** and that
+  the published month-end numbers sit on its favourable side.
+- **The practical defence is to expect the median draw, not the canonical
+  number:**
+  - 2021 lane: CAGR about 1 pp lower and drawdown 1–3.5 pp deeper;
+  - 2000–2011: CAGR about 1.7 pp lower.
+
+### 8.4 §16.5 predictions — 3 of 4 held
+
+| # | prediction | outcome |
+|---|---|---|
+| 1 | G1 `sma_days` not PHASE-SURVIVES, \|Δ\| < 2 pp | ✅ INCONCLUSIVE, +0.24 pp |
+| 2 | G2 `sma_days` not PHASE-SURVIVES, \|Δ\| < 1.5 pp | ✅ INCONCLUSIVE, +0.42 pp |
+| 3 | GATE-NEUTRAL on ≥ 3 of 4 F1 rows and on F3; TIMING read-outs unchanged | ✅ all five; read-outs identical |
+| 4 | G1 / G2: mg10 Δ within ±1 pp of the `sma_days` Δ | ½: G2 +0.82 pp ✅; G1 +1.04 pp ❌ (just outside) |

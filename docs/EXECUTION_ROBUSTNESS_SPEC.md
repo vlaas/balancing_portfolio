@@ -3,7 +3,11 @@
 Repo: `vlaas/balancing_portfolio` · baseline commit: `9c649ed` (report provenance
 merged; 1289 tests green) · status: **implemented** (branch `execution-robustness`,
 per-phase commits; 1307 tests green) — all four VT rows read TIMING-FRAGILE and
-FILL-ROBUST; verdict `notes/execution-verdict.md` ·
+FILL-ROBUST; verdict `notes/execution-verdict.md`; §15 follow-ups run (branch
+`execution-followups`): on net15 only B50K50 stays FILL-ROBUST with a ≈ 0.9 timing
+edge on CAGR, λ is AMPLIFIER-CONFIRMED, the 2012 flag lane reads TIMING-ROBUST /
+PHASE-LOCAL — verdict §7; §16 run: the clean test reads PHASE-INCONCLUSIVE
+(+0.24 pp on 2000–2011) and the live gate GATE-NEUTRAL on all five rows — verdict §8 ·
 inputs: `specs/top_strategies_2021.json` (the four 2021 winners + SPY, as run in
 `simulation/top/top2021/results.md`), REBALANCE_SPEC §7.2 ("phase luck").
 
@@ -351,3 +355,247 @@ integration; a net15 rerun (one command away, §2.4).
    - The byte-identity of the committed artefacts was verified by rerunning both
      commands into the same `--out` and diffing. There is no test for it, because
      tests do not read live `data/`.
+5. **Verdict §7.4's live-gate note overstates the problem.** It says a session
+   before month-end "would read last month's gate value". It would not.
+   - `Gate.closed()` compares *that day's* QQQ close with `SMA10M`: the mean of
+     the last ten month-end closes, carried forward from the latest month-end
+     (`strategies/gate.py`, `indicators.sma_monthly`).
+   - So an off-month-end session reads a fresh price against an average one month
+     older.
+   - That is a well-defined rule, executable live from known data and runnable
+     spec-only.
+
+   The verdict is not edited; this erratum is the record, and §16 measures the
+   consequence.
+
+## 15. Follow-up runs — pre-registered after the verdict (branch `execution-followups`)
+
+The verdict (`notes/execution-verdict.md` §6) left two residuals: the numbers are
+gross, and the fixed-offset scan's phase pattern has no explanation. Both are run
+here with the unchanged tool. No code changes and no adoption follow from any of
+them: λ 0.94 is a diagnostic probe, not a candidate. Every run uses the decision
+root `tests/data/2026-08-24-net15`, the same costs (`cost_bps` map, `cash_yield`
+0.03), and `--days 10 --draws 500 --seed 20261020`.
+
+### 15.1 Runs
+
+| id | spec | lane | rows | modes |
+|---|---|---|---|---|
+| F1 | `specs/exec_top_2021_net15.json` | 2020-12-18 → 2026-08-24, 68 sessions | the five rows of §2.3 | `jitter`, `fills` |
+| F2 | `specs/exec_lam94_2021_net15.json` | same as F1 | the four VT rows at `lam` 0.94, plus SPY | `jitter` |
+| F3 | `specs/exec_flag_2012_net15.json` | 2012-01-03 → 2026-08-24 | flag variant at λ 0.80 and 0.94, plus SPY | `jitter` |
+
+- **Specs.** F1 is `exec_top_2021.json` with `end` dropped; the root is frozen.
+  F2 and F3 differ from F1 only in `vol.lam`, the labels (suffix `lam0.94`) and,
+  for F3, `start`.
+- **F3 is the flag variant only.** KMLM starts 2020-12-18 and DBMF 2019-05-08, so
+  only the BIL + BTAL sleeve reaches back to the repo's 2012 lane start.
+- **F1 and F2 run on identical calendars.** `draw_offsets` depends only on the
+  month count, N, the draw count and the seed, so draw i is the same calendar in
+  both. The comparison is paired by construction; checked as identical `clamps` /
+  `bumps` columns.
+
+```
+uv run execution_report.py jitter --spec specs/exec_top_2021_net15.json \
+  --data tests/data/2026-08-24-net15 --days 10 --draws 500 --seed 20261020
+uv run execution_report.py fills --spec specs/exec_top_2021_net15.json \
+  --data tests/data/2026-08-24-net15 --alpha 0 0.25 0.5 1
+uv run execution_report.py jitter --spec specs/exec_lam94_2021_net15.json \
+  --data tests/data/2026-08-24-net15 --days 10 --draws 500 --seed 20261020
+uv run execution_report.py jitter --spec specs/exec_flag_2012_net15.json \
+  --data tests/data/2026-08-24-net15 --days 10 --draws 500 --seed 20261020
+```
+
+Artefacts go to `results/<spec stem>/`, the tool's default.
+
+### 15.2 Canonical baselines (`main.py`, measured before any run)
+
+| | B50K50 | B75D25 | B75K25 | flag | SPY |
+|---|---:|---:|---:|---:|---:|
+| F1 CAGR / Calmar / max DD | +18.63 % / 0.89 / −20.88 % | +16.48 % / 0.87 / −18.94 % | +16.41 % / 0.87 / −18.97 % | +16.45 % / 0.91 / −18.12 % | +14.67 % / 0.62 / −23.68 % |
+| F2 (λ 0.94) CAGR / Calmar | +16.05 % / 0.77 | +13.98 % / 0.76 | +13.79 % / 0.78 | +14.15 % / 0.79 | same as F1 |
+| F1 → F2 turnover | 1.72 → 0.83 | 1.73 → 0.84 | 1.72 → 0.83 | 1.74 → 0.85 | 0.13 |
+
+F3, 2012 lane: flag λ 0.80 +20.08 % / 0.82 / −24.44 %; flag λ 0.94 +18.54 % /
+0.71 / −25.95 %; SPY +14.60 % / 0.43 / −33.74 %.
+
+**Disclosure.** Phase 2's smoke runs used `tests/data/2026-08-24`, the gross twin
+of F1's window:
+- `fills` at α = 0 and 1. The F1 fill predictions below lean on it.
+- `jitter` at ±2 days with 20 draws.
+
+No ±10-day jitter has been run on any 2026-08-24 root, and nothing has been run
+on the 2012 lane.
+
+### 15.3 Read-out added for F2 / F3 — the amplifier test
+
+Per VT row, compare λ 0.94 with λ 0.80 on the same calendars (F2 against F1; F3's
+two rows against each other):
+- *s* = sd of CAGR across draws, ratio λ 0.94 / λ 0.80;
+- *r* = range (max − min) of the fixed-offset scan's Calmar, same ratio.
+
+The read-out:
+- **AMPLIFIER-CONFIRMED** if *s* ≤ 0.70 **and** *r* ≤ 0.70 for at least 3 of F2's
+  4 rows;
+- **AMPLIFIER-REJECTED** if *s* ≥ 0.90 **and** *r* ≥ 0.90 for at least 3 of 4;
+- **INCONCLUSIVE** otherwise.
+
+F3's single pair is reported alongside, as corroboration only.
+
+**PHASE-PERSISTS** (F3, flag λ 0.80) iff the scan's best-Calmar offset is in
+[−5, −1] **and** its worst in [+2, +8]. These are the bands every row of the
+gross run fell in (verdict §2). Otherwise **PHASE-LOCAL**.
+
+### 15.4 Predictions
+
+1. **F1 jitter:** all four rows TIMING-FRAGILE, with P(Calmar > SPY) in
+   [0.75, 0.90]. Every row's scan has its best Calmar offset in [−5, −1] and its
+   worst in [+2, +8]. 68 of the gross run's 70 sessions are shared, and net15 only
+   rescales distributions.
+2. **F1 fills.**
+   - B50K50 stays FILL-ROBUST, with an α = 0.5 CAGR edge of +1.5 to +2.8 pp and a
+     break-even α ≥ 0.9.
+   - B75D25 and B75K25 turn FILL-FRAGILE: α = 0.5 edge in [−0.6, +0.1] pp,
+     break-even α in [0.35, 0.55].
+   - The flag variant is borderline: α = 0.5 edge in [−0.3, +0.6] pp, break-even α
+     in [0.4, 0.65].
+
+   Basis: the canonical net15 edges are 1.7–2.2 pp narrower than the gross ones,
+   and the α-drag is about 2 pp per 0.5.
+3. **F2: AMPLIFIER-CONFIRMED.** A five-day-memory σ re-reads a different weight
+   each day, while a seventeen-day one barely moves. The scan pattern flattens with
+   it.
+4. **F3, timing:**
+   - flag λ 0.80's CAGR sd across draws ≤ 0.70 × its F1 value (≈ 170 sessions
+     average luck better than 68);
+   - flag λ 0.80 reads TIMING-ROBUST (Calmar 0.82 against SPY's 0.43);
+   - the λ 0.94 / λ 0.80 pair has *s* ≤ 0.70.
+5. **F3, phase:** PHASE-LOCAL. The 2021+ pattern does not reproduce over 2012–2026.
+   This is a low-confidence prediction.
+
+### 15.5 Errata and results
+
+Recorded in `notes/execution-verdict.md` §7 after the runs. This section stays as
+pre-registered.
+
+## 16. Second follow-up — phase falsifiers and the live gate (branch `execution-followups`)
+
+Verdict §7.4 found, post hoc, that sessions before month-end beat sessions after
+on CAGR in every run, while SPY's scan is flat. Erratum 5 shows the live gate
+can be tested as is. Two questions follow:
+
+1. **The clean test.** Does the effect appear on years that share nothing with
+   2012–2026?
+2. **The live gate.** Does it survive the gate actually traded, `sma_months: 10`?
+
+No code changes and nothing is adopted. Same tool, same costs (`cost_bps` map,
+`cash_yield` 0.03), same `$500 / $500` config, same
+`--days 10 --draws 500 --seed 20261020`.
+
+### 16.1 Runs
+
+| id | spec | root | lane | rows |
+|---|---|---|---|---|
+| G1 | `specs/exec_syn_2000.json` | `tests/data/2026-08-24-syn-net15` | 2000-01-03 → 2011-12-30 | VT TQQQ + BIL gated (`sma_days` 200; `sma_months` 10), SPY |
+| G2 | `specs/exec_qqq_2000.json` | `tests/data/2026-08-24-net15` | 2000-01-03 → 2011-12-30 | VT QQQ + cash gated (`sma_days` 200; `sma_months` 10), SPY |
+| G3a | `specs/exec_top_2021_net15_mg10.json` | `tests/data/2026-08-24-net15` | F1's lane | the four winners with `sma_months` 10, SPY |
+| G3b | `specs/exec_flag_2012_net15_mg10.json` | `tests/data/2026-08-24-net15` | F3's lane | flag λ 0.80 with `sma_months` 10, SPY |
+
+- **G1 is the winners' machine on the only lane with no 2012–2026 year.** It runs
+  λ 0.80, σ 0.20, w_max 0.8, 3× leverage. The sleeve is 100 % BIL because BTAL
+  starts 2011-09.
+  - TQQQ is synthetic before 2010-02-11 and BIL before 2007-05-30.
+  - The lane is the one `sweep_syn_2000` / `sweep_mg_syn` used, at month-ends
+    only.
+  - It is a **falsifier only** (CLAUDE.md §6): nothing is adopted from it.
+- **G2 is the real-bars proxy.** It runs VT on QQQ itself: leverage 1, w_max 1.0,
+  σ 0.20, λ 0.80, cash (`safe: null`) at `cash_yield`.
+  - Every bar is real.
+  - Whenever σ_QQQ > 20 %, most of the lane, its QQQ exposure 0.2/σ matches the
+    TQQQ machine's 3 · 0.0667/σ.
+  - In calm markets it caps at 1× where the TQQQ machine reaches 2.4×.
+- **G3a and G3b pair exactly with F1 and F3.** They have the same lane, the same
+  month count and the same seed, hence the same 500 calendars and 21 scan
+  calendars.
+- **Warm-up.** QQQ starts 1999-03-10, so by 2000-01-03 it has more than 200 bars
+  and ten month-ends: both gates are warm on day 0.
+
+```
+uv run execution_report.py jitter --spec specs/exec_syn_2000.json \
+  --data tests/data/2026-08-24-syn-net15 --days 10 --draws 500 --seed 20261020
+uv run execution_report.py jitter --spec specs/exec_qqq_2000.json \
+  --data tests/data/2026-08-24-net15 --days 10 --draws 500 --seed 20261020
+uv run execution_report.py jitter --spec specs/exec_top_2021_net15_mg10.json \
+  --data tests/data/2026-08-24-net15 --days 10 --draws 500 --seed 20261020
+uv run execution_report.py jitter --spec specs/exec_flag_2012_net15_mg10.json \
+  --data tests/data/2026-08-24-net15 --days 10 --draws 500 --seed 20261020
+```
+
+### 16.2 The phase statistic, frozen here
+
+For each row, from its fixed-offset scan:
+- **Δ** = mean CAGR over d ∈ [−7, −1] minus mean CAGR over d ∈ [+1, +7];
+- **D** = the share of the 49 (pre, post) offset pairs in which the pre-offset's
+  CAGR is higher.
+
+Reference values, measured post hoc (verdict §7.4):
+- F1's four rows: Δ +5.20 … +5.55 pp, D 1.000.
+- F3's flag λ 0.80: Δ +3.38 pp, D 1.000.
+- SPY: |Δ| ≤ 0.25 pp everywhere. Its D can still be 1.000 (+0.03 pp on F3), which
+  is why the read-out needs a magnitude floor.
+
+### 16.3 Read-outs
+
+- **Per row:**
+  - **PHASE-SURVIVES** iff Δ ≥ +1.0 pp **and** D ≥ 0.75;
+  - **PHASE-FALSIFIED** iff Δ ≤ 0 **or** D ≤ 0.50;
+  - **PHASE-INCONCLUSIVE** otherwise.
+- **The clean test is decided by G1's `sma_days` 200 row.** G2's `sma_days` row
+  corroborates (real bars, different machine); the `mg10` rows are reported.
+  - FALSIFIED drops the pre-month-end idea.
+  - SURVIVES means it has survived a falsifier. Nothing is adopted from a
+    synthetic window; any adoption needs its own spec.
+  - INCONCLUSIVE leaves it a hypothesis.
+- **The live gate is read per row, G3a against F1 and G3b against F3**, on the same
+  calendars:
+  - **GATE-NEUTRAL** iff the `mg10` row reads PHASE-SURVIVES with Δ_mg ≥ 0.5 ×
+    Δ_sd;
+  - **GATE-KILLS** iff it reads PHASE-FALSIFIED;
+  - **GATE-WEAKENS** otherwise.
+
+  The `mg10` rows' §10.1 TIMING read-outs are reported beside it.
+
+### 16.4 Canonical baselines (`main.py`, d = 0, measured before any run)
+
+| run | rows: CAGR / Calmar / max DD |
+|---|---|
+| G1 | sma200 +3.97 % / 0.11 / −35.85 %; mg10 +3.99 % / 0.11 / −35.85 %; SPY +0.29 % / 0.01 / −55.36 % |
+| G2 | sma200 +5.05 % / 0.14 / −34.87 %; mg10 +5.05 % / 0.14 / −34.86 %; SPY as G1 |
+| G3a | identical to F1's four rows at the displayed precision (+18.63 / +16.48 / +16.41 / +16.45 %) |
+| G3b | identical to F3's flag λ 0.80 (+20.08 % / 0.82 / −24.44 %) |
+
+At month-end the live gate and the 200-day gate give the same portfolios on both
+decision lanes, as MONTHLY_GATE_SPEC found. Any G3 difference therefore comes from
+off-month-end sessions.
+
+**Disclosure.** Only these d = 0 runs have been seen. No offset of any §16 spec
+has been run. The 2000–2011 lane's month-end sweeps are committed
+(`results/sweep_syn_2000/`, `results/sweep_mg_syn/`) but were not read for this
+spec.
+
+### 16.5 Predictions
+
+1. **G1 `sma_days` row:** not PHASE-SURVIVES, with |Δ| < 2 pp. Low confidence.
+   An effect found post hoc on one path usually shrinks out of sample, and
+   2000–2011 is dominated by two bears in which the gate, not the day's σ read,
+   steers the path.
+2. **G2 `sma_days` row:** not PHASE-SURVIVES, with |Δ| < 1.5 pp. Its turnover is
+   0.51 against 1.39, so there is less weight change for timing to act on.
+3. **G3:** GATE-NEUTRAL on at least 3 of F1's 4 rows and on F3's flag row. The
+   phase effect halved with a slower λ (§7.2), so it lives in the vol-target read,
+   not the gate. The `mg10` rows' TIMING read-outs equal the 200-day rows' (F1
+   all FRAGILE, F3 ROBUST).
+4. **G1 and G2:** the `mg10` row's Δ is within ±1 pp of the `sma_days` row's.
+
+Results go to `notes/execution-verdict.md` §8; this section stays as
+pre-registered.

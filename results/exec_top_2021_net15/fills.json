@@ -1,0 +1,501 @@
+{
+  "benchmark": "SPY benchmark",
+  "break_even": {
+    "1 B50K50 - VT BTAL50+KMLM50 gated": {
+      "cagr": null,
+      "calmar": null
+    },
+    "2 B75D25 - VT BTAL75+DBMF25 gated": {
+      "cagr": 0.48813005,
+      "calmar": 0.96099153
+    },
+    "3 B75K25 - VT BTAL75+KMLM25 gated": {
+      "cagr": 0.48689237,
+      "calmar": null
+    },
+    "4 flag variant - VT BIL50+BTAL50 gated": {
+      "cagr": 0.58381607,
+      "calmar": null
+    }
+  },
+  "by_symbol": {
+    "0": {
+      "BIL": {
+        "buy_bps": 0.0,
+        "sell_bps": 0.0
+      },
+      "BTAL": {
+        "buy_bps": 0.0,
+        "sell_bps": 0.0
+      },
+      "DBMF": {
+        "buy_bps": 0.0,
+        "sell_bps": 0.0
+      },
+      "KMLM": {
+        "buy_bps": 0.0,
+        "sell_bps": 0.0
+      },
+      "SPY": {
+        "buy_bps": 0.0
+      },
+      "TQQQ": {
+        "buy_bps": 0.0,
+        "sell_bps": 0.0
+      }
+    },
+    "0.25": {
+      "BIL": {
+        "buy_bps": 0.20816867,
+        "sell_bps": 0.01108132
+      },
+      "BTAL": {
+        "buy_bps": 16.37521888,
+        "sell_bps": 21.78528067
+      },
+      "DBMF": {
+        "buy_bps": 12.37695623,
+        "sell_bps": 10.11805176
+      },
+      "KMLM": {
+        "buy_bps": 13.23605822,
+        "sell_bps": 8.30688429
+      },
+      "SPY": {
+        "buy_bps": 14.27687857
+      },
+      "TQQQ": {
+        "buy_bps": 38.68318508,
+        "sell_bps": 48.97098273
+      }
+    },
+    "0.5": {
+      "BIL": {
+        "buy_bps": 0.4173076,
+        "sell_bps": 0.02422956
+      },
+      "BTAL": {
+        "buy_bps": 32.60134159,
+        "sell_bps": 43.54437646
+      },
+      "DBMF": {
+        "buy_bps": 24.80234341,
+        "sell_bps": 20.22444224
+      },
+      "KMLM": {
+        "buy_bps": 26.42985724,
+        "sell_bps": 16.62243533
+      },
+      "SPY": {
+        "buy_bps": 29.3567907
+      },
+      "TQQQ": {
+        "buy_bps": 77.0804257,
+        "sell_bps": 97.81807744
+      }
+    },
+    "1": {
+      "BIL": {
+        "buy_bps": 0.83145075,
+        "sell_bps": 0.0497929
+      },
+      "BTAL": {
+        "buy_bps": 64.54724229,
+        "sell_bps": 87.00934767
+      },
+      "DBMF": {
+        "buy_bps": 49.82010083,
+        "sell_bps": 40.49242753
+      },
+      "KMLM": {
+        "buy_bps": 52.91125746,
+        "sell_bps": 33.26090353
+      },
+      "SPY": {
+        "buy_bps": 56.15171969
+      },
+      "TQQQ": {
+        "buy_bps": 152.46828478,
+        "sell_bps": 194.84832735
+      }
+    }
+  },
+  "command": "uv run execution_report.py fills --spec specs/exec_top_2021_net15.json --data tests/data/2026-08-24-net15 --alpha 0 0.25 0.5 1",
+  "data": {
+    "cash_yield": 0.03,
+    "cost_bps": {
+      "*": 6.0,
+      "BIL": 0.5,
+      "BTAL": 6.0,
+      "DBMF": 2.5,
+      "KMLM": 6.0,
+      "QQQ": 1.0,
+      "SPY": 0.7,
+      "TQQQ": 1.5
+    },
+    "end": "2026-08-24",
+    "missing_bars": {
+      "BIL": 0,
+      "BTAL": 0,
+      "DBMF": 0,
+      "KMLM": 80,
+      "SPY": 0,
+      "TQQQ": 0
+    },
+    "month_ends": 68,
+    "root": "tests/data/2026-08-24-net15",
+    "root_commit": "b81aa6c",
+    "root_dirty": false,
+    "spec": "specs/exec_top_2021_net15.json",
+    "start": "2020-12-18",
+    "trading_days": 1425
+  },
+  "edge": {
+    "1 B50K50 - VT BTAL50+KMLM50 gated": {
+      "0": {
+        "cagr": 0.03960357,
+        "calmar": 0.27248799
+      },
+      "0.25": {
+        "cagr": 0.03078777,
+        "calmar": 0.21594966
+      },
+      "0.5": {
+        "cagr": 0.02181892,
+        "calmar": 0.1595824
+      },
+      "1": {
+        "cagr": 0.00429188,
+        "calmar": 0.0577489
+      }
+    },
+    "2 B75D25 - VT BTAL75+DBMF25 gated": {
+      "0": {
+        "cagr": 0.01809009,
+        "calmar": 0.25056576
+      },
+      "0.25": {
+        "cagr": 0.00901109,
+        "calmar": 0.1911282
+      },
+      "0.5": {
+        "cagr": -0.00044917,
+        "calmar": 0.11864637
+      },
+      "1": {
+        "cagr": -0.01959056,
+        "calmar": -0.01003969
+      }
+    },
+    "3 B75K25 - VT BTAL75+KMLM25 gated": {
+      "0": {
+        "cagr": 0.01746339,
+        "calmar": 0.24597413
+      },
+      "0.25": {
+        "cagr": 0.00848097,
+        "calmar": 0.18457381
+      },
+      "0.5": {
+        "cagr": -0.00046927,
+        "calmar": 0.13494304
+      },
+      "1": {
+        "cagr": -0.01879581,
+        "calmar": 0.01974425
+      }
+    },
+    "4 flag variant - VT BIL50+BTAL50 gated": {
+      "0": {
+        "cagr": 0.01779515,
+        "calmar": 0.2881134
+      },
+      "0.25": {
+        "cagr": 0.01081028,
+        "calmar": 0.23120615
+      },
+      "0.5": {
+        "cagr": 0.00254954,
+        "calmar": 0.16235213
+      },
+      "1": {
+        "cagr": -0.01265961,
+        "calmar": 0.05459886
+      }
+    }
+  },
+  "params": {
+    "alpha": [
+      0.0,
+      0.25,
+      0.5,
+      1.0
+    ],
+    "headline_alpha": 0.5
+  },
+  "readout": {
+    "1 B50K50 - VT BTAL50+KMLM50 gated": "FILL-ROBUST",
+    "2 B75D25 - VT BTAL75+DBMF25 gated": "FILL-FRAGILE",
+    "3 B75K25 - VT BTAL75+KMLM25 gated": "FILL-FRAGILE",
+    "4 flag variant - VT BIL50+BTAL50 gated": "FILL-ROBUST"
+  },
+  "rows": {
+    "1 B50K50 - VT BTAL50+KMLM50 gated": {
+      "0": {
+        "cagr": 0.18627157,
+        "calmar": 0.89191059,
+        "close_notional": 489578.45144807,
+        "final_value": 59036.27572621,
+        "max_drawdown": -0.20884557,
+        "sharpe": 0.92504744,
+        "slippage": 0.0,
+        "slippage_bps": 0.0,
+        "total_fees": 185.52532597,
+        "xirr": 0.18690608
+      },
+      "0.25": {
+        "cagr": 0.1750658,
+        "calmar": 0.81989003,
+        "close_notional": 480230.63090994,
+        "final_value": 57163.96250934,
+        "max_drawdown": -0.21352351,
+        "sharpe": 0.87914404,
+        "slippage": 1400.52084271,
+        "slippage_bps": 29.16350504,
+        "total_fees": 182.00309498,
+        "xirr": 0.17555145
+      },
+      "0.5": {
+        "cagr": 0.16473578,
+        "calmar": 0.75377554,
+        "close_notional": 470244.52531795,
+        "final_value": 55417.0399284,
+        "max_drawdown": -0.21854753,
+        "sharpe": 0.8364858,
+        "slippage": 2735.45969605,
+        "slippage_bps": 58.1710057,
+        "total_fees": 178.22131827,
+        "xirr": 0.16463852
+      },
+      "1": {
+        "cagr": 0.14402792,
+        "calmar": 0.63093509,
+        "close_notional": 451857.41763106,
+        "final_value": 52148.15206952,
+        "max_drawdown": -0.22827692,
+        "sharpe": 0.75064859,
+        "slippage": 5227.12982977,
+        "slippage_bps": 115.68095655,
+        "total_fees": 171.24864685,
+        "xirr": 0.14331941
+      }
+    },
+    "2 B75D25 - VT BTAL75+DBMF25 gated": {
+      "0": {
+        "cagr": 0.16475809,
+        "calmar": 0.86998836,
+        "close_notional": 485173.21258131,
+        "final_value": 56588.44145768,
+        "max_drawdown": -0.18937965,
+        "sharpe": 0.8561972,
+        "slippage": 0.0,
+        "slippage_bps": 0.0,
+        "total_fees": 161.52495074,
+        "xirr": 0.17199118
+      },
+      "0.25": {
+        "cagr": 0.15328912,
+        "calmar": 0.79506857,
+        "close_notional": 475215.43057917,
+        "final_value": 54776.43517493,
+        "max_drawdown": -0.19279988,
+        "sharpe": 0.80799448,
+        "slippage": 1429.45410581,
+        "slippage_bps": 30.08012817,
+        "total_fees": 158.10566939,
+        "xirr": 0.16055559
+      },
+      "0.5": {
+        "cagr": 0.14246769,
+        "calmar": 0.71283951,
+        "close_notional": 465862.64894921,
+        "final_value": 53086.64608098,
+        "max_drawdown": -0.19985941,
+        "sharpe": 0.76087083,
+        "slippage": 2796.68988318,
+        "slippage_bps": 60.03249862,
+        "total_fees": 154.93413662,
+        "xirr": 0.14956612
+      },
+      "1": {
+        "cagr": 0.12014548,
+        "calmar": 0.56314651,
+        "close_notional": 446742.8288422,
+        "final_value": 49818.74155854,
+        "max_drawdown": -0.21334676,
+        "sharpe": 0.66191702,
+        "slippage": 5333.3739974,
+        "slippage_bps": 119.3835391,
+        "total_fees": 148.34829552,
+        "xirr": 0.12734318
+      }
+    },
+    "3 B75K25 - VT BTAL75+KMLM25 gated": {
+      "0": {
+        "cagr": 0.1641314,
+        "calmar": 0.86539673,
+        "close_notional": 481255.34675019,
+        "final_value": 56017.43346526,
+        "max_drawdown": -0.18966029,
+        "sharpe": 0.86127945,
+        "slippage": 0.0,
+        "slippage_bps": 0.0,
+        "total_fees": 182.31837274,
+        "xirr": 0.1684251
+      },
+      "0.25": {
+        "cagr": 0.152759,
+        "calmar": 0.78851419,
+        "close_notional": 471715.4934852,
+        "final_value": 54213.335444,
+        "max_drawdown": -0.19373018,
+        "sharpe": 0.81199112,
+        "slippage": 1414.78525152,
+        "slippage_bps": 29.99234223,
+        "total_fees": 178.74310557,
+        "xirr": 0.15692939
+      },
+      "0.5": {
+        "cagr": 0.14244759,
+        "calmar": 0.72913618,
+        "close_notional": 461973.95431556,
+        "final_value": 52524.51767239,
+        "max_drawdown": -0.19536487,
+        "sharpe": 0.76820355,
+        "slippage": 2762.74028508,
+        "slippage_bps": 59.80294472,
+        "total_fees": 175.05861936,
+        "xirr": 0.14583718
+      },
+      "1": {
+        "cagr": 0.12094023,
+        "calmar": 0.59293045,
+        "close_notional": 443567.58149786,
+        "final_value": 49288.80394118,
+        "max_drawdown": -0.20397034,
+        "sharpe": 0.67171734,
+        "slippage": 5273.56406995,
+        "slippage_bps": 118.88975412,
+        "total_fees": 168.12187288,
+        "xirr": 0.12360992
+      }
+    },
+    "4 flag variant - VT BIL50+BTAL50 gated": {
+      "0": {
+        "cagr": 0.16446315,
+        "calmar": 0.907536,
+        "close_notional": 488637.55810749,
+        "final_value": 58136.93895997,
+        "max_drawdown": -0.18121942,
+        "sharpe": 0.85950479,
+        "slippage": 0.0,
+        "slippage_bps": 0.0,
+        "total_fees": 115.69406005,
+        "xirr": 0.18149478
+      },
+      "0.25": {
+        "cagr": 0.15508831,
+        "calmar": 0.83514653,
+        "close_notional": 481058.35640117,
+        "final_value": 56545.25933523,
+        "max_drawdown": -0.18570191,
+        "sharpe": 0.82128455,
+        "slippage": 1271.08266246,
+        "slippage_bps": 26.4226293,
+        "total_fees": 113.67816,
+        "xirr": 0.17172268
+      },
+      "0.5": {
+        "cagr": 0.1454664,
+        "calmar": 0.75654527,
+        "close_notional": 472938.13155928,
+        "final_value": 54958.0807488,
+        "max_drawdown": -0.19227719,
+        "sharpe": 0.77898351,
+        "slippage": 2495.9042434,
+        "slippage_bps": 52.77443447,
+        "total_fees": 111.51328821,
+        "xirr": 0.16171786
+      },
+      "1": {
+        "cagr": 0.12707643,
+        "calmar": 0.62778506,
+        "close_notional": 456144.3529642,
+        "final_value": 52010.74377173,
+        "max_drawdown": -0.20242028,
+        "sharpe": 0.69759735,
+        "slippage": 4775.22675932,
+        "slippage_bps": 104.68674507,
+        "total_fees": 107.10331134,
+        "xirr": 0.14239591
+      }
+    },
+    "SPY benchmark": {
+      "0": {
+        "cagr": 0.14666801,
+        "calmar": 0.6194226,
+        "close_notional": 34223.91854872,
+        "final_value": 56050.59941899,
+        "max_drawdown": -0.23678181,
+        "sharpe": 0.92404496,
+        "slippage": 0.0,
+        "slippage_bps": 0.0,
+        "total_fees": 2.3956743,
+        "xirr": 0.16863316
+      },
+      "0.25": {
+        "cagr": 0.14427803,
+        "calmar": 0.60394038,
+        "close_notional": 34186.26996212,
+        "final_value": 56039.79137732,
+        "max_drawdown": -0.23889449,
+        "sharpe": 0.91056441,
+        "slippage": 48.8073225,
+        "slippage_bps": 14.27687857,
+        "total_fees": 2.39645541,
+        "xirr": 0.16856537
+      },
+      "0.5": {
+        "cagr": 0.14291686,
+        "calmar": 0.59419314,
+        "close_notional": 34180.77252579,
+        "final_value": 55994.14691067,
+        "max_drawdown": -0.24052257,
+        "sharpe": 0.90195067,
+        "slippage": 100.3437785,
+        "slippage_bps": 29.3567907,
+        "total_fees": 2.39967814,
+        "xirr": 0.16827895
+      },
+      "1": {
+        "cagr": 0.13973604,
+        "calmar": 0.5731862,
+        "close_notional": 34236.06418428,
+        "final_value": 55841.09329258,
+        "max_drawdown": -0.24378821,
+        "sharpe": 0.8815402,
+        "slippage": 192.24138794,
+        "slippage_bps": 56.15171969,
+        "total_fees": 2.40998139,
+        "xirr": 0.16731692
+      }
+    }
+  },
+  "strategies": [
+    "1 B50K50 - VT BTAL50+KMLM50 gated",
+    "2 B75D25 - VT BTAL75+DBMF25 gated",
+    "3 B75K25 - VT BTAL75+KMLM25 gated",
+    "4 flag variant - VT BIL50+BTAL50 gated",
+    "SPY benchmark"
+  ]
+}
