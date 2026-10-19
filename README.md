@@ -62,6 +62,9 @@ Data notes:
   dividend-adjusted export, so distributions are reinvested at the ex-date close and
   results are total-return (gross of withholding). The unadjusted series sits in
   `data/unadjusted/` as reference, indices and FX in `data/index/`; see `data/README.md`.
+  Live `data/` is refreshed from the TradingView downloader by `refresh_data.py`, which
+  never drops a row and stops on any revision of existing history
+  (`docs/DATA_REFRESH_SPEC.md`).
 - **Missing dates:** BTAL is missing ~73 trading days that SPY/TQQQ have. The trading
   calendar is the union of all assets' dates. For valuation on a day where an asset has no
   row, carry its last known close forward. If the last trading day of a month is missing

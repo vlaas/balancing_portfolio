@@ -104,32 +104,57 @@ amounts) and `tests/data/2026-08-24/README.md` (48 pairs: flat-segment noise
 ≤ 4.3e-8, smallest genuine jump 1.247e-5, the full yield table behind the
 live-pair bands).
 
-## Export settings
+## Export settings (tview)
 
-Two passes per symbol, same chart, same session:
+Live `data/` comes from the TradingView websocket downloader in `~/code/tview`
+(`dl.sh`, a local git repo outside this one) and is merged in by `refresh_data.py`
+(`docs/DATA_REFRESH_SPEC.md`), which never drops a row this directory holds. The
+2026-09-02 batch was already a tview batch; the manual *Export chart data…*
+procedure this section used to describe is retired.
 
-1. Chart settings → **Adjust data for dividends: ON** → *Export chart data…* →
-   `data/adjusted/<SYM>.csv`.
-2. Toggle **OFF** → export again → `data/unadjusted/<SYM>.csv`.
-3. Toggle back **ON**, so the chart's resting state matches the traded series.
+1. `~/code/tview/token` holds a TradingView auth token — untracked there, and it
+   never enters this repo.
+2. `cd ~/code/tview && ./dl.sh` clears `price/`, `dividends/` and `csv/`, writes
+   its UTC start to `started`, and for each line of `list` (`MARKET:TICKER
+   [RENAME]`, e.g. `EURONEXT:DBMF DBMF_EU`) downloads the full daily history
+   twice: an `adjustment=splits` pass into `price/<SYM>` and, unless the line is
+   in `ndiv`, an `adjustment=dividends` pass into `dividends/<SYM>`.
+   `convtocsv.py` writes both to `csv/price/` and `csv/dividends/` in this
+   directory's file layout.
+3. `uv run refresh_data.py` — a dry run: one line per symbol with every trim,
+   revision and stop.
+4. `uv run refresh_data.py --write [--accept SYM ...]` — `--accept` takes a
+   symbol's reported revisions, or the rows it serves before this directory's
+   first bar.
+5. `uv run pytest -q`, then commit `data/` with the report in the message.
 
-- Symbol: the ETF's primary listing (an EU line: the listing named in the
-  line registry below); chart interval **1D**.
-- A **single-series symbol** (index, FX) is exported **once**, into
-  `data/index/` — it has no toggle, and an OFF-pass copy in `unadjusted/` re-creates the
-  drift trap of ROTATION_SPEC §3.4 (the 2026-09-02 batches did this twice).
-- **Both passes of a US paired symbol run after 16:00 ET** (EU_SUBSTITUTE_SPEC
-  §3.2). A pass taken mid-session leaves the live bar with different closes in
-  the two files, so `R_last ≠ 1` and the pair tests fail — twice bitten (the
-  2026-09-02 batch, both at ~15:40 ET). An EU line is immune whenever the
-  export happens after its own close.
-- No indicator on the chart (the Pine SMA overlay left the procedure with the
-  2026-08 batch — see "Where the SMA verification fixture went").
-- Exported via *Chart → Export chart data…*, ISO dates, `.` decimal
-  separator, `,` field separator.
-- The full available history is exported; files therefore start at different
-  dates (SPY 1993, QQQ 1999, TQQQ 2010, BTAL 2011, DBMF 2019, KMLM 2020) and may
-  end on different dates.
+| tview output | goes to |
+|---|---|
+| `csv/dividends/<SYM>.csv` | `adjusted/<SYM>.csv` |
+| `csv/price/<SYM>.csv`, paired ETF | `unadjusted/<SYM>.csv` |
+| `csv/price/GLD.csv` (GLD is in `ndiv`) | `adjusted/GLD.csv` and `unadjusted/GLD.csv`, byte-identical |
+| `csv/price/<SYM>.csv`, SPX XNDX VIX VIX3M NDX EURUSD GBPUSD | `index/<SYM>.csv` |
+
+- A symbol's class is the folder it already has here. Adding a symbol is a manual
+  step: copy its files into that folder and move the pins of `tests/test_layout.py`
+  and `tests/test_total_return.py` in the same commit.
+- Run `dl.sh` any time: bars that had not closed at `started` are trimmed (US
+  16:00 ET, Cboe 16:15 ET, LSE 16:35 London, Xetra and Euronext 17:35 CET, and an
+  `FX_IDC` bar at 22:00 UTC the day after its label, so a weekday batch always
+  ends in an open FX bar). A start after 16:15 ET keeps the day's bars: 23:15
+  Tallinn time, 22:15 in the weeks between the US and EU daylight-saving switches.
+- A mid-session pass is what broke the pair tests twice in the 2026-09-02 batch
+  (`R_last ≠ 1`); the trim and the tool's pass checks now catch it.
+- Symbol: the ETF's primary listing (an EU line: the listing named in the line
+  registry below); interval 1D; `session=extended`, which makes no difference to
+  daily bars.
+- A **single-series symbol** (index, FX) has one pass, into `index/`: it has no
+  toggle, and an `unadjusted/` copy would re-create the drift trap of
+  ROTATION_SPEC §3.4.
+- No indicator columns (see "Where the SMA verification fixture went").
+- The full available history is downloaded, so files start at different dates
+  (SPY 1993, QQQ 1999, TQQQ 2010, BTAL 2011, DBMF 2019, KMLM 2020) and may end on
+  different dates.
 
 ## EU lines — line registry (EU_SUBSTITUTE_SPEC §3.5)
 

@@ -66,7 +66,10 @@ Decisions and their reasons:
   resolves each symbol to `adjusted/<SYM>.csv` or `index/<SYM>.csv` (indices, FX)
   and never looks inside `unadjusted/` (DATA_LAYOUT_V2_SPEC §2). Invariants and
   spot checks live in `tests/test_total_return.py`; the convention is
-  documented in `data/README.md`. A **net-of-withholding** twin of any root is
+  documented in `data/README.md`. Live `data/` is refreshed by `refresh_data.py`
+  (`docs/DATA_REFRESH_SPEC.md`), which merges a tview batch without dropping a
+  row and stops on any revision of existing history. A **net-of-withholding**
+  twin of any root is
   derived by `make_net_tr.py` (committed generator, `docs/NET_TR_SPEC.md`):
   each distribution jump reinvests `(1−w)·D` instead of `D`, flat rows are
   untouched, and the net snapshot (`tests/data/2026-08-20-net15/`) is the
