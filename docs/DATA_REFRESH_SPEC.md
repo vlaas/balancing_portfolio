@@ -1,7 +1,7 @@
 # Specification: refreshing live `data/` from a tview batch without losing history
 
 Repo: `vlaas/balancing_portfolio` · baseline commit: `a25c260` (`main`, "Handoff: tview
-fixes and the no-overwrite merge tool", 1267 tests green, none skipped) · status: draft
+fixes and the no-overwrite merge tool", 1267 tests green, none skipped) · status: implemented (2026-10-19, branch `data-refresh`) — verification in §9
 
 ## 1. Goal
 
@@ -285,17 +285,17 @@ or writes the repo's `data/` or `~/code/tview`.
 
 ## 7. Acceptance checklist
 
-- [ ] tview fixes landed in `~/code/tview` (§2.1); a fresh post-close batch has real
+- [x] tview fixes landed in `~/code/tview` (§2.1); a fresh post-close batch has real
       dates (QQQ 1999-03-10 → 2026-10-19)
-- [ ] `refresh_data.py` per §3–§4
-- [ ] `tests/test_refresh_data.py` per §5; suite = 1267 + the new tests, none skipped
-- [ ] Dry run on the 2026-10-19 post-close batch: the report matches §2.4 (which
+- [x] `refresh_data.py` per §3–§4
+- [x] `tests/test_refresh_data.py` per §5; suite = 1267 + the new tests, none skipped
+- [x] Dry run on the 2026-10-19 post-close batch: the report matches §2.4 (which
       symbols stop, which trims)
-- [ ] A written refresh of live `data/` (`--accept EURUSD`) passes the whole suite,
+- [x] A written refresh of live `data/` (`--accept EURUSD`) passes the whole suite,
       including the live lane (§4), and equals the batch byte-for-byte (§2.5); `data/` is
       then restored with `git restore data/`, because committing a refresh is the
       operator's call
-- [ ] Docs per §6; no change to `prices.py`, `simulate.py`, `strategy.py`, any frozen
+- [x] Docs per §6; no change to `prices.py`, `simulate.py`, `strategy.py`, any frozen
       root or `results/`
 
 ## 8. Deliberately not in scope
@@ -311,4 +311,26 @@ or writes the repo's `data/` or `~/code/tview`.
 
 ## 9. Errata (implementation)
 
-None yet.
+1. **No deviation from §3–§6.** The commits are Phase 0 (spec), Phase 1
+   (`refresh_data.py` and its 18 tests), Phase 2 (docs) and Phase 3 (this
+   section), with the suite green after each one. It goes from 1267 to 1285,
+   none skipped. The tview fixes of §2.1 are commits in `~/code/tview`, not here.
+2. **The handoff's "after 23:00 local is always safe" holds for the exchanges,
+   not for FX.** An `FX_IDC` bar closes at 22:00 UTC the day after its label
+   (§2.3), so a weekday batch always ends in an open FX bar. That is why §3.3
+   trims instead of stopping, and why `dl.sh` has no clock guard. For a refresh
+   to keep the day's bars, the start must still come after 16:15 ET. The batch
+   of §2.2 cleared Cboe's 16:15 close by 24 seconds.
+3. **Verification, as run at the Phase 2 commit**, on the §2.2 batch:
+   - Dry run: exit 1, `Refused: nothing written.` 63 symbols are `ok`. EURUSD
+     stops on V2 (2026-09-01). EURUSD and GBPUSD trim their bar labelled
+     2026-10-18. SPX skips 4,307 rows before 1943-04-14.
+   - `--accept EURUSD --write` writes 121 files. Every one equals its batch
+     source byte-for-byte, apart from the two trimmed FX bars and SPX's skipped
+     rows.
+   - With that `data/` live, `uv run pytest -q` gives 1285 passed, including the
+     live-pair lane over all 57 pairs and the 57 / 7 / 57 layout pins.
+   - `git restore data/` then returns the live root to `main`'s bytes, and the
+     suite passes again (1285).
+   - `git diff main..HEAD` touches no engine file, no frozen root and nothing
+     under `results/`.
