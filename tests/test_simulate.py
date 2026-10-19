@@ -582,6 +582,75 @@ def test_cash_yield_accrues_over_calendar_gaps():
     assert twr(result)["index"][-1] > twr(base)["index"][-1]
 
 
+# EXECUTION_ROBUSTNESS_SPEC §5 — the `fill` execution-price hook.
+
+
+def test_identity_fill_is_frame_equal_to_no_fill():
+    # X1: a fill that returns the close takes the same arithmetic as fill=None,
+    # on real data with a per-asset cost map — every frame identical.
+    from prices import load_prices
+
+    start = dt.date(2017, 1, 3)
+    prices = load_prices(GOLDEN_DIR, ["TQQQ", "BTAL"], start)
+    strategy = Strategy(label="test", weights={"TQQQ": 0.5, "BTAL": 0.5})
+    config = Config(start, 10000.0, 500.0, cost_bps={"TQQQ": 1.5, "BTAL": 6.0})
+
+    base = simulate(prices, strategy, config)
+    identity = simulate(prices, strategy, config, fill=lambda row, a, d: row[a])
+
+    for got, want in zip(identity, base):
+        assert_frame_equal(got, want)
+
+
+def test_adverse_fill_reconciles_the_cash_ledger():
+    # X2, flat 50 bps, buys fill 1% above the close and sells 1% below. Day 0:
+    # A buys 166 at 30.30 (amount 5029.80, fee 25.149, cash 4945.051); B's cap
+    # floor(4945.051 / (7.07 x 1.005)) = 695 binds below 714 (amount 4913.65,
+    # fee 24.56825, cash 6.83275). Day 1 (A 36, B 6): +500, total 10652.83275,
+    # A's target 147 sells 19 at 35.64 (amount 677.16, fee 3.3858); B buys 192
+    # at 6.06 (amount 1163.52, fee 5.8176), leaving 11.26935. Sizing and
+    # valuation stay at the close.
+    prices = frame({"A": [30.0, 36.0], "B": [7.0, 6.0]}, [False, True])
+    config = Config(START, 10000.0, 500.0, cost_bps=50.0)
+
+    def adverse(row, asset, delta):
+        return row[asset] * (1.01 if delta > 0 else 0.99)
+
+    result, trades, _ = simulate(prices, half_and_half(), config, fill=adverse)
+
+    assert trades["action"].to_list() == [
+        "DEPOSIT", "BUY", "BUY", "DEPOSIT", "SELL", "BUY",
+    ]
+    assert trades["shares"].to_list() == [None, 166, 695, None, 19, 192]
+    assert trades["price"].to_list()[1:3] == pytest.approx([30.3, 7.07])
+    assert trades["price"].to_list()[4:] == pytest.approx([35.64, 6.06])
+    for row in trades.filter(pl.col("action") != "DEPOSIT").iter_rows(named=True):
+        assert row["amount"] == pytest.approx(row["shares"] * row["price"])
+        assert row["fee"] == pytest.approx(row["amount"] * 0.005)
+    assert trades["cash_after"].to_list() == pytest.approx(
+        [10000.0, 4945.051, 6.83275, 506.83275, 1180.60695, 11.26935]
+    )
+    assert result["value"].to_list() == pytest.approx(
+        [166 * 30.0 + 695 * 7.0 + 6.83275, 147 * 36.0 + 887 * 6.0 + 11.26935]
+    )
+
+
+def test_fill_above_the_close_is_capped_with_zero_fees():
+    # X3: all-in A at 10 with buys filled at 10.50 and no fees. The close-sized
+    # target is 100 shares (1050 at the fill), so without the affordability cap
+    # cash would end at -50; the cap buys floor(1000 / 10.5) = 95.
+    prices = frame({"A": [10.0, 10.0]}, [False, False])
+    strategy = Strategy(label="test", weights={"A": 1.0})
+
+    _, trades, _ = simulate(
+        prices, strategy, Config(START, 1000.0, 100.0),
+        fill=lambda row, a, d: row[a] * (1.05 if d > 0 else 1.0),
+    )
+
+    assert trades["shares"].to_list() == [None, 95]
+    assert trades["cash_after"].to_list() == pytest.approx([1000.0, 2.5])
+
+
 # REGIME_SPEC R6 — engine effect of a closed w_off gate; simulate.py unchanged.
 
 REGIME = "X:REGIME_Y_1_100_0"
