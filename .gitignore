@@ -3,3 +3,4 @@ __pycache__/
 .pytest_cache/
 .venv/
 bt_secrets.py
+.DS_Store
