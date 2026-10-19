@@ -317,6 +317,12 @@ strategy and the report layer never recomputes anything.
   showing actual/target percents per asset and for cash.
 - Markdown image links are computed relative to the report's own location, so
   `--md` and `--charts` may point anywhere independently.
+- `report.md` opens with a run stamp (command line, commit, spec as run) that
+  `main.py` builds and passes in — it reads `sys.argv` and git, which the
+  presentation layer doesn't. It is built before any output is written, and its
+  dirty list asks git about run inputs only (`*.py`, `pyproject.toml`,
+  `uv.lock`, the data root, the spec): untracked clutter and the tracked
+  outputs a rerun overwrites would otherwise flag every report.
 
 ## results_json.py — the machine-readable contract
 

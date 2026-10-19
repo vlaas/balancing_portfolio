@@ -234,15 +234,20 @@ def save_markdown(
     correlations: list[tuple[str, float]],
     out_path: Path,
     charts_dir: Path | None,
+    *,
+    stamp: list[str],
 ) -> None:
     """Write the full report as Markdown, linking the charts relatively.
 
-    With charts_dir None (--no-charts) the chart sections are omitted."""
+    With charts_dir None (--no-charts) the chart sections are omitted. `stamp`
+    (how the run was made) goes right under the simulated range."""
     first, last = results[0].curve["date"][0], results[0].curve["date"][-1]
     lines = [
         "# Portfolio strategy comparison",
         "",
         f"Simulated {first.isoformat()} to {last.isoformat()}.",
+        "",
+        *stamp,
         "",
         "| | " + " | ".join(r.label for r in results) + " |",
         "|---" + "|---:" * len(results) + "|",

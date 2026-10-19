@@ -39,20 +39,19 @@ def _slugs(results: list[StrategyResult]) -> list[str]:
     return slugs
 
 
+def git(*args: str) -> str | None:
+    """A git command's stripped stdout, or None if it fails (e.g. outside a checkout)."""
+    done = subprocess.run(["git", *args], capture_output=True, text=True, check=False)
+    return done.stdout.strip() if done.returncode == 0 else None
+
+
 def _git() -> tuple[str | None, bool | None]:
     """The commit the run was made from, and whether the tree had uncommitted changes.
 
     Both are None outside a git checkout — a results file is still worth writing.
     """
-
-    def run(*args: str) -> str | None:
-        done = subprocess.run(
-            ["git", *args], capture_output=True, text=True, check=False
-        )
-        return done.stdout.strip() if done.returncode == 0 else None
-
-    sha = run("rev-parse", "HEAD")
-    status = run("status", "--porcelain")
+    sha = git("rev-parse", "HEAD")
+    status = git("status", "--porcelain")
     return sha, None if status is None else status != ""
 
 

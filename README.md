@@ -107,7 +107,9 @@ Output form:
   selectable with `--charts` (default `charts/`); the Markdown report's image links
   follow it.
 - Optionally (`--md` flag) a Markdown report file with the summary table, drawdown
-  tables, correlations, and the charts embedded via relative links.
+  tables, correlations, and the charts embedded via relative links. It opens with how
+  it was made: the command line, the commit (with any uncommitted changes to code,
+  lockfile, data root or spec) and, for `--spec` runs, the spec file as run.
 - Optionally (`--tx` flag) a Markdown transaction log: every deposit, buy and sell per
   strategy with date, shares, price, amount, cash after, and that day's portfolio value.
   Each rebalance day ends with a BALANCE row showing actual/target percents per asset.
