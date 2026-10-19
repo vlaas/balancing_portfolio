@@ -1,11 +1,12 @@
 import json
+import shlex
 from pathlib import Path
 
 import pytest
 
 from bundles import BUNDLES
 from indicators import ewma_vol, ratio_sma, sma
-from main import collect_indicators, main, run_bundle
+from main import _run_stamp, collect_indicators, main, run_bundle
 from strategy import Strategy
 
 GOLDEN_DIR = Path(__file__).parent / "data" / "2026-08-14-unadjusted"
@@ -200,3 +201,83 @@ def test_bundle_and_spec_are_mutually_exclusive(monkeypatch, capsys):
         main()
 
     assert "mutually exclusive" in capsys.readouterr().err
+
+
+# Run stamp — the --md report records the command, commit and spec it came from.
+
+RESEARCH_SPEC = Path(__file__).parents[1] / "specs" / "research.json"
+
+
+def _fake_git(monkeypatch, sha, status):
+    """Give main canned git answers; return the list of calls it made."""
+    calls = []
+
+    def git(*args):
+        calls.append(args)
+        return sha if args[0] == "rev-parse" else status
+
+    monkeypatch.setattr("main.git", git)
+    return calls
+
+
+def test_md_report_is_stamped_with_command_commit_and_spec(tmp_path, monkeypatch):
+    out = tmp_path / "report.md"
+    argv = [
+        "main.py",
+        "--spec", str(RESEARCH_SPEC),
+        "--data", str(GOLDEN_DIR),
+        "--md", str(out),
+        "--no-charts",
+        "--quiet",
+    ]
+    monkeypatch.setattr("sys.argv", argv)
+    _fake_git(monkeypatch, "abc1234", "")
+
+    main()
+
+    text = out.read_text()
+    lines = text.splitlines()
+    assert lines[2].startswith("Simulated ")
+    assert lines[4] == "Reproduce at commit `abc1234`:"
+    assert shlex.join(["uv", "run", *argv]) in lines
+    assert "Commit: abc1234" in lines
+    embedded = text.split("```json\n", 1)[1].split("\n```", 1)[0]
+    assert embedded == RESEARCH_SPEC.read_text().rstrip("\n")
+
+
+def test_stamp_lists_changed_inputs_and_asks_git_about_inputs_only(monkeypatch):
+    # git() strips its output, so only the first porcelain line loses its leading space.
+    calls = _fake_git(
+        monkeypatch,
+        "abc1234",
+        "M specs/research.json\n M strategy.py\n?? strategies/new.py",
+    )
+
+    stamp = _run_stamp(RESEARCH_SPEC, Path("data"))
+
+    assert (
+        "Commit: abc1234 (dirty: specs/research.json, strategy.py, strategies/new.py)"
+        in stamp
+    )
+    (status,) = [c for c in calls if c[0] == "status"]
+    assert status == (
+        "status", "--porcelain", "--",
+        "*.py", "pyproject.toml", "uv.lock", "data", str(RESEARCH_SPEC),
+    )
+
+
+def test_stamp_of_a_bundle_run_embeds_no_spec(monkeypatch):
+    _fake_git(monkeypatch, "abc1234", "")
+
+    stamp = _run_stamp(None, Path("data"))
+
+    assert "Commit: abc1234" in stamp
+    assert not any("<details>" in line for line in stamp)
+
+
+def test_stamp_outside_a_git_checkout_says_unknown(monkeypatch):
+    _fake_git(monkeypatch, None, None)
+
+    stamp = _run_stamp(None, Path("data"))
+
+    assert "Commit: unknown (dirty: could not check)" in stamp

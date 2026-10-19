@@ -3,6 +3,8 @@
 import argparse
 import dataclasses
 import datetime as dt
+import shlex
+import sys
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -16,7 +18,7 @@ from report import (
     save_markdown,
     save_transactions,
 )
-from results_json import save_curves, save_json
+from results_json import git, save_curves, save_json
 from simulate import simulate
 from spec import build_bundle, load_spec, normalised_spec
 from stats import (
@@ -84,6 +86,51 @@ def run_bundle(bundle: Bundle, data_dir: Path) -> list[StrategyResult]:
             )
         )
     return results
+
+
+def _run_stamp(spec_path: Path | None, data_dir: Path) -> list[str]:
+    """Markdown lines telling a reader how to rerun this exact report.
+
+    The dirty list covers run inputs only — code, lockfile, data root, spec — so
+    untracked clutter and the outputs a rerun overwrites don't flag every report.
+    """
+    sha = git("rev-parse", "--short", "HEAD") or "unknown"
+    inputs = ["*.py", "pyproject.toml", "uv.lock", str(data_dir)]
+    if spec_path is not None:
+        inputs.append(str(spec_path))
+    status = git("status", "--porcelain", "--", *inputs)
+    if status is None:
+        dirty = " (dirty: could not check)"
+    elif status:
+        changed = [line.split(maxsplit=1)[1] for line in status.splitlines()]
+        dirty = f" (dirty: {', '.join(changed)})"
+    else:
+        dirty = ""
+    generated = dt.datetime.now(dt.UTC).strftime("%Y-%m-%d %H:%M UTC")
+
+    lines = [
+        f"Reproduce at commit `{sha}`:",
+        "",
+        "```",
+        shlex.join(["uv", "run", *sys.argv]),
+        "```",
+        "",
+        f"Commit: {sha}{dirty}",
+        "",
+        f"Generated: {generated}",
+    ]
+    if spec_path is not None:
+        lines += [
+            "",
+            f"<details><summary>Spec as run: {spec_path}</summary>",
+            "",
+            "```json",
+            spec_path.read_text().rstrip("\n"),
+            "```",
+            "",
+            "</details>",
+        ]
+    return lines
 
 
 def main() -> None:
@@ -160,6 +207,8 @@ def main() -> None:
     args = parser.parse_args()
     if args.spec and args.bundle is not None:
         parser.error("bundle and --spec are mutually exclusive")
+    # Before anything is written, so this run's own outputs can't show up as changes.
+    stamp = _run_stamp(args.spec, args.data) if args.md else None
 
     if args.spec:
         bundle, name = build_bundle(load_spec(args.spec)), args.spec.stem
@@ -188,7 +237,7 @@ def main() -> None:
         )
 
     if args.md:
-        save_markdown(results, correlations, args.md, out_dir)
+        save_markdown(results, correlations, args.md, out_dir, stamp=stamp)
         print(f"Saved {args.md}")
 
     if args.tx:
