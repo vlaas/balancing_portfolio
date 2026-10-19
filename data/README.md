@@ -9,7 +9,7 @@ means the same thing in every root:
 | `adjusted/<SYM>.csv` | TradingView export | **ON** — total return, gross of withholding | **yes** — the traded series |
 | `unadjusted/<SYM>.csv` | TradingView, same session | **OFF** — price only | no; reference for the adjustment ratio |
 | `index/<SYM>.csv` | TradingView export | — (no toggle: the indices and the FX singles) | **yes** — signal symbols; FX only by `make_usd.py` |
-| `fred/` | FRED | — (macro series) | **never** — quarantined |
+| `fred/` | FRED API (`fetch_fred.py`) | — (macro series) | **never** — quarantined |
 | `dividends/` | Polygon reference API, plus `pre_polygon/` from SEC filings | the distribution records themselves | no; reference for the implied distributions |
 | `fx_lines.json` | operator | — | no; `make_usd.py`'s line map |
 
@@ -186,6 +186,17 @@ not yet knowable — a silent look-ahead in every macro-gated backtest. They
 stay inert until a `MACRO_DATA_SPEC` pins the availability-date shift, the
 monthly-to-daily carry rule and the revised-vintage caveat (ROTATION_SPEC
 §3.3); GTT/LAA remain blocked on that spec.
+
+Live `fred/` is fetched from the FRED API by `fetch_fred.py`
+(`FRED_API_KEY=… uv run --with fredapi fetch_fred.py`, DATA_LAYOUT_V2_SPEC §5):
+`time,close`, ISO dates, FRED's missing observations (bank holidays, the 2025-10
+shutdown months) dropped, latest vintage. Units are FRED's own — RRSFS in
+millions of dollars. The frozen `fred/` of `tests/data/2026-08-24/` and
+`2026-09-02/` are the earlier TradingView `FRED:` exports in the six-column
+layout, kept byte-identical: there RRSFS is ×10⁶. Against them, the first
+fetch (2026-10-19) matched DTB3 and UNRATE on every shared date; RRSFS was
+revised from 2015-01 on (up to 4.9 %) and INDPRO's last five months (up to
+0.21 %).
 
 ## Dividend records (`dividends/`) — reference only
 
