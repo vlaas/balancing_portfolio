@@ -3,8 +3,10 @@
 Repo: `vlaas/balancing_portfolio` · baseline commit: `9c649ed` (report provenance
 merged; 1289 tests green) · status: **implemented** (branch `execution-robustness`,
 per-phase commits; 1307 tests green) — all four VT rows read TIMING-FRAGILE and
-FILL-ROBUST; verdict `notes/execution-verdict.md`; net15 / λ / 2012 follow-ups
-pre-registered in §15 (branch `execution-followups`) ·
+FILL-ROBUST; verdict `notes/execution-verdict.md`; §15 follow-ups run (branch
+`execution-followups`): on net15 only B50K50 stays FILL-ROBUST with a ≈ 0.9 timing
+edge on CAGR, λ is AMPLIFIER-CONFIRMED, the 2012 flag lane reads TIMING-ROBUST /
+PHASE-LOCAL — verdict §7 ·
 inputs: `specs/top_strategies_2021.json` (the four 2021 winners + SPY, as run in
 `simulation/top/top2021/results.md`), REBALANCE_SPEC §7.2 ("phase luck").
 
