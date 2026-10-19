@@ -2,7 +2,7 @@
 
 import datetime as dt
 import math
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 
 import polars as pl
@@ -36,7 +36,10 @@ def fee_schedule(
 
 
 def simulate(
-    prices: pl.DataFrame, strategy: Strategy, config: Config
+    prices: pl.DataFrame,
+    strategy: Strategy,
+    config: Config,
+    fill: Callable[[dict, str, int], float] | None = None,
 ) -> tuple[pl.DataFrame, pl.DataFrame, pl.DataFrame]:
     """Run `strategy` over `prices`, one row per trading day.
 
@@ -60,6 +63,12 @@ def simulate(
     `buy_cap` caps the gross trade value, fee excluded — the cap is an intent
     limit, not an accounting identity. Interest (config.cash_yield) accrues on
     the cash balance over calendar-day gaps as internal return, not flow.
+
+    `fill(row, asset, delta)`, if given, is the execution price of trading
+    `delta` shares of `asset` on `row` (EXECUTION_ROBUSTNESS_SPEC §5): cash,
+    fees and the logged price/amount use it, and a buy above the close is
+    held to what cash affords even with zero fees. Targets, the allocations
+    and the end-of-day value stay at the close. None fills at the close.
     """
     assets = list(strategy.weights)
     shares = dict.fromkeys(assets, 0)
@@ -153,20 +162,22 @@ def simulate(
             # Sells before buys, so the running cash balance never goes negative.
             for asset in sorted(assets, key=lambda a: deltas[a]):
                 delta = deltas[asset]
-                if delta > 0 and f[asset]:
+                price = row[asset] if fill is None else fill(row, asset, delta)
+                if delta > 0 and (f[asset] or price > row[asset]):
                     # Affordability cap: shares whose cost including fee fits
-                    # in cash. With zero fees it is floor(cash / price), which
-                    # the floor-based targets already guarantee — never binds.
+                    # in cash. With zero fees and a close fill it is
+                    # floor(cash / price), which the floor-based targets
+                    # already guarantee — never binds.
                     delta = min(
-                        delta, math.floor(cash / (row[asset] * (1.0 + f[asset])))
+                        delta, math.floor(cash / (price * (1.0 + f[asset])))
                     )
-                fee = abs(delta) * row[asset] * f[asset]
-                cash -= delta * row[asset] + fee
+                fee = abs(delta) * price * f[asset]
+                cash -= delta * price + fee
                 shares[asset] += delta
                 if delta:
                     log(
                         row["date"], "BUY" if delta > 0 else "SELL", asset,
-                        delta, row[asset], abs(delta) * row[asset], fee=fee,
+                        delta, price, abs(delta) * price, fee=fee,
                     )
 
             # The trades happen at the closes used to value `total`, so the
