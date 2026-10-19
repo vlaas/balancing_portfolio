@@ -15,15 +15,18 @@ DATA_DIR = Path(__file__).parent.parent / "data"  # live export; no numeric asse
 
 
 def write_csv(
-    data_dir: Path, symbol: str, rows: list[tuple], extra_columns: Iterable[str] = ()
+    data_dir: Path, symbol: str, rows: list[tuple], extra_columns: Iterable[str] = (),
+    folder: str = "adjusted",
 ) -> None:
-    """Write a TradingView-shaped CSV of (date, close) rows plus any `extra_columns`."""
+    """Write a TradingView-shaped CSV of (date, close) rows plus any `extra_columns`
+    into the root's `folder` (DATA_LAYOUT_V2_SPEC §2)."""
     header = ",".join(["time", "open", "high", "low", "close", *extra_columns])
     lines = [header]
     lines += [
         f"{date},0,0,0," + ",".join(str(value) for value in values) for date, *values in rows
     ]
-    (data_dir / f"{symbol}.csv").write_text("\n".join(lines) + "\n")
+    (data_dir / folder).mkdir(parents=True, exist_ok=True)
+    (data_dir / folder / f"{symbol}.csv").write_text("\n".join(lines) + "\n")
 
 
 def test_missing_date_is_forward_filled(tmp_path):
@@ -381,3 +384,41 @@ def test_every_bundle_loads_from_the_live_export(name):
     )
 
     assert prices["date"].first() == bundle.config.start
+
+
+# DATA_LAYOUT_V2_SPEC §2 — the loader resolves a symbol to exactly one of the
+# root's series folder (adjusted/, or unadjusted/ in a price-only root) and index/.
+
+
+def test_an_index_input_resolves_for_an_adjusted_host(tmp_path):
+    write_csv(tmp_path, "A", [("2020-01-02", 10.0), ("2020-01-03", 12.0)])
+    write_csv(tmp_path, "B", [("2020-01-02", 5.0), ("2020-01-03", 4.0)], folder="index")
+
+    frame = _read_symbol(tmp_path, "A", (ratio_sma("B", 1),))
+
+    assert frame["A:RATIO_B_SMA1"].to_list() == [2.0, 3.0]
+
+
+def test_a_symbol_in_both_folders_is_refused(tmp_path):
+    write_csv(tmp_path, "A", [("2020-01-02", 10.0)])
+    write_csv(tmp_path, "A", [("2020-01-02", 10.0)], folder="index")
+
+    with pytest.raises(ValueError, match="both adjusted/ and index/ hold A.csv"):
+        load_prices(tmp_path, ["A"], dt.date(2020, 1, 2))
+
+
+def test_a_price_only_root_reads_its_unadjusted_folder(tmp_path):
+    write_csv(tmp_path, "A", [("2020-01-02", 10.0), ("2020-01-03", 11.0)], folder="unadjusted")
+
+    prices = load_prices(tmp_path, ["A"], dt.date(2020, 1, 2))
+
+    assert prices["A"].to_list() == [10.0, 11.0]
+
+
+def test_a_root_with_adjusted_never_falls_back(tmp_path):
+    write_csv(tmp_path, "A", [("2020-01-02", 10.0)])
+    for folder in ("unadjusted", "fred"):
+        write_csv(tmp_path, "B", [("2020-01-02", 5.0)], folder=folder)
+
+    with pytest.raises(FileNotFoundError, match="neither adjusted/B.csv nor index/B.csv"):
+        load_prices(tmp_path, ["A", "B"], dt.date(2020, 1, 2))

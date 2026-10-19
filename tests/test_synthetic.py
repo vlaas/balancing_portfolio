@@ -71,8 +71,8 @@ def drag(index: str, fund: str, leverage: int, *, index_root: Path = GROSS,
     """A §2.3 fit on the two series' shared calendar. `rates=False` is the
     constant-only variant: the floating leg replaced by zeros."""
     times, index_closes, fund_closes = aligned(
-        read_close(index_root / f"{index}.csv"),
-        read_close(fund_root / f"{fund}.csv"), start, end,
+        read_close(index_root / "adjusted" / f"{index}.csv"),
+        read_close(fund_root / "adjusted" / f"{fund}.csv"), start, end,
     )
     y = carry(*RATES, times) if rates else [0.0] * len(times)
     return fit_drag(index_closes, fund_closes, y, spans(times), leverage)
@@ -80,7 +80,7 @@ def drag(index: str, fund: str, leverage: int, *, index_root: Path = GROSS,
 
 def bill_fit(root: Path, w: float) -> dict:
     """A §2.5 fit of the root's BIL against DTB3 at withholding `w`."""
-    times, closes = read_close(root / f"{BILL}.csv")
+    times, closes = read_close(root / "adjusted" / f"{BILL}.csv")
     at = dict(zip(times, closes))
     kept = window(times, end=LAST_RATE)
     return fit_bill([at[t] for t in kept], carry(*RATES, kept), spans(kept), w)
@@ -110,7 +110,7 @@ def max_drawdown(at: dict[str, float], times: list[str]) -> float:
 
 def modelled_risk(root: Path, c: float) -> dict[str, float]:
     """The unspliced modelled 3x on the gross index's own calendar."""
-    times, closes = read_close(root / "QQQ.csv")
+    times, closes = read_close(root / "adjusted" / "QQQ.csv")
     levels = leveraged_levels(
         closes, carry(*RATES, times), spans(times), LEVERAGE, c
     )
@@ -175,7 +175,7 @@ def test_the_net_root_fits_a_higher_constant_by_its_withheld_distributions():
     # so the constant absorbs their withholding exactly — the reason the 3x
     # recursion carries no w while the bill's does.
     delta = drag("QQQ", "TQQQ", 3, fund_root=NET)["c"] - drag("QQQ", "TQQQ", 3)["c"]
-    times, adjusted = read_close(GROSS / "TQQQ.csv")
+    times, adjusted = read_close(GROSS / "adjusted" / "TQQQ.csv")
     _, price = read_close(GROSS / "unadjusted" / "TQQQ.csv")
     assert drag("QQQ", "TQQQ", 3, fund_root=NET)["c"] == pytest.approx(
         0.01943, abs=0.0001
@@ -212,8 +212,8 @@ def test_the_two_times_fund_fits_a_wider_constant_before_2010(start, end, expect
 def test_qld_is_stamped_in_step_with_qqq_in_every_year(year):
     # The alignment guard S5's XNDX fails: QLD's larger pre-2010 residual is
     # early-ETF price/NAV noise, not a stamping defect.
-    qld_times, qld_closes = read_close(GROSS / "QLD.csv")
-    qqq = log_returns(*read_close(GROSS / "QQQ.csv"))
+    qld_times, qld_closes = read_close(GROSS / "adjusted" / "QLD.csv")
+    qqq = log_returns(*read_close(GROSS / "adjusted" / "QQQ.csv"))
     qld = log_returns(qld_times, qld_closes)
     shared = [t for t in qld if t in qqq and t.startswith(str(year))]
     assert correlation([qqq[t] for t in shared], [qld[t] for t in shared]) >= 0.98
@@ -260,7 +260,7 @@ def test_the_generator_reproduces_the_committed_root_byte_for_byte(parent, root,
     produced = sorted(p.relative_to(out) for p in out.rglob("*") if p.is_file())
     committed = sorted(p.relative_to(root) for p in root.rglob("*") if p.is_file())
     assert produced == committed
-    assert len(produced) == 99  # 52 top-level + README + 46 unadjusted/ twins
+    assert len(produced) == 99  # 48 adjusted/ + 4 index/ + README + 46 unadjusted/ twins
     for rel in committed:
         assert filecmp.cmp(out / rel, root / rel, shallow=False), rel
 
@@ -269,7 +269,7 @@ def test_the_generator_reproduces_the_committed_root_byte_for_byte(parent, root,
 @pytest.mark.parametrize("root", [SYN, SYN_NET], ids=["gross", "net15"])
 @ROOTS
 def test_the_source_column_flips_exactly_once_at_the_real_inception(root, symbol):
-    header, *rows = (root / f"{symbol}.csv").read_text().splitlines()
+    header, *rows = (root / "adjusted" / f"{symbol}.csv").read_text().splitlines()
     assert header == "time,close,source"
     sources = [row.rsplit(",", 1)[1] for row in rows]
     flips = [i for i in range(1, len(sources)) if sources[i] != sources[i - 1]]
@@ -283,8 +283,8 @@ def test_the_source_column_flips_exactly_once_at_the_real_inception(root, symbol
 )
 @ROOTS
 def test_the_real_segment_equals_the_parent_value_for_value(parent, root, symbol):
-    parent_times, parent_closes = read_close(parent / f"{symbol}.csv")
-    times, closes = read_close(root / f"{symbol}.csv")
+    parent_times, parent_closes = read_close(parent / "adjusted" / f"{symbol}.csv")
+    times, closes = read_close(root / "adjusted" / f"{symbol}.csv")
     assert times[-len(parent_times):] == parent_times
     assert closes[-len(parent_closes):] == parent_closes
 
@@ -319,8 +319,8 @@ def test_the_sma_parity_fixture_scope_is_unchanged_by_a_synthetic_root():
 
 @pytest.mark.parametrize("year", [2007, 2008])
 def test_xndx_is_stamped_one_day_late_before_2010(year):
-    qqq = log_returns(*read_close(GROSS / "QQQ.csv"))
-    xndx_times, xndx_closes = read_close(GROSS / "XNDX.csv")
+    qqq = log_returns(*read_close(GROSS / "adjusted" / "QQQ.csv"))
+    xndx_times, xndx_closes = read_close(GROSS / "index" / "XNDX.csv")
     xndx = log_returns(xndx_times, xndx_closes)
     shared = [t for t in xndx_times if t in qqq and t in xndx]
     dated = [t for t in shared if t.startswith(str(year))]
@@ -334,8 +334,8 @@ def test_xndx_is_stamped_one_day_late_before_2010(year):
 
 @pytest.mark.parametrize("year", range(2010, 2026))
 def test_xndx_is_stamped_correctly_from_2010(year):
-    qqq = log_returns(*read_close(GROSS / "QQQ.csv"))
-    xndx = log_returns(*read_close(GROSS / "XNDX.csv"))
+    qqq = log_returns(*read_close(GROSS / "adjusted" / "QQQ.csv"))
+    xndx = log_returns(*read_close(GROSS / "index" / "XNDX.csv"))
     dated = [t for t in xndx if t in qqq and t.startswith(str(year))]
     assert correlation([qqq[t] for t in dated], [xndx[t] for t in dated]) >= 0.99
 
@@ -350,7 +350,7 @@ def test_xndx_is_stamped_correctly_from_2010(year):
 )
 def test_the_model_reproduces_every_crash_the_overlap_contains(start, end, tolerance):
     modelled = modelled_risk(GROSS, drag("QQQ", "TQQQ", 3)["c"])
-    times, closes = read_close(GROSS / "TQQQ.csv")
+    times, closes = read_close(GROSS / "adjusted" / "TQQQ.csv")
     real = dict(zip(times, closes))
     kept = window(times, start, end)
     assert max_drawdown(modelled, kept) == pytest.approx(
@@ -360,7 +360,7 @@ def test_the_model_reproduces_every_crash_the_overlap_contains(start, end, toler
 
 def test_the_cumulative_ratio_never_wanders_far_over_the_overlap():
     modelled = modelled_risk(GROSS, drag("QQQ", "TQQQ", 3)["c"])
-    times, closes = read_close(GROSS / "TQQQ.csv")
+    times, closes = read_close(GROSS / "adjusted" / "TQQQ.csv")
     shared = [t for t in times if t in modelled]
     ratio = [closes[times.index(t)] / modelled[t] for t in shared]
     normalised = [r / ratio[0] for r in ratio]
@@ -377,10 +377,10 @@ def test_the_cumulative_ratio_never_wanders_far_over_the_overlap():
 )
 @ROOTS
 def test_the_modelled_fund_is_annihilated_in_both_bears(start, end, ceiling, index_depth):
-    times, closes = read_close(SYN / f"{RISK}.csv")
+    times, closes = read_close(SYN / "adjusted" / f"{RISK}.csv")
     kept = window(times, start, end)
     assert max_drawdown(dict(zip(times, closes)), kept) <= ceiling
-    index_times, index_closes = read_close(GROSS / "QQQ.csv")
+    index_times, index_closes = read_close(GROSS / "adjusted" / "QQQ.csv")
     assert max_drawdown(
         dict(zip(index_times, index_closes)), window(index_times, start, end)
     ) == pytest.approx(index_depth, abs=0.001)
@@ -425,7 +425,7 @@ def test_the_2012_composition_anchor_survives_the_synthetic_root_bit_for_bit():
 
 
 def test_the_dot_com_stretch_carries_no_dividends_at_all():
-    times, adjusted = read_close(GROSS / "QQQ.csv")
+    times, adjusted = read_close(GROSS / "adjusted" / "QQQ.csv")
     _, price = read_close(GROSS / "unadjusted" / "QQQ.csv")
     implied = distributions(times, adjusted, price)
     pre = [date for date, _ in implied if date <= "2010-12-31"]
@@ -441,14 +441,14 @@ def test_the_dot_com_stretch_carries_no_dividends_at_all():
 def test_the_implied_yield_by_year_is_small_enough_to_be_harmless(year, expected):
     # Even if every one of these were wrong, 0.95 %/yr is at most ~2.9 %/yr of
     # 3x exposure — inside the §2.4 drag bracket.
-    times, adjusted = read_close(GROSS / "QQQ.csv")
+    times, adjusted = read_close(GROSS / "adjusted" / "QQQ.csv")
     _, price = read_close(GROSS / "unadjusted" / "QQQ.csv")
     yields = yield_by_year(times, price, distributions(times, adjusted, price))
     assert 100 * yields[year] == pytest.approx(expected, abs=0.005)
 
 
 def test_the_implied_distributions_match_the_issuers_published_record():
-    times, adjusted = read_close(GROSS / "QQQ.csv")
+    times, adjusted = read_close(GROSS / "adjusted" / "QQQ.csv")
     _, price = read_close(GROSS / "unadjusted" / "QQQ.csv")
     implied = dict(distributions(times, adjusted, price))
     assert PUBLISHED, "the operator spot check needs at least one published amount"

@@ -4,15 +4,15 @@ Verbatim copy of `data/` at the EU_SUBSTITUTE_SPEC Phase 0 baseline: the
 2026-09-02 TradingView export batch — the nine EU lines and NDX exported
 2026-09-02 after their own closes, every US pair re-exported 2026-09-03 after
 the 16:00 ET close (§3.2; both passes, all anchors exact), the two FX singles
-exported the same session — last bar 2026-09-02 on every top-level file
+exported the same session — last bar 2026-09-02 on every series file
 except `EURUSD.csv` / `GBPUSD.csv`, whose last label is 2026-09-01 because
 TradingView stamps an FX_IDC daily bar by its 17:00 New York open (that bar
 closes on 2026-09-02; `data/README.md`, "FX bar stamps"). 57 paired ETFs
-(`<SYM>.csv` exported with **Adjust data for dividends: ON**, `unadjusted/<SYM>.csv`
+(`adjusted/<SYM>.csv` exported with **Adjust data for dividends: ON**, `unadjusted/<SYM>.csv`
 with the toggle **OFF**, same session, identical date columns per symbol):
 the 48 US pairs of the 2026-08 batch plus QQQ3, QQL3, LQQ, CNDX, CSPX, IB01,
-MVEA, XSPS, DBMF_EU. Five single-series indices at top level (SPX, XNDX, VIX,
-VIX3M, NDX — no `unadjusted/` twin), two FX singles (EURUSD, GBPUSD), and `fred/`
+MVEA, XSPS, DBMF_EU. Five single-series indices in `index/` (SPX, XNDX, VIX,
+VIX3M, NDX — no `unadjusted/` twin), two FX singles there too (EURUSD, GBPUSD), and `fred/`
 (UNRATE, RRSFS, INDPRO, DTB3) carried for provenance only — the loader must
 never read it, and no derivative copies it. No Pine SMA overlay columns; the
 header is `time,open,high,low,close,Volume`. Append-only, like every snapshot.

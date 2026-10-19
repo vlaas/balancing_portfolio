@@ -58,10 +58,10 @@ are ignored) and may be null before their history begins.
 
 Data notes:
 
-- Prices are split- **and** dividend-adjusted: `data/<SYM>.csv` is TradingView's
+- Prices are split- **and** dividend-adjusted: `data/adjusted/<SYM>.csv` is TradingView's
   dividend-adjusted export, so distributions are reinvested at the ex-date close and
   results are total-return (gross of withholding). The unadjusted series sits in
-  `data/unadjusted/` as reference; see `data/README.md`.
+  `data/unadjusted/` as reference, indices and FX in `data/index/`; see `data/README.md`.
 - **Missing dates:** BTAL is missing ~73 trading days that SPY/TQQQ have. The trading
   calendar is the union of all assets' dates. For valuation on a day where an asset has no
   row, carry its last known close forward. If the last trading day of a month is missing

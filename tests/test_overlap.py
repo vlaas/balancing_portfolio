@@ -24,7 +24,8 @@ from overlap_report import main as overlap_main
 
 def write_csv(data_dir: Path, symbol: str, rows) -> None:
     lines = ["time,close"] + [f"{date},{close}" for date, close in rows]
-    (data_dir / f"{symbol}.csv").write_text("\n".join(lines) + "\n")
+    (data_dir / "adjusted").mkdir(parents=True, exist_ok=True)
+    (data_dir / "adjusted" / f"{symbol}.csv").write_text("\n".join(lines) + "\n")
 
 
 def test_the_registered_pairs_and_carried_slots_are_frozen():

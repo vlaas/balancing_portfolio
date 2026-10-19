@@ -1,6 +1,6 @@
 # Specification: one self-describing layout for live and frozen data
 
-Repo: `vlaas/balancing_portfolio` · baseline commit: `f1e4be3` ("Merge pull request #23", 1243 tests green, none skipped) · status: implemented (2026-10-01, branch `data-layout`) — deviations in §8
+Repo: `vlaas/balancing_portfolio` · baseline commit: `f1e4be3` ("Merge pull request #23", 1243 tests green, none skipped) · status: implemented (2026-10-01, branch `data-layout`) — deviations in §8; superseded in part by DATA_LAYOUT_V2_SPEC (erratum 4)
 
 ## 1. Goal
 
@@ -166,3 +166,11 @@ contains neither.
    results (`comp_points`, `comp_points_tr`, `eu_points_2021_hc`, `syn_points`,
    `regime_confirm_2012`), rerun on their recorded roots, differ from the
    committed files only in `generated_at` and `git_sha`.
+4. **Superseded in part by DATA_LAYOUT_V2_SPEC (2026-10-19).** §2's top-level
+   `<SYM>.csv`, the `-unadjusted` row of §4 and §7's second bullet are replaced:
+   every traded series is `<root>/adjusted/<SYM>.csv`, the indices and FX singles
+   are `<root>/index/<SYM>.csv`, and a price-only root (no `adjusted/`) is read
+   from its `unadjusted/`. §3's table still decodes the older specs; read its
+   right-hand column through DATA_LAYOUT_V2_SPEC §3. §7's fourth bullet is
+   closed: the repo-root `adjusted/` and `price/` staging folders were deleted,
+   every file byte-identical to `tests/data/2026-08-20/`.

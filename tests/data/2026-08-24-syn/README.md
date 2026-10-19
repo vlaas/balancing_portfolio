@@ -4,11 +4,11 @@ Derived from the frozen `2026-08-24` snapshot by `make_synthetic.py`
 (SYNTHETIC_HISTORY_SPEC §2–§4), with the index leg (`QQQ`), the accrual
 calendar (`SPY`) and the floating rate (`fred/DTB3`) read from the
 gross root `2026-08-24` — a swap pays the gross total return in either
-convention. `TQQQ.csv` and `BIL.csv` carry columns `time,close,source`:
-rows before the real fund's first bar are modelled (`synthetic`), rows from
-it on are the parent's own values (`real`), and the two meet
-multiplicatively at the splice. Every other `<SYM>.csv` and every
-`unadjusted/<SYM>.csv` is byte-copied from the parent; `unadjusted/TQQQ.csv` and
+convention. `adjusted/TQQQ.csv` and `adjusted/BIL.csv` carry columns
+`time,close,source`: rows before the real fund's first bar are modelled
+(`synthetic`), rows from it on are the parent's own values (`real`), and
+the two meet multiplicatively at the splice. Every other `adjusted/`,
+`index/` and `unadjusted/` file is byte-copied from the parent; `unadjusted/TQQQ.csv` and
 `unadjusted/BIL.csv` are deliberately absent — a modelled segment has no
 unadjusted twin — and `fred/` is not copied.
 

@@ -1,7 +1,7 @@
 # Frozen total-return snapshot — 2026-08-20
 
 TradingView two-pass export taken 2026-08-21, last bar 2026-08-20 on all six
-symbols. `<SYM>.csv` was exported with **Adjust data for dividends: ON** (the
+symbols. `adjusted/<SYM>.csv` was exported with **Adjust data for dividends: ON** (the
 traded, total-return series); `unadjusted/<SYM>.csv` with the toggle **OFF**, same
 chart and session, identical date columns per symbol. Layout and indicator
 settings as `data/README.md`. Append-only, like every snapshot.
@@ -33,7 +33,7 @@ one order above the measurement):
   1 of 115 SMA200 gate states differs from the flat snapshot (2019-05-31);
   max EWMA94 vol delta 1.66% relative.
 
-`VIX.csv` and `VIX3M.csv` (added at the REGIME_SPEC baseline, verbatim from
+`index/VIX.csv` and `index/VIX3M.csv` (added at the REGIME_SPEC baseline, verbatim from
 `data/` at `184f02b`) are cash index series: no distributions, so no `unadjusted/`
 twin — `make_net_tr.py` byte-copies them into the net snapshot. VIX carries
 values on 58 US market holidays that VIX3M lacks (22 since 2012, none on any

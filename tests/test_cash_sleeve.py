@@ -50,7 +50,7 @@ def read_close(path: Path) -> pl.DataFrame:
 def cagr(root: Path, symbol: str, start: str) -> float:
     """Compound annual growth from the first bar on or after `start`, the
     convention §2.1's cells are measured in."""
-    frame = read_close(root / f"{symbol}.csv").filter(
+    frame = read_close(root / "adjusted" / f"{symbol}.csv").filter(
         pl.col("time") >= dt.date.fromisoformat(start)
     )
     years = (frame["time"][-1] - frame["time"][0]).days / 365.25
@@ -58,7 +58,7 @@ def cagr(root: Path, symbol: str, start: str) -> float:
 
 
 def max_drawdown(root: Path, symbol: str, start: str) -> float:
-    frame = read_close(root / f"{symbol}.csv").filter(
+    frame = read_close(root / "adjusted" / f"{symbol}.csv").filter(
         pl.col("time") >= dt.date.fromisoformat(start)
     )
     peak, worst = frame["close"][0], 0.0
@@ -113,8 +113,8 @@ def test_polygon_covers_bil_from_its_first_distribution():
     assert dates[-1] == "2026-08-03"
     # BIL's own inception is 2007-05-30 (4,840 bars on the 2026-08-24 root),
     # one month before the first distribution — nothing is missing in front.
-    assert len(read_close(GROSS / "BIL.csv")) == 4840
-    assert read_close(GROSS / "BIL.csv")["time"][0] == dt.date(2007, 5, 30)
+    assert len(read_close(GROSS / "adjusted" / "BIL.csv")) == 4840
+    assert read_close(GROSS / "adjusted" / "BIL.csv")["time"][0] == dt.date(2007, 5, 30)
     assert records["dividend_type"].unique().to_list() == ["CD"]
 
 
@@ -291,7 +291,7 @@ WORST_MONTHS = [
 
 
 def monthly_returns(symbol: str) -> dict[tuple[int, int], float]:
-    frame = read_close(NET / f"{symbol}.csv").filter(
+    frame = read_close(NET / "adjusted" / f"{symbol}.csv").filter(
         pl.col("time") >= dt.date.fromisoformat(LANE_2012)
     )
     ends: dict[tuple[int, int], float] = {}

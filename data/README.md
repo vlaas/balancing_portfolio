@@ -1,33 +1,34 @@
 # Market data
 
 This is the live root. Every frozen root under `tests/data/` is a dated copy of
-it and shares its layout (`docs/DATA_LAYOUT_SPEC.md` §2), so each folder below
+it and shares its layout (`docs/DATA_LAYOUT_V2_SPEC.md` §2), so each folder below
 means the same thing in every root:
 
 | path | source | dividends | the simulator reads it |
 |---|---|---|---|
-| `<SYM>.csv` | TradingView export | **ON** for an ETF (total return, gross of withholding); an index or FX file is a single series | **yes** — the only thing it reads |
+| `adjusted/<SYM>.csv` | TradingView export | **ON** — total return, gross of withholding | **yes** — the traded series |
 | `unadjusted/<SYM>.csv` | TradingView, same session | **OFF** — price only | no; reference for the adjustment ratio |
-| `fred/` | FRED | — (macro series) | **never** — quarantined |
+| `index/<SYM>.csv` | TradingView export | — (no toggle: the indices and the FX singles) | **yes** — signal symbols; FX only by `make_usd.py` |
+| `fred/` | FRED API (`fetch_fred.py`) | — (macro series) | **never** — quarantined |
 | `dividends/` | Polygon reference API, plus `pre_polygon/` from SEC filings | the distribution records themselves | no; reference for the implied distributions |
 | `fx_lines.json` | operator | — | no; `make_usd.py`'s line map |
 
-The top level and `unadjusted/` hold daily bars exported from **TradingView**;
+`adjusted/`, `unadjusted/` and `index/` hold daily bars exported from **TradingView**;
 with `fred/` they form four file classes (ROTATION_SPEC §3.2–§3.3,
 EU_SUBSTITUTE_SPEC §3):
 
 | class | files | loader reads |
 |---|---|---|
-| **Paired ETF** (57) | `<SYM>.csv` — the **dividend-adjusted (total-return) export**, the traded series; `unadjusted/<SYM>.csv` — the unadjusted export from the **same session**, reference only. 48 US lines plus the nine EU lines of the 2026-09-02 batch (see "EU lines" below); the eight accumulating EU classes have a byte-identical pair, `R ≡ 1` | `<SYM>.csv` |
-| **Single-series index** (SPX, XNDX, VIX, VIX3M, NDX) | `<SYM>.csv` only — indices have no adjustment toggle (XNDX embeds dividends by construction, SPX and NDX exclude them; VIX/VIX3M are cash vol indices), so no `unadjusted/` twin. XNDX before 2010-01-04 is stamped one day late and must not be used as a reference there (SYNTHETIC_HISTORY_SPEC §2.6). NDX is the Nasdaq-100 **price** index: documentation only, never a TR seed, never a gate or vol basis | `<SYM>.csv`, signal-only |
-| **FX single** (EURUSD, GBPUSD) | `<SYM>.csv` only — spot closes, no toggle, no `unadjusted/` twin. Read by `make_usd.py` to build a `-usd` root; never traded, never a strategy input | never by a strategy |
+| **Paired ETF** (57) | `adjusted/<SYM>.csv` — the **dividend-adjusted (total-return) export**, the traded series; `unadjusted/<SYM>.csv` — the unadjusted export from the **same session**, reference only. 48 US lines plus the nine EU lines of the 2026-09-02 batch (see "EU lines" below); the eight accumulating EU classes have a byte-identical pair, `R ≡ 1` | `adjusted/<SYM>.csv` |
+| **Single-series index** (SPX, XNDX, VIX, VIX3M, NDX) | `index/<SYM>.csv` only — indices have no adjustment toggle (XNDX embeds dividends by construction, SPX and NDX exclude them; VIX/VIX3M are cash vol indices), so no `unadjusted/` twin. XNDX before 2010-01-04 is stamped one day late and must not be used as a reference there (SYNTHETIC_HISTORY_SPEC §2.6). NDX is the Nasdaq-100 **price** index: documentation only, never a TR seed, never a gate or vol basis | `index/<SYM>.csv`, signal-only |
+| **FX single** (EURUSD, GBPUSD) | `index/<SYM>.csv` only — spot closes, no toggle, no `unadjusted/` twin. Read by `make_usd.py` to build a `-usd` root; never traded, never a strategy input | never by a strategy |
 | **Macro** (`fred/`: UNRATE, RRSFS, INDPRO, DTB3) | quarantined FRED series — see "Macro series" below | **never** |
 
 The loader resolves every read — traded, `extra`, or indicator `inputs` —
-against `data/<SYM>.csv` and never looks inside `unadjusted/`, `fred/` or
-`dividends/`; the
+to exactly one of `adjusted/<SYM>.csv` and `index/<SYM>.csv` (both is an
+error) and never looks inside `unadjusted/`, `fred/` or `dividends/`; the
 `unadjusted/` twin exists so the adjustment is verifiable (see "The adjustment
-ratio" below).
+ratio" below). No CSV sits at the top level of any root.
 
 ## Layout
 
@@ -44,7 +45,7 @@ files across symbols may end on different dates.
 
 ## What the simulator reads
 
-**Only `time` and `close`, from `<SYM>.csv`.** `prices.py::_read_symbol`
+**Only `time` and `close`, from `adjusted/<SYM>.csv` or `index/<SYM>.csv`.** `prices.py::_read_symbol`
 whitelists those two columns; everything else in the file is ignored at
 runtime. The engine trades and values on the total-return close, so results
 include distributions reinvested at the ex-date close (gross of withholding).
@@ -108,14 +109,14 @@ live-pair bands).
 Two passes per symbol, same chart, same session:
 
 1. Chart settings → **Adjust data for dividends: ON** → *Export chart data…* →
-   `data/<SYM>.csv`.
+   `data/adjusted/<SYM>.csv`.
 2. Toggle **OFF** → export again → `data/unadjusted/<SYM>.csv`.
 3. Toggle back **ON**, so the chart's resting state matches the traded series.
 
 - Symbol: the ETF's primary listing (an EU line: the listing named in the
   line registry below); chart interval **1D**.
-- A **single-series symbol** (index, FX) is exported **once**, into the top
-  level — it has no toggle, and an OFF-pass copy in `unadjusted/` re-creates the
+- A **single-series symbol** (index, FX) is exported **once**, into
+  `data/index/` — it has no toggle, and an OFF-pass copy in `unadjusted/` re-creates the
   drift trap of ROTATION_SPEC §3.4 (the 2026-09-02 batches did this twice).
 - **Both passes of a US paired symbol run after 16:00 ET** (EU_SUBSTITUTE_SPEC
   §3.2). A pass taken mid-session leaves the live bar with different closes in
@@ -186,6 +187,17 @@ stay inert until a `MACRO_DATA_SPEC` pins the availability-date shift, the
 monthly-to-daily carry rule and the revised-vintage caveat (ROTATION_SPEC
 §3.3); GTT/LAA remain blocked on that spec.
 
+Live `fred/` is fetched from the FRED API by `fetch_fred.py`
+(`FRED_API_KEY=… uv run --with fredapi fetch_fred.py`, DATA_LAYOUT_V2_SPEC §5):
+`time,close`, ISO dates, FRED's missing observations (bank holidays, the 2025-10
+shutdown months) dropped, latest vintage. Units are FRED's own — RRSFS in
+millions of dollars. The frozen `fred/` of `tests/data/2026-08-24/` and
+`2026-09-02/` are the earlier TradingView `FRED:` exports in the six-column
+layout, kept byte-identical: there RRSFS is ×10⁶. Against them, the first
+fetch (2026-10-19) matched DTB3 and UNRATE on every shared date; RRSFS was
+revised from 2015-01 on (up to 4.9 %) and INDPRO's last five months (up to
+0.21 %).
+
 ## Dividend records (`dividends/`) — reference only
 
 Per-ticker dividend records from Polygon's reference endpoint
@@ -206,19 +218,19 @@ are **append-only** — never overwrite one; add `tests/data/<newdate>/` for a
 new one, where `<newdate>` is the last bar of its TQQQ export.
 
 - `tests/data/2026-08-14-unadjusted/` — the 2026-08-14 **price-only**
-  snapshot (dividends OFF at the top level; flat in `tests/data/` until
-  DATA_LAYOUT_SPEC), kept byte-identical as the gross-of-distribution
+  snapshot (dividends OFF; it has no `adjusted/`, so the loader reads its
+  `unadjusted/`; flat in `tests/data/` until DATA_LAYOUT_SPEC), kept byte-identical as the gross-of-distribution
   regression anchor (`GOLDEN`, `COST_GOLDEN`, committed sweep artefacts).
 - `tests/data/2026-08-20/` — the first **total-return** snapshot: both series,
   copied verbatim from the export, plus a README pinning the measured
-  tolerances. A dated snapshot holds `<SYM>.csv` (adjusted) and
-  `unadjusted/<SYM>.csv`; a root whose top level is price-only takes the
-  `-unadjusted` suffix (DATA_LAYOUT_SPEC §4).
+  tolerances. A dated snapshot holds `adjusted/<SYM>.csv`,
+  `unadjusted/<SYM>.csv` and `index/<SYM>.csv`; a price-only root (no
+  `adjusted/`) takes the `-unadjusted` suffix (DATA_LAYOUT_V2_SPEC §4).
 - `tests/data/2026-08-20-net15/` — the **net-of-withholding** derivative of
   the snapshot above, generated by `make_net_tr.py` (`docs/NET_TR_SPEC.md`):
   each distribution jump reinvests `(1−w)·D` at `w = 0.15`, flat rows are
-  untouched. `<SYM>.csv` carries `time,close` only; `unadjusted/` is byte-copied
-  from the parent. This is the **decision series**; live `data/` stays gross —
+  untouched. `adjusted/<SYM>.csv` carries `time,close` only; `unadjusted/` and
+  `index/` are byte-copied from the parent. This is the **decision series**; live `data/` stays gross —
   a net twin of any root is one invocation away
   (`uv run make_net_tr.py <ROOT>`).
 - `tests/data/2026-08-24/` — the ROTATION_SPEC Phase 0 snapshot: the full
@@ -226,7 +238,7 @@ new one, where `<newdate>` is the last bar of its TQQQ export.
   provenance), no SMA columns.
 - `tests/data/2026-08-24-net15/` — its net-of-withholding derivative, the
   **decision series for all rotation runs**. `fred/` is deliberately absent
-  (`make_net_tr.py` globs the root only).
+  (no generator copies it).
 - `tests/data/2026-08-24-syn/`, `tests/data/2026-08-24-syn-net15/` — the
   **synthetic-extended** derivatives of the two above, generated by
   `make_synthetic.py` (`docs/SYNTHETIC_HISTORY_SPEC.md`). See below.
@@ -235,7 +247,7 @@ new one, where `<newdate>` is the last bar of its TQQQ export.
   generated by `make_usd.py` from `fx_lines.json` (EU_SUBSTITUTE_SPEC §3.5):
   each mapped non-USD line's close × the close of the FX bar ending on its
   date (the bar labelled the day before — see "FX bar stamps") × line scale,
-  the FX series read from the root itself; converted files carry `time,close` and no
+  the FX series read from the root's own `index/`; converted files carry `time,close` and no
   `unadjusted/` twin, everything else is byte-copied. The currency suffix comes
   **after** the convention suffix (`-net15-usd`), a new position in the naming
   grammar. This is the **decision root for every EU lane**. A `-hc` suffix
@@ -259,7 +271,7 @@ segment, so a root's synthetic bars are in its own withholding convention.
 The modelled series is **spliced strictly before the real first bar** and
 scaled so the two meet there multiplicatively, so TQQQ reaches 1999-03-10 and
 BIL 1993-01-29 while the real segments (from 2010-02-11 and 2007-05-30) are
-copied value-for-value. `TQQQ.csv` and `BIL.csv` carry a third column,
+copied value-for-value. `adjusted/TQQQ.csv` and `adjusted/BIL.csv` carry a third column,
 `source ∈ {synthetic, real}` — the loader whitelists `time,close` and ignores
 it. `unadjusted/TQQQ.csv` and `unadjusted/BIL.csv` are deliberately absent: a modelled
 segment has no unadjusted twin, so no pair test runs on a synthetic root.
@@ -275,8 +287,9 @@ machine chosen on 2012–2026 against the two bears that era does not contain.
 
 ## Index series (SPX, XNDX, VIX, VIX3M, NDX)
 
-Single-series indices have no adjustment toggle and hence no `unadjusted/` twin;
-`make_net_tr.py` byte-copies them into a net snapshot as
+Single-series indices have no adjustment toggle, so they live in `index/` with
+no `unadjusted/` twin; every generator byte-copies `index/`, and `make_net_tr.py`
+lists them in a net snapshot as
 `| SYM | index | — | — |`. All five are **signal symbols**, never traded, and
 NDX (the Nasdaq-100 price index, from 1985-01-31) is reference only. The
 2026-09-02 batch dropped a second copy of each index into `unadjusted/` — the drift

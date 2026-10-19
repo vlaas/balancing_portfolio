@@ -10,10 +10,29 @@ import polars as pl
 from indicators import Indicator
 
 
+def _path(data_dir: Path, symbol: str) -> Path:
+    """The one file `symbol` resolves to (DATA_LAYOUT_V2_SPEC §2): the root's
+    series folder — `adjusted/`, or `unadjusted/` in a price-only root with no
+    `adjusted/` — or `index/`. `fred/` and `dividends/` are never read."""
+    series = "adjusted" if (data_dir / "adjusted").is_dir() else "unadjusted"
+    found = [
+        path
+        for path in (data_dir / series / f"{symbol}.csv", data_dir / "index" / f"{symbol}.csv")
+        if path.is_file()
+    ]
+    if not found:
+        raise FileNotFoundError(
+            f"{symbol}: neither {series}/{symbol}.csv nor index/{symbol}.csv in {data_dir}"
+        )
+    if len(found) > 1:
+        raise ValueError(f"{symbol}: both {series}/ and index/ hold {symbol}.csv in {data_dir}")
+    return found[0]
+
+
 def _read_close(data_dir: Path, symbol: str) -> pl.DataFrame:
     """Read one CSV as `date` and `close`. Every other CSV column is ignored."""
     frame = pl.read_csv(
-        data_dir / f"{symbol}.csv",
+        _path(data_dir, symbol),
         columns=["time", "close"],
         schema_overrides={"close": pl.Float64},
         try_parse_dates=True,

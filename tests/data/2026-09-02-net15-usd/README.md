@@ -6,14 +6,15 @@ the close of the FX bar that ends on its date and by the line's scale
 (1 for a EUR line, 0.01 for a GBX line quoted in pence). TradingView
 stamps an FX_IDC daily bar by its 17:00 New York open, so the bar that
 closes on date D is labelled D − 1: the join takes the latest FX bar
-labelled strictly before the symbol's date (read from the parent root),
+labelled strictly before the symbol's date (read from the parent's `index/`),
 carried across FX holidays — a bar whose FX bar is older than the
 previous calendar day is counted as stale below. That close is ~5.5 h
 after the London close, the same-day offset the spec accepts; the bar
-labelled D would close on D + 1. A converted `<SYM>.csv` carries `time,close`
-only and has no `unadjusted/` twin — a converted series has no unadjusted
-twin in its trading currency; the parent keeps the original. Every
-other file, `unadjusted/` twins included, is byte-copied from the parent.
+labelled D would close on D + 1. A converted `adjusted/<SYM>.csv` carries
+`time,close` only and has no `unadjusted/` twin — a converted series has no
+unadjusted twin in its trading currency; the parent keeps the original.
+Every other file, `unadjusted/` twins and `index/` included, is byte-copied
+from the parent.
 
 | symbol | fx | scale | bars | stale FX bars | first rate | last rate |
 |---|---|---|---|---|---|---|

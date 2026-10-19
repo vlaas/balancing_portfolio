@@ -10,11 +10,11 @@ New York on date D is the one labelled D − 1: the join takes the latest FX
 bar labelled strictly before the symbol's date, carried across FX holidays.
 That close is ~5.5 h after the London close and ~6 h after Xetra's — the
 same-day offset EU_SUBSTITUTE_SPEC §3.5 accepts; the bar labelled D would
-close on D + 1 and look a day ahead. The FX series is read from the root
-itself — it is an index-class single series that every generator byte-copies
+close on D + 1 and look a day ahead. The FX series is read from the root's
+own `index/` — an index-class single series that every generator byte-copies
 — so the snapshot stays reproducible from committed inputs alone. Every
 other file is byte-copied. A converted
-`<SYM>.csv` carries `time,close` only and has no `unadjusted/` twin: a converted
+`adjusted/<SYM>.csv` carries `time,close` only and has no `unadjusted/` twin: a converted
 series has no unadjusted twin in its trading currency, and the parent keeps
 the original. Deterministic by construction — no clock, no environment — so
 the committed snapshot is byte-reproducible from the committed parent and
@@ -87,18 +87,19 @@ def build(src: Path, fx_map: dict[str, tuple[str, float]]) -> dict:
     """Read and convert every mapped symbol under src. All computation and
     validation happen here, before anything is written — a hard error can
     never leave a partial dataset behind."""
-    symbols = sorted(path.stem for path in src.glob("*.csv"))
+    symbols = sorted(path.stem for path in (src / "adjusted").glob("*.csv"))
     if not symbols:
-        raise ValueError(f"{src}: no <SYM>.csv files found")
+        raise ValueError(f"{src}: no adjusted/<SYM>.csv files found")
+    indices = sorted(path.stem for path in (src / "index").glob("*.csv"))
     unknown = sorted(set(fx_map) - set(symbols))
     if unknown:
         raise ValueError(f"{src}: the line map names absent symbols {unknown}")
     converted = {}
     for symbol, (fx, scale) in sorted(fx_map.items()):
-        if fx not in symbols:
-            raise ValueError(f"{symbol}: FX series {fx} not in {src}")
-        times, closes = read_close(src / f"{symbol}.csv")
-        rate, stale = fx_on(symbol, *read_close(src / f"{fx}.csv"), times)
+        if fx not in indices:
+            raise ValueError(f"{symbol}: FX series {fx} not in {src}/index")
+        times, closes = read_close(src / "adjusted" / f"{symbol}.csv")
+        rate, stale = fx_on(symbol, *read_close(src / "index" / f"{fx}.csv"), times)
         converted[symbol] = {
             "times": times,
             "close": [c * r * scale for c, r in zip(closes, rate)],
@@ -110,6 +111,7 @@ def build(src: Path, fx_map: dict[str, tuple[str, float]]) -> dict:
         }
     return {
         "symbols": symbols,
+        "indices": indices,
         "pairs": sorted(path.stem for path in (src / "unadjusted").glob("*.csv")),
         "converted": converted,
     }
@@ -141,29 +143,33 @@ def render_readme(parent: str, results: dict) -> str:
         "(1 for a EUR line, 0.01 for a GBX line quoted in pence). TradingView",
         "stamps an FX_IDC daily bar by its 17:00 New York open, so the bar that",
         "closes on date D is labelled D − 1: the join takes the latest FX bar",
-        "labelled strictly before the symbol's date (read from the parent root),",
+        "labelled strictly before the symbol's date (read from the parent's `index/`),",
         "carried across FX holidays — a bar whose FX bar is older than the",
         "previous calendar day is counted as stale below. That close is ~5.5 h",
         "after the London close, the same-day offset the spec accepts; the bar",
-        "labelled D would close on D + 1. A converted `<SYM>.csv` carries `time,close`",
-        "only and has no `unadjusted/` twin — a converted series has no unadjusted",
-        "twin in its trading currency; the parent keeps the original. Every",
-        "other file, `unadjusted/` twins included, is byte-copied from the parent.",
+        "labelled D would close on D + 1. A converted `adjusted/<SYM>.csv` carries",
+        "`time,close` only and has no `unadjusted/` twin — a converted series has no",
+        "unadjusted twin in its trading currency; the parent keeps the original.",
+        "Every other file, `unadjusted/` twins and `index/` included, is byte-copied",
+        "from the parent.",
         "",
     ]
     return "\n".join(lines + _table(results)) + "\n"
 
 
 def write_dataset(dst: Path, src: Path, results: dict, readme: str) -> None:
-    (dst / "unadjusted").mkdir(parents=True, exist_ok=True)
+    for folder in ("adjusted", "index", "unadjusted"):
+        (dst / folder).mkdir(parents=True, exist_ok=True)
     converted = results["converted"]
     for symbol in results["symbols"]:
         if symbol in converted:
             r = converted[symbol]
             rows = "\n".join(f"{t},{c!r}" for t, c in zip(r["times"], r["close"]))
-            (dst / f"{symbol}.csv").write_text(f"time,close\n{rows}\n")
+            (dst / "adjusted" / f"{symbol}.csv").write_text(f"time,close\n{rows}\n")
         else:
-            shutil.copyfile(src / f"{symbol}.csv", dst / f"{symbol}.csv")
+            shutil.copyfile(src / "adjusted" / f"{symbol}.csv", dst / "adjusted" / f"{symbol}.csv")
+    for symbol in results["indices"]:
+        shutil.copyfile(src / "index" / f"{symbol}.csv", dst / "index" / f"{symbol}.csv")
     for symbol in results["pairs"]:
         if symbol in converted:
             continue  # a converted series has no unadjusted twin
